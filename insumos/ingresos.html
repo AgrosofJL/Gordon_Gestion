@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Órdenes e Ingresos de Insumos</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../utilidades.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F5F4F1;
+    --color-surface: #FFFFFF;
+    --color-text: #211C16;
+    --color-text-secondary: #6B6255;
+    --color-border: #E0DCD4;
+    --color-ins: #B45309;
+    --color-ins-dark: #7C3809;
+    --color-ins-soft: rgba(180, 83, 9, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-info: #0071E3;
+    --color-info-soft: rgba(0, 113, 227, 0.12);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DAD4C8; border-radius: 20px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-ins); }
+
+  /* TOP BAR CON ESTILO UNIFICADO */
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 30px; border-bottom: 1px solid var(--color-border); height: 55px; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; }
+  .user-access-info span.highlight { color: var(--color-ins); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+
+  .layout-ins { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  /* SIDEBAR REFORMADO */
+  .sidebar { width: 220px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 18px 12px; flex-shrink: 0; gap: 14px; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 9px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; color: #E65100; transform: translateY(-1px); }
+
+  button:active, .btn-action:active, .nav-side-btn:active, .btn-excel:active, .btn-pdf:active, .btn-volver:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-menu-title { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+  .nav-side-btn {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    border-radius: var(--radius-md); border: 1.2px solid transparent; background: #F8FAFC;
+    color: var(--color-text-secondary); font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.15s ease;
+  }
+  .nav-side-btn:hover { background: #F1F5F9; color: var(--color-text); }
+  .nav-side-btn.active { background: var(--color-ins-soft); color: var(--color-ins-dark); border-color: rgba(180, 83, 9, 0.3); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.08); }
+
+  .main-content { flex-grow: 1; padding: 20px 24px; display: flex; flex-direction: column; overflow: hidden; gap: 12px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .seccion-titulo { font-size: 22px; font-weight: 800; color: var(--color-ins-dark); margin: 0; display: flex; align-items: center; gap: 10px; }
+
+  /* BOTONES DE ACCIÓN */
+  .btn-action { background: var(--color-ins); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 8px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(180, 83, 9, 0.2); }
+  .btn-action:hover { background: var(--color-ins-dark); }
+  .btn-excel { background: #107C41; color: white; border: none; border-radius: var(--radius-md); padding: 8px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-excel:hover { background: #0A5C30; }
+  .btn-pdf { background: #B91C1C; color: white; border: none; border-radius: var(--radius-md); padding: 8px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn-pdf:hover { background: #991515; }
+
+  /* MASTER DETAIL LAYOUT */
+  .oc-split-container { display: grid; grid-template-columns: 340px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+
+  .oc-master-panel { background: #FFFFFF; border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+
+  .oc-card-item { background: #F8FAFC; border: 1.2px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-ins); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-ins); background: var(--color-ins-soft); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12); }
+
+  .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-ins-dark); }
+  .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  .oc-detail-panel { background: #FFFFFF; border: 1.5px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
+
+  .oc-info-card-header { background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* TABLA DE ÍTEMS */
+  .tabla-oc-items { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .tabla-oc-items th { background: #475569; color: #FFFFFF; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 9px 10px; text-align: left; }
+  .tabla-oc-items td { padding: 9px 10px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--color-border); }
+
+  /* ESTILOS DE BARRA DE PROGRESO FLUTTER PARTE WEB */
+  .progress-container { background: #E8E8ED; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; margin-top: 6px; }
+  .progress-bar { height: 100%; background: var(--color-ins); transition: width 0.3s ease; }
+  .progress-bar.complete { background: var(--color-ok); }
+
+  .tabla-totales-pie { margin-left: auto; width: 280px; border-collapse: collapse; margin-top: 10px; }
+  .tabla-totales-pie td { padding: 5px 8px; font-size: 11px; font-weight: 700; }
+  .tabla-totales-pie .lbl { color: var(--color-text-secondary); text-align: right; }
+  .tabla-totales-pie .val { text-align: right; color: var(--color-text); }
+  .tabla-totales-pie .total-final { font-size: 13px; color: var(--color-ins-dark); border-top: 1.5px solid var(--color-border); }
+
+  .form-input { width: 100%; padding: 8px 10px; border-radius: var(--radius-md); border: 1.2px solid var(--color-border); font-size: 11.5px; font-weight: 600; outline: none; background: #F8FAFC; }
+  .form-input:focus { border-color: var(--color-ins); background: #FFFFFF; }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 580px; border: 1.5px solid var(--color-ins); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+  <datalist id="listProveedoresGlobal"></datalist>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu último acceso fue... <span class="highlight" id="lblOperario">RESPONSABLE DE BODEGA</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-ins">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+
+      <div class="sidebar-menu-title">GESTIÓN DE INSUMOS</div>
+
+      <button class="nav-side-btn active" id="btnTabOrdenes">📄 ÓRDENES DE COMPRA</button>
+      <button class="nav-side-btn" id="btnTabIngresos">📦 INGRESOS Y RECEPCIÓN</button>
+      <button class="nav-side-btn" id="btnTabEstados">📑 ESTADOS Y FACTURACIÓN</button>
+
+      <div style="margin-top:auto; font-size:10px; font-weight:bold; color:var(--color-text-secondary); text-align:center;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="txtTituloSeccion">📄 Órdenes de Compra de Insumos</h1>
+        <div id="cntAccionesHeader" style="display:flex; gap:8px;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow:1; display:flex; flex-direction:column; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CREAR NUEVA OC -->
+  <div class="modal-overlay" id="modalNuevaOC">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--color-ins-dark); font-family:'Montserrat';">📄 NUEVA ÓRDEN DE COMPRA</h3>
+        <button id="btnCerrarModalOC" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">PROVEEDOR</label>
+          <input type="text" id="mOcProveedor" class="form-input" list="listProveedoresGlobal" placeholder="Escriba o seleccione proveedor..." />
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">FECHA DE EMISIÓN</label>
+          <input type="date" id="mOcFecha" class="form-input" />
+        </div>
+      </div>
+      <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarOC" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:7px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarOC" style="background:var(--color-ins); color:white; border:none; border-radius:var(--radius-md); padding:7px 16px; font-size:11px; font-weight:700; cursor:pointer;">CREAR CABECERA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AGREGAR ÍTEM OC -->
+  <div class="modal-overlay" id="modalNuevoItemOC">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--color-ins-dark); font-family:'Montserrat';">➕ AGREGAR ÍTEM A LA ÓRDEN DE COMPRA</h3>
+        <button id="btnCerrarModalItem" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:14px;">
+        <div style="grid-column: span 2;">
+          <label style="font-size:10px; font-weight:700; color:var(--color-ins-dark);">SELECCIONAR INSUMO DESDE CATÁLOGO</label>
+          <select id="mItemSelectCatalogo" class="form-input" style="font-weight:700; border-color:var(--color-ins);">
+            <option value="">-- Cargar de catálogo de insumos --</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">CÓDIGO DE ARTÍCULO</label>
+          <input type="text" id="mItemArticulo" class="form-input" placeholder="Ej: HERB-001" />
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">CANTIDAD PEDIDA</label>
+          <input type="number" id="mItemCantidad" class="form-input" step="0.01" value="1" placeholder="0.00" />
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">PRECIO UNIT. PRESUP. (USD)</label>
+          <input type="number" id="mItemPrecio" class="form-input" step="0.01" value="0" placeholder="0.00" />
+        </div>
+      </div>
+      <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarItem" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:7px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarItem" style="background:var(--color-ins); color:white; border:none; border-radius:var(--radius-md); padding:7px 16px; font-size:11px; font-weight:700; cursor:pointer;">GUARDAR ÍTEM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RECEPCIONAR / INGRESAR MERCADERÍA -->
+  <div class="modal-overlay" id="modalNuevoIngresoOC">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--color-ok); font-family:'Montserrat';">📦 RECEPCIONAR MERCADERÍA DE ÓRDEN DE COMPRA</h3>
+        <button id="btnCerrarModalIngreso" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:14px;">
+        <input type="hidden" id="mIngRegLocal" />
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">ORDEN DE COMPRA</label>
+          <input type="text" id="mIngOrdenNro" class="form-input" readonly style="font-weight:800; color:var(--color-ins-dark);" />
+        </div>
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">N° REMITO PROVEEDOR</label>
+          <input type="text" id="mIngRemitoNro" class="form-input" placeholder="Ej: R-0001-00012345" style="font-weight:700;" />
+        </div>
+        <div style="grid-column: span 2;">
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">PROVEEDOR</label>
+          <input type="text" id="mIngProveedor" class="form-input" readonly />
+        </div>
+        
+        <div style="grid-column: span 2;">
+          <label style="font-size:10px; font-weight:700; color:var(--color-ok);">SELECCIONAR ÍTEM (PENDIENTES DE RECEPCIÓN)</label>
+          <select id="mIngSelectArticuloOC" class="form-input" style="font-weight:700; border-color:var(--color-ok);" onchange="alCambiarArticuloIngreso(this.value)">
+            <option value="">-- Cargar ítems de esta orden --</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">FECHA DE RECEPCIÓN</label>
+          <input type="date" id="mIngFecha" class="form-input" />
+        </div>
+
+        <div>
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">CANTIDAD RECIBIDA</label>
+          <input type="number" id="mIngCantidad" class="form-input" step="0.01" value="1" placeholder="0.00" style="font-weight:800; color:var(--color-ok);" />
+        </div>
+
+        <div style="grid-column: span 2;">
+          <label style="font-size:10px; font-weight:700; color:var(--color-text-secondary);">RESPONSABLE / RECIBIÓ EN BODEGA</label>
+          <input type="text" id="mIngRecibio" class="form-input" placeholder="Ej: RESPONSABLE DE BODEGA" />
+        </div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarIngreso" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:7px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarIngreso" style="background:var(--color-ok); color:white; border:none; border-radius:var(--radius-md); padding:7px 16px; font-size:11px; font-weight:700; cursor:pointer;">REGISTRAR INGRESO</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      db = require('../bases.js').db;
+    } catch(e) { console.warn("Modo simulación activo"); }
+  }
+
+  let operarioName = 'RESPONSABLE DE BODEGA';
+  
+  const hoy = new Date();
+  const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+  const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+  document.getElementById('topDateTime').textContent = `${dias[hoy.getDay()]} ${String(hoy.getDate()).padStart(2, '0')} DE ${meses[hoy.getMonth()]} DE ${hoy.getFullYear()}`;
+  document.getElementById('lblOperario').textContent = operarioName;
+
+  document.getElementById('btnVolver').addEventListener('click', () => { window.location.href = 'menu_insumos.html'; });
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${msj}</div>`;
+    document.getElementById('toastContenedor').appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  let tabSeccionActual = 'ordenes';
+  let listaOrdenesMaster = [];
+  let ordenSeleccionadaNro = null;
+  let catalogoInsumosGlobal = [];
+
+  let listaIngresosGruposMaster = [];
+  let grupoIngresoSeleccionadoKey = null;
+  let itemsPendientesOCCache = [];
+
+  function cargarCatalogoInsumosDropbox() {
+    catalogoInsumosGlobal = [];
+    const selectInsumo = document.getElementById('mItemSelectCatalogo');
+    if (!selectInsumo) return;
+
+    selectInsumo.innerHTML = '<option value="">-- Seleccionar insumo del catálogo --</option>';
+
+    if (db) {
+      try {
+        catalogoInsumosGlobal = db.prepare(`
+          SELECT articulo, descripcion, descripcion1, descripcion2, IFNULL(unidad, 'U') as unidad
+          FROM local_i_insumos_catalogo
+          WHERE articulo IS NOT NULL AND articulo != ''
+          ORDER BY articulo ASC
+        `).all();
+
+        catalogoInsumosGlobal.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.articulo;
+          const descTexto = [cat.descripcion, cat.descripcion1, cat.descripcion2].filter(Boolean).join(' ');
+          opt.textContent = `[${cat.articulo}] - ${descTexto || 'Sin Descripción'}`;
+          selectInsumo.appendChild(opt);
+        });
+      } catch(e) { console.error(e); }
+    } else {
+      catalogoInsumosGlobal = [
+        { articulo: 'INS-001', descripcion: 'HERBICIDA GLIFOSATO 48%', descripcion1: 'BIDON 20L', unidad: 'L' },
+        { articulo: 'INS-002', descripcion: 'FERTILIZANTE UREA GRANULADA', descripcion1: 'BOLSA 50KG', unidad: 'KG' }
+      ];
+      catalogoInsumosGlobal.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.articulo;
+        opt.textContent = `[${cat.articulo}] - ${cat.descripcion}`;
+        selectInsumo.appendChild(opt);
+      });
+    }
+
+    if (db) {
+      try {
+        const provs = db.prepare(`
+          SELECT DISTINCT COALESCE(razon_social, proveedor) as nombre_prov 
+          FROM local_proveedores_cuentas 
+          WHERE (proveedor IS NOT NULL AND proveedor != '') OR (razon_social IS NOT NULL AND razon_social != '')
+          ORDER BY nombre_prov ASC
+        `).all();
+
+        const dlP = document.getElementById('listProveedoresGlobal');
+        dlP.innerHTML = '';
+        provs.forEach(p => {
+          if (p.nombre_prov) {
+            const o = document.createElement('option'); o.value = p.nombre_prov; dlP.appendChild(o);
+          }
+        });
+      } catch(e) { console.error(e); }
+    }
+  }
+
+  document.getElementById('mItemSelectCatalogo').addEventListener('change', (e) => {
+    const artCod = e.target.value;
+    if (!artCod) return;
+    const insumoEncontrado = catalogoInsumosGlobal.find(i => i.articulo === artCod);
+    if (insumoEncontrado) {
+      document.getElementById('mItemArticulo').value = insumoEncontrado.articulo;
+    }
+  });
+
+  function buscarDescripcionArticulo(articulo) {
+    const insumo = catalogoInsumosGlobal.find(i => i.articulo === articulo);
+    if (!insumo) return '-';
+    return [insumo.descripcion, insumo.descripcion1, insumo.descripcion2].filter(Boolean).join(' ') || '-';
+  }
+
+  document.getElementById('btnTabOrdenes').addEventListener('click', () => cambiarSeccion('ordenes'));
+  document.getElementById('btnTabIngresos').addEventListener('click', () => cambiarSeccion('ingresos'));
+  document.getElementById('btnTabEstados').addEventListener('click', () => cambiarSeccion('estados'));
+
+  function cambiarSeccion(sec) {
+    tabSeccionActual = sec;
+    document.querySelectorAll('.nav-side-btn').forEach(b => b.classList.remove('active'));
+    if (sec === 'ordenes') document.getElementById('btnTabOrdenes').classList.add('active');
+    if (sec === 'ingresos') document.getElementById('btnTabIngresos').classList.add('active');
+    if (sec === 'estados') document.getElementById('btnTabEstados').classList.add('active');
+
+    renderizarPantallaSegunSeccion();
+  }
+
+  function renderizarPantallaSegunSeccion() {
+    const cont = document.getElementById('contenedorDinamico');
+    const headerAcc = document.getElementById('cntAccionesHeader');
+    const titulo = document.getElementById('txtTituloSeccion');
+
+    if (tabSeccionActual === 'ordenes') {
+      titulo.innerHTML = '📄 Órdenes de Compra de Insumos';
+      headerAcc.innerHTML = `
+        <button class="btn-excel" onclick="exportarOCExcel()">📊 Excel</button>
+        <button class="btn-pdf" onclick="imprimirOrdenCompraPDF()">🖨️ PDF Orden</button>
+        <button class="btn-action" onclick="abrirModalNuevaOC()">+ NUEVA OC</button>
+      `;
+      renderizarVistaOrdenesMasterDetail(cont);
+    } else if (tabSeccionActual === 'ingresos') {
+      titulo.innerHTML = '📦 Recepción e Ingreso de Mercadería';
+      /* ACA ES LO NUEVO: Botón de Auditoría/Conciliador agregado en la solapa INGRESOS */
+      headerAcc.innerHTML = `
+        <button class="btn-action" style="background:#4B5563;" onclick="abrirModalAuditoriaHuerfanos()">🔍 Conciliar / Audit. Huérfanos</button>
+        <button class="btn-action" style="background:var(--color-ok);" onclick="abrirModalRecepcionarGeneral()">+ RECEPCIONAR DE OC</button>
+      `;
+      renderizarVistaIngresosMercaderia(cont);
+    } else if (tabSeccionActual === 'estados') {
+      titulo.innerHTML = '📑 Estado de Órdenes y Facturación';
+      headerAcc.innerHTML = '';
+      renderizarVistaEstadosFacturacion(cont);
+    }
+  }
+
+  // =========================================================================
+  // SECCIÓN 1: ÓRDENES DE COMPRA
+  // =========================================================================
+  function cargarOrdenesMaster() {
+    listaOrdenesMaster = [];
+    if (db) {
+      try {
+        listaOrdenesMaster = db.prepare(`
+          SELECT orden_compra, proveedor, MIN(fecha) as fecha, COUNT(*) as cant_items 
+          FROM local_i_insumos_ordenes_Compra 
+          WHERE orden_compra IS NOT NULL
+          GROUP BY orden_compra, proveedor 
+          ORDER BY CAST(orden_compra AS INTEGER) DESC
+        `).all();
+      } catch(e) { console.error(e); }
+    } else {
+      listaOrdenesMaster = [
+        { orden_compra: "1001", proveedor: "AGROQUIMICOS DEL VALLE S.A.", fecha: "2026-03-10", cant_items: 2 }
+      ];
+    }
+
+    if (listaOrdenesMaster.length > 0 && !ordenSeleccionadaNro) {
+      ordenSeleccionadaNro = listaOrdenesMaster[0].orden_compra;
+    }
+  }
+
+  function renderizarVistaOrdenesMasterDetail(cont) {
+    cargarOrdenesMaster();
+
+    cont.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-ins-dark); margin-bottom:4px;">LISTADO DE ÓRDENES</div>
+          <input type="text" id="buscarMasterOC" class="form-input" placeholder="Buscar N° u orden..." />
+
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:6px;" id="contenedorMasterList">
+            ${listaOrdenesMaster.map(o => `
+              <div class="oc-card-item ${ordenSeleccionadaNro == o.orden_compra ? 'active' : ''}" onclick="seleccionarOrdenCompra('${o.orden_compra}')">
+                <div class="oc-card-num">ORDEN N° ${o.orden_compra}</div>
+                <div class="oc-card-prov">${o.proveedor || 'S/PROVEEDOR'}</div>
+                <div class="oc-card-date">Fecha: ${o.fecha || '-'} · ${o.cant_items} ítem(s)</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="oc-detail-panel" id="panelDetalleOC">
+          ${renderizarDetalleTablaHTML()}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterOC').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterList .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+  }
+
+  window.seleccionarOrdenCompra = function(nro) {
+    ordenSeleccionadaNro = nro;
+    renderizarPantallaSegunSeccion();
+  };
+
+  function obtenerItemsOrdenCompra(nro) {
+    if (!db || !nro) return [];
+    try {
+      return db.prepare(`
+        SELECT
+          oc.id, oc.reg_local, oc.orden_compra, oc.fecha, oc.proveedor, oc.articulo,
+          oc.cantidad as cantidad_pedida, oc.imp_uni_usd, oc.estado,
+          IFNULL((
+            SELECT SUM(ing.cantidad)
+            FROM local_i_insumosingresos ing
+            WHERE ing.orden_compra = oc.orden_compra AND ing.articulo = oc.articulo
+          ), 0.0) as cantidad_ingresada
+        FROM local_i_insumos_ordenes_Compra oc
+        WHERE oc.orden_compra = ?
+        ORDER BY oc.id ASC
+      `).all(nro);
+    } catch(e) { console.error(e); return []; }
+  }
+
+  function renderizarDetalleTablaHTML() {
+    if (!ordenSeleccionadaNro) return '<div style="font-size:12px; color:var(--color-text-secondary); text-align:center; padding:100px 0;">Seleccione una orden de compra.</div>';
+
+    const itemsOC = obtenerItemsOrdenCompra(ordenSeleccionadaNro);
+    const cabecera = itemsOC[0] || {};
+    let subtotal = 0;
+
+    itemsOC.forEach(it => {
+      const cant = parseFloat(it.cantidad_pedida) || 0;
+      const pu = parseFloat(it.imp_uni_usd) || 0;
+      subtotal += cant * pu;
+    });
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:14px; font-weight:800; color:var(--color-ins-dark);">ÓRDEN DE COMPRA N° ${ordenSeleccionadaNro}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-text); margin-top:2px;">PROVEEDOR: ${cabecera.proveedor || '-'}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary);">FECHA: ${cabecera.fecha || '-'}</div>
+          <button class="btn-action" style="margin-left:auto; margin-top:4px; padding:4px 10px; font-size:10px;" onclick="abrirModalNuevoItem('${ordenSeleccionadaNro}')">+ AGREGAR ÍTEM</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th>CÓDIGO / INSUMO</th>
+              <th>DESCRIPCIÓN</th>
+              <th>PEDIDO VS RECIBIDO</th>
+              <th>IMP. UNI. (USD)</th>
+              <th style="text-align:right;">TOTAL (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsOC.length === 0
+              ? `<tr><td colspan="6" style="text-align:center; color:var(--color-text-secondary);">No hay ítems cargados en esta orden. Presione + AGREGAR ÍTEM.</td></tr>`
+              : itemsOC.map((it, idx) => {
+                  const ped = parseFloat(it.cantidad_pedida) || 0;
+                  const ing = parseFloat(it.cantidad_ingresada) || 0;
+                  const pu = parseFloat(it.imp_uni_usd) || 0;
+                  const totRow = ped * pu;
+
+                  const falta = Math.max(0, ped - ing);
+                  const pct = ped > 0 ? Math.min(100, (ing / ped) * 100) : 0;
+                  const estaCompleto = falta === 0;
+
+                  return `
+                    <tr>
+                      <td><b>${idx + 1}</b></td>
+                      <td><b>${it.articulo || '-'}</b></td>
+                      <td>${buscarDescripcionArticulo(it.articulo)}</td>
+                      <td style="width: 200px;">
+                        <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:bold;">
+                          <span style="color:${estaCompleto ? 'var(--color-ok)' : 'var(--color-ins)'}">Ingresó: ${ing}</span>
+                          <span style="color:var(--color-text-secondary)">Pedido: ${ped}</span>
+                        </div>
+                        <div class="progress-container">
+                          <div class="progress-bar ${estaCompleto ? 'complete' : ''}" style="width: ${pct}%;"></div>
+                        </div>
+                        <div style="font-size:9.5px; font-weight:bold; margin-top:2px; color:${estaCompleto ? 'var(--color-ok)' : 'var(--color-warn)'}">
+                          ${estaCompleto ? '✅ Pedido Completo' : `Falta: ${falta}`}
+                        </div>
+                      </td>
+                      <td>$ ${pu.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                      <td style="text-align:right; font-weight:700;">$ ${totRow.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                    </tr>
+                  `;
+                }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <table class="tabla-totales-pie">
+        <tr class="total-final"><td class="lbl">TOTAL (USD):</td><td class="val">$ ${subtotal.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td></tr>
+      </table>
+    `;
+  }
+
+  // IMPRESIÓN DE LA ORDEN DE COMPRA SELECCIONADA (documento para el proveedor)
+  window.imprimirOrdenCompraPDF = function() {
+    if (!ordenSeleccionadaNro) return lanzarToast('Seleccione una orden de compra para imprimir', 'error');
+    const items = obtenerItemsOrdenCompra(ordenSeleccionadaNro).filter(it => it.articulo !== 'GENERAL');
+    if (items.length === 0) return lanzarToast('Esta orden no tiene ítems cargados', 'error');
+
+    const cab = items[0];
+    let subtotal = 0;
+    const filasHtml = items.map((it, idx) => {
+      const ped = parseFloat(it.cantidad_pedida) || 0;
+      const pu = parseFloat(it.imp_uni_usd) || 0;
+      const totRow = ped * pu;
+      subtotal += totRow;
+      return `
+        <tr>
+          <td style="text-align:center; font-weight:bold;">${idx + 1}</td>
+          <td style="font-weight:bold;">${it.articulo}</td>
+          <td>${buscarDescripcionArticulo(it.articulo)}</td>
+          <td style="text-align:center; font-weight:bold;">${ped}</td>
+          <td style="text-align:right;">$ ${pu.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:right; font-weight:bold;">$ ${totRow.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>ORDEN_COMPRA_${cab.orden_compra}</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+          body { color: #211C16; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+
+          .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 2px solid #2D3748; padding-bottom: 10px; }
+          .main-title { font-size: 24px; font-weight: bold; color: #B45309; text-transform: uppercase; }
+          .subtitle { font-size: 11px; font-weight: bold; color: #4A5568; margin-top: 2px; }
+
+          .company-card { text-align: right; font-size: 10px; line-height: 1.5; color: #4A5568; }
+          .company-card .name { font-weight: bold; font-size: 12px; color: #1A202C; }
+
+          .info-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11.5px; font-weight: bold; background: #FFF3E0; padding: 8px 12px; border-radius: 6px; border: 1px solid #F9C784; }
+
+          .vendor-client-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #2D3748; margin-bottom: 18px; }
+          .vc-header { background: #2D3748; color: white; padding: 6px 12px; font-weight: bold; font-size: 10.5px; text-transform: uppercase; }
+          .vc-body { padding: 10px 12px; font-size: 10.5px; line-height: 1.6; }
+
+          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+          .items-table th { background: #B45309; color: white; padding: 8px; font-size: 10px; text-transform: uppercase; border: 1px solid #B45309; }
+          .items-table td { padding: 7px; border: 1px solid #CBD5E0; font-size: 10.5px; }
+
+          .totals-table { width: 300px; margin-left: auto; border-collapse: collapse; margin-bottom: 20px; }
+          .totals-table td { padding: 6px 10px; font-size: 11px; font-weight: bold; text-align: right; border: 1px solid #CBD5E0; }
+          .totals-table .bg-ok { background: #FFF3E0; color: #7C3809; font-size: 12px; }
+
+          .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; }
+          .sig-box { border-top: 1.5px solid #2D3748; text-align: center; padding-top: 6px; font-size: 10px; font-weight: bold; color: #4A5568; }
+
+          .footer-logo { text-align: right; margin-top: 25px; font-size: 11px; font-weight: bold; color: #718096; letter-spacing: 1px; }
+        </style>
+      </head>
+      <body>
+
+        <div class="header-top">
+          <div>
+            <div class="main-title">Orden de Compra</div>
+            <div class="subtitle">SOLICITUD DE PROVISIÓN DE INSUMOS</div>
+          </div>
+          <div class="company-card">
+            <div class="name">GORDON STERN DIEGO SEBASTIAN GARY</div>
+            Gobernador Tello 140 - Choele Choel, Río Negro <br>
+            CUIT: 20-24155794-5 <br>
+          </div>
+        </div>
+
+        <div class="info-bar">
+          <div>ORDEN DE COMPRA N.°: [ ${cab.orden_compra} ]</div>
+          <div>FECHA: ${cab.fecha || '-'}</div>
+        </div>
+
+        <div class="vendor-client-grid">
+          <div>
+            <div class="vc-header">PROVEEDOR</div>
+            <div class="vc-body"><b>${cab.proveedor || '-'}</b></div>
+          </div>
+          <div style="border-left: 1.5px solid #2D3748;">
+            <div class="vc-header">DESTINO / SOLICITA</div>
+            <div class="vc-body">
+              <b>GORDON GESTIÓN - BODEGA CENTRAL DE INSUMOS</b><br>
+              Gobernador Tello 140 - Choele Choel, Río Negro
+            </div>
+          </div>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:6%;">N.º</th>
+              <th style="width:16%;">CÓDIGO</th>
+              <th style="width:38%;">DESCRIPCIÓN</th>
+              <th style="width:12%;">CANTIDAD</th>
+              <th style="width:14%;">IMP. UNI. (USD)</th>
+              <th style="width:14%;">TOTAL (USD)</th>
+            </tr>
+          </thead>
+          <tbody>${filasHtml}</tbody>
+        </table>
+
+        <table class="totals-table">
+          <tr class="bg-ok"><td>TOTAL (USD):</td><td>$ ${subtotal.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td></tr>
+        </table>
+
+        <div class="signatures-grid">
+          <div class="sig-box">FIRMA Y ACLARACIÓN PROVEEDOR</div>
+          <div class="sig-box">FIRMA Y ACLARACIÓN AUTORIZA (GORDON GESTIÓN)</div>
+        </div>
+
+        <div class="footer-logo">GORDON GESTIÓN · AGROSOFT J&L</div>
+        <script>window.onload = function() { setTimeout(function() { window.print(); }, 300); };<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
+  // EXPORTACIÓN A EXCEL DE LA ORDEN DE COMPRA SELECCIONADA
+  window.exportarOCExcel = async function() {
+    if (!isElectron) return lanzarToast('La exportación solo está disponible en la app de escritorio.', 'error');
+    if (!ordenSeleccionadaNro) return lanzarToast('Seleccione una orden de compra para exportar', 'error');
+    const items = obtenerItemsOrdenCompra(ordenSeleccionadaNro).filter(it => it.articulo !== 'GENERAL');
+    if (items.length === 0) return lanzarToast('Esta orden no tiene ítems cargados', 'error');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Insumos';
+      const ws = wb.addWorksheet(`OC ${ordenSeleccionadaNro}`.slice(0, 31));
+      ws.columns = [
+        { header: 'CÓDIGO', key: 'articulo', width: 16 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', width: 34 },
+        { header: 'CANTIDAD PEDIDA', key: 'pedida', width: 16 },
+        { header: 'CANTIDAD INGRESADA', key: 'ingresada', width: 18 },
+        { header: 'IMP. UNI. (USD)', key: 'impUni', width: 14 },
+        { header: 'TOTAL (USD)', key: 'total', width: 16 }
+      ];
+      ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB45309' } };
+
+      items.forEach(it => {
+        const ped = parseFloat(it.cantidad_pedida) || 0;
+        const pu = parseFloat(it.imp_uni_usd) || 0;
+        ws.addRow({
+          articulo: it.articulo,
+          descripcion: buscarDescripcionArticulo(it.articulo),
+          pedida: ped,
+          ingresada: parseFloat(it.cantidad_ingresada) || 0,
+          impUni: pu,
+          total: ped * pu
+        });
+      });
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const nombreArchivo = `Orden_Compra_${ordenSeleccionadaNro}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      await wb.xlsx.writeFile(pathMod.join(carpetaDescargas, nombreArchivo));
+
+      lanzarToast(`¡Excel guardado en Descargas: ${nombreArchivo}!`);
+    } catch(e) { console.error(e); lanzarToast('Error al generar el Excel de la orden', 'error'); }
+  };
+
+  // MODALES OC
+  const modalOC = document.getElementById('modalNuevaOC');
+  window.abrirModalNuevaOC = function() {
+    document.getElementById('mOcProveedor').value = '';
+    document.getElementById('mOcFecha').value = new Date().toISOString().split('T')[0];
+    cargarCatalogoInsumosDropbox();
+    modalOC.classList.add('show');
+  };
+  document.getElementById('btnCerrarModalOC').addEventListener('click', () => modalOC.classList.remove('show'));
+  document.getElementById('btnCancelarOC').addEventListener('click', () => modalOC.classList.remove('show'));
+
+  document.getElementById('btnGuardarOC').addEventListener('click', () => {
+    if (!db) return;
+    const prov = document.getElementById('mOcProveedor').value.trim().toUpperCase();
+    const fecha = document.getElementById('mOcFecha').value;
+
+    if (!prov || !fecha) {
+      lanzarToast("Indique proveedor y fecha", "error");
+      return;
+    }
+
+    try {
+      const rNro = db.prepare(`SELECT COALESCE(MAX(CAST(orden_compra AS INTEGER)), 1000) + 1 as proximo FROM local_i_insumos_ordenes_Compra`).get();
+      const nuevoNroOC = rNro.proximo.toString();
+
+      const rId = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 as proximo_id FROM local_i_insumos_ordenes_Compra`).get();
+      const nuevoId = rId.proximo_id;
+      const regLocal = Date.now().toString();
+
+      db.prepare(`
+        INSERT INTO local_i_insumos_ordenes_Compra (
+          id, reg_local, orden_compra, fecha, proveedor, articulo, cantidad, imp_uni_usd, cotizacion, estado, sincronizado
+        ) VALUES (?, ?, ?, ?, ?, 'GENERAL', 0, 0, 1, 'EN REVISIÓN', 0)
+      `).run(nuevoId, regLocal, nuevoNroOC, fecha, prov);
+
+      lanzarToast(`Órden de Compra N° ${nuevoNroOC} creada`);
+      modalOC.classList.remove('show');
+      ordenSeleccionadaNro = nuevoNroOC;
+      renderizarPantallaSegunSeccion();
+    } catch(e) { console.error(e); lanzarToast("Error al crear la órden", "error"); }
+  });
+
+  const modalItem = document.getElementById('modalNuevoItemOC');
+  window.abrirModalNuevoItem = function(nroOC) {
+    document.getElementById('mItemSelectCatalogo').value = '';
+    document.getElementById('mItemArticulo').value = '';
+    document.getElementById('mItemCantidad').value = 1;
+    document.getElementById('mItemPrecio').value = 0;
+
+    cargarCatalogoInsumosDropbox();
+    modalItem.classList.add('show');
+  };
+  document.getElementById('btnCerrarModalItem').addEventListener('click', () => modalItem.classList.remove('show'));
+  document.getElementById('btnCancelarItem').addEventListener('click', () => modalItem.classList.remove('show'));
+
+  document.getElementById('btnGuardarItem').addEventListener('click', () => {
+    if (!db || !ordenSeleccionadaNro) return;
+
+    const art = document.getElementById('mItemArticulo').value.trim().toUpperCase();
+    const cant = parseFloat(document.getElementById('mItemCantidad').value) || 0;
+    const pu = parseFloat(document.getElementById('mItemPrecio').value) || 0;
+
+    if (!art || cant <= 0) {
+      lanzarToast("Indique artículo y cantidad mayor a 0", "error");
+      return;
+    }
+
+    try {
+      const ocBase = db.prepare(`SELECT proveedor, fecha, estado, factura FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? LIMIT 1`).get(ordenSeleccionadaNro) || {};
+
+      const rId = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 as proximo_id FROM local_i_insumos_ordenes_Compra`).get();
+      const nuevoId = rId.proximo_id;
+      const regLocal = Date.now().toString();
+
+      db.prepare(`
+        INSERT INTO local_i_insumos_ordenes_Compra (
+          id, reg_local, orden_compra, fecha, proveedor, articulo, cantidad, imp_uni_usd, cotizacion, estado, factura, sincronizado
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 0)
+      `).run(nuevoId, regLocal, ordenSeleccionadaNro, ocBase.fecha || new Date().toISOString().split('T')[0], ocBase.proveedor || '', art, cant, pu, ocBase.estado || 'EN REVISIÓN', ocBase.factura || null);
+
+      lanzarToast("Ítem agregado a la órden");
+      modalItem.classList.remove('show');
+      renderizarPantallaSegunSeccion();
+    } catch(e) { console.error(e); lanzarToast("Error al agregar ítem", "error"); }
+  });
+
+  // =========================================================================
+  // SECCIÓN 2: INGRESOS Y RECEPCIÓN
+  // =========================================================================
+  function cargarIngresosGruposMaster() {
+    listaIngresosGruposMaster = [];
+    if (db) {
+      try {
+        listaIngresosGruposMaster = db.prepare(`
+          SELECT 
+            COALESCE(orden_compra, 'S/OC') as orden_compra, 
+            COALESCE(proveedor, 'PROVEEDOR N/E') as proveedor, 
+            MAX(fecha) as fecha, 
+            COALESCE(remito, 'S/R') as remito, 
+            COUNT(*) as cant_items,
+            SUM(CAST(cantidad AS REAL)) as total_unidades
+          FROM local_i_insumosingresos 
+          GROUP BY COALESCE(orden_compra, 'S/OC'), COALESCE(proveedor, 'PROVEEDOR N/E'), COALESCE(remito, 'S/R')
+          ORDER BY MAX(fecha) DESC, CAST(orden_compra AS INTEGER) DESC
+        `).all();
+      } catch(e) { console.error("Error al cargar grupos de ingresos:", e); }
+    } else {
+      listaIngresosGruposMaster = [
+        { orden_compra: "1001", proveedor: "AGROQUIMICOS DEL VALLE S.A.", fecha: "2026-03-12", remito: "R-0001-000889", cant_items: 2, total_unidades: 25 }
+      ];
+    }
+
+    if (listaIngresosGruposMaster.length > 0 && !grupoIngresoSeleccionadoKey) {
+      const g = listaIngresosGruposMaster[0];
+      grupoIngresoSeleccionadoKey = `${g.orden_compra}___${g.remito}`;
+    }
+  }
+
+  function renderizarVistaIngresosMercaderia(cont) {
+    cargarIngresosGruposMaster();
+
+    cont.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-ok); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+            <span>RECEPCIONES REGISTRADAS</span>
+            <span style="font-size:10px; color:var(--color-text-secondary);">${listaIngresosGruposMaster.length} Grupos</span>
+          </div>
+          <input type="text" id="buscarMasterIngreso" class="form-input" placeholder="Filtrar fecha, proveedor o OC..." />
+
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:6px;" id="contenedorMasterListIngresos">
+            ${listaIngresosGruposMaster.length === 0
+              ? `<div style="font-size:11px; color:var(--color-text-secondary); text-align:center; padding:30px 10px;">No hay recepciones registradas. Presione <b>+ RECEPCIONAR DE OC</b>.</div>`
+              : listaIngresosGruposMaster.map(g => {
+                  const keyComp = `${g.orden_compra}___${g.remito}`;
+                  const isActive = grupoIngresoSeleccionadoKey === keyComp;
+                  return `
+                    <div class="oc-card-item ${isActive ? 'active' : ''}" onclick="seleccionarGrupoIngreso('${g.orden_compra}', '${g.remito}')">
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="oc-card-num" style="color:var(--color-ok);">📅 ${g.fecha || '-'}</span>
+                        <span style="font-size:10px; font-weight:800; background:#E8F5E9; color:var(--color-ok); padding:2px 6px; border-radius:10px;">OC #${g.orden_compra}</span>
+                      </div>
+                      <div class="oc-card-prov" style="margin-top:4px;">🏢 ${g.proveedor}</div>
+                      <div class="oc-card-date" style="display:flex; justify-content:space-between; margin-top:4px;">
+                        <span>📋 Remito: <b>${g.remito}</b></span>
+                        <span style="font-weight:700; color:var(--color-text);">${g.total_unidades} Unid. (${g.cant_items} it)</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')
+            }
+          </div>
+        </div>
+
+        <div class="oc-detail-panel" id="panelDetalleIngreso">
+          ${renderizarDetalleIngresoTablaHTML()}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterIngreso').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterListIngresos .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+  }
+
+  window.seleccionarGrupoIngreso = function(ordenNro, remitoNro) {
+    grupoIngresoSeleccionadoKey = `${ordenNro}___${remitoNro}`;
+    renderizarPantallaSegunSeccion();
+  };
+
+  function renderizarDetalleIngresoTablaHTML() {
+    if (!grupoIngresoSeleccionadoKey) {
+      return `<div style="font-size:12px; color:var(--color-text-secondary); text-align:center; padding:100px 0;">Seleccione o registre una recepción para ver el detalle.</div>`;
+    }
+
+    const partes = grupoIngresoSeleccionadoKey.split('___');
+    const ordenNroSel = partes[0];
+    const remitoNroSel = partes[1];
+
+    let itemsIngresados = [];
+    if (db) {
+      try {
+        itemsIngresados = db.prepare(`
+          SELECT * FROM local_i_insumosingresos 
+          WHERE COALESCE(orden_compra, 'S/OC') = ? AND COALESCE(remito, 'S/R') = ?
+          ORDER BY id ASC
+        `).all(ordenNroSel, remitoNroSel);
+      } catch(e) { console.error(e); }
+    }
+
+    const cab = itemsIngresados[0] || { orden_compra: ordenNroSel, remito: remitoNroSel, proveedor: '-', fecha: '-' };
+    let totalCantRecibida = 0;
+
+    itemsIngresados.forEach(it => {
+      totalCantRecibida += parseFloat(it.cantidad) || 0;
+    });
+
+    return `
+      <div class="oc-info-card-header" style="border-left: 4px solid var(--color-ok);">
+        <div>
+          <div style="font-size:14px; font-weight:800; color:var(--color-ok);">📦 REMITO DE INGRESO: ${cab.remito || 'S/R'}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-text); margin-top:2px;">PROVEEDOR: ${cab.proveedor || '-'}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-ins-dark); margin-top:2px;">VINCULADO A ORDEN DE COMPRA N° ${cab.orden_compra || '-'}</div>
+        </div>
+        <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary);">FECHA RECEPCIÓN: ${cab.fecha || '-'}</div>
+          
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action" style="background:var(--color-ok); padding:5px 12px; font-size:10.5px;" onclick="abrirModalRecepcionarMasDeEstaOC('${cab.orden_compra}', '${cab.proveedor}', '${cab.remito}')">
+              ➕ RECEPCIONAR MÁS DE ESTA OC
+            </button>
+            <button class="btn-pdf" style="padding:5px 12px; font-size:10.5px;" onclick="imprimirRemitoIngresoPDF('${cab.orden_compra}', '${cab.remito}')">
+              🖨️ PDF REMITO INGRESO
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th>CÓDIGO INSUMO</th>
+              <th>DESCRIPCIÓN ARTÍCULO</th>
+              <th style="text-align:center;">CANT. RECIBIDA</th>
+              <th>RECIBIÓ EN BODEGA</th>
+              <th>ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsIngresados.length === 0
+              ? `<tr><td colspan="6" style="text-align:center; color:var(--color-text-secondary);">No hay ítems detallados para esta recepción.</td></tr>`
+              : itemsIngresados.map((it, idx) => `
+                  <tr>
+                    <td><b>${idx + 1}</b></td>
+                    <td><b>${it.articulo || '-'}</b></td>
+                    <td>${buscarDescripcionArticulo(it.articulo)}</td>
+                    <td style="text-align:center; font-weight:800; color:var(--color-ok); font-size:12px;">${it.cantidad || 0}</td>
+                    <td>${it.recibio || 'BODEGA'}</td>
+                    <td>
+                      <button class="btn-action" style="background:#0071E3; padding:3px 8px; font-size:10px;" onclick="editarIngresoRealizado('${it.id}')">✏️ Editar</button>
+                      <button class="btn-action" style="background:var(--color-warn); padding:3px 8px; font-size:10px;" onclick="confirmarBorradoIngreso('${it.id}', '${it.articulo}', '${it.remito}')">🗑️ Revertir</button>
+                    </td>
+                  </tr>
+                `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <table class="tabla-totales-pie">
+        <tr class="total-final">
+          <td class="lbl">TOTAL UNIDADES RECIBIDAS:</td>
+          <td class="val" style="color:var(--color-ok);">${totalCantRecibida.toLocaleString('es-AR')} Unid.</td>
+        </tr>
+      </table>
+    `;
+  }
+
+  // MODAL DE INGRESO
+  const modalIngreso = document.getElementById('modalNuevoIngresoOC');
+  
+  window.abrirModalRecepcionarGeneral = function() {
+    cargarOrdenesMaster();
+    if (listaOrdenesMaster.length === 0) {
+      lanzarToast("No existen órdenes de compra registradas para recepcionar", "error");
+      return;
+    }
+    const ocDef = listaOrdenesMaster[0];
+    abrirModalRecepcionarMasDeEstaOC(ocDef.orden_compra, ocDef.proveedor, '');
+  };
+
+  window.abrirModalRecepcionarMasDeEstaOC = function(ordenNro, provNombre, remitoSugerido, articuloEnEdicion) {
+    document.getElementById('mIngRegLocal').value = '';
+    document.getElementById('mIngOrdenNro').value = ordenNro;
+    document.getElementById('mIngProveedor').value = provNombre || '';
+    document.getElementById('mIngRemitoNro').value = remitoSugerido || '';
+    document.getElementById('mIngFecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('mIngRecibio').value = operarioName;
+
+    const selectArt = document.getElementById('mIngSelectArticuloOC');
+    selectArt.innerHTML = '<option value="">-- Seleccionar ítem pendiente --</option>';
+
+    itemsPendientesOCCache = [];
+
+    if (db) {
+      try {
+        itemsPendientesOCCache = db.prepare(`
+          SELECT
+            oc.articulo,
+            oc.cantidad as pedida,
+            IFNULL((
+              SELECT SUM(ing.cantidad)
+              FROM local_i_insumosingresos ing
+              WHERE ing.orden_compra = oc.orden_compra AND ing.articulo = oc.articulo
+            ), 0.0) as ingresada
+          FROM local_i_insumos_ordenes_Compra oc
+          WHERE oc.orden_compra = ? AND oc.articulo != 'GENERAL'
+        `).all(ordenNro);
+
+        // Solo se listan los ítems a los que todavía les falta recepcionar
+        // cantidad; si se está editando un ingreso ya cargado, su artículo se
+        // muestra igual aunque esté completo, para no romper la edición.
+        itemsPendientesOCCache.forEach(it => {
+          const ped = parseFloat(it.pedida) || 0;
+          const ing = parseFloat(it.ingresada) || 0;
+          const falta = Math.max(0, ped - ing);
+          if (falta <= 0 && it.articulo !== articuloEnEdicion) return;
+
+          const opt = document.createElement('option');
+          opt.value = it.articulo;
+          opt.textContent = `[${it.articulo}] - ${buscarDescripcionArticulo(it.articulo)} (Falta recepcionar: ${falta})`;
+          selectArt.appendChild(opt);
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    if (selectArt.options.length <= 1) {
+      const optSinPendientes = document.createElement('option');
+      optSinPendientes.value = '';
+      optSinPendientes.disabled = true;
+      optSinPendientes.textContent = 'No quedan insumos pendientes de recepcionar en esta OC';
+      selectArt.appendChild(optSinPendientes);
+    }
+
+    modalIngreso.classList.add('show');
+  };
+
+  window.alCambiarArticuloIngreso = function(articuloCod) {
+    if (!articuloCod) return;
+    const item = itemsPendientesOCCache.find(i => i.articulo === articuloCod);
+    if (item) {
+      const ped = parseFloat(item.pedida) || 0;
+      const ing = parseFloat(item.ingresada) || 0;
+      const falta = Math.max(0, ped - ing);
+      document.getElementById('mIngCantidad').value = falta > 0 ? falta : 1;
+    }
+  };
+
+  document.getElementById('btnCerrarModalIngreso').addEventListener('click', () => modalIngreso.classList.remove('show'));
+  document.getElementById('btnCancelarIngreso').addEventListener('click', () => modalIngreso.classList.remove('show'));
+
+  /* ACA ES LO NUEVO: Guardado con Transacción atando i_insumosingresos e i_insumos_detalle por reg_local/reg_ingr */
+  document.getElementById('btnGuardarIngreso').addEventListener('click', () => {
+    if (!db) return;
+    const editId = document.getElementById('mIngRegLocal').value;
+    const ordenNro = document.getElementById('mIngOrdenNro').value;
+    const remitoNro = document.getElementById('mIngRemitoNro').value.trim().toUpperCase() || 'S/R';
+    const prov = document.getElementById('mIngProveedor').value;
+    const art = document.getElementById('mIngSelectArticuloOC').value;
+    const fecha = document.getElementById('mIngFecha').value;
+    const cant = parseFloat(document.getElementById('mIngCantidad').value) || 0;
+    const recibio = document.getElementById('mIngRecibio').value.trim().toUpperCase() || 'BODEGA';
+
+    if (!art || cant <= 0) {
+      lanzarToast("Seleccione un insumo y una cantidad válida", "error");
+      return;
+    }
+
+    try {
+      if (editId) {
+        const ingPrev = db.prepare(`SELECT reg_local FROM local_i_insumosingresos WHERE id = ?`).get(editId);
+        const regToken = ingPrev?.reg_local;
+
+        const txEdit = db.transaction(() => {
+          db.prepare(`
+            UPDATE local_i_insumosingresos
+            SET fecha=?, remito=?, orden_compra=?, proveedor=?, articulo=?, cantidad=?, recibio=?, sincronizado=0
+            WHERE id=?
+          `).run(fecha, remitoNro, ordenNro, prov, art, cant, recibio, editId);
+
+          if (regToken) {
+            db.prepare(`
+              UPDATE local_i_insumos_detalle
+              SET articulo=?, cantidad=?, fecha=?
+              WHERE reg_ingr=?
+            `).run(art, cant, fecha, regToken);
+          }
+        });
+        txEdit();
+        lanzarToast("Recepción y detalle actualizados");
+
+      } else {
+        const rIdIng = db.prepare(`SELECT COALESCE(MAX(CAST(id AS INTEGER)), 0) + 1 AS proximo FROM local_i_insumosingresos`).get();
+        const nuevoIdIng = rIdIng.proximo.toString();
+        const tokenRegLocal = Date.now().toString();
+
+        const rIdDet = db.prepare(`SELECT COALESCE(MAX(CAST(id AS INTEGER)), 0) + 1 AS proximo FROM local_i_insumos_detalle`).get();
+        const nuevoIdDet = rIdDet.proximo;
+
+        const txInsert = db.transaction(() => {
+          db.prepare(`
+            INSERT INTO local_i_insumosingresos (
+              id, reg_local, fecha, remito, orden_compra, proveedor, articulo, cantidad, recibio, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+          `).run(nuevoIdIng, tokenRegLocal, fecha, remitoNro, ordenNro, prov, art, cant, recibio);
+
+          db.prepare(`
+            INSERT INTO local_i_insumos_detalle (
+              id, reg_ingr, orden_compra, articulo, cantidad, fecha, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, ?, 0)
+          `).run(nuevoIdDet, tokenRegLocal, ordenNro, art, cant, fecha);
+        });
+        txInsert();
+        lanzarToast("✅ Ingreso y detalle atados correctamente");
+      }
+
+      modalIngreso.classList.remove('show');
+      grupoIngresoSeleccionadoKey = `${ordenNro}___${remitoNro}`;
+      renderizarPantallaSegunSeccion();
+
+    } catch (e) {
+      console.error("Error al atar el ingreso:", e);
+      lanzarToast("Error al guardar el ingreso de mercadería", "error");
+    }
+  });
+
+  /* ACA ES LO NUEVO: Modal de Conciliación y Auditoría de Insumos Huérfanos */
+  window.abrirModalAuditoriaHuerfanos = function() {
+    document.getElementById('modalAuditoriaHuerfanos')?.remove();
+
+    let huerfanos = [];
+    if (db) {
+      try {
+        huerfanos = db.prepare(`
+          SELECT ing.id, ing.reg_local, ing.orden_compra, ing.remito, ing.articulo, ing.cantidad, ing.fecha, ing.proveedor
+          FROM local_i_insumosingresos ing
+          LEFT JOIN local_i_insumos_detalle det ON ing.reg_local = det.reg_ingr
+          WHERE det.reg_ingr IS NULL OR det.reg_ingr = ''
+          ORDER BY CAST(ing.id AS INTEGER) DESC
+        `).all();
+      } catch (e) {
+        console.error("Error consultando huérfanos:", e);
+      }
+    }
+
+    const modalHTML = `
+      <div id="modalAuditoriaHuerfanos" class="modal-overlay show" style="z-index: 3000;">
+        <div class="modal-box" style="max-width: 780px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+            <h3 style="margin:0; font-size:13px; color:var(--color-warn); font-family:'Montserrat';">
+              🛠️ CONCILIACIÓN DE INSUMOS HUÉRFANOS.
+            </h3>
+            <button onclick="document.getElementById('modalAuditoriaHuerfanos').remove()" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+          </div>
+
+          <div style="font-size:11px; color:var(--color-text-secondary); margin: 10px 0;">
+            Se muestran los ingresos registrados que no poseen su correspondiente renglón en <strong>i_insumos_detalle</strong>. Podés asociarlo y reconstruir el enlace automáticamente.
+          </div>
+
+          <div style="max-height: 360px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+            <table class="tabla-oc-items" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th>ID REG</th>
+                  <th>ORDEN / REMITO</th>
+                  <th>ARTÍCULO / PROVEEDOR</th>
+                  <th>CANT.</th>
+                  <th>FECHA</th>
+                  <th style="text-align:right;">ACCIÓN REPARADORA</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${huerfanos.length === 0 
+                  ? `<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--color-ok); font-weight: bold;">
+                      ✅ ¡Excelente! Todos los ingresos están conciliados y atados a i_insumos_detalle.
+                     </td></tr>`
+                  : huerfanos.map(h => `
+                      <tr>
+                        <td><b>#${h.id}</b></td>
+                        <td><b>OC: #${h.orden_compra || 'S/OC'}</b><br><small style="color:var(--color-text-secondary);">Rem: ${h.remito || 'S/R'}</small></td>
+                        <td><b>${h.articulo}</b><br><small style="color:var(--color-text-secondary);">${h.proveedor || '-'}</small></td>
+                        <td><b style="color:var(--color-ok);">${h.cantidad}</b></td>
+                        <td>${h.fecha || '-'}</td>
+                        <td style="text-align:right;">
+                          <button class="btn-action" style="background:var(--color-ok); padding: 4px 8px; font-size: 10px;" onclick="repararVincularHuerfano('${h.id}', '${h.reg_local}', '${h.orden_compra}', '${h.articulo}', ${h.cantidad}, '${h.fecha}')">
+                            🔗 Vincular Detalle
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('')
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; font-weight:bold; color:var(--color-warn);">${huerfanos.length} registro(s) pendientes por conciliar</span>
+            <button onclick="document.getElementById('modalAuditoriaHuerfanos').remove()" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:7px 14px; font-size:11px; font-weight:700; cursor:pointer;">CERRAR</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+  };
+
+  window.repararVincularHuerfano = function(idIngreso, regLocalActual, ordenNro, articulo, cantidad, fecha) {
+    if (!db) return;
+
+    try {
+      const tokenFinal = (regLocalActual && regLocalActual !== 'null' && regLocalActual.trim() !== '') 
+        ? regLocalActual 
+        : Date.now().toString();
+
+      const rIdDet = db.prepare(`SELECT COALESCE(MAX(CAST(id AS INTEGER)), 0) + 1 AS proximo FROM local_i_insumos_detalle`).get();
+      const nuevoIdDet = rIdDet.proximo;
+
+      const txReparacion = db.transaction(() => {
+        db.prepare(`UPDATE local_i_insumosingresos SET reg_local = ?, sincronizado = 0 WHERE id = ?`).run(tokenFinal, idIngreso);
+
+        db.prepare(`
+          INSERT INTO local_i_insumos_detalle (
+            id, reg_ingr, orden_compra, articulo, cantidad, fecha, sincronizado
+          ) VALUES (?, ?, ?, ?, ?, ?, 0)
+        `).run(nuevoIdDet, tokenFinal, ordenNro, articulo, cantidad, fecha);
+      });
+
+      txReparacion();
+
+      lanzarToast(`✅ Ingreso #${idIngreso} vinculado correctamente a i_insumos_detalle`);
+      document.getElementById('modalAuditoriaHuerfanos').remove();
+      
+      renderizarPantallaSegunSeccion();
+      setTimeout(() => abrirModalAuditoriaHuerfanos(), 200);
+
+    } catch (e) {
+      console.error("Error al vincular registro huérfano:", e);
+      lanzarToast("Error al reparar la relación del insumo", "error");
+    }
+  };
+
+  window.editarIngresoRealizado = function(idIngreso) {
+    if (!db) return;
+    const ing = db.prepare(`SELECT * FROM local_i_insumosingresos WHERE id = ?`).get(idIngreso);
+    if (!ing) return;
+
+    abrirModalRecepcionarMasDeEstaOC(ing.orden_compra, ing.proveedor, ing.remito, ing.articulo);
+    document.getElementById('mIngRegLocal').value = ing.id;
+    document.getElementById('mIngSelectArticuloOC').value = ing.articulo;
+    document.getElementById('mIngCantidad').value = ing.cantidad;
+    document.getElementById('mIngFecha').value = ing.fecha;
+    document.getElementById('mIngRecibio').value = ing.recibio || operarioName;
+  };
+
+  window.confirmarBorradoIngreso = function(idIngreso, articulo, remito) {
+    Utilidades.confirmar(`¿Confirmás que querés revertir la recepción del artículo ${articulo} (Remito: ${remito})? Se descontará el saldo recibido.`, "REVERTIR INGRESO", () => {
+      if (!db) return;
+      try {
+        const ing = db.prepare(`SELECT reg_local FROM local_i_insumosingresos WHERE id = ?`).get(idIngreso);
+        const regToken = ing?.reg_local;
+
+        const txBorrado = db.transaction(() => {
+          db.prepare(`DELETE FROM local_i_insumosingresos WHERE id = ?`).run(idIngreso);
+          if (regToken) {
+            db.prepare(`DELETE FROM local_i_insumos_detalle WHERE reg_ingr = ?`).run(regToken);
+          }
+        });
+
+        txBorrado();
+        lanzarToast("Registro de ingreso y detalle eliminados correctamente.");
+        renderizarPantallaSegunSeccion();
+      } catch(e) { console.error(e); }
+    });
+  };
+
+  // IMPRESIÓN DE REMITO PDF
+  window.imprimirRemitoIngresoPDF = function(ordenNro, remitoNro) {
+    if (!db) return;
+
+    const items = db.prepare(`
+      SELECT * FROM local_i_insumosingresos 
+      WHERE COALESCE(orden_compra, 'S/OC') = ? AND COALESCE(remito, 'S/R') = ?
+      ORDER BY id ASC
+    `).all(ordenNro, remitoNro);
+
+    if (items.length === 0) return;
+
+    const cab = items[0];
+    let totalCantidad = 0;
+
+    const filasHtml = items.map((it, idx) => {
+      const cant = parseFloat(it.cantidad) || 0;
+      totalCantidad += cant;
+      return `
+        <tr>
+          <td style="text-align:center; font-weight:bold;">${idx + 1}</td>
+          <td style="font-weight:bold;">${it.articulo}</td>
+          <td>${buscarDescripcionArticulo(it.articulo)}</td>
+          <td style="text-align:center; font-weight:bold; font-size:12px;">${cant}</td>
+          <td style="text-align:center;">INGRESADO EN BODEGA</td>
+        </tr>
+      `;
+    }).join('');
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>REMITO_INGRESO_${cab.remito}_OC_${cab.orden_compra}</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+          body { color: #211C16; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+
+          .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 2px solid #2D3748; padding-bottom: 10px; }
+          .main-title { font-size: 24px; font-weight: bold; color: #2E7D32; text-transform: uppercase; }
+          .subtitle { font-size: 11px; font-weight: bold; color: #4A5568; margin-top: 2px; }
+
+          .company-card { text-align: right; font-size: 10px; line-height: 1.5; color: #4A5568; }
+          .company-card .name { font-weight: bold; font-size: 12px; color: #1A202C; }
+
+          .info-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11.5px; font-weight: bold; background: #E8F5E9; padding: 8px 12px; border-radius: 6px; border: 1px solid #A5D6A7; }
+
+          .vendor-client-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #2D3748; margin-bottom: 18px; }
+          .vc-header { background: #2D3748; color: white; padding: 6px 12px; font-weight: bold; font-size: 10.5px; text-transform: uppercase; }
+          .vc-body { padding: 10px 12px; font-size: 10.5px; line-height: 1.6; }
+
+          .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+          .items-table th { background: #2E7D32; color: white; padding: 8px; font-size: 10px; text-transform: uppercase; border: 1px solid #2E7D32; }
+          .items-table td { padding: 7px; border: 1px solid #CBD5E0; font-size: 10.5px; }
+
+          .totals-table { width: 300px; margin-left: auto; border-collapse: collapse; margin-bottom: 20px; }
+          .totals-table td { padding: 6px 10px; font-size: 11px; font-weight: bold; text-align: right; border: 1px solid #CBD5E0; }
+          .totals-table .bg-ok { background: #E8F5E9; color: #1B5E20; font-size: 12px; }
+
+          .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; }
+          .sig-box { border-top: 1.5px solid #2D3748; text-align: center; padding-top: 6px; font-size: 10px; font-weight: bold; color: #4A5568; }
+
+          .footer-logo { text-align: right; margin-top: 25px; font-size: 11px; font-weight: bold; color: #718096; letter-spacing: 1px; }
+        </style>
+      </head>
+      <body>
+
+        <div class="header-top">
+          <div>
+            <div class="main-title">Remito de Ingreso</div>
+            <div class="subtitle">RECEPCIÓN DE MERCADERÍA Y CONTROL DE BODEGA</div>
+          </div>
+          <div class="company-card">
+            <div class="name">GORDON STERN DIEGO SEBASTIAN GARY</div>
+            Gobernador Tello 140 - Choele Choel, Río Negro <br>
+            CUIT: 20-24155794-5 <br>
+          </div>
+        </div>
+
+        <div class="info-bar">
+          <div>REMITO PROVEEDOR: [ ${cab.remito || 'S/R'} ]</div>
+          <div>ORDEN DE COMPRA N.°: [ ${cab.orden_compra || 'S/OC'} ]</div>
+          <div>FECHA INGRESO: ${cab.fecha || '-'}</div>
+        </div>
+
+        <div class="vendor-client-grid">
+          <div>
+            <div class="vc-header">PROVEEDOR / ENTREGÓ</div>
+            <div class="vc-body">
+              <b>${cab.proveedor || '-'}</b><br>
+              Localidad: CHOELE CHOEL<br>
+              Actividad: Insumos Agrícolas
+            </div>
+          </div>
+          <div style="border-left: 1.5px solid #2D3748;">
+            <div class="vc-header">LUGAR DE RECEPCIÓN / DEPOSITO</div>
+            <div class="vc-body">
+              <b>GORDON GESTIÓN - BODEGA CENTRAL DE INSUMOS</b><br>
+              Gobernador Tello 140 - Choele Choel, Río Negro<br>
+              Responsable Recepción: <b>${cab.recibio || 'RESPONSABLE BODEGA'}</b><br>
+              Estado de Carga: <b>RECIBIDO CONFORME</b>
+            </div>
+          </div>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:6%;">N.º</th>
+              <th style="width:20%;">CÓDIGO INSUMO</th>
+              <th style="width:44%;">DESCRIPCIÓN DE MERCADERÍA</th>
+              <th style="width:15%;">CANTIDAD RECIBIDA</th>
+              <th style="width:15%;">ESTADO / DESTINO</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasHtml}
+          </tbody>
+        </table>
+
+        <table class="totals-table">
+          <tr class="bg-ok">
+            <td>TOTAL UNIDADES INGRESADAS:</td>
+            <td>${totalCantidad.toLocaleString('es-AR')} Unid.</td>
+          </tr>
+        </table>
+
+        <div class="signatures-grid">
+          <div class="sig-box">FIRMA Y ACLARACIÓN ENTREGÓ (TRANSPORTISTA / PROVEEDOR)</div>
+          <div class="sig-box">FIRMA Y ACLARACIÓN RECIBIÓ (RESPONSABLE BODEGA)</div>
+        </div>
+
+        <div class="footer-logo">GORDON GESTIÓN · AGROSOFT J&L</div>
+        <script>window.onload = function() { setTimeout(function() { window.print(); }, 300); };<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
+  // =========================================================================
+  // SECCIÓN 3: ESTADOS Y FACTURACIÓN
+  // =========================================================================
+  function renderizarVistaEstadosFacturacion(cont) {
+    let resumen = [];
+    if (db) {
+      try {
+        resumen = db.prepare(`
+          SELECT orden_compra, proveedor, MIN(fecha) as fecha,
+                 MAX(COALESCE(factura, '')) as factura,
+                 MAX(COALESCE(estado, 'EN REVISIÓN')) as estado_tramite
+          FROM local_i_insumos_ordenes_Compra
+          WHERE orden_compra IS NOT NULL
+          GROUP BY orden_compra, proveedor
+          ORDER BY CAST(orden_compra AS INTEGER) DESC
+        `).all();
+      } catch(e) { console.error(e); }
+    }
+
+    cont.innerHTML = `
+      <div style="background:#FFFFFF; border:1.5px solid var(--color-border); border-radius:var(--radius-lg); padding:16px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex-grow:1;">
+        <div style="font-size:12px; font-weight:800; color:var(--color-ins-dark);">ESTADO DE AUDITORÍA, FACTURAS Y TRÁMITE DE PAGO</div>
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>ORDEN N°</th>
+              <th>PROVEEDOR</th>
+              <th>FECHA EMISIÓN</th>
+              <th>¿TIENE FACTURA?</th>
+              <th>N° FACTURA ADJUNTA</th>
+              <th>ESTADO TRÁMITE</th>
+              <th style="text-align:right;">ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${resumen.length === 0
+              ? `<tr><td colspan="7" style="text-align:center; color:var(--color-text-secondary);">No hay órdenes para revisar estados.</td></tr>`
+              : resumen.map(r => `
+                <tr>
+                  <td><b>ORDEN #${r.orden_compra}</b></td>
+                  <td>${r.proveedor || '-'}</td>
+                  <td>${r.fecha || '-'}</td>
+                  <td>
+                    <span style="padding:2px 8px; border-radius:10px; font-size:9.5px; font-weight:800; background:${r.factura ? '#E8F5E9' : '#FFEBEE'}; color:${r.factura ? 'var(--color-ok)' : 'var(--color-warn)'};">
+                      ${r.factura ? 'SÍ ADJUNTA' : 'PENDIENTE'}
+                    </span>
+                  </td>
+                  <td><b>${r.factura || 'S/N'}</b></td>
+                  <td><span style="font-weight:700; color:var(--color-info);">${r.estado_tramite || 'EN REVISIÓN'}</span></td>
+                  <td style="text-align:right;">
+                    <button class="btn-action" style="padding:3px 8px; font-size:10px;" onclick="actualizarEstadoFactura('${r.orden_compra}')">✏️ Actualizar</button>
+                  </td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  window.actualizarEstadoFactura = function(nroOC) {
+    document.getElementById('modal-mini-factura')?.remove();
+
+    const modalHTML = `
+        <div id="modal-mini-factura" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(20, 26, 36, 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100000; display: flex; align-items: center; justify-content: center; font-family: 'Roboto', sans-serif;">
+            <div style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 16px; padding: 22px; width: 90%; max-width: 380px; box-shadow: 0 20px 50px rgba(20,26,36,0.2); display: flex; flex-direction: column; gap: 14px;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E4E7EC; padding-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 1rem; font-weight: 800; color: #0071E3;">📄 ADJUNTAR FACTURA</h3>
+                    <button onclick="document.getElementById('modal-mini-factura').remove()" style="background: none; border: none; color: #6E6E73; font-size: 1.3rem; cursor: pointer;">&times;</button>
+                </div>
+
+                <div style="font-size: 0.75rem; color: #6E6E73;">Orden de Compra: <strong style="color: #1D1D1F;">#${nroOC}</strong></div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.65rem; font-weight: 700; color: #6E6E73; text-transform: uppercase;">Número de Factura</label>
+                    <input type="text" id="mf_nro_factura" placeholder="Ej: F-0001-00000000" style="background: #FFFFFF; border: 1px solid #D6DAE1; padding: 9px 11px; border-radius: 8px;">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.65rem; font-weight: 700; color: #6E6E73; text-transform: uppercase;">Estado del Trámite</label>
+                    <select id="mf_estado_tramite" style="background: #FFFFFF; border: 1px solid #D6DAE1; padding: 9px 11px; border-radius: 8px;">
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="APROBADO PARA PAGO" selected>APROBADO PARA PAGO</option>
+                        <option value="PAGADO">PAGADO</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 6px; border-top: 1px solid #E4E7EC; padding-top: 14px;">
+                    <button onclick="document.getElementById('modal-mini-factura').remove()" style="flex: 1; background: #F0F2F5; border: 1px solid #E4E7EC; padding: 10px; font-weight: 700; border-radius: 8px; cursor: pointer;">CANCELAR</button>
+                    <button id="mf_btn_guardar" style="flex: 1; background: #0071E3; border: none; color: #FFFFFF; padding: 10px; font-weight: 700; border-radius: 8px; cursor: pointer;">GUARDAR</button>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    document.getElementById('mf_btn_guardar').onclick = function() {
+        const nroFact = document.getElementById('mf_nro_factura').value || '';
+        const tramite = document.getElementById('mf_estado_tramite').value;
+
+        if (db) {
+            try {
+                db.prepare(`
+                    UPDATE local_i_insumos_ordenes_Compra
+                    SET factura = ?, estado = ?, sincronizado = 0
+                    WHERE orden_compra = ?
+                `).run(nroFact.trim() || null, tramite, nroOC);
+
+                lanzarToast("Estado de factura actualizado");
+                renderizarPantallaSegunSeccion();
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('modal-mini-factura').remove();
+    };
+  };
+
+  // Inicialización
+  cargarCatalogoInsumosDropbox();
+  cambiarSeccion('ordenes');
+})();
+</script>
+</body>
+</html>

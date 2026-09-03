@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+  <!-- ESTO LO MODIFIQUE: Librerías para Exportación Profesional (PDF + Excel) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Control de Stock de Planta Profesional</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-gold: #B8862A;
+    --color-border: #D2D7D3; 
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .btn-sync-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-sync-top:hover { background: #C8E6C9; }
+  .btn-sync-top:disabled { opacity: 0.6; cursor: wait; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* ESTO LO MODIFIQUE: Botones de Exportación Profesional */
+.contenedor-exportacion {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-exportar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-border);
+  background: #FFFFFF;
+}
+
+.btn-exportar-pdf {
+  color: #C62828;
+  border-color: rgba(198, 40, 40, 0.3);
+  background: #FFEBEE;
+}
+.btn-exportar-pdf:hover { background: #FFCDD2; }
+
+.btn-exportar-excel {
+  color: #1B5E20;
+  border-color: rgba(27, 94, 32, 0.3);
+  background: #E8F5E9;
+}
+.btn-exportar-excel:hover { background: #C8E6C9; }
+
+/* ACA ES LO NUEVO: Feedback táctil activo en botones de exportación */
+.btn-exportar:active {
+  background-color: #FFFDE7 !important;
+  border-color: #FBC02D !important;
+  box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+  transform: scale(0.98);
+}
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-nav-lateral:active, .renglon-card:active, .btn-tab-archivero:active, .btn-sync-top:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 12px; font-weight: 700; margin-top: 18px; color: var(--color-accent-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; overflow-y: auto; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+  .btn-nav-lateral:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); }
+  .btn-nav-lateral.active { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); }
+
+  /* MAIN CONTENT */
+  .main-content { flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .contenedor-pestanas-archivero {
+    display: flex;
+    gap: 12px;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .btn-tab-archivero {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #EBEFEA;
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    bottom: -2px;
+  }
+  .btn-tab-archivero.active {
+    background: #FFFFFF;
+    color: var(--color-accent-dark);
+    border-bottom: 3px solid var(--color-accent);
+  }
+
+  /* KPIS */
+  .grid-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-kpi {
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .card-kpi .kpi-label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .card-kpi .kpi-val { font-size: 20px; font-weight: 800; color: var(--color-accent-dark); margin-top: 4px; font-family: 'Montserrat', sans-serif; }
+  .card-kpi .kpi-sub { font-size: 10.5px; font-weight: 600; color: #107C41; margin-top: 2px; }
+
+  /* WIDGET DISTRIBUCIÓN PORCENTUAL */
+  .card-porcentajes-widget {
+    background: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .card-porcentajes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .card-porcentajes-header span { font-size: 11px; font-weight: 700; color: var(--color-accent-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .grid-bars-porcentajes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .bar-item-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+  }
+  .bar-item-container:hover { background: var(--color-accent-soft); }
+
+  .bar-item-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; }
+  .bar-item-info .name { color: var(--color-text); }
+  .bar-item-info .pct { color: var(--color-accent); font-family: 'Montserrat', sans-serif; }
+
+  .bar-track {
+    width: 100%;
+    height: 8px;
+    background: #E2E8E1;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent) 0%, #2E7D32 100%);
+    border-radius: 20px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* SPLIT DOS COLUMNAS */
+  .split-dos-columnas { display: flex; gap: 16px; width: 100%; flex-grow: 1; height: 0; overflow: hidden; }
+  .col-dos-left { width: 340px; flex-shrink: 0; }
+  .col-dos-right { flex-grow: 1; }
+
+  .columna-split { display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); height: 100%; overflow: hidden; }
+  .columna-header-sticky { padding: 12px 16px; background: #F8F9F8; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .columna-header-sticky h4 { margin: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+
+  .columna-body-scroll { padding: 12px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 8px; background: #FAFAFA; }
+  .columna-body-scroll.no-padding { padding: 0; background: #FFFFFF; }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; display: inline-block; }
+  .badge-estado.activo { background: rgba(30, 107, 76, 0.1); color: var(--color-accent); }
+
+  .badge-pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; display: inline-block; }
+  .badge-blue { background: #E3F2FD; color: #0D47A1; }
+  .badge-purple { background: #F3E5F5; color: #6A1B9A; }
+  .badge-amber { background: #FFF8E1; color: #F57F17; }
+
+  /* ACA ES LO NUEVO: Estilos visuales de pill de colores para el resumen a golpe de vista */
+  .contenedor-colores-resumen {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .tag-color-cebolla {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .tag-color-amarilla { background: #FFF9C4; color: #F57F17; border: 1px solid #FBC02D; }
+  .tag-color-morada { background: #F3E5F5; color: #4A148C; border: 1px solid #CE93D8; }
+  .tag-color-blanca { background: #FFFFFF; color: #424242; border: 1px solid #BDBDBD; }
+  .tag-color-otro { background: #E0E0E0; color: #212121; border: 1px solid #9E9E9E; }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s ease; cursor: pointer; }
+  .renglon-card:hover { border-color: var(--color-accent); }
+  .renglon-card.selected { border-color: var(--color-accent); background: var(--color-accent-soft); box-shadow: 0 0 0 1px var(--color-accent); }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 10px 12px; background: #ECEFF1; border-bottom: 1px solid var(--color-border); }
+  .tabla-interna-fila td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 11.5px; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-accent-soft); }
+
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">VIERNES 24 DE JULIO DE 2026</div>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        Sincronizar
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+      <div class="sidebar-titulo">Criterios de Análisis</div>
+
+      <div class="sidebar-menu" id="contenedorFiltrosLaterales"></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      
+      <div class="contenedor-pestanas-archivero">
+        <button class="btn-tab-archivero active" id="tabMateriaPrima" data-tab="materia_prima">
+          <span>🍏</span> Stock Materia Prima (Bolsones)
+        </button>
+        <button class="btn-tab-archivero" id="tabPallets" data-tab="pallets">
+          <span>📦</span> Stock Pallets Terminados
+        </button>
+      </div>
+
+      <!-- KPIS -->
+      <div class="grid-kpis" id="contenedorKpis"></div>
+
+      <!-- WIDGET DISTRIBUCIÓN PORCENTUAL -->
+      <div class="card-porcentajes-widget">
+        <div class="card-porcentajes-header">
+          <span id="lblTituloPorcentajes">DISTRIBUCIÓN PORCENTUAL DE VOLUMEN</span>
+          <span style="font-size:10px; color:var(--color-accent); font-weight:bold;">💡 Haga clic en una barra para filtrar el detalle</span>
+        </div>
+        <div class="grid-bars-porcentajes" id="contenedorBarrasPorcentuales"></div>
+      </div>
+
+      <!-- SPLIT DOS COLUMNAS DE DETALLE INTERACTIVO -->
+      <div id="contenedorDinamicoStock" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let bases = null;
+  let db = null;
+
+  if (isElectron) {
+    try {
+      bases = require('../bases.js');
+      db = bases.db;
+    } catch(e) { console.warn("No se cargó bases.js:", e.message); }
+  }
+
+  let tabActiva = 'materia_prima';
+  let filtroLateralActual = 'todos';
+  let subGrupoSeleccionado = null;
+
+  const btnVolver = document.getElementById('btnVolver');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  function lanzarToast(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    tarjeta.innerHTML = `<div style="font-size:14px;">${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 10);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 300); }, 3500);
+  }
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    window.location.href = 'menu_empaque.html';
+  });
+
+  document.querySelectorAll('.btn-tab-archivero').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.btn-tab-archivero').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      tabActiva = tab.dataset.tab;
+      filtroLateralActual = 'todos';
+      subGrupoSeleccionado = null;
+      renderizarFiltrosLaterales();
+      actualizarPantallaStock();
+    });
+  });
+
+  function renderizarFiltrosLaterales() {
+    const cont = document.getElementById('contenedorFiltrosLaterales');
+    if (tabActiva === 'materia_prima') {
+      cont.innerHTML = `
+        <button class="btn-nav-lateral ${filtroLateralActual === 'todos' ? 'active' : ''}" data-filtro="todos">
+          <span>📦</span> Todos los Bolsones
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'variedad' ? 'active' : ''}" data-filtro="variedad">
+          <span>🌱</span> Por Variedad
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'calibre' ? 'active' : ''}" data-filtro="calibre">
+          <span>📐</span> Por Calibre
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'color' ? 'active' : ''}" data-filtro="color">
+          <span>🎨</span> Por Color
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'especie' ? 'active' : ''}" data-filtro="especie">
+          <span>🍏</span> Por Especie
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'productor' ? 'active' : ''}" data-filtro="productor">
+          <span>👨‍🌾</span> Por Productor
+        </button>
+      `;
+    } else {
+      cont.innerHTML = `
+        <button class="btn-nav-lateral ${filtroLateralActual === 'todos' ? 'active' : ''}" data-filtro="todos">
+          <span>📦</span> Todos los Pallets
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'variedad' ? 'active' : ''}" data-filtro="variedad">
+          <span>🌱</span> Por Variedad
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'calibre' ? 'active' : ''}" data-filtro="calibre">
+          <span>📐</span> Por Calibre
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'cliente' ? 'active' : ''}" data-filtro="cliente">
+          <span>🏢</span> Por Cliente
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'color' ? 'active' : ''}" data-filtro="color">
+          <span>🎨</span> Por Color
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'especie' ? 'active' : ''}" data-filtro="especie">
+          <span>🍏</span> Por Especie
+        </button>
+        <button class="btn-nav-lateral ${filtroLateralActual === 'productor' ? 'active' : ''}" data-filtro="productor">
+          <span>👨‍🌾</span> Por Productor
+        </button>
+      `;
+    }
+
+    cont.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+      btn.addEventListener('click', () => {
+        cont.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtroLateralActual = btn.dataset.filtro;
+        subGrupoSeleccionado = null;
+        actualizarPantallaStock();
+      });
+    });
+  }
+
+  function actualizarPantallaStock() {
+    renderizarKpis();
+    renderizarGraficoPorcentual();
+    if (tabActiva === 'materia_prima') {
+      renderizarVistaMateriaPrima();
+    } else {
+      renderizarVistaPallets();
+    }
+  }
+
+  function renderizarKpis() {
+    const contKpi = document.getElementById('contenedorKpis');
+    if (tabActiva === 'materia_prima') {
+      let totalBins = 0;
+      let totalKilos = 0;
+      if (db) {
+        try {
+          const res = db.prepare(`
+            SELECT COUNT(*) as bins, COALESCE(SUM(CAST(kilos AS REAL)), 0) as kgs 
+            FROM local_detalle_recepcion 
+            WHERE estado = 'ACTIVO'
+          `).get();
+          totalBins = res.bins || 0;
+          totalKilos = res.kgs || 0;
+        } catch(e) { console.error(e); }
+      }
+      contKpi.innerHTML = `
+        <div class="card-kpi">
+          <span class="kpi-label">Stock Bolsones Activos</span>
+          <span class="kpi-val">${totalBins} Bolsones</span>
+          <span class="kpi-sub">Materia Prima Disponibilidad Inmediata</span>
+        </div>
+        <div class="card-kpi">
+          <span class="kpi-label">Volumen Kilos Totales</span>
+          <span class="kpi-val" style="color:var(--color-gold);">${totalKilos.toLocaleString('es-AR')} KG</span>
+          <span class="kpi-sub">Materia Prima Pesada</span>
+        </div>
+      `;
+    } else {
+      let totalPallets = 0;
+      let totalUnidades = 0;
+      if (db) {
+        try {
+          const res = db.prepare(`
+            SELECT COUNT(*) as pallets, COALESCE(SUM(CAST(cant_unidades AS INTEGER)), 0) as unidades 
+            FROM local_paletizado 
+            WHERE estado = 'ACTIVO'
+          `).get();
+          totalPallets = res.pallets || 0;
+          totalUnidades = res.unidades || 0;
+        } catch(e) { console.error(e); }
+      }
+      contKpi.innerHTML = `
+        <div class="card-kpi">
+          <span class="kpi-label">Pallets Terminados Activos</span>
+          <span class="kpi-val">${totalPallets} PALLETS</span>
+          <span class="kpi-sub">Disponibles en Cámara</span>
+        </div>
+        <div class="card-kpi">
+          <span class="kpi-label">Total Cajas / Unidades</span>
+          <span class="kpi-val" style="color:#107C41;">${totalUnidades.toLocaleString('es-AR')} UNID.</span>
+          <span class="kpi-sub">Mercadería Apta Despacho</span>
+        </div>
+      `;
+    }
+  }
+
+  function renderizarGraficoPorcentual() {
+    const cont = document.getElementById('contenedorBarrasPorcentuales');
+    const lblT = document.getElementById('lblTituloPorcentajes');
+    if (!db) return;
+
+    let items = [];
+    let totalGeneral = 0;
+
+    if (tabActiva === 'materia_prima') {
+      let campo = filtroLateralActual === 'todos' ? 'variedad' : (filtroLateralActual === 'productor' ? "COALESCE(productor, materia_prima)" : filtroLateralActual);
+      lblT.textContent = `DISTRIBUCIÓN PORCENTUAL BOLSONES (${campo.toUpperCase()})`;
+
+      const res = db.prepare(`
+        SELECT COALESCE(${campo}, 'SIN ESPECIFICAR') as nombre, COUNT(*) as cant 
+        FROM local_detalle_recepcion 
+        WHERE estado = 'ACTIVO' 
+        GROUP BY nombre ORDER BY cant DESC
+      `).all();
+
+      res.forEach(r => totalGeneral += r.cant);
+      items = res.map(r => ({ nombre: r.nombre, cant: r.cant, pct: totalGeneral > 0 ? ((r.cant / totalGeneral) * 100).toFixed(1) : 0 }));
+    } else {
+      let campo = filtroLateralActual === 'todos' ? 'variedad' : filtroLateralActual;
+      lblT.textContent = `DISTRIBUCIÓN PORCENTUAL PALLETS (${campo.toUpperCase()})`;
+
+      const res = db.prepare(`
+        SELECT COALESCE(${campo}, 'SIN ESPECIFICAR') as nombre, COUNT(*) as cant 
+        FROM local_paletizado 
+        WHERE estado = 'ACTIVO' 
+        GROUP BY nombre ORDER BY cant DESC
+      `).all();
+
+      res.forEach(r => totalGeneral += r.cant);
+      items = res.map(r => ({ nombre: r.nombre, cant: r.cant, pct: totalGeneral > 0 ? ((r.cant / totalGeneral) * 100).toFixed(1) : 0 }));
+    }
+
+    if (items.length === 0) {
+      cont.innerHTML = `<div style="font-size:11px; color:var(--color-text-secondary);">Sin datos registrados.</div>`;
+      return;
+    }
+
+    cont.innerHTML = items.slice(0, 6).map(it => `
+      <div class="bar-item-container" onclick="window.cambiarSubGrupoStock('${it.nombre.replace(/'/g, "\\'")}')">
+        <div class="bar-item-info">
+          <span class="name">${it.nombre}</span>
+          <span class="pct">${it.pct}% (${it.cant})</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: ${it.pct}%;"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ACA ES LO NUEVO: Helper para renderizar los badges de color a golpe de vista en la card izquierda */
+  function generarHTMLResumenColores(g) {
+    return `
+      <div class="contenedor-colores-resumen">
+        <span class="tag-color-cebolla tag-color-amarilla">🟡 Amarilla: ${g.amarilla || 0}</span>
+        <span class="tag-color-cebolla tag-color-morada">🟣 Morada: ${g.morada || 0}</span>
+        <span class="tag-color-cebolla tag-color-blanca">⚪ Blanca: ${g.blanca || 0}</span>
+        ${g.otro > 0 ? `<span class="tag-color-cebolla tag-color-otro">🎨 Otro: ${g.otro}</span>` : ''}
+      </div>
+    `;
+  }
+
+  function renderizarVistaMateriaPrima() {
+    const contenedor = document.getElementById('contenedorDinamicoStock');
+
+    if (filtroLateralActual === 'todos') {
+      let registros = [];
+      if (db) {
+        try {
+          registros = db.prepare(`SELECT * FROM local_detalle_recepcion WHERE estado = 'ACTIVO' ORDER BY fecha DESC, id DESC`).all();
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="columna-split">
+          <!-- ACA ES LO NUEVO: Header con Botonera de Exportación -->
+<div class="columna-header-sticky">
+  <h4>Bolsones en ${subGrupoSeleccionado || '—'}</h4>
+  <div class="contenedor-exportacion">
+    <button class="btn-exportar btn-exportar-pdf" onclick="window.exportarStockPDF()">
+      📄 Exportar PDF
+    </button>
+    <button class="btn-exportar btn-exportar-excel" onclick="window.exportarStockExcel()">
+      📊 Exportar Excel
+    </button>
+  </div>
+</div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead>
+                <tr>
+                  <th style="padding-left:14px;">BOLSÓN / BINS</th>
+                  <th>FECHA INGRESO</th>
+                  <th>VARIEDAD</th>
+                  <th>CALIBRE</th>
+                  <th>COLOR</th>
+                  <th>PRODUCTOR</th>
+                  <th>CUADRO / FILA</th>
+                  <th style="text-align:center;">KILOS</th>
+                  <th style="text-align:center;">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${registros.map(r => `
+                  <tr>
+                    <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);">${r.bolson_n || '# ' + r.nro_unidad}</td>
+                    <td>📅 ${r.fecha || '—'}</td>
+                    <td><strong>${r.variedad || r.especie || '—'}</strong></td>
+                    <td><span class="badge-pill badge-blue">${r.calibre || 'S/C'}</span></td>
+                    <td><span class="badge-pill badge-purple">${r.color || 'S/C'}</span></td>
+                    <td>${r.productor || r.materia_prima || '—'}</td>
+                    <td>${r.cuadro || '—'} / ${r.fila || '—'}</td>
+                    <td style="text-align:center; font-weight:700; color:#107C41;">${r.kilos || 0} KG</td>
+                    <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } else {
+      let campoDb = filtroLateralActual === 'productor' ? "COALESCE(productor, materia_prima)" : filtroLateralActual;
+      let grupos = [];
+      if (db) {
+        try {
+          /* ACA ES LO NUEVO: Conteo automático por color (AMARILLA, MORADA, BLANCA) dentro de cada grupo */
+          grupos = db.prepare(`
+            SELECT COALESCE(${campoDb}, 'SIN ' || UPPER('${filtroLateralActual}')) as nombre_grupo, 
+                   COUNT(*) as total_bins, 
+                   SUM(CAST(kilos AS REAL)) as suma_kilos,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%AMARILL%' THEN 1 ELSE 0 END) as amarilla,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%MORAD%' OR UPPER(COALESCE(color, '')) LIKE '%ROJ%' THEN 1 ELSE 0 END) as morada,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%BLANC%' THEN 1 ELSE 0 END) as blanca,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) NOT LIKE '%AMARILL%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%MORAD%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%ROJ%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%BLANC%' THEN 1 ELSE 0 END) as otro
+            FROM local_detalle_recepcion WHERE estado = 'ACTIVO'
+            GROUP BY nombre_grupo ORDER BY nombre_grupo ASC
+          `).all();
+        } catch(e) { console.error(e); }
+      }
+
+      if (grupos.length > 0 && !subGrupoSeleccionado) subGrupoSeleccionado = grupos[0].nombre_grupo;
+
+      let detalleBins = [];
+      if (db && subGrupoSeleccionado) {
+        try {
+          detalleBins = db.prepare(`
+            SELECT * FROM local_detalle_recepcion 
+            WHERE estado = 'ACTIVO' AND COALESCE(${campoDb}, 'SIN ' || UPPER('${filtroLateralActual}')) = ?
+            ORDER BY fecha DESC
+          `).all(subGrupoSeleccionado);
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="split-dos-columnas">
+          <div class="columna-split col-dos-left">
+            <div class="columna-header-sticky">
+              <h4>${filtroLateralActual.toUpperCase()}S</h4>
+            </div>
+            <div class="columna-body-scroll">
+              ${grupos.map(g => `
+                <div class="renglon-card ${g.nombre_grupo === subGrupoSeleccionado ? 'selected' : ''}" onclick="window.cambiarSubGrupoStock('${g.nombre_grupo.replace(/'/g, "\\'")}')">
+                  <div style="font-size:12px; font-weight:bold; color:var(--color-accent-dark);">${g.nombre_grupo}</div>
+                  <div style="font-size:10px; color:var(--color-accent); font-weight:bold;">${g.total_bins} Bolsones · ${g.suma_kilos || 0} KG</div>
+                  
+                  /* ACA ES LO NUEVO: Muestra el desglose de colores en las cards de la lista resumida si estamos en CALIBRE, CLIENTE o COLOR */
+                  ${['calibre', 'cliente', 'color'].includes(filtroLateralActual) ? generarHTMLResumenColores(g) : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="columna-split col-dos-right">
+            <div class="columna-header-sticky">
+              <h4>Bolsones en ${subGrupoSeleccionado || '—'}</h4>
+            </div>
+            <div class="columna-body-scroll no-padding">
+              <table class="tabla-interna-fila">
+                <thead>
+                  <tr>
+                    <th style="padding-left:14px;">BOLSÓN N°</th>
+                    <th>FECHA INGRESO</th>
+                    <th>VARIEDAD</th>
+                    <th>CALIBRE</th>
+                    <th>COLOR</th>
+                    <th>CUADRO / FILA</th>
+                    <th style="text-align:center;">KILOS</th>
+                    <th style="text-align:center;">ESTADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${detalleBins.map(r => `
+                    <tr>
+                      <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);">${r.bolson_n || '# ' + r.nro_unidad}</td>
+                      <td>📅 ${r.fecha || '—'}</td>
+                      <td><strong>${r.variedad || r.especie || '—'}</strong></td>
+                      <td><span class="badge-pill badge-blue">${r.calibre || 'S/C'}</span></td>
+                      <td><span class="badge-pill badge-purple">${r.color || 'S/C'}</span></td>
+                      <td>${r.cuadro || '—'} / ${r.fila || '—'}</td>
+                      <td style="text-align:center; font-weight:700; color:#107C41;">${r.kilos || 0} KG</td>
+                      <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  /* ACA ES LO NUEVO: Exportación Profesional a Excel */
+window.exportarStockExcel = function() {
+  try {
+    const esMateriaPrima = (tabActiva === 'materia_prima');
+    const campoDb = filtroLateralActual === 'productor' ? "COALESCE(productor, materia_prima)" : filtroLateralActual;
+    
+    let query = "";
+    if (esMateriaPrima) {
+      query = filtroLateralActual === 'todos' 
+        ? `SELECT bolson_n as 'Bolsón', fecha as 'Fecha Ingreso', variedad as 'Variedad', calibre as 'Calibre', color as 'Color', productor as 'Productor', cuadro as 'Cuadro', fila as 'Fila', kilos as 'Kilos (KG)', estado as 'Estado' FROM local_detalle_recepcion WHERE estado = 'ACTIVO' ORDER BY fecha DESC`
+        : `SELECT bolson_n as 'Bolsón', fecha as 'Fecha Ingreso', variedad as 'Variedad', calibre as 'Calibre', color as 'Color', productor as 'Productor', cuadro as 'Cuadro', fila as 'Fila', kilos as 'Kilos (KG)', estado as 'Estado' FROM local_detalle_recepcion WHERE estado = 'ACTIVO' AND COALESCE(${campoDb}, 'SIN ' || UPPER('${filtroLateralActual}')) = '${subGrupoSeleccionado}' ORDER BY fecha DESC`;
+    } else {
+      query = filtroLateralActual === 'todos'
+        ? `SELECT nro_pallet as 'N° Pallet', fecha_proc as 'Fecha Proc', variedad as 'Variedad', calibre as 'Calibre', color as 'Color', cliente as 'Cliente', embalaje as 'Embalaje', cant_unidades as 'Unidades', estado as 'Estado' FROM local_paletizado WHERE estado = 'ACTIVO' ORDER BY fecha_proc DESC`
+        : `SELECT nro_pallet as 'N° Pallet', fecha_proc as 'Fecha Proc', variedad as 'Variedad', calibre as 'Calibre', color as 'Color', cliente as 'Cliente', embalaje as 'Embalaje', cant_unidades as 'Unidades', estado as 'Estado' FROM local_paletizado WHERE estado = 'ACTIVO' AND COALESCE(${filtroLateralActual}, 'SIN ' || UPPER('${filtroLateralActual}')) = '${subGrupoSeleccionado}' ORDER BY fecha_proc DESC`;
+    }
+
+    const datos = db ? db.prepare(query).all() : [];
+    if (datos.length === 0) { lanzarToast("No hay registros para exportar", "error"); return; }
+
+    const ws = XLSX.utils.json_to_sheet(datos);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Stock_Planta");
+    
+    const fechaNom = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `Stock_${tabActiva}_${subGrupoSeleccionado || 'Todos'}_${fechaNom}.xlsx`);
+    lanzarToast("✅ Reporte Excel generado correctamente");
+  } catch (e) {
+    console.error(e);
+    lanzarToast("Error al generar Excel: " + e.message, "error");
+  }
+};
+
+/* ACA ES LO NUEVO: Exportación Profesional a PDF */
+window.exportarStockPDF = function() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const esMateriaPrima = (tabActiva === 'materia_prima');
+
+    // Encabezado institucional
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(16, 70, 48); // --color-accent-dark
+    doc.text("GORDON GESTIÓN · REPORTE DE STOCK DE PLANTA", 14, 15);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(85, 99, 88);
+    const fechaHora = new Date().toLocaleString('es-AR');
+    doc.text(`Categoría: ${tabActiva.toUpperCase()} | Filtro: ${filtroLateralActual.toUpperCase()} (${subGrupoSeleccionado || 'Todos'})`, 14, 22);
+    doc.text(`Fecha de emisión: ${fechaHora}`, 14, 27);
+
+    // Obtención de datos
+    const campoDb = filtroLateralActual === 'productor' ? "COALESCE(productor, materia_prima)" : filtroLateralActual;
+    let query = "";
+    if (esMateriaPrima) {
+      query = filtroLateralActual === 'todos' 
+        ? `SELECT bolson_n, fecha, variedad, calibre, color, productor, kilos, estado FROM local_detalle_recepcion WHERE estado = 'ACTIVO' ORDER BY fecha DESC`
+        : `SELECT bolson_n, fecha, variedad, calibre, color, productor, kilos, estado FROM local_detalle_recepcion WHERE estado = 'ACTIVO' AND COALESCE(${campoDb}, 'SIN ' || UPPER('${filtroLateralActual}')) = '${subGrupoSeleccionado}' ORDER BY fecha DESC`;
+    } else {
+      query = filtroLateralActual === 'todos'
+        ? `SELECT nro_pallet, fecha_proc, variedad, calibre, color, cliente, cant_unidades, estado FROM local_paletizado WHERE estado = 'ACTIVO' ORDER BY fecha_proc DESC`
+        : `SELECT nro_pallet, fecha_proc, variedad, calibre, color, cliente, cant_unidades, estado FROM local_paletizado WHERE estado = 'ACTIVO' AND COALESCE(${filtroLateralActual}, 'SIN ' || UPPER('${filtroLateralActual}')) = '${subGrupoSeleccionado}' ORDER BY fecha_proc DESC`;
+    }
+
+    const registros = db ? db.prepare(query).all() : [];
+    if (registros.length === 0) { lanzarToast("No hay datos para exportar", "error"); return; }
+
+    const headers = esMateriaPrima 
+      ? [["Bolsón", "Fecha Ingreso", "Variedad", "Calibre", "Color", "Productor", "Kilos", "Estado"]]
+      : [["N° Pallet", "Fecha Proc.", "Variedad", "Calibre", "Color", "Cliente", "Unidades", "Estado"]];
+
+    const body = registros.map(r => Object.values(r));
+
+    doc.autoTable({
+      startY: 32,
+      head: headers,
+      body: body,
+      theme: 'grid',
+      headStyles: { fillColor: [30, 107, 76], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 3 },
+      alternateRowStyles: { fillColor: [244, 246, 244] }
+    });
+
+    const fechaNom = new Date().toISOString().slice(0,10);
+    doc.save(`Reporte_Stock_${tabActiva}_${fechaNom}.pdf`);
+    lanzarToast("✅ Reporte PDF generado con éxito");
+  } catch (e) {
+    console.error(e);
+    lanzarToast("Error al exportar PDF: " + e.message, "error");
+  }
+};
+
+  function renderizarVistaPallets() {
+    const contenedor = document.getElementById('contenedorDinamicoStock');
+
+    if (filtroLateralActual === 'todos') {
+      let registros = [];
+      if (db) {
+        try {
+          registros = db.prepare(`SELECT * FROM local_paletizado WHERE estado = 'ACTIVO' ORDER BY fecha_proc DESC, id DESC`).all();
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="columna-split">
+          <div class="columna-header-sticky">
+            <h4>Listado de Pallets Terminados (${registros.length})</h4>
+          </div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead>
+                <tr>
+                  <th style="padding-left:14px;">NRO PALLET</th>
+                  <th>FECHA PROC</th>
+                  <th>VARIEDAD</th>
+                  <th>CALIBRE</th>
+                  <th>COLOR</th>
+                  <th>CLIENTE</th>
+                  <th>PRODUCTOR</th>
+                  <th style="text-align:center;">UNIDADES</th>
+                  <th style="text-align:center;">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${registros.map(r => `
+                  <tr>
+                    <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);"># ${r.nro_pallet || r.id}</td>
+                    <td>📅 ${r.fecha_proc || '—'}</td>
+                    <td><strong>${r.variedad || r.especie || '—'}</strong></td>
+                    <td><span class="badge-pill badge-blue">${r.calibre || 'S/C'}</span></td>
+                    <td><span class="badge-pill badge-purple">${r.color || 'S/C'}</span></td>
+                    <td><span class="badge-pill badge-amber">${r.cliente || 'SIN ASIGNAR'}</span></td>
+                    <td>${r.productor || '—'}</td>
+                    <td style="text-align:center; font-weight:700; color:#107C41;">${r.cant_unidades || 0}</td>
+                    <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } else {
+      let grupos = [];
+      if (db) {
+        try {
+          /* ACA ES LO NUEVO: Conteo automático por color (AMARILLA, MORADA, BLANCA) dentro de cada grupo para Pallets */
+          grupos = db.prepare(`
+            SELECT COALESCE(${filtroLateralActual}, 'SIN ' || UPPER('${filtroLateralActual}')) as nombre_grupo, 
+                   COUNT(id) as total_pallets, 
+                   SUM(CAST(cant_unidades AS INTEGER)) as suma_unidades,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%AMARILL%' THEN 1 ELSE 0 END) as amarilla,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%MORAD%' OR UPPER(COALESCE(color, '')) LIKE '%ROJ%' THEN 1 ELSE 0 END) as morada,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) LIKE '%BLANC%' THEN 1 ELSE 0 END) as blanca,
+                   SUM(CASE WHEN UPPER(COALESCE(color, '')) NOT LIKE '%AMARILL%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%MORAD%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%ROJ%' 
+                             AND UPPER(COALESCE(color, '')) NOT LIKE '%BLANC%' THEN 1 ELSE 0 END) as otro
+            FROM local_paletizado WHERE estado = 'ACTIVO'
+            GROUP BY nombre_grupo ORDER BY nombre_grupo ASC
+          `).all();
+        } catch(e) { console.error(e); }
+      }
+
+      if (grupos.length > 0 && !subGrupoSeleccionado) subGrupoSeleccionado = grupos[0].nombre_grupo;
+
+      let detallePallets = [];
+      if (db && subGrupoSeleccionado) {
+        try {
+          detallePallets = db.prepare(`
+            SELECT * FROM local_paletizado 
+            WHERE estado = 'ACTIVO' AND COALESCE(${filtroLateralActual}, 'SIN ' || UPPER('${filtroLateralActual}')) = ?
+            ORDER BY fecha_proc DESC
+          `).all(subGrupoSeleccionado);
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="split-dos-columnas">
+          <div class="columna-split col-dos-left">
+            <div class="columna-header-sticky">
+              <h4>${filtroLateralActual.toUpperCase()}S</h4>
+            </div>
+            <div class="columna-body-scroll">
+              ${grupos.map(g => `
+                <div class="renglon-card ${g.nombre_grupo === subGrupoSeleccionado ? 'selected' : ''}" onclick="window.cambiarSubGrupoStock('${g.nombre_grupo.replace(/'/g, "\\'")}')">
+                  <div style="font-size:12px; font-weight:bold; color:var(--color-accent-dark);">${g.nombre_grupo}</div>
+                  <div style="font-size:10px; color:var(--color-accent); font-weight:bold;">${g.total_pallets} Pallets · ${g.suma_unidades || 0} un.</div>
+
+                  /* ACA ES LO NUEVO: Muestra los conteos de AMARILLA, MORADA, BLANCA a golpe de vista en las cards de la lista resumida */
+                  ${['calibre', 'cliente', 'color'].includes(filtroLateralActual) ? generarHTMLResumenColores(g) : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="columna-split col-dos-right">
+            <div class="columna-header-sticky">
+              <h4>Pallets en ${subGrupoSeleccionado || '—'}</h4>
+            </div>
+            <div class="columna-body-scroll no-padding">
+              <table class="tabla-interna-fila">
+                <thead>
+                  <tr>
+                    <th style="padding-left:14px;">NRO PALLET</th>
+                    <th>FECHA PROC</th>
+                    <th>VARIEDAD</th>
+                    <th>CALIBRE</th>
+                    <th>COLOR</th>
+                    <th>CLIENTE</th>
+                    <th>EMBALAJE</th>
+                    <th style="text-align:center;">UNIDADES</th>
+                    <th style="text-align:center;">ESTADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${detallePallets.map(r => `
+                    <tr>
+                      <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);"># ${r.nro_pallet || r.id}</td>
+                      <td>📅 ${r.fecha_proc || '—'}</td>
+                      <td><strong>${r.variedad || r.especie || '—'}</strong></td>
+                      <td><span class="badge-pill badge-blue">${r.calibre || 'S/C'}</span></td>
+                      <td><span class="badge-pill badge-purple">${r.color || 'S/C'}</span></td>
+                      <td><span class="badge-pill badge-amber">${r.cliente || 'SIN ASIGNAR'}</span></td>
+                      <td>${r.embalaje || '—'}</td>
+                      <td style="text-align:center; font-weight:700; color:#107C41;">${r.cant_unidades || 0}</td>
+                      <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  window.cambiarSubGrupoStock = function(nombreGrupo) {
+    subGrupoSeleccionado = nombreGrupo;
+    actualizarPantallaStock();
+  };
+
+  renderizarFiltrosLaterales();
+  actualizarPantallaStock();
+})();
+</script>
+</body>
+</html>

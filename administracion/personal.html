@@ -1,0 +1,3439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Nómina y Personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
+<script src="../utilidades.js"></script>
+
+<style>
+  :root {
+    --bg-light: #F8FAFC;
+    --card-color: #FFFFFF;
+    --input-fill: #F1F5F9;
+    --azul-francia: #0055A5;
+    --verde-ok: #107C41;
+    --rojo-descarte: #DC2626;
+    --naranja-led: #F97316;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --color-border: #E2E8F0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--bg-light); color: var(--text-primary); overflow: hidden; }
+
+  /* BARRA SUPERIOR CON BOTÓN DE SINCRONIZACIÓN */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 30px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; }
+  .user-access-info span.highlight { color: var(--azul-francia); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+
+  .btn-sync-top {
+    background: var(--azul-francia);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 85, 165, 0.2);
+  }
+  .btn-sync-top:hover { background: #00407D; }
+
+  .layout-main {
+    display: flex;
+    height: calc(100vh - 55px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 64px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFDE7;
+    border: 1px solid #FBC02D;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-action:active, .btn-tab-head:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-info-box {
+    background: #F8FAFC;
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-top: 10px;
+  }
+
+  /* MAIN CONTENT */
+  .main-content { flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; overflow-y: auto; gap: 16px; }
+
+  .split-master-detail {
+    display: grid;
+    grid-template-columns: 460px 1fr;
+    gap: 16px;
+    height: calc(100vh - 95px);
+  }
+
+  /* LISTA MASTER DE PERSONAL */
+  .panel-lista-personal {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: hidden;
+  }
+
+  .panel-lista-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .contenedor-items-personal {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+    padding-right: 2px;
+  }
+
+  .card-person-item {
+    background: var(--card-color);
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .card-person-item:hover { border-color: var(--azul-francia); background: rgba(0,85,165,0.02); }
+  .card-person-item.active { border-color: var(--azul-francia); background: rgba(0,85,165,0.08); box-shadow: 0 2px 8px rgba(0,85,165,0.12); }
+
+  .avatar-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #E0F2FE;
+    color: var(--azul-francia);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .card-person-item.inactivo .avatar-icon { background: #F1F5F9; color: var(--text-secondary); }
+  .card-person-item.pasivo .avatar-icon { background: #FFF3E0; color: #B45309; }
+
+  .person-info-main { flex-grow: 1; overflow: hidden; }
+  .person-info-main .name { font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .person-info-main .sub { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+  .badge-estado {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .badge-activo { background: #E8F5E9; color: var(--verde-ok); }
+  .badge-pasivo { background: #FFF3E0; color: #B45309; }
+  .badge-inactivo { background: #FFEBEE; color: var(--rojo-descarte); }
+
+  .filtro-estado-btns { display: flex; gap: 4px; }
+  .btn-filtro-estado {
+    flex: 1;
+    padding: 6px 2px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    border-radius: var(--radius-md);
+    border: 1.2px solid var(--color-border);
+    background: #F8FAFC;
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+  .btn-filtro-estado:hover { border-color: var(--azul-francia); }
+  .btn-filtro-estado.active[data-estado="ACTIVO"] { background: #E8F5E9; color: var(--verde-ok); border-color: rgba(16,124,65,0.4); }
+  .btn-filtro-estado.active[data-estado="PASIVO"] { background: #FFF3E0; color: #B45309; border-color: rgba(180,83,9,0.4); }
+  .btn-filtro-estado.active[data-estado="INACTIVO"] { background: #FFEBEE; color: var(--rojo-descarte); border-color: rgba(220,38,38,0.4); }
+  .btn-filtro-estado.active[data-tipo="CAMPO"] { background: #E8F5E9; color: var(--verde-ok); border-color: rgba(16,124,65,0.4); }
+  .btn-filtro-estado.active[data-tipo="EMPAQUE"] { background: #E0F2FE; color: var(--azul-francia); border-color: rgba(0,85,165,0.4); }
+
+  /* PANELS DETALLE PERSONAL */
+  .panel-detalle-personal {
+    background: #EEF1F5;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    gap: 14px;
+  }
+
+  /* Los inputs quedan blancos para destacar sobre el fondo gris del panel */
+  .panel-detalle-personal .form-input { background: #FFFFFF; }
+  .panel-detalle-personal .tabla-historial th { background: #FFFFFF; }
+
+  /* SOLAPAS ESTILO ARCHIVERO */
+  .tabs-header-archivero {
+    display: flex;
+    gap: 6px;
+    border-bottom: 2px solid var(--azul-francia);
+    padding-bottom: 0px;
+    margin-top: 6px;
+  }
+  .btn-tab-head {
+    background: #F1F5F9;
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    top: 2px;
+  }
+  .btn-tab-head:hover {
+    background: #E2E8F0;
+    color: var(--text-primary);
+  }
+  .btn-tab-head.active {
+    background: var(--azul-francia);
+    color: #FFFFFF;
+    border-color: var(--azul-francia);
+    box-shadow: 0 -2px 6px rgba(0,85,165,0.2);
+  }
+
+  .form-grid-person {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+  .form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    border: 1.2px solid var(--color-border);
+    background: var(--input-fill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--azul-francia); background: #FFFFFF; }
+  .form-input[readonly] { color: var(--azul-francia); font-weight: 700; }
+
+  .btn-action {
+    background: var(--azul-francia);
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 85, 165, 0.2);
+  }
+  .btn-action:hover { background: #00407D; }
+
+  .btn-danger {
+    background: #FFEBEE;
+    color: var(--rojo-descarte);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+  }
+  .btn-danger:hover { background: #FEE2E2; }
+
+  .btn-add-inline {
+    background: #E8F5E9;
+    color: var(--verde-ok);
+    border: 1px solid rgba(16,124,65,0.3);
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 1px 6px;
+    cursor: pointer;
+  }
+  .btn-add-inline:hover { background: #C8E6C9; }
+
+  /* TABLAS DE HISTORIAL Y SANCIONES */
+  .tabla-historial {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  .tabla-historial th {
+    background: #F8FAFC;
+    color: var(--text-secondary);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .tabla-historial td {
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .badge-sancion {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .badge-atencion { background: #FEF3C7; color: #D97706; }
+  .badge-amonestacion { background: #FFEDD5; color: #C2410C; }
+  .badge-suspension { background: #FEE2E2; color: #DC2626; }
+
+  /* MODALES */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--card-color); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 500px; border: 1.5px solid rgba(0,85,165,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+
+  /* ESTILOS DE EXPORTACIÓN */
+  .export-option-card {
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: #F8FAFC;
+    transition: all 0.15s ease;
+  }
+  .export-option-card:hover {
+    border-color: var(--azul-francia);
+    background: #FFFFFF;
+  }
+  .export-option-card input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--azul-francia);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- ACA ES LO NUEVO: DATALISTS INTELIGENTES PARA "APLICÓ" E "INCURRENCIAS" -->
+  <datalist id="listAplicoSancion"></datalist>
+  <datalist id="listIncurrenciasSancion"></datalist>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">VIERNES 24 DE JULIO DE 2026</div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="btn-sync-top" id="btnConfigEmpresa" style="background:#F1F5F9; color:var(--text-secondary); box-shadow:none;">
+        ⚙️ Configurar Empresa
+      </button>
+      <button class="btn-sync-top" id="btnConfigNormas" style="background:#F1F5F9; color:var(--text-secondary); box-shadow:none;">
+        🌾📦 Normas de Conducta
+      </button>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-main">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver" title="Menú Principal">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div class="split-master-detail">
+        
+        <!-- MASTER: LISTA DE EMPLEADOS Y FILTROS -->
+        <div class="panel-lista-personal">
+          <div class="panel-lista-header">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:800; color:var(--azul-francia);">NÓMINA GENERAL</span>
+              <div style="display:flex; gap:6px;">
+                <!-- ACA ES LO NUEVO: BOTÓN DE EXPORTACIÓN UNIFICADA -->
+                <button class="btn-action" id="btnAbrirExportar" style="padding:5px 10px; font-size:10px; background:#107C41;">📥 EXPORTAR</button>
+                <button class="btn-action" id="btnNuevoEmpleado" style="padding:5px 10px; font-size:10px;">👤 + NUEVO</button>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; font-size:9.5px; font-weight:700; color:var(--text-secondary);">
+              <span id="statTotalNomina">0 legajos</span>
+              <span style="color:var(--verde-ok);" id="statActivos">0 activos</span>
+              <span style="color:#B45309;" id="statPasivos">0 pasivos</span>
+              <span style="color:var(--rojo-descarte);" id="statInactivos">0 inactivos</span>
+            </div>
+
+            <input type="text" id="buscarEmpleado" class="form-input" placeholder="Buscar legajo, DNI, nombre..." />
+            
+            <div class="filtro-estado-btns" id="filtroEstadoBtns">
+              <button type="button" class="btn-filtro-estado active" data-estado="ACTIVO">ACTIVOS</button>
+              <button type="button" class="btn-filtro-estado" data-estado="PASIVO">PASIVOS</button>
+              <button type="button" class="btn-filtro-estado" data-estado="INACTIVO">INACTIVOS</button>
+            </div>
+
+            <select id="filtroCentroCosto" class="form-input" style="padding:4px 6px; font-size:10px;">
+              <option value="TODOS">TODOS C. COSTOS</option>
+            </select>
+          </div>
+
+          <div class="contenedor-items-personal" id="listaMasterPersonal"></div>
+        </div>
+
+        <!-- DETAIL: VISTA PERFIL / FORMULARIO / HISTORIAL / SANCIONES -->
+        <div class="panel-detalle-personal" id="panelDetalleEmpleado">
+          <div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:100px 0;">
+            👈 Seleccione un operario de la nómina para ver su perfil o presione <b>+ NUEVO</b>.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ACA ES LO NUEVO: MODAL UNIFICADO DE EXPORTACIÓN (EXCEL / PDF) -->
+  <div class="modal-overlay" id="modalExportarGlobal">
+    <div class="modal-box" style="max-width: 440px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia); font-family:'Montserrat';">📊 EXPORTAR INFORMACIÓN DE PERSONAL</h3>
+        <button id="btnCerrarModalExportar" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+
+      <div style="margin-top:14px; display:flex; flex-direction:column; gap:12px;">
+        <div class="form-group">
+          <label>1. SELECCIONE FORMATO DE SALIDA</label>
+          <div style="display:flex; gap:10px; margin-top:4px;">
+            <label style="flex:1; display:flex; align-items:center; gap:8px; background:#F1F5F9; padding:8px 12px; border-radius:var(--radius-md); cursor:pointer; font-size:11px; font-weight:bold; color:var(--verde-ok);">
+              <input type="radio" name="fmtExport" value="EXCEL" checked /> 📊 EXCEL (.XLSX)
+            </label>
+            <label style="flex:1; display:flex; align-items:center; gap:8px; background:#F1F5F9; padding:8px 12px; border-radius:var(--radius-md); cursor:pointer; font-size:11px; font-weight:bold; color:var(--rojo-descarte);">
+              <input type="radio" name="fmtExport" value="PDF" /> 📄 PDF IMPRIMIBLE
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>2. SELECCIONE LAS TABLAS / HOJAS A INCLUIR</label>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+            <label class="export-option-card">
+              <input type="checkbox" id="chkExpActivo" checked />
+              <div>
+                <div style="font-size:11px; font-weight:700;">🟢 PERSONAL ACTIVO</div>
+                <div style="font-size:9.5px; color:var(--text-secondary);">Nómina vigente con remuneración y sectores</div>
+              </div>
+            </label>
+
+            <label class="export-option-card">
+              <input type="checkbox" id="chkExpTodos" />
+              <div>
+                <div style="font-size:11px; font-weight:700;">👥 TODO EL PERSONAL (ACTIVOS + PASIVOS + INACTIVOS)</div>
+                <div style="font-size:9.5px; color:var(--text-secondary);">Listado completo histórico de legajos</div>
+              </div>
+            </label>
+
+            <label class="export-option-card">
+              <input type="checkbox" id="chkExpSanciones" checked />
+              <div>
+                <div style="font-size:11px; font-weight:700;">⚠️ SANCIONES DISCIPLINARIAS</div>
+                <div style="font-size:9.5px; color:var(--text-secondary);">Faltas, apercibimientos, suspensiones y autoridades</div>
+              </div>
+            </label>
+
+            <label class="export-option-card">
+              <input type="checkbox" id="chkExpHistorial" />
+              <div>
+                <div style="font-size:11px; font-weight:700;">📜 HISTORIAL LABORAL Y LIQUIDACIONES</div>
+                <div style="font-size:9.5px; color:var(--text-secondary);">Bajas, contratos finalizados y pagos realizados</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarExportar" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnProcesarExportacion" style="background:var(--azul-francia); color:white; border:none; border-radius:var(--radius-md); padding:8px 18px; font-size:11px; font-weight:700; cursor:pointer;">GENERAR REPORTES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVA CATEGORÍA -->
+  <div class="modal-overlay" id="modalNuevaCategoria">
+    <div class="modal-box" style="max-width: 380px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:12px; color:var(--azul-francia); font-family:'Montserrat';">AGREGAR NUEVA CATEGORÍA</h3>
+        <button id="btnCerrarModalCat" style="background:none; border:none; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+      <div class="form-group" style="margin-top:14px;">
+        <label>NOMBRE DE LA CATEGORÍA</label>
+        <input type="text" id="inputNuevaCatTexto" class="form-input" placeholder="Ej: OPERADOR ESPECIAL" />
+      </div>
+      <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarCat" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarNuevaCat" style="background:var(--azul-francia); color:white; border:none; border-radius:var(--radius-md); padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer;">GUARDAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REGISTRO DE SANCIÓN DISCIPLINARIA -->
+  <div class="modal-overlay" id="modalNuevaSancion">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--rojo-descarte); font-family:'Montserrat';">⚠️ REGISTRAR SANCIÓN DISCIPLINARIA</h3>
+        <button id="btnCerrarModalSancion" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:14px;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>EMPLEADO SANCIONADO</label>
+          <input type="text" id="mSancionEmpleado" class="form-input" readonly />
+        </div>
+
+        <div class="form-group">
+          <label>FECHA DE SANCIÓN</label>
+          <input type="date" id="mSancionFecha" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>TIPO DE SANCIÓN</label>
+          <select id="mSancionTipo" class="form-input">
+            <option value="Llamado de atencion">Llamado de atención</option>
+            <option value="Amonestacion">Amonestación</option>
+            <option value="Suspencion">Suspensión</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>DÍAS DE SUSPENSIÓN</label>
+          <input type="number" id="mSancionDias" class="form-input" value="0" min="0" placeholder="0" disabled />
+        </div>
+
+        <div class="form-group">
+          <label>APLICÓ / AUTORIDAD</label>
+          <input type="text" id="mSancionAplico" class="form-input" list="listAplicoSancion" placeholder="Escriba o seleccione quien aplicó..." />
+        </div>
+
+        <!-- ACA ES LO NUEVO: Incurrencias con autocompletado inteligente listIncurrenciasSancion -->
+        <div class="form-group" style="grid-column: span 2;">
+          <label>INCURRENCIA / MOTIVO DETALLADO</label>
+          <input type="text" id="mSancionIncurrencia" class="form-input" list="listIncurrenciasSancion" placeholder="Escriba o busque el motivo de la sanción..." />
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarSancion" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarSancion" style="background:var(--rojo-descarte); color:white; border:none; border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer;">GUARDAR SANCIÓN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA REGISTRO DE BAJA -->
+  <div class="modal-overlay" id="modalDarDeBaja">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--rojo-descarte); font-family:'Montserrat';">LIQUIDACIÓN FINAL DE HABERES</h3>
+        <button id="btnCerrarModalBaja" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:14px;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>EMPLEADO</label>
+          <input type="text" id="mBajaNombre" class="form-input" readonly />
+        </div>
+        <div class="form-group">
+          <label>FECHA DESDE (INGRESO)</label>
+          <input type="date" id="mBajaFechaDesde" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>FECHA HASTA (EGRESO)</label>
+          <input type="date" id="mBajaFechaHasta" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label>IMPORTE HORA ($)</label>
+          <input type="number" id="mBajaImporteHora" class="form-input" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label>FORMA DE PAGO</label>
+          <select id="mBajaFormaPago" class="form-input">
+            <option value="MENSUAL">MENSUAL</option>
+            <option value="POR DIA">POR DIA</option>
+            <option value="QUINCENA">QUINCENA</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>CENTRO DE COSTO</label>
+          <select id="mBajaCentroCosto" class="form-input"></select>
+        </div>
+        <div class="form-group">
+          <label>UNIDAD DE NEGOCIO</label>
+          <input type="text" id="mBajaNegocio" class="form-input" placeholder="Ej: EMPAQUE / CAMPO" />
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>LIQUIDACIÓN FINAL ($)</label>
+          <input type="number" id="mBajaPagoMes" class="form-input" placeholder="0.00" />
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarBaja" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnConfirmarBajaLaboral" style="background:var(--rojo-descarte); color:white; border:none; border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer;">PROCESAR LIQUIDACIÓN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA CORTE LABORAL (ACTIVO -> PASIVO) -->
+  <div class="modal-overlay" id="modalCorteLaboral">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--rojo-descarte); font-family:'Montserrat';">DAR DE BAJA (CORTE LABORAL)</h3>
+        <button id="btnCerrarModalCorte" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="form-group">
+          <label>EMPLEADO</label>
+          <input type="text" id="mCorteNombre" class="form-input" readonly />
+        </div>
+        <div class="form-group">
+          <label>FECHA DE BAJA</label>
+          <input type="date" id="mCorteFecha" class="form-input" />
+        </div>
+        <p style="font-size:11.5px; color:var(--text-secondary); margin:10px 0 0;">
+          El operario pasará a estado PASIVO, pendiente de liquidación. Se registrará esta ficha en el historial laboral.
+        </p>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarCorte" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnConfirmarCorte" style="background:var(--rojo-descarte); color:white; border:none; border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer;">CONFIRMAR CORTE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO EMPLEADO -->
+  <div class="modal-overlay" id="modalNuevoEmpleado">
+    <div class="modal-box" style="max-width: 420px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia); font-family:'Montserrat';">👤 NUEVO OPERARIO</h3>
+        <button id="btnCerrarModalNuevo" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+        <div class="form-group">
+          <label>DNI</label>
+          <input type="number" id="mNuevoDni" class="form-input" placeholder="Ingrese DNI para verificar..." autocomplete="off" />
+        </div>
+
+        <div id="mNuevoAlerta" style="display:none; font-size:11px; font-weight:700; padding:8px 10px; border-radius:var(--radius-md);"></div>
+
+        <div id="mNuevoCamposAlta" style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="form-group">
+              <label>APELLIDO</label>
+              <input type="text" id="mNuevoApellido" class="form-input" placeholder="Apellido" />
+            </div>
+            <div class="form-group">
+              <label>NOMBRE</label>
+              <input type="text" id="mNuevoNombre" class="form-input" placeholder="Nombre" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarNuevo" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnConfirmarNuevo" style="background:var(--azul-francia); color:white; border:none; border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer;" disabled>CREAR LEGAJO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL IMPRIMIR LEGAJO (SELECCIÓN DE FORMULARIOS) -->
+  <div class="modal-overlay" id="modalImprimirLegajo">
+    <div class="modal-box" style="max-width: 460px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:#6D28D9; font-family:'Montserrat';">🖨️ IMPRIMIR LEGAJO</h3>
+        <button id="btnCerrarModalLegajo" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div id="mLegajoEmpleadoNombre" style="margin-top:10px; font-size:11px; font-weight:700; color:var(--text-secondary);"></div>
+
+      <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto;">
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="ficha_ingreso" checked /><div style="font-size:11.5px; font-weight:700;">📋 Ficha de Ingreso</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="ddjj_domicilio" checked /><div style="font-size:11.5px; font-weight:700;">🏠 Declaración Jurada de Domicilio</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="nope" /><div style="font-size:11.5px; font-weight:700;">📄 Contrato NOPE (Personal No Permanente)</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="eventual" /><div style="font-size:11.5px; font-weight:700;">📄 Contrato Trabajo Eventual</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="art" checked /><div style="font-size:11.5px; font-weight:700;">🩺 Notificación ART</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="normas_campo" /><div style="font-size:11.5px; font-weight:700;">🌾 Normas de Conducta · Campo</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="normas_empaque" /><div style="font-size:11.5px; font-weight:700;">📦 Normas de Conducta · Empaque</div></label>
+        <label class="export-option-card"><input type="checkbox" class="chkFormLegajo" value="seguro_vida" checked /><div style="font-size:11.5px; font-weight:700;">🛡️ Seguro de Vida Rural <span style="font-weight:400;">(3 copias: Empleador / Aseguradora / Asegurado)</span></div></label>
+
+        <div class="form-group" id="mLegajoTareaEventualBox" style="display:none; margin-top:2px;">
+          <label>TAREA DEL CONTRATO EVENTUAL</label>
+          <input type="text" id="mLegajoTareaEventual" class="form-input" value="APRENDIZ DE PODA" />
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarLegajo" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGenerarLegajo" style="background:#6D28D9; color:white; border:none; border-radius:var(--radius-md); padding:8px 18px; font-size:11px; font-weight:700; cursor:pointer;">GENERAR E IMPRIMIR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIGURAR EMPRESA (datos usados en los formularios de legajo) -->
+  <div class="modal-overlay" id="modalConfigEmpresa">
+    <div class="modal-box" style="max-width: 560px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia); font-family:'Montserrat';">⚙️ CONFIGURAR DATOS DE LA EMPRESA</h3>
+        <button id="btnCerrarModalEmpresa" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+      <p style="font-size:10.5px; color:var(--text-secondary); margin:10px 0 0;">Estos datos se usan para completar automáticamente los formularios de legajo (Ficha de Ingreso, ART, Seguro de Vida, contratos, etc.). Si cambia la ART, la aseguradora o el representante, actualizalos acá — no hace falta tocar el sistema.</p>
+
+      <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px; max-height:420px; overflow-y:auto; padding-right:4px;">
+        <div class="form-grid-person">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>RAZÓN SOCIAL</label>
+            <input type="text" id="eRazonSocial" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>CUIT</label>
+            <input type="text" id="eCuit" class="form-input" placeholder="30-00000000-0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>DOMICILIO LEGAL (CONTRATOS)</label>
+          <input type="text" id="eDomicilioLegal" class="form-input" />
+        </div>
+
+        <div class="form-grid-person">
+          <div class="form-group">
+            <label>DOMICILIO DEL ESTABLECIMIENTO</label>
+            <input type="text" id="eDomicilioEstablecimiento" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>LOCALIDAD</label>
+            <input type="text" id="eLocalidadEstablecimiento" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>PROVINCIA</label>
+            <input type="text" id="eProvinciaEstablecimiento" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>CÓDIGO POSTAL</label>
+            <input type="text" id="eCpEstablecimiento" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>REPRESENTANTE</label>
+            <input type="text" id="eRepresentante" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>CARGO DEL REPRESENTANTE</label>
+            <input type="text" id="eCargoRepresentante" class="form-input" />
+          </div>
+        </div>
+
+        <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin-top:4px;">ART</div>
+        <div class="form-grid-person">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>ASEGURADORA (ART)</label>
+            <input type="text" id="eArtNombre" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Nº DE CONTRATO</label>
+            <input type="text" id="eArtContrato" class="form-input" />
+          </div>
+        </div>
+
+        <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin-top:4px;">SEGURO DE VIDA OBLIGATORIO RURAL</div>
+        <div class="form-grid-person">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>ASEGURADORA</label>
+            <input type="text" id="eSeguroAseguradora" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Nº DE PÓLIZA</label>
+            <input type="text" id="eSeguroPoliza" class="form-input" />
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarConfigEmpresa" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+        <button id="btnGuardarConfigEmpresa" style="background:var(--azul-francia); color:white; border:none; border-radius:var(--radius-md); padding:8px 18px; font-size:11px; font-weight:700; cursor:pointer;">GUARDAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NORMAS DE CONDUCTA (CAMPO / EMPAQUE) EDITABLES -->
+  <div class="modal-overlay" id="modalNormasConducta">
+    <div class="modal-box" style="max-width: 640px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia); font-family:'Montserrat';">🌾📦 NORMAS DE CONDUCTA</h3>
+        <button id="btnCerrarModalNormas" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+      <p style="font-size:10.5px; color:var(--text-secondary); margin:10px 0 0;">
+        Estos textos son los que se imprimen en el legajo (📄 Imprimir Legajo → Normas de Conducta). Agregá, editá o quitá los puntos que necesites; si no cargás nada acá se usa el texto estándar del sistema.
+      </p>
+
+      <div class="filtro-estado-btns" style="margin-top:12px;">
+        <button type="button" class="btn-filtro-estado active" id="btnNormasTipoCampo" data-tipo="CAMPO">🌾 CAMPO</button>
+        <button type="button" class="btn-filtro-estado" id="btnNormasTipoEmpaque" data-tipo="EMPAQUE">📦 EMPAQUE</button>
+      </div>
+
+      <div style="margin-top:12px; display:flex; flex-direction:column; gap:14px; max-height:440px; overflow-y:auto; padding-right:4px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">DISPOSICIONES GENERALES</label>
+            <button type="button" class="btn-add-inline" onclick="agregarItemNorma('disposiciones')">+ Agregar</button>
+          </div>
+          <div id="listaNormasDisposiciones" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;"></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">PROHIBICIONES</label>
+            <button type="button" class="btn-add-inline" onclick="agregarItemNorma('prohibiciones')">+ Agregar</button>
+          </div>
+          <div id="listaNormasProhibiciones" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;"></div>
+        </div>
+
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">ESCALADA DE SANCIONES POR AUSENCIA</label>
+            <button type="button" class="btn-add-inline" onclick="agregarItemNorma('escalada')">+ Agregar</button>
+          </div>
+          <div id="listaNormasEscalada" style="display:flex; flex-direction:column; gap:6px; margin-top:6px;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; justify-content:space-between; gap:8px;">
+        <button id="btnRestaurarNormas" style="background:#FFF3E0; color:#B45309; border:1px solid rgba(180,83,9,0.3); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">↩️ RESTAURAR TEXTO ESTÁNDAR</button>
+        <div style="display:flex; gap:8px;">
+          <button id="btnCerrarNormasSinGuardar" style="background:#F1F5F9; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px 14px; font-size:11px; font-weight:700; cursor:pointer;">CANCELAR</button>
+          <button id="btnGuardarNormas" style="background:var(--azul-francia); color:white; border:none; border-radius:var(--radius-md); padding:8px 18px; font-size:11px; font-weight:700; cursor:pointer;">GUARDAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      db = require('../bases.js').db;
+    } catch(e) { console.warn("Modo simulación browser activo"); }
+  }
+
+  // ACA ES LO NUEVO: Lista estandarizada de incurrencias frecuentes
+  const incurrenciasBase = [
+    "Falta Injustificada",
+    "Falta de Respeto / Indisciplina",
+    "Agresión física o verbal",
+    "Ausentarse de la jornada laboral sin autorización",
+    "Desobedecer órdenes superiores",
+    "Actuar con negligencia / descuido",
+    "Atentar contra la seguridad de la empresa o compañeros",
+    "Llegada tarde / Impuntualidad",
+    "Tener conducta inapropiada",
+    "Trabajar bajo los efectos del alcohol o sustancias",
+    "No respetar normas de seguridad e higiene",
+    "No utilizar los elementos de protección personal (EPP)",
+    "Utilizar el teléfono celular en horario de trabajo",
+    "Mal Desempeño de sus funciones"
+  ];
+
+  // DATOS DE LA EMPRESA PARA LOS FORMULARIOS OFICIALES DE LEGAJO.
+  // Se guardan en local_config_empresa (editable desde ⚙️ Configurar Empresa) para no
+  // depender de un valor fijo en el código si cambia la ART, el seguro, el representante, etc.
+  let EMPRESA = {
+    razonSocial: 'GORDON STERN DIEGO SEBASTIAN GARY',
+    cuit: '20-24155794-5',
+    domicilioLegal: 'Gobernador Tello 140 - Choele Choel, Provincia de Río Negro',
+    domicilioEstablecimiento: 'Gobernador Tello 140 - Choele Choel',
+    localidadEstablecimiento: 'Choele Choel',
+    provinciaEstablecimiento: 'Rio Negro',
+    cpEstablecimiento: '8360',
+    representante: 'Gordon, Diego Sebastian',
+    cargoRepresentante: 'Presidente',
+    art: { nombre: 'PREVENCION ART S.A.', contrato: '699275' },
+    seguroVida: { aseguradora: 'MAPFRE ARGENTINA SEGUROS DE VIDA S.A.', poliza: '110-0052840-01' }
+  };
+
+  function cargarEmpresaConfig() {
+    if (!db) return;
+    try {
+      const cfg = db.prepare(`SELECT * FROM local_config_empresa WHERE id = 1`).get();
+      if (!cfg) return;
+      EMPRESA = {
+        razonSocial: cfg.razon_social || EMPRESA.razonSocial,
+        cuit: cfg.cuit || EMPRESA.cuit,
+        domicilioLegal: cfg.domicilio_legal || EMPRESA.domicilioLegal,
+        domicilioEstablecimiento: cfg.domicilio_establecimiento || EMPRESA.domicilioEstablecimiento,
+        localidadEstablecimiento: cfg.localidad_establecimiento || EMPRESA.localidadEstablecimiento,
+        provinciaEstablecimiento: cfg.provincia_establecimiento || EMPRESA.provinciaEstablecimiento,
+        cpEstablecimiento: cfg.cp_establecimiento || EMPRESA.cpEstablecimiento,
+        representante: cfg.representante || EMPRESA.representante,
+        cargoRepresentante: cfg.cargo_representante || EMPRESA.cargoRepresentante,
+        art: { nombre: cfg.art_nombre || EMPRESA.art.nombre, contrato: cfg.art_contrato || EMPRESA.art.contrato },
+        seguroVida: { aseguradora: cfg.seguro_aseguradora || EMPRESA.seguroVida.aseguradora, poliza: cfg.seguro_poliza || EMPRESA.seguroVida.poliza }
+      };
+    } catch(e) { console.error('Error al cargar configuración de empresa:', e); }
+  }
+
+  // MODAL CONFIGURAR EMPRESA
+  const modalConfigEmpresa = document.getElementById('modalConfigEmpresa');
+
+  function abrirModalConfigEmpresa() {
+    document.getElementById('eRazonSocial').value = EMPRESA.razonSocial;
+    document.getElementById('eCuit').value = EMPRESA.cuit;
+    document.getElementById('eDomicilioLegal').value = EMPRESA.domicilioLegal;
+    document.getElementById('eDomicilioEstablecimiento').value = EMPRESA.domicilioEstablecimiento;
+    document.getElementById('eLocalidadEstablecimiento').value = EMPRESA.localidadEstablecimiento;
+    document.getElementById('eProvinciaEstablecimiento').value = EMPRESA.provinciaEstablecimiento;
+    document.getElementById('eCpEstablecimiento').value = EMPRESA.cpEstablecimiento;
+    document.getElementById('eRepresentante').value = EMPRESA.representante;
+    document.getElementById('eCargoRepresentante').value = EMPRESA.cargoRepresentante;
+    document.getElementById('eArtNombre').value = EMPRESA.art.nombre;
+    document.getElementById('eArtContrato').value = EMPRESA.art.contrato;
+    document.getElementById('eSeguroAseguradora').value = EMPRESA.seguroVida.aseguradora;
+    document.getElementById('eSeguroPoliza').value = EMPRESA.seguroVida.poliza;
+    modalConfigEmpresa.classList.add('show');
+  }
+
+  document.getElementById('btnConfigEmpresa').addEventListener('click', abrirModalConfigEmpresa);
+  document.getElementById('btnCerrarModalEmpresa').addEventListener('click', () => modalConfigEmpresa.classList.remove('show'));
+  document.getElementById('btnCancelarConfigEmpresa').addEventListener('click', () => modalConfigEmpresa.classList.remove('show'));
+
+  document.getElementById('btnGuardarConfigEmpresa').addEventListener('click', () => {
+    if (!db) return;
+    try {
+      db.prepare(`
+        UPDATE local_config_empresa
+        SET razon_social = ?, cuit = ?, domicilio_legal = ?, domicilio_establecimiento = ?,
+            localidad_establecimiento = ?, provincia_establecimiento = ?, cp_establecimiento = ?,
+            representante = ?, cargo_representante = ?, art_nombre = ?, art_contrato = ?,
+            seguro_aseguradora = ?, seguro_poliza = ?, sincronizado = 0
+        WHERE id = 1
+      `).run(
+        document.getElementById('eRazonSocial').value.trim(),
+        document.getElementById('eCuit').value.trim(),
+        document.getElementById('eDomicilioLegal').value.trim(),
+        document.getElementById('eDomicilioEstablecimiento').value.trim(),
+        document.getElementById('eLocalidadEstablecimiento').value.trim(),
+        document.getElementById('eProvinciaEstablecimiento').value.trim(),
+        document.getElementById('eCpEstablecimiento').value.trim(),
+        document.getElementById('eRepresentante').value.trim(),
+        document.getElementById('eCargoRepresentante').value.trim(),
+        document.getElementById('eArtNombre').value.trim(),
+        document.getElementById('eArtContrato').value.trim(),
+        document.getElementById('eSeguroAseguradora').value.trim(),
+        document.getElementById('eSeguroPoliza').value.trim()
+      );
+
+      cargarEmpresaConfig();
+      lanzarToast('✅ Datos de la empresa actualizados');
+      modalConfigEmpresa.classList.remove('show');
+    } catch(e) { console.error(e); lanzarToast('Error al guardar los datos de la empresa', 'error'); }
+  });
+
+  // ---------------------------------------------------------------------
+  // NORMAS DE CONDUCTA EDITABLES (CAMPO / EMPAQUE)
+  // Si el operario nunca guardó nada acá, se usa este texto estándar como
+  // respaldo (ver obtenerNormasTipo). En cuanto guarda al menos una fila
+  // para un tipo, esas filas reemplazan por completo al texto estándar.
+  // ---------------------------------------------------------------------
+  const DEFAULT_NORMAS = {
+    CAMPO: {
+      disposiciones: [
+        'Lavarse las manos de acuerdo al procedimiento.',
+        'Las uñas deben estar limpias, cortas y sin esmalte.',
+        'Está prohibido ingresar al lugar de trabajo con bolsos, mochilas, celulares, aparatos para escuchar música, comida o golosinas; deben dejarse en el lugar indicado por el capataz.',
+        'Las personas que usan lentes deben llevar una correa al cuello.',
+        'La basura debe depositarse siempre en los recipientes correspondientes, nunca en los sanitarios.',
+        'Antes de toser o estornudar, alejarse de inmediato del producto que se está manipulando.',
+        'Las cuadrillas deben movilizarse con su respectivo capataz.'
+      ],
+      prohibiciones: [
+        'Comer o llevarse la fruta (cereza); al final de cada jornada se realizarán revisiones de bolsos.',
+        'Fumar en el sector de trabajo.',
+        'Las agresiones físicas o verbales a supervisores y/o compañeros de trabajo (falta grave).',
+        'Ausentarse o retirarse del lugar de trabajo sin autorización correspondiente.',
+        'Desobedecer una orden del supervisor inmediato (Ley 20.744, Art. 86).',
+        'Actuar con negligencia en el desarrollo de las tareas.',
+        'Atentar contra los bienes de la empresa.',
+        'Ausencias al trabajo sin notificación.',
+        'Negarse a firmar notificaciones y comunicados.',
+        'Presentar certificados médicos adulterados o negarse al examen médico enviado por el empleador.',
+        'Conducta inadecuada en el transporte de personal, acoso sexual o de naturaleza indebida.',
+        'Trabajar bajo la influencia de alcohol o drogas ilegales.'
+      ],
+      escalada: [
+        ['Primera ausencia injustificada o sin aviso', 'Apercibimiento / Amonestación'],
+        ['Segunda ausencia injustificada o sin aviso', '1 día de suspensión'],
+        ['Tercera ausencia injustificada o sin aviso', '3 días de suspensión'],
+        ['Cuarta ausencia injustificada o sin aviso', '5 días de suspensión']
+      ]
+    },
+    EMPAQUE: {
+      disposiciones: [
+        'La ropa de trabajo debe usarse de manera que proteja al alimento de la contaminación, mantenerse limpia y no usarse en los sanitarios.',
+        'Celulares, bolsos, carteras, joyas y otros objetos no necesarios para trabajar deben dejarse en los armarios.',
+        'Al ingresar al área de proceso se debe cubrir la cabeza con cofia o gorra, sujetando el cabello.',
+        'Las uñas deben estar limpias, cortas y sin esmalte; lavarse las manos según el procedimiento establecido.',
+        'No deben usarse alhajas (aros, anillos, cadenas, relojes, pulseras) que puedan caer sobre la fruta.',
+        'Está prohibido ingresar a la línea de producción con celulares, comida o golosinas.',
+        'Cualquier fruta caída al piso debe depositarse en los cestos de residuos, nunca en envases comerciales.'
+      ],
+      prohibiciones: [
+        'Comer la fruta, beber, fumar o salivar dentro de cualquier sector de empaque.',
+        'Las agresiones físicas o verbales a supervisores y/o compañeros de trabajo (falta grave).',
+        'Ausentarse o retirarse del lugar de trabajo sin autorización correspondiente (CCT 1/76 Art. 27 inc. D).',
+        'Cambios de turno sin autorización del supervisor.',
+        'Desobedecer una orden del supervisor inmediato (CCT 1/76 Art. 27 inc. E, Ley 20.744 Art. 86).',
+        'Actuar con negligencia en el desarrollo de las tareas (CCT 1/76 Art. 27).',
+        'Atentar contra los bienes de la empresa.',
+        'Ausencias al trabajo sin notificación; hacer horas extra sin autorización.',
+        'Negarse a firmar notificaciones y comunicados (CCT 1/76 Art. 27 inc. G).',
+        'Presentar certificados médicos adulterados o negarse al examen médico (CCT 1/76 Art. 28).',
+        'Conducta inadecuada en el transporte de personal, acoso sexual o de naturaleza indebida.',
+        'Trabajar bajo la influencia de alcohol o drogas ilegales; dejar indumentaria en la línea de producción.'
+      ],
+      escalada: [
+        ['Primera ausencia injustificada o sin aviso', 'Apercibimiento / Amonestación'],
+        ['Segunda ausencia injustificada o sin aviso', '2 días de suspensión'],
+        ['Tercera ausencia injustificada o sin aviso', '3 días de suspensión'],
+        ['Cuarta ausencia injustificada o sin aviso', '5 días de suspensión'],
+        ['Quinta ausencia injustificada o sin aviso', 'Causal de despido con causa']
+      ]
+    }
+  };
+
+  function obtenerNormasTipo(tipoUpper) {
+    if (db) {
+      try {
+        const filas = db.prepare(`SELECT * FROM local_p_normas_conducta WHERE tipo = ? AND activo = 1 ORDER BY seccion, orden, id`).all(tipoUpper);
+        if (filas.length > 0) {
+          return {
+            disposiciones: filas.filter(f => f.seccion === 'DISPOSICION').map(f => f.texto),
+            prohibiciones: filas.filter(f => f.seccion === 'PROHIBICION').map(f => f.texto),
+            escalada: filas.filter(f => f.seccion === 'ESCALADA').map(f => [f.texto, f.detalle || ''])
+          };
+        }
+      } catch(e) { console.error('Error al leer normas de conducta:', e); }
+    }
+    return DEFAULT_NORMAS[tipoUpper];
+  }
+
+  const modalNormasConducta = document.getElementById('modalNormasConducta');
+  let tipoNormasActual = 'CAMPO';
+  let normasEnEdicion = { disposiciones: [], prohibiciones: [], escalada: [] };
+
+  function escapeAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+  function cargarNormasEnEdicion(tipoUpper) {
+    const datos = obtenerNormasTipo(tipoUpper);
+    normasEnEdicion = {
+      disposiciones: [...datos.disposiciones],
+      prohibiciones: [...datos.prohibiciones],
+      escalada: datos.escalada.map(([s, sa]) => [s, sa])
+    };
+    renderizarListasNormas();
+  }
+
+  function renderizarListasNormas() {
+    const fila = (valor, idx, seccion, esEscalada) => {
+      if (esEscalada) {
+        return `
+          <div style="display:flex; gap:6px; align-items:center;">
+            <input type="text" class="form-input" style="flex:1;" value="${escapeAttr(valor[0])}" placeholder="Situación (Ej: Primera ausencia...)" oninput="actualizarItemNorma('${seccion}', ${idx}, 0, this.value)" />
+            <input type="text" class="form-input" style="flex:1;" value="${escapeAttr(valor[1])}" placeholder="Sanción aplicada" oninput="actualizarItemNorma('${seccion}', ${idx}, 1, this.value)" />
+            <button type="button" style="background:#FFEBEE; color:var(--rojo-descarte); border-radius:8px; padding:6px 8px; border:1px solid rgba(220,38,38,0.3); cursor:pointer;" onclick="quitarItemNorma('${seccion}', ${idx})">🗑️</button>
+          </div>`;
+      }
+      return `
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input type="text" class="form-input" style="flex:1;" value="${escapeAttr(valor)}" oninput="actualizarItemNorma('${seccion}', ${idx}, null, this.value)" />
+          <button type="button" style="background:#FFEBEE; color:var(--rojo-descarte); border-radius:8px; padding:6px 8px; border:1px solid rgba(220,38,38,0.3); cursor:pointer;" onclick="quitarItemNorma('${seccion}', ${idx})">🗑️</button>
+        </div>`;
+    };
+
+    document.getElementById('listaNormasDisposiciones').innerHTML =
+      normasEnEdicion.disposiciones.map((v, i) => fila(v, i, 'disposiciones', false)).join('') ||
+      '<div style="font-size:10.5px; color:var(--text-secondary);">Sin puntos cargados.</div>';
+
+    document.getElementById('listaNormasProhibiciones').innerHTML =
+      normasEnEdicion.prohibiciones.map((v, i) => fila(v, i, 'prohibiciones', false)).join('') ||
+      '<div style="font-size:10.5px; color:var(--text-secondary);">Sin puntos cargados.</div>';
+
+    document.getElementById('listaNormasEscalada').innerHTML =
+      normasEnEdicion.escalada.map((v, i) => fila(v, i, 'escalada', true)).join('') ||
+      '<div style="font-size:10.5px; color:var(--text-secondary);">Sin filas cargadas.</div>';
+  }
+
+  window.agregarItemNorma = function(seccion) {
+    if (seccion === 'escalada') normasEnEdicion.escalada.push(['', '']);
+    else normasEnEdicion[seccion].push('');
+    renderizarListasNormas();
+  };
+  window.quitarItemNorma = function(seccion, idx) {
+    normasEnEdicion[seccion].splice(idx, 1);
+    renderizarListasNormas();
+  };
+  window.actualizarItemNorma = function(seccion, idx, subIdx, valor) {
+    if (subIdx === null) normasEnEdicion[seccion][idx] = valor;
+    else normasEnEdicion[seccion][idx][subIdx] = valor;
+  };
+
+  function seleccionarTipoNormas(tipoUpper) {
+    tipoNormasActual = tipoUpper;
+    document.getElementById('btnNormasTipoCampo').classList.toggle('active', tipoUpper === 'CAMPO');
+    document.getElementById('btnNormasTipoEmpaque').classList.toggle('active', tipoUpper === 'EMPAQUE');
+    cargarNormasEnEdicion(tipoUpper);
+  }
+
+  document.getElementById('btnConfigNormas').addEventListener('click', () => {
+    seleccionarTipoNormas('CAMPO');
+    modalNormasConducta.classList.add('show');
+  });
+  document.getElementById('btnNormasTipoCampo').addEventListener('click', () => seleccionarTipoNormas('CAMPO'));
+  document.getElementById('btnNormasTipoEmpaque').addEventListener('click', () => seleccionarTipoNormas('EMPAQUE'));
+  document.getElementById('btnCerrarModalNormas').addEventListener('click', () => modalNormasConducta.classList.remove('show'));
+  document.getElementById('btnCerrarNormasSinGuardar').addEventListener('click', () => modalNormasConducta.classList.remove('show'));
+
+  document.getElementById('btnRestaurarNormas').addEventListener('click', () => {
+    const base = DEFAULT_NORMAS[tipoNormasActual];
+    normasEnEdicion = {
+      disposiciones: [...base.disposiciones],
+      prohibiciones: [...base.prohibiciones],
+      escalada: base.escalada.map(([s, sa]) => [s, sa])
+    };
+    renderizarListasNormas();
+    lanzarToast('Se restauró el texto estándar. Presioná GUARDAR para confirmar.');
+  });
+
+  document.getElementById('btnGuardarNormas').addEventListener('click', () => {
+    if (!db) { modalNormasConducta.classList.remove('show'); return; }
+    try {
+      db.transaction(() => {
+        db.prepare(`DELETE FROM local_p_normas_conducta WHERE tipo = ?`).run(tipoNormasActual);
+
+        let maxId = 0;
+        try {
+          const resId = db.prepare(`SELECT MAX(id) as max_id FROM local_p_normas_conducta`).get();
+          if (resId && resId.max_id) maxId = parseInt(resId.max_id);
+        } catch(e) {}
+
+        const insertar = db.prepare(`
+          INSERT INTO local_p_normas_conducta (id, reg_local, tipo, seccion, orden, texto, detalle, activo, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0)
+        `);
+
+        let idCursor = maxId;
+        const grabarLista = (lista, seccion) => {
+          lista.forEach((valor, idx) => {
+            const texto = (seccion === 'ESCALADA' ? valor[0] : valor).trim();
+            if (!texto) return;
+            const detalle = seccion === 'ESCALADA' ? (valor[1] || '').trim() : null;
+            idCursor += 1;
+            insertar.run(idCursor, `${Date.now()}-${idCursor}`, tipoNormasActual, seccion, idx, texto, detalle);
+          });
+        };
+
+        grabarLista(normasEnEdicion.disposiciones, 'DISPOSICION');
+        grabarLista(normasEnEdicion.prohibiciones, 'PROHIBICION');
+        grabarLista(normasEnEdicion.escalada, 'ESCALADA');
+      })();
+
+      lanzarToast(`✅ Normas de ${tipoNormasActual === 'CAMPO' ? 'Campo' : 'Empaque'} guardadas`);
+      modalNormasConducta.classList.remove('show');
+    } catch(e) { console.error(e); lanzarToast('Error al guardar las normas de conducta', 'error'); }
+  });
+
+  if (db) {
+    try {
+    
+    } catch(e) { console.error("Error al inicializar local_p_personal_sanciones:", e); }
+  }
+
+  let listaNominaGlobal = [];
+  let legajoSeleccionadoActual = null;
+  let tabActual = 'datos';
+
+  let categoriasDisponibles = [
+    "TRACTORISTA PERMANENTE",
+    "ENCARGADO PERMANENTE",
+    "AUTOELEVADORISTA PERMANENTE",
+    "EMBOLSADO",
+    "REGADOR",
+    "VOLCADO",
+    "DESPACHO PRODUCCION",
+    "PALETIZADO",
+    "RECEPCIONISTAS MATERIA PRIMA",
+    "COSECHA",
+    "DESCOLADOR",
+    "TAREAS VARIAS"
+  ];
+
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    window.location.href = 'menu_admin.html';
+  });
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${msj}</div>`;
+    document.getElementById('toastContenedor').appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  function cargarCombosCentrosDeCosto() {
+    const selFiltroCC = document.getElementById('filtroCentroCosto');
+    selFiltroCC.innerHTML = '<option value="TODOS">TODOS C. COSTOS</option>';
+
+    let centros = [];
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT DISTINCT centro_costo FROM local_p_centroCostos WHERE centro_costo IS NOT NULL AND centro_costo != '' ORDER BY centro_costo ASC`).all();
+        centros = res.map(r => r.centro_costo);
+      } catch(e) { console.error(e); }
+    } else {
+      centros = ["EMPAQUE PLANTA 1", "CHACRA DON PEDRO", "FRUTICOLA DEL VALLE", "MANTENIMIENTO"];
+    }
+
+    centros.forEach(cc => {
+      const opt = document.createElement('option');
+      opt.value = cc;
+      opt.textContent = cc.toUpperCase();
+      selFiltroCC.appendChild(opt);
+    });
+  }
+
+  // Los datos de legajo (DDJJ domicilio, seguro de vida, etc.) viven en la tabla
+  // aparte local_p_legajo_datos (vinculada por "legajo"), para no tocar el
+  // esquema de local_p_nomina_personal / p_nomina_personal que usan otras apps.
+  // Este JOIN arma el mismo objeto "emp" de siempre, con esos campos incluidos.
+  const SQL_NOMINA_CON_LEGAJO_DATOS = `
+    SELECT n.*,
+      d.fecha_nacimiento, d.estado_civil, d.nacionalidad, d.domicilio, d.cp, d.localidad, d.provincia,
+      d.telefono, d.email, d.domicilio_notif, d.beneficiario_nombre, d.beneficiario_dni,
+      d.beneficiario_parentesco, d.beneficiario_domicilio, d.beneficiario_localidad, d.beneficiario_provincia
+    FROM local_p_nomina_personal n
+    LEFT JOIN local_p_legajo_datos d ON d.legajo = n.legajo
+  `;
+
+  function cargarNominaGeneral() {
+    listaNominaGlobal = [];
+    if (db) {
+      try {
+        listaNominaGlobal = db.prepare(`${SQL_NOMINA_CON_LEGAJO_DATOS} ORDER BY CAST(n.legajo AS INTEGER) DESC`).all();
+      } catch(e) { console.error(e); }
+    } else {
+      listaNominaGlobal = [
+        { legajo: "101", apellido: "GARCIA", nombre: "JUAN CARLOS", dni: 32444111, cuil: "20-32444111-8", fecha_ingreso: "2024-01-15", labor: "EMBALADOR", sector: "EMPAQUE PLANTA 1", centro_costo: "EMPAQUE PLANTA 1", estado: "ACTIVO", sexo: "M", categoria: "AUTOELEVADORISTA PERMANENTE", imp_hora: 3500, jornal: 28000, forma_pago: "QUINCENA", nombre_completo: "GARCIA JUAN CARLOS" }
+      ];
+    }
+
+    actualizarMetricasSidebar();
+    renderizarListaMaster();
+  }
+
+  function actualizarMetricasSidebar() {
+    const activos = listaNominaGlobal.filter(p => p.estado === 'ACTIVO').length;
+    const pasivos = listaNominaGlobal.filter(p => p.estado === 'PASIVO').length;
+    const inactivos = listaNominaGlobal.filter(p => p.estado === 'INACTIVO').length;
+    document.getElementById('statTotalNomina').textContent = `${listaNominaGlobal.length} legajos`;
+    document.getElementById('statActivos').textContent = `${activos} activos`;
+    document.getElementById('statPasivos').textContent = `${pasivos} pasivos`;
+    document.getElementById('statInactivos').textContent = `${inactivos} inactivos`;
+  }
+
+  let filtroEstadoActual = 'ACTIVO';
+
+  function renderizarListaMaster() {
+    const cont = document.getElementById('listaMasterPersonal');
+    const busqueda = document.getElementById('buscarEmpleado').value.toLowerCase().trim();
+    const filtroCC = document.getElementById('filtroCentroCosto').value;
+
+    const filtrados = listaNominaGlobal.filter(p => {
+      if (p.estado !== filtroEstadoActual) return false;
+      if (filtroCC !== 'TODOS' && (p.centro_costo || p.sector || '').toUpperCase() !== filtroCC.toUpperCase()) return false;
+
+      const leg = (p.legajo || '').toString().toLowerCase();
+      const nom = (p.nombre_completo || `${p.apellido || ''} ${p.nombre || ''}`).toLowerCase();
+      const dni = (p.dni || '').toString();
+      const sec = (p.sector || '').toLowerCase();
+      return leg.includes(busqueda) || nom.includes(busqueda) || dni.includes(busqueda) || sec.includes(busqueda);
+    });
+
+    if (filtrados.length === 0) {
+      cont.innerHTML = '<div style="font-size:11px; text-align:center; color:var(--text-secondary); padding:20px 0;">Sin coincidencias.</div>';
+      return;
+    }
+
+    const claseEstado = (estado) => estado === 'ACTIVO' ? '' : estado === 'PASIVO' ? 'pasivo' : 'inactivo';
+    const claseBadge = (estado) => estado === 'ACTIVO' ? 'badge-activo' : estado === 'PASIVO' ? 'badge-pasivo' : 'badge-inactivo';
+
+    cont.innerHTML = filtrados.map(p => `
+      <div class="card-person-item ${claseEstado(p.estado)} ${legajoSeleccionadoActual === p.legajo ? 'active' : ''}" onclick="seleccionarEmpleado('${p.legajo}')">
+        <div class="avatar-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="person-info-main">
+          <div class="name">${p.nombre_completo || `${p.apellido} ${p.nombre}`}</div>
+          <div class="sub">LEG: <b>${p.legajo}</b> · $${p.imp_hora || 0}/h · ${p.categoria || 'S/C'}</div>
+        </div>
+        <span class="badge-estado ${claseBadge(p.estado)}">${p.estado}</span>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('buscarEmpleado').addEventListener('input', renderizarListaMaster);
+  document.getElementById('filtroCentroCosto').addEventListener('change', renderizarListaMaster);
+  document.querySelectorAll('#filtroEstadoBtns .btn-filtro-estado').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtroEstadoActual = btn.dataset.estado;
+      document.querySelectorAll('#filtroEstadoBtns .btn-filtro-estado').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderizarListaMaster();
+    });
+  });
+
+  window.seleccionarEmpleado = function(legajo) {
+    legajoSeleccionadoActual = legajo;
+    renderizarListaMaster();
+    renderizarPanelDetalle();
+  };
+
+  function renderizarPanelDetalle() {
+    const detailPanel = document.getElementById('panelDetalleEmpleado');
+    const emp = listaNominaGlobal.find(p => p.legajo === legajoSeleccionadoActual);
+
+    if (!emp) {
+      detailPanel.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:100px 0;">Operario no encontrado.</div>';
+      return;
+    }
+
+    const claseBadgeHead = emp.estado === 'ACTIVO' ? 'badge-activo' : emp.estado === 'PASIVO' ? 'badge-pasivo' : 'badge-inactivo';
+
+    detailPanel.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1.5px solid var(--color-border); padding-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="avatar-icon" style="width:50px; height:50px; font-size:19px; flex-shrink:0;">👤</div>
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:17px; font-weight:800; color:var(--azul-francia);">${emp.nombre_completo || `${emp.apellido} ${emp.nombre}`}</span>
+              <span class="badge-estado ${claseBadgeHead}">${emp.estado}</span>
+            </div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:3px;">
+              LEGAJO N° <b>${emp.legajo}</b> &nbsp;·&nbsp; DNI ${emp.dni || '-'} &nbsp;·&nbsp; CUIL ${emp.cuil || '-'} &nbsp;·&nbsp; ${emp.categoria || 'S/CATEGORÍA'}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-shrink:0;">
+          <button class="btn-action" onclick="imprimirFichaPDF('${emp.legajo}')" style="background:#E0F2FE; color:var(--azul-francia); border:1px solid rgba(0,85,165,0.3);">📄 Ficha PDF</button>
+          <button class="btn-action" onclick="abrirModalImprimirLegajo('${emp.legajo}')" style="background:#EDE9FE; color:#6D28D9; border:1px solid rgba(109,40,217,0.3);">🖨️ Imprimir Legajo</button>
+          ${emp.estado === 'ACTIVO'
+            ? `<button class="btn-action btn-danger" onclick="registrarCorte('${emp.legajo}')">🚫 Dar de Baja (Corte)</button>`
+            : emp.estado === 'PASIVO'
+            ? `<button class="btn-action" onclick="reactivarEmpleado('${emp.legajo}')" style="background:#E8F5E9; color:var(--verde-ok);">↩️ Reactivar</button>
+               <button class="btn-action btn-danger" onclick="abrirModalBaja('${emp.legajo}')">💰 Liquidar</button>`
+            : `<button class="btn-action" onclick="reactivarEmpleado('${emp.legajo}')" style="background:#E8F5E9; color:var(--verde-ok);">✅ Reactivar</button>`
+          }
+        </div>
+      </div>
+
+      <div class="tabs-header-archivero">
+        <button class="btn-tab-head ${tabActual === 'datos' ? 'active' : ''}" onclick="cambiarTabDetalle('datos')">📋 DATOS Y REMUNERACIÓN</button>
+        <button class="btn-tab-head ${tabActual === 'personales' ? 'active' : ''}" onclick="cambiarTabDetalle('personales')">🪪 DATOS PERSONALES / LEGAJO</button>
+        <button class="btn-tab-head ${tabActual === 'historial' ? 'active' : ''}" onclick="cambiarTabDetalle('historial')">📜 HISTORIAL LABORAL</button>
+        <button class="btn-tab-head ${tabActual === 'sanciones' ? 'active' : ''}" onclick="cambiarTabDetalle('sanciones')">⚠️ SANCIONES DISCIPLINARIAS</button>
+      </div>
+
+      <div id="contenedorTabContenido" style="margin-top:10px;"></div>
+    `;
+
+    renderizarContenidoTab(emp);
+  }
+
+  window.cambiarTabDetalle = function(tabKey) {
+    tabActual = tabKey;
+    renderizarPanelDetalle();
+  };
+
+  function renderizarContenidoTab(emp) {
+    const cont = document.getElementById('contenedorTabContenido');
+
+    if (tabActual === 'datos') {
+      cont.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">FICHA TÉCNICA Y VALORES</span>
+          <button class="btn-action" onclick="guardarFichaEmpleado('${emp.legajo}')">💾 GUARDAR CAMBIOS</button>
+        </div>
+
+        <div class="form-grid-person">
+          <div class="form-group">
+            <label>LEGAJO</label>
+            <input type="text" id="fLegajo" class="form-input" value="${emp.legajo}" readonly />
+          </div>
+          <div class="form-group">
+            <label>APELLIDO</label>
+            <input type="text" id="fApellido" class="form-input" value="${emp.apellido || ''}" />
+          </div>
+          <div class="form-group">
+            <label>NOMBRE</label>
+            <input type="text" id="fNombre" class="form-input" value="${emp.nombre || ''}" />
+          </div>
+          <div class="form-group">
+            <label>DNI</label>
+            <input type="number" id="fDni" class="form-input" value="${emp.dni || ''}" />
+          </div>
+          <div class="form-group">
+            <label>CUIL</label>
+            <input type="text" id="fCuil" class="form-input" value="${emp.cuil || ''}" placeholder="20-00000000-0" />
+          </div>
+          <div class="form-group">
+            <label>SEXO</label>
+            <select id="fSexo" class="form-input">
+              <option value="M" ${emp.sexo === 'M' ? 'selected' : ''}>MASCULINO</option>
+              <option value="F" ${emp.sexo === 'F' ? 'selected' : ''}>FEMENINO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>FECHA INGRESO</label>
+            <input type="date" id="fFechaIngreso" class="form-input" value="${emp.fecha_ingreso || ''}" />
+          </div>
+          <div class="form-group">
+            <label>SECTOR</label>
+            <select id="fSector" class="form-input"></select>
+          </div>
+          
+          <div class="form-group">
+            <label>
+              CATEGORÍA 
+              <button type="button" class="btn-add-inline" onclick="abrirModalCategoria()">+ Agregar</button>
+            </label>
+            <select id="fCategoria" class="form-input"></select>
+          </div>
+
+          <div class="form-group">
+            <label>IMPORTE HORA ($)</label>
+            <input type="number" id="fImpHora" class="form-input" value="${emp.imp_hora || 0}" placeholder="0.00" oninput="calcularJornalAutomatico()" />
+          </div>
+          <div class="form-group">
+            <label>JORNAL (Imp. Hora * 8)</label>
+            <input type="number" id="fJornal" class="form-input" value="${emp.jornal || 0}" placeholder="0.00" readonly />
+          </div>
+          <div class="form-group">
+            <label>FORMA DE PAGO</label>
+            <select id="fFormaPago" class="form-input">
+              <option value="MENSUAL" ${emp.forma_pago === 'MENSUAL' ? 'selected' : ''}>MENSUAL</option>
+              <option value="POR DIA" ${emp.forma_pago === 'POR DIA' ? 'selected' : ''}>POR DIA</option>
+              <option value="QUINCENA" ${emp.forma_pago === 'QUINCENA' ? 'selected' : ''}>QUINCENA</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="grid-column: span 3;">
+            <label>CENTRO DE COSTO / UNIDAD NEGOCIO</label>
+            <select id="fCentroCosto" class="form-input"></select>
+          </div>
+        </div>
+      `;
+
+      cargarCentrosCostoDropdown('fSector', emp.sector);
+      cargarCentrosCostoDropdown('fCentroCosto', emp.centro_costo);
+      cargarCategoriasDropdown('fCategoria', emp.categoria);
+
+    } else if (tabActual === 'personales') {
+      cont.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">DATOS PARA LEGAJO Y FORMULARIOS OFICIALES</span>
+          <button class="btn-action" onclick="guardarDatosPersonales('${emp.legajo}')">💾 GUARDAR CAMBIOS</button>
+        </div>
+
+        <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin:4px 0;">DATOS PERSONALES</div>
+        <div class="form-grid-person">
+          <div class="form-group">
+            <label>FECHA DE NACIMIENTO</label>
+            <input type="date" id="pFechaNacimiento" class="form-input" value="${emp.fecha_nacimiento || ''}" />
+          </div>
+          <div class="form-group">
+            <label>ESTADO CIVIL</label>
+            <select id="pEstadoCivil" class="form-input">
+              <option value="Soltero/a" ${emp.estado_civil === 'Soltero/a' ? 'selected' : ''}>SOLTERO/A</option>
+              <option value="Casado/a" ${emp.estado_civil === 'Casado/a' ? 'selected' : ''}>CASADO/A</option>
+              <option value="Divorciado/a" ${emp.estado_civil === 'Divorciado/a' ? 'selected' : ''}>DIVORCIADO/A</option>
+              <option value="Viudo/a" ${emp.estado_civil === 'Viudo/a' ? 'selected' : ''}>VIUDO/A</option>
+              <option value="Union convivencial" ${emp.estado_civil === 'Union convivencial' ? 'selected' : ''}>UNIÓN CONVIVENCIAL</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>NACIONALIDAD</label>
+            <input type="text" id="pNacionalidad" class="form-input" value="${emp.nacionalidad || 'Argentina'}" />
+          </div>
+          <div class="form-group">
+            <label>TELÉFONO</label>
+            <input type="text" id="pTelefono" class="form-input" value="${emp.telefono || ''}" placeholder="2984-000000" />
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>CORREO ELECTRÓNICO</label>
+            <input type="email" id="pEmail" class="form-input" value="${emp.email || ''}" />
+          </div>
+        </div>
+
+        <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin:14px 0 4px;">DOMICILIO PARTICULAR</div>
+        <div class="form-grid-person">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>DOMICILIO (CALLE Y NÚMERO)</label>
+            <input type="text" id="pDomicilio" class="form-input" value="${emp.domicilio || ''}" />
+          </div>
+          <div class="form-group">
+            <label>CÓDIGO POSTAL</label>
+            <input type="text" id="pCp" class="form-input" value="${emp.cp || ''}" />
+          </div>
+          <div class="form-group">
+            <label>LOCALIDAD</label>
+            <input type="text" id="pLocalidad" class="form-input" value="${emp.localidad || ''}" />
+          </div>
+          <div class="form-group">
+            <label>PROVINCIA</label>
+            <input type="text" id="pProvincia" class="form-input" value="${emp.provincia || 'Rio Negro'}" />
+          </div>
+          <div class="form-group">
+            <label>DOMICILIO DE NOTIFICACIÓN <span style="font-weight:400; text-transform:none;">(si es igual, dejar "Idem")</span></label>
+            <input type="text" id="pDomicilioNotif" class="form-input" value="${emp.domicilio_notif || 'Idem'}" />
+          </div>
+        </div>
+
+        <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; margin:14px 0 4px;">BENEFICIARIO SEGURO DE VIDA OBLIGATORIO (LEY 16.600)</div>
+        <div class="form-grid-person">
+          <div class="form-group">
+            <label>NOMBRE Y APELLIDO</label>
+            <input type="text" id="pBenefNombre" class="form-input" value="${emp.beneficiario_nombre || ''}" />
+          </div>
+          <div class="form-group">
+            <label>DNI</label>
+            <input type="text" id="pBenefDni" class="form-input" value="${emp.beneficiario_dni || ''}" />
+          </div>
+          <div class="form-group">
+            <label>PARENTESCO</label>
+            <input type="text" id="pBenefParentesco" class="form-input" value="${emp.beneficiario_parentesco || ''}" placeholder="Cónyuge / Hijo/a / Otro" />
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>DOMICILIO DEL BENEFICIARIO</label>
+            <input type="text" id="pBenefDomicilio" class="form-input" value="${emp.beneficiario_domicilio || ''}" />
+          </div>
+          <div class="form-group">
+            <label>LOCALIDAD</label>
+            <input type="text" id="pBenefLocalidad" class="form-input" value="${emp.beneficiario_localidad || ''}" />
+          </div>
+        </div>
+      `;
+
+    } else if (tabActual === 'historial') {
+      let historiales = [];
+      if (db) {
+        try {
+          historiales = db.prepare(`SELECT * FROM local_p_personal_historial WHERE legajo = ? ORDER BY id DESC`).all(emp.legajo);
+        } catch(e) { console.error(e); }
+      }
+
+      cont.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">HISTORIAL DE CONTRATOS Y LIQUIDACIONES</span>
+        </div>
+
+        ${historiales.length === 0 
+          ? `<div style="font-size:11px; color:var(--text-secondary); text-align:center; padding:40px 0;">No se registraron bajas o contratos anteriores finalizados.</div>`
+          : `
+            <table class="tabla-historial">
+              <thead>
+                <tr>
+                  <th>DESDE</th>
+                  <th>HASTA</th>
+                  <th>FORMA PAGO</th>
+                  <th>VALOR HORA</th>
+                  <th>JORNAL</th>
+                  <th>CENTRO COSTO</th>
+                  <th style="text-align:right;">LIQUIDACIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${historiales.map(h => `
+                  <tr>
+                    <td>${h.fecha_desde || '-'}</td>
+                    <td>${h.fecha_hasta || '-'}</td>
+                    <td>${h.forma_pago || '-'}</td>
+                    <td>$ ${parseFloat(h.importe_hora || 0).toLocaleString('es-AR')}</td>
+                    <td>$ ${parseFloat(h.jornal || 0).toLocaleString('es-AR')}</td>
+                    <td>${h.centro_costo || '-'}</td>
+                    <td style="text-align:right; font-weight:700; color:var(--verde-ok);">$ ${parseFloat(h.pago_mes || 0).toLocaleString('es-AR')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `
+        }
+      `;
+    } else if (tabActual === 'sanciones') {
+      let sanciones = [];
+      if (db) {
+        try {
+          sanciones = db.prepare(`SELECT * FROM local_p_personal_sanciones WHERE legajo = ? ORDER BY CAST(id AS INTEGER) DESC`).all(emp.legajo);
+        } catch(e) { console.error(e); }
+      }
+
+      // ESTO LO MODIFIQUE: Se agregó el botón de impresión individual FR-1 por sanción
+      cont.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">REGISTRO DISCIPLINARIO Y SANCIONES</span>
+            <div style="font-size:10px; color:var(--text-secondary);">Legajo de faltas, amonestaciones y suspensiones</div>
+          </div>
+          <button class="btn-action btn-danger" onclick="abrirModalNuevaSancion('${emp.legajo}')">+ NUEVA SANCIÓN</button>
+        </div>
+
+        ${sanciones.length === 0 
+          ? `<div style="font-size:11px; color:var(--text-secondary); text-align:center; padding:40px 0; background:#F8FAFC; border:1px dashed var(--color-border); border-radius:var(--radius-md);">
+               ✅ No se registran sanciones disciplinarias para este operario.
+             </div>`
+          : `
+            <table class="tabla-historial">
+              <thead>
+                <tr>
+                  <th>FECHA</th>
+                  <th>TIPO SANCIÓN</th>
+                  <th>INCURRENCIA / MOTIVO</th>
+                  <th>DÍAS SUSP.</th>
+                  <th>APLICÓ</th>
+                  <th style="text-align:right;">ACCIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sanciones.map(s => {
+                  let badgeClase = 'badge-atencion';
+                  if (s.sancion_tipo === 'Amonestacion') badgeClase = 'badge-amonestacion';
+                  if (s.sancion_tipo === 'Suspencion') badgeClase = 'badge-suspension';
+
+                  return `
+                    <tr>
+                      <td style="white-space:nowrap;">${s.fecha_san || '-'}</td>
+                      <td><span class="badge-sancion ${badgeClase}">${s.sancion_tipo || '-'}</span></td>
+                      <td style="font-size:10.5px; color:#334155;">${s.incurrencia || '-'}</td>
+                      <td style="font-weight:700;">${s.dias ? `${s.dias} d` : '-'}</td>
+                      <td style="font-weight:700; color:var(--azul-francia);">${s.aplico || '-'}</td>
+                      <td style="text-align:right;">
+                        <button class="btn-action" style="padding:3px 8px; font-size:10px; background:#E0F2FE; color:var(--azul-francia); border:1px solid rgba(0,85,165,0.3);" onclick="imprimirSancionIndividualPDF('${s.reg_local}')">
+                          🖨️ Imprimir PDF
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          `
+        }
+      `;
+    }
+  }
+
+  window.calcularJornalAutomatico = function() {
+    const impHora = parseFloat(document.getElementById('fImpHora').value) || 0;
+    const jornal = impHora * 8;
+    document.getElementById('fJornal').value = jornal.toFixed(2);
+  };
+
+  function cargarCentrosCostoDropdown(selectId, seleccionado) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">SELECCIONE OPCIÓN</option>';
+    let ccs = [];
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT centro_costo FROM local_p_centroCostos WHERE centro_costo IS NOT NULL AND centro_costo != '' ORDER BY centro_costo ASC`).all();
+        ccs = res.map(r => r.centro_costo);
+      } catch(e) { console.error(e); }
+    } else {
+      ccs = ["EMPAQUE PLANTA 1", "CHACRA DON PEDRO", "FRUTICOLA DEL VALLE", "MANTENIMIENTO"];
+    }
+
+    ccs.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c.toUpperCase();
+      if (seleccionado && seleccionado.toUpperCase() === c.toUpperCase()) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function cargarCategoriasDropdown(selectId, seleccionado) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">SELECCIONE CATEGORÍA</option>';
+    categoriasDisponibles.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      if (seleccionado && seleccionado.toUpperCase() === cat.toUpperCase()) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function cargarSugerenciasAplico() {
+    const dl = document.getElementById('listAplicoSancion');
+    if (!dl) return;
+    dl.innerHTML = '';
+
+    let nombres = new Set();
+    if (db) {
+      try {
+        const nom = db.prepare(`SELECT DISTINCT nombre_completo FROM local_p_nomina_personal WHERE nombre_completo IS NOT NULL AND nombre_completo != ''`).all();
+        nom.forEach(r => nombres.add(r.nombre_completo));
+
+        const prev = db.prepare(`SELECT DISTINCT aplico FROM local_p_personal_sanciones WHERE aplico IS NOT NULL AND aplico != ''`).all();
+        prev.forEach(r => nombres.add(r.aplico));
+      } catch(e) { console.error("Error al cargar sugerencias de aplico:", e); }
+    }
+
+    nombres.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      dl.appendChild(opt);
+    });
+  }
+
+  // ACA ES LO NUEVO: Cargar sugerencias dinámicas para el campo "Incurrencia"
+  function cargarSugerenciasIncurrencia() {
+    const dl = document.getElementById('listIncurrenciasSancion');
+    if (!dl) return;
+    dl.innerHTML = '';
+
+    let combo = new Set(incurrenciasBase);
+    if (db) {
+      try {
+        const previas = db.prepare(`SELECT DISTINCT incurrencia FROM local_p_personal_sanciones WHERE incurrencia IS NOT NULL AND incurrencia != ''`).all();
+        previas.forEach(r => combo.add(r.incurrencia));
+      } catch(e) { console.error("Error al cargar sugerencias de incurrencia:", e); }
+    }
+
+    combo.forEach(inc => {
+      const opt = document.createElement('option');
+      opt.value = inc;
+      dl.appendChild(opt);
+    });
+  }
+
+  // MODAL SANCIÓN DISCIPLINARIA
+  const modalSancion = document.getElementById('modalNuevaSancion');
+  const mSancionTipo = document.getElementById('mSancionTipo');
+  const mSancionDias = document.getElementById('mSancionDias');
+
+  mSancionTipo.addEventListener('change', () => {
+    if (mSancionTipo.value === 'Suspencion') {
+      mSancionDias.disabled = false;
+      if (parseFloat(mSancionDias.value) <= 0) mSancionDias.value = 1;
+    } else {
+      mSancionDias.disabled = true;
+      mSancionDias.value = 0;
+    }
+  });
+
+  window.abrirModalNuevaSancion = function(legajo) {
+    const emp = listaNominaGlobal.find(p => p.legajo === legajo);
+    if (!emp) return;
+
+    document.getElementById('mSancionEmpleado').value = `${emp.nombre_completo || `${emp.apellido} ${emp.nombre}`} (LEG: ${emp.legajo})`;
+    document.getElementById('mSancionFecha').value = new Date().toISOString().split('T')[0];
+    document.getElementById('mSancionTipo').value = 'Llamado de atencion';
+    document.getElementById('mSancionDias').value = 0;
+    document.getElementById('mSancionDias').disabled = true;
+    document.getElementById('mSancionIncurrencia').value = '';
+    document.getElementById('mSancionAplico').value = '';
+
+    cargarSugerenciasAplico();
+    cargarSugerenciasIncurrencia();
+    modalSancion.classList.add('show');
+  };
+
+  document.getElementById('btnCerrarModalSancion').addEventListener('click', () => modalSancion.classList.remove('show'));
+  document.getElementById('btnCancelarSancion').addEventListener('click', () => modalSancion.classList.remove('show'));
+
+  // GUARDA LA SANCIÓN CON REGLA MAX(ID) + 1
+  document.getElementById('btnGuardarSancion').addEventListener('click', () => {
+    if (!legajoSeleccionadoActual || !db) return;
+    const emp = listaNominaGlobal.find(p => p.legajo === legajoSeleccionadoActual);
+    if (!emp) return;
+
+    const fechaSan = document.getElementById('mSancionFecha').value;
+    const sancionTipo = document.getElementById('mSancionTipo').value;
+    const dias = parseFloat(document.getElementById('mSancionDias').value) || 0;
+    const aplico = document.getElementById('mSancionAplico').value.trim().toUpperCase();
+    const incurrencia = document.getElementById('mSancionIncurrencia').value.trim();
+
+    if (!fechaSan) {
+      lanzarToast("Indique la fecha de la sanción", "error");
+      return;
+    }
+
+    try {
+      let maxId = 0;
+      try {
+        const resId = db.prepare(`SELECT MAX(id) as max_id FROM local_p_personal_sanciones`).get();
+        if (resId && resId.max_id) maxId = parseInt(resId.max_id);
+      } catch(e) { console.error("Error al obtener Max(id) en sanciones:", e); }
+
+      const nuevoId = maxId + 1;
+      const regLocalSan = Date.now().toString();
+
+      db.prepare(`
+        INSERT INTO local_p_personal_sanciones (
+          id, reg_local, legajo, empleado, dni, fecha_san, sancion_tipo, incurrencia, dias, aplico, sincronizado
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      `).run(
+        nuevoId,
+        regLocalSan,
+        emp.legajo,
+        emp.nombre_completo || `${emp.apellido} ${emp.nombre}`,
+        emp.dni || 0,
+        fechaSan,
+        sancionTipo,
+        incurrencia,
+        dias,
+        aplico
+      );
+
+      lanzarToast("Sanción disciplinaria registrada correctamente");
+      modalSancion.classList.remove('show');
+      renderizarPanelDetalle();
+    } catch(e) {
+      console.error(e);
+      lanzarToast("Error al guardar la sanción", "error");
+    }
+  });
+
+  // ACA ES LO NUEVO: Generador de PDF Individual de Sanción Disciplinaria (Modelo Oficial FR-1 GARY GORDON)
+  window.imprimirSancionIndividualPDF = function(regLocalSancion) {
+    if (!db) return;
+
+    const sancion = db.prepare(`SELECT * FROM local_p_personal_sanciones WHERE reg_local = ?`).get(regLocalSancion);
+    if (!sancion) return;
+
+    const emp = listaNominaGlobal.find(p => p.legajo == sancion.legajo) || {};
+
+    // Buscar reincidencias en el historial del operario
+    const sancionesPrevias = db.prepare(`
+      SELECT * FROM local_p_personal_sanciones 
+      WHERE legajo = ? AND reg_local != ? AND CAST(id AS INTEGER) < CAST(? AS INTEGER)
+      ORDER BY id ASC
+    `).all(sancion.legajo, regLocalSancion, sancion.id);
+
+    const fechaSanObj = new Date(sancion.fecha_san + 'T00:00:00');
+    const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const fechaSanTexto = fechaSanObj.toLocaleDateString('es-AR', opcionesFecha).toUpperCase();
+    const fechaHoyTexto = new Date().toLocaleDateString('es-AR', opcionesFecha).toUpperCase();
+
+    const dias = parseFloat(sancion.dias) || 0;
+    let fechaDesdeTexto = '', fechaHastaTexto = '', fechaRetornoTexto = '';
+    
+    if (dias > 0) {
+      fechaDesdeTexto = fechaSanTexto;
+
+      const fHasta = new Date(fechaSanObj);
+      fHasta.setDate(fHasta.getDate() + (dias - 1));
+      fechaHastaTexto = fHasta.toLocaleDateString('es-AR', opcionesFecha).toUpperCase();
+
+      const fRetorno = new Date(fechaSanObj);
+      fRetorno.setDate(fRetorno.getDate() + dias);
+      fechaRetornoTexto = fRetorno.toLocaleDateString('es-AR', opcionesFecha).toUpperCase();
+    }
+
+    let textoCuerpo = '';
+
+    if (dias <= 0 || sancionesPrevias.length === 0) {
+      if (dias > 0) {
+        textoCuerpo = `POR MOTIVOS DE HABER INCURRIDO EL DÍA ${fechaSanTexto} EN LA SIGUIENTE FALTA DISCIPLINARIA: "${(sancion.incurrencia || '').toUpperCase()}", Y TRAYENDO DICHA CONDUCTA APAREJADA UN DESEQUILIBRIO EN LA ORGANIZACIÓN DE LAS TAREAS A SU CARGO POR LO TANTO LE NOTIFICAMOS QUE LA EMPRESA HA DECIDIDO APLICARLE UNA SUSPENSIÓN DE ${dias} DÍAS, LA MISMA SE HACE VIGENTE DESDE EL DÍA ${fechaDesdeTexto} HASTA EL DÍA ${fechaHastaTexto} INCLUSIVE. DEBIENDO RETOMAR SUS TAREAS HABITUALES EL DÍA ${fechaRetornoTexto}. LO INVITAMOS A REFLEXIONAR SOBRE SU ACCIONAR, YA QUE DE REINCIDIR EN UNA FALTA SIMILAR, NOS OBLIGARÁ A APLICAR MEDIDAS DISCIPLINARIAS MÁS SEVERAS. QUEDA USTED DEBIDAMENTE NOTIFICADO.`;
+      } else {
+        textoCuerpo = `POR MOTIVOS DE HABER INCURRIDO EL DÍA ${fechaSanTexto} EN LA SIGUIENTE FALTA DISCIPLINARIA: "${(sancion.incurrencia || '').toUpperCase()}", Y TRAYENDO DICHA CONDUCTA APAREJADA UN DESEQUILIBRIO EN LA ORGANIZACIÓN DE LAS TAREAS A SU CARGO POR LO TANTO LE NOTIFICAMOS QUE LA EMPRESA HA DECIDIDO APLICARLE UN/A ${(sancion.sancion_tipo || 'LLAMADO DE ATENCIÓN').toUpperCase()}. LO INVITAMOS A REFLEXIONAR SOBRE SU ACCIONAR, YA QUE DE REINCIDIR EN UNA FALTA SIMILAR, NOS OBLIGARÁ A APLICAR MEDIDAS DISCIPLINARIAS MÁS SEVERAS. QUEDA USTED DEBIDAMENTE NOTIFICADO.`;
+      }
+    } else {
+      let detalleAnteriores = sancionesPrevias.map((sp, idx) => {
+        const fPrev = new Date(sp.fecha_san + 'T00:00:00').toLocaleDateString('es-AR');
+        const dur = sp.dias ? `${sp.dias} DÍAS` : 'S/D';
+        return `${String.fromCharCode(97 + idx)}) ${fPrev} - ${dur} - ${(sp.sancion_tipo || '').toUpperCase()} (${(sp.incurrencia || '').toUpperCase()})`;
+      }).join(' / ');
+
+      textoCuerpo = `POR MOTIVOS DE HABER INCURRIDO EL DÍA ${fechaSanTexto} EN LA SIGUIENTE FALTA DISCIPLINARIA: "${(sancion.incurrencia || '').toUpperCase()}", Y SIENDO REINCIDENTE EN INCUMPLIMIENTO SIMILAR POR LA MISMA CAUSA HABIÉNDOSELE APLICADO ANTERIORMENTE: [ ${detalleAnteriores} ]. POR TODO ELLO Y CONSIDERANDO QUE SU ACTITUD CONSTITUYE UNA FALTA DE INCUMPLIMIENTO DE LOS PRINCIPIOS DE LA RELACIÓN LABORAL, LA BUENA FE, DE LA COLABORACIÓN Y RESPONSABILIDAD, SE LE APLICA UNA SUSPENSIÓN DE ${dias} DÍAS, LA MISMA SE HACE VIGENTE DESDE EL DÍA ${fechaDesdeTexto} HASTA EL DÍA ${fechaHastaTexto} INCLUSIVE. DEBIENDO RETOMAR SUS TAREAS HABITUALES EL DÍA ${fechaRetornoTexto}. PREAVISÁMOSLE QUE DE INCURRIR UNA VEZ MÁS EN CONDUCTAS SIMILARES Y NO JUSTIFICAR SU AUSENCIA EN EL CUMPLIMIENTO DE SU JORNADA DE TRABAJO, LO QUE IMPLICA HACIA NUESTRA EMPRESA UNA DESORGANIZACIÓN EN LAS TAREAS QUE USTED LLEVA A CABO, SE APLICARÁN SANCIONES DISCIPLINARIAS Y ECONÓMICAS MÁS SEVERAS. ELEVAMOS UNA VEZ MÁS A REFLEXIÓN CAMBIAR SU CONDUCTA Y ASUMIR FIELMENTE SUS DEBERES Y OBLIGACIONES COMO TRABAJADOR EN LA RELACIÓN LABORAL. QUEDA USTED DEBIDAMENTE NOTIFICADO.`;
+    }
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>SANCCION_DISCIPLINARIA_LEG_${sancion.legajo}</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+          body { color: #000; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+
+          .frame-container {
+            border: 2px solid #000;
+            min-height: 940px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 2px solid #000;
+          }
+          .header-table td {
+            border: 1px solid #000;
+            padding: 8px 12px;
+            vertical-align: middle;
+          }
+
+          .logo-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+          }
+
+          .main-title {
+            text-align: center;
+            font-size: 15px;
+            font-weight: 800;
+            text-decoration: underline;
+            letter-spacing: 0.5px;
+          }
+
+          .doc-info {
+            text-align: center;
+            font-size: 10px;
+            font-weight: bold;
+          }
+
+          .body-content {
+            padding: 20px 25px;
+            flex-grow: 1;
+          }
+
+          .date-location {
+            text-align: right;
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 20px;
+          }
+
+          .employee-box {
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+          }
+
+          .legal-text {
+            font-size: 11px;
+            line-height: 1.7;
+            text-align: justify;
+            font-weight: 500;
+          }
+
+          .footer-signatures {
+            padding: 20px 25px 30px 25px;
+            margin-top: auto;
+          }
+
+          .sig-table {
+            width: 100%;
+            margin-top: 40px;
+          }
+          .sig-cell {
+            width: 50%;
+            vertical-align: bottom;
+            font-size: 11px;
+            font-weight: bold;
+          }
+
+          .line-sig {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin-top: 50px;
+            padding-top: 5px;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+
+        <div class="frame-container">
+          <table class="header-table">
+            <tr>
+              <td style="width: 28%;">
+                <div class="logo-title">GORDON STERN DIEGO SEBASTIAN GARY</div>
+                <div style="font-size:8.5px; margin-top:2px;">CUIT: 20-24155794-5</div>
+              </td>
+              <td style="width: 52%;" class="main-title">
+                SANCIÓN DISCIPLINARIA
+              </td>
+              <td style="width: 20%;" class="doc-info">
+                <div>RRHH</div>
+                <div style="margin-top:4px;">FR-1</div>
+              </td>
+            </tr>
+          </table>
+
+          <div class="body-content">
+            <div class="date-location">
+              CHOELE CHOEL, R.N. ${fechaHoyTexto}
+            </div>
+
+            <div class="employee-box">
+              LEGAJO: ${sancion.legajo}<br>
+              EMPLEADO: ${sancion.empleado || `${emp.apellido || ''} ${emp.nombre || ''}`}<br>
+              CUIL: ${emp.cuil || '-'}
+            </div>
+
+            <div class="legal-text">
+              ${textoCuerpo}
+            </div>
+          </div>
+
+          <div class="footer-signatures">
+            <table style="width:100%;">
+              <tr>
+                <td style="font-weight:bold; font-size:11px;">
+                  Quedó notificado el día: ..... / ..... / .........
+                </td>
+                <td style="text-align:right; font-weight:bold; font-size:11px;">
+                  Firma Empleador &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CUIT 20-24155794-5
+                </td>
+              </tr>
+            </table>
+
+            <table class="sig-table">
+              <tr>
+                <td class="sig-cell">
+                  <div class="line-sig">
+                    Firmo y Me Notifico<br>
+                    <span style="font-size:10px; font-weight:normal;">${sancion.empleado}</span>
+                  </div>
+                </td>
+                <td class="sig-cell" style="text-align:right;">
+                  <div class="line-sig" style="margin-left:auto;">
+                    Aclaración / Autoridad<br>
+                    <span style="font-size:10px; font-weight:normal;">${sancion.aplico || 'Firma Autorizada'}</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() { window.print(); }, 300);
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
+  // ACA ES LO NUEVO: Lógica del Modal Unificado de Exportación (EXCEL / PDF)
+  const modalExp = document.getElementById('modalExportarGlobal');
+  document.getElementById('btnAbrirExportar').addEventListener('click', () => modalExp.classList.add('show'));
+  document.getElementById('btnCerrarModalExportar').addEventListener('click', () => modalExp.classList.remove('show'));
+  document.getElementById('btnCancelarExportar').addEventListener('click', () => modalExp.classList.remove('show'));
+
+  document.getElementById('btnProcesarExportacion').addEventListener('click', () => {
+    const formato = document.querySelector('input[name="fmtExport"]:checked').value;
+    const expActivo = document.getElementById('chkExpActivo').checked;
+    const expTodos = document.getElementById('chkExpTodos').checked;
+    const expSanciones = document.getElementById('chkExpSanciones').checked;
+    const expHistorial = document.getElementById('chkExpHistorial').checked;
+
+    if (!expActivo && !expTodos && !expSanciones && !expHistorial) {
+      lanzarToast("Seleccione al menos una opción para exportar", "error");
+      return;
+    }
+
+    if (formato === 'EXCEL') {
+      exportarListadosExcel(expActivo, expTodos, expSanciones, expHistorial);
+    } else {
+      exportarListadosPDF(expActivo, expTodos, expSanciones, expHistorial);
+    }
+
+    modalExp.classList.remove('show');
+  });
+
+  /* ESTO LO MODIFIQUE: Guardar directamente en la carpeta Descargas */
+  function exportarListadosExcel(act, todos, san, hist) {
+    let xlsxLib = typeof XLSX !== 'undefined' ? XLSX : null;
+
+    if (!xlsxLib && isElectron) {
+      try {
+        xlsxLib = require('xlsx');
+      } catch (e) {
+        console.warn("No se pudo requerir 'xlsx' localmente", e);
+      }
+    }
+
+    if (!xlsxLib || !xlsxLib.utils) {
+      lanzarToast("Error: La librería XLSX no está disponible.", "error");
+      return;
+    }
+
+    try {
+      const wb = xlsxLib.utils.book_new();
+
+      if (act) {
+        const dataAct = listaNominaGlobal.filter(p => p.estado === 'ACTIVO').map(p => ({
+          LEGAJO: p.legajo,
+          APELLIDO_NOMBRE: p.nombre_completo || `${p.apellido} ${p.nombre}`,
+          DNI: p.dni,
+          CUIL: p.cuil,
+          CATEGORIA: p.categoria,
+          SECTOR: p.sector,
+          CENTRO_COSTO: p.centro_costo,
+          VALOR_HORA: p.imp_hora,
+          JORNAL: p.jornal,
+          FORMA_PAGO: p.forma_pago,
+          FECHA_INGRESO: p.fecha_ingreso
+        }));
+        const wsAct = xlsxLib.utils.json_to_sheet(dataAct);
+        xlsxLib.utils.book_append_sheet(wb, wsAct, "Personal Activo");
+      }
+
+      if (todos) {
+        const dataTodos = listaNominaGlobal.map(p => ({
+          LEGAJO: p.legajo,
+          APELLIDO_NOMBRE: p.nombre_completo || `${p.apellido} ${p.nombre}`,
+          DNI: p.dni,
+          CUIL: p.cuil,
+          ESTADO: p.estado,
+          CATEGORIA: p.categoria,
+          SECTOR: p.sector,
+          CENTRO_COSTO: p.centro_costo,
+          VALOR_HORA: p.imp_hora,
+          JORNAL: p.jornal,
+          FECHA_INGRESO: p.fecha_ingreso
+        }));
+        const wsTodos = xlsxLib.utils.json_to_sheet(dataTodos);
+        xlsxLib.utils.book_append_sheet(wb, wsTodos, "Todo el Personal");
+      }
+
+      if (san && db) {
+        try {
+          const dataSan = db.prepare(`SELECT legajo, empleado, dni, fecha_san, sancion_tipo, incurrencia, dias, aplico FROM local_p_personal_sanciones ORDER BY CAST(id AS INTEGER) DESC`).all();
+          const wsSan = xlsxLib.utils.json_to_sheet(dataSan);
+          xlsxLib.utils.book_append_sheet(wb, wsSan, "Sanciones");
+        } catch(e) { console.error(e); }
+      }
+
+      if (hist && db) {
+        try {
+          const dataHist = db.prepare(`SELECT legajo, nombre_completo, dni, fecha_desde, fecha_hasta, forma_pago, importe_hora, jornal, pago_mes, centro_costo, negocio FROM local_p_personal_historial ORDER BY id DESC`).all();
+          const wsHist = xlsxLib.utils.json_to_sheet(dataHist);
+          xlsxLib.utils.book_append_sheet(wb, wsHist, "Historial Laboral");
+        } catch(e) { console.error(e); }
+      }
+
+      // ACA ES LO NUEVO: Construcción de la ruta a la carpeta Descargas
+      const nombreArchivo = `Gordon_Gestion_Personal_${Date.now()}.xlsx`;
+      
+      if (isElectron) {
+        const path = require('path');
+        const os = require('os');
+        
+        // Obtener la ruta de la carpeta Descargas del usuario actual
+        const rutaDescargas = path.join(os.homedir(), 'Downloads', nombreArchivo);
+        
+        // Escribir directamente el archivo en Descargas
+        xlsxLib.writeFile(wb, rutaDescargas);
+        lanzarToast(`📊 Guardado en Descargas: ${nombreArchivo}`);
+      } else {
+        // Fallback si corre en navegador normal
+        xlsxLib.writeFile(wb, nombreArchivo);
+        lanzarToast("📊 Reporte Excel generado correctamente");
+      }
+
+    } catch(err) {
+      console.error(err);
+      lanzarToast("Error al exportar a Excel: " + err.message, "error");
+    }
+  }
+
+  function exportarListadosPDF(act, todos, san, hist) {
+    let seccionesHtml = '';
+
+    if (act) {
+      const dataAct = listaNominaGlobal.filter(p => p.estado === 'ACTIVO');
+      seccionesHtml += `
+        <div class="box">
+          <div class="title">NÓMINA DE PERSONAL ACTIVO (${dataAct.length})</div>
+          <table>
+            <thead>
+              <tr><th>LEG</th><th>APELLIDO Y NOMBRE</th><th>DNI</th><th>CATEGORÍA</th><th>CENTRO COSTO</th><th style="text-align:right;">VALOR HS</th></tr>
+            </thead>
+            <tbody>
+              ${dataAct.map(p => `
+                <tr>
+                  <td><b>${p.legajo}</b></td>
+                  <td>${p.nombre_completo || `${p.apellido} ${p.nombre}`}</td>
+                  <td>${p.dni || '-'}</td>
+                  <td>${p.categoria || '-'}</td>
+                  <td>${p.centro_costo || '-'}</td>
+                  <td style="text-align:right;">$ ${parseFloat(p.imp_hora || 0).toLocaleString('es-AR')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    if (todos) {
+      seccionesHtml += `
+        <div class="box">
+          <div class="title">NÓMINA GENERAL COMPLETA (${listaNominaGlobal.length})</div>
+          <table>
+            <thead>
+              <tr><th>LEG</th><th>APELLIDO Y NOMBRE</th><th>DNI</th><th>ESTADO</th><th>CATEGORÍA</th><th>CENTRO COSTO</th></tr>
+            </thead>
+            <tbody>
+              ${listaNominaGlobal.map(p => `
+                <tr>
+                  <td><b>${p.legajo}</b></td>
+                  <td>${p.nombre_completo || `${p.apellido} ${p.nombre}`}</td>
+                  <td>${p.dni || '-'}</td>
+                  <td><b>${p.estado}</b></td>
+                  <td>${p.categoria || '-'}</td>
+                  <td>${p.centro_costo || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    if (san && db) {
+      try {
+        const sanciones = db.prepare(`SELECT * FROM local_p_personal_sanciones ORDER BY CAST(id AS INTEGER) DESC`).all();
+        seccionesHtml += `
+          <div class="box">
+            <div class="title">REGISTRO DE SANCIONES DISCIPLINARIAS (${sanciones.length})</div>
+            <table>
+              <thead>
+                <tr><th>FECHA</th><th>LEG</th><th>EMPLEADO</th><th>SANCIÓN</th><th>MOTIVO</th><th>DÍAS</th><th>APLICÓ</th></tr>
+              </thead>
+              <tbody>
+                ${sanciones.map(s => `
+                  <tr>
+                    <td>${s.fecha_san || '-'}</td>
+                    <td><b>${s.legajo}</b></td>
+                    <td>${s.empleado || '-'}</td>
+                    <td><b>${s.sancion_tipo || '-'}</b></td>
+                    <td>${s.incurrencia || '-'}</td>
+                    <td>${s.dias || 0}</td>
+                    <td>${s.aplico || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch(e) { console.error(e); }
+    }
+
+    if (hist && db) {
+      try {
+        const historiales = db.prepare(`SELECT * FROM local_p_personal_historial ORDER BY id DESC`).all();
+        seccionesHtml += `
+          <div class="box">
+            <div class="title">HISTORIAL LABORAL Y LIQUIDACIONES (${historiales.length})</div>
+            <table>
+              <thead>
+                <tr><th>DESDE</th><th>HASTA</th><th>LEG</th><th>EMPLEADO</th><th>CENTRO COSTO</th><th style="text-align:right;">LIQUIDACIÓN</th></tr>
+              </thead>
+              <tbody>
+                ${historiales.map(h => `
+                  <tr>
+                    <td>${h.fecha_desde || '-'}</td>
+                    <td>${h.fecha_hasta || '-'}</td>
+                    <td><b>${h.legajo}</b></td>
+                    <td>${h.nombre_completo || '-'}</td>
+                    <td>${h.centro_costo || '-'}</td>
+                    <td style="text-align:right; font-weight:bold;">$ ${parseFloat(h.pago_mes || 0).toLocaleString('es-AR')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch(e) { console.error(e); }
+    }
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>REPORTE_PERSONAL_GORDON_GESTION</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          body { color: #0F172A; margin: 0; padding: 0; background: #FFF; font-size: 10px; }
+          .header { background: #0055A5; color: white; padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+          .box { border: 1px solid #CBD5E1; border-radius: 8px; padding: 10px; margin-top: 12px; }
+          .title { font-size: 11px; font-weight: bold; color: #0055A5; text-transform: uppercase; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px; margin-bottom: 6px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+          th { background: #F1F5F9; color: #475569; padding: 5px; font-size: 8.5px; text-align: left; border-bottom: 1px solid #CBD5E1; }
+          td { padding: 5px; border-bottom: 1px solid #E2E8F0; font-size: 9.5px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div style="font-size:14px; font-weight:bold;">GORDON GESTIÓN · REPORTE GENERAL DE PERSONAL</div>
+            <div style="font-size:9px; color:#93C5FD;">SISTEMA INSTITUCIONAL AGROSOFT J&L</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:9px; font-weight:bold;">${new Date().toLocaleDateString('es-AR')}</div>
+          </div>
+        </div>
+
+        ${seccionesHtml}
+
+        <script>window.onload = function() { setTimeout(function() { window.print(); }, 400); };<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  }
+
+  // MODAL NUEVA CATEGORIA
+  const modalCat = document.getElementById('modalNuevaCategoria');
+  window.abrirModalCategoria = function() {
+    document.getElementById('inputNuevaCatTexto').value = '';
+    modalCat.classList.add('show');
+  };
+  document.getElementById('btnCerrarModalCat').addEventListener('click', () => modalCat.classList.remove('show'));
+  document.getElementById('btnCancelarCat').addEventListener('click', () => modalCat.classList.remove('show'));
+
+  document.getElementById('btnGuardarNuevaCat').addEventListener('click', () => {
+    const nueva = document.getElementById('inputNuevaCatTexto').value.trim().toUpperCase();
+    if (!nueva) return;
+    if (!categoriasDisponibles.includes(nueva)) {
+      categoriasDisponibles.push(nueva);
+      lanzarToast(`Categoría "${nueva}" agregada`);
+    }
+    modalCat.classList.remove('show');
+    const selCat = document.getElementById('fCategoria');
+    if (selCat) {
+      cargarCategoriasDropdown('fCategoria', nueva);
+    }
+  });
+
+  // ALTA NUEVO EMPLEADO — MODAL FLOTANTE CON CHEQUEO DE DNI
+  function calcularProximoLegajo() {
+    let maxLegajo = 0;
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT legajo FROM local_p_nomina_personal`).all();
+        res.forEach(r => {
+          const num = parseInt(r.legajo);
+          if (!isNaN(num) && num > maxLegajo) maxLegajo = num;
+        });
+      } catch(e) { console.error(e); }
+    } else {
+      maxLegajo = 102;
+    }
+    return (maxLegajo + 1).toString();
+  }
+
+  const modalNuevo = document.getElementById('modalNuevoEmpleado');
+  const mNuevoDni = document.getElementById('mNuevoDni');
+  const mNuevoApellido = document.getElementById('mNuevoApellido');
+  const mNuevoNombre = document.getElementById('mNuevoNombre');
+  const mNuevoAlerta = document.getElementById('mNuevoAlerta');
+  const mNuevoCamposAlta = document.getElementById('mNuevoCamposAlta');
+  const btnConfirmarNuevo = document.getElementById('btnConfirmarNuevo');
+
+  let empleadoCoincidenteDni = null;
+
+  function buscarPorDni(dni) {
+    if (!dni) return null;
+    if (db) {
+      try {
+        return db.prepare(`SELECT * FROM local_p_nomina_personal WHERE dni = ?`).get(dni) || null;
+      } catch(e) { console.error(e); return null; }
+    }
+    return listaNominaGlobal.find(p => parseInt(p.dni) === parseInt(dni)) || null;
+  }
+
+  function mostrarAlertaNuevo(texto, tipo) {
+    mNuevoAlerta.style.display = 'block';
+    mNuevoAlerta.textContent = texto;
+    if (tipo === 'ok') {
+      mNuevoAlerta.style.background = '#E8F5E9';
+      mNuevoAlerta.style.color = 'var(--verde-ok)';
+    } else if (tipo === 'warn') {
+      mNuevoAlerta.style.background = '#FFF3E0';
+      mNuevoAlerta.style.color = '#B45309';
+    } else {
+      mNuevoAlerta.style.background = '#FFEBEE';
+      mNuevoAlerta.style.color = 'var(--rojo-descarte)';
+    }
+  }
+
+  function evaluarDniNuevo() {
+    const dni = parseInt(mNuevoDni.value) || 0;
+    empleadoCoincidenteDni = null;
+    mNuevoAlerta.style.display = 'none';
+    mNuevoCamposAlta.style.display = 'flex';
+    btnConfirmarNuevo.disabled = false;
+
+    if (!dni) {
+      btnConfirmarNuevo.textContent = 'CREAR LEGAJO';
+      btnConfirmarNuevo.disabled = true;
+      return;
+    }
+
+    const encontrado = buscarPorDni(dni);
+    if (encontrado) {
+      empleadoCoincidenteDni = encontrado;
+      mNuevoCamposAlta.style.display = 'none';
+      const nombreEnc = encontrado.nombre_completo || `${encontrado.apellido || ''} ${encontrado.nombre || ''}`;
+
+      if (encontrado.estado === 'ACTIVO') {
+        mostrarAlertaNuevo(`⚠️ Este DNI ya pertenece a un operario ACTIVO: ${nombreEnc} (Legajo ${encontrado.legajo}).`, 'warn');
+        btnConfirmarNuevo.textContent = 'VER FICHA';
+      } else {
+        mostrarAlertaNuevo(`ℹ️ Ya existe un legajo con este DNI: ${nombreEnc} (Legajo ${encontrado.legajo}) · Estado: ${encontrado.estado}. Se reactivará en lugar de crear uno nuevo.`, 'ok');
+        btnConfirmarNuevo.textContent = 'ACTIVAR LEGAJO EXISTENTE';
+      }
+    } else {
+      btnConfirmarNuevo.textContent = 'CREAR LEGAJO';
+    }
+  }
+
+  mNuevoDni.addEventListener('input', evaluarDniNuevo);
+
+  document.getElementById('btnNuevoEmpleado').addEventListener('click', () => {
+    mNuevoDni.value = '';
+    mNuevoApellido.value = '';
+    mNuevoNombre.value = '';
+    mNuevoAlerta.style.display = 'none';
+    mNuevoCamposAlta.style.display = 'flex';
+    empleadoCoincidenteDni = null;
+    btnConfirmarNuevo.textContent = 'CREAR LEGAJO';
+    btnConfirmarNuevo.disabled = true;
+    modalNuevo.classList.add('show');
+    setTimeout(() => mNuevoDni.focus(), 50);
+  });
+
+  document.getElementById('btnCerrarModalNuevo').addEventListener('click', () => modalNuevo.classList.remove('show'));
+  document.getElementById('btnCancelarNuevo').addEventListener('click', () => modalNuevo.classList.remove('show'));
+
+  btnConfirmarNuevo.addEventListener('click', () => {
+    const dni = parseInt(mNuevoDni.value) || 0;
+    if (!dni) {
+      lanzarToast('Ingrese un DNI válido', 'error');
+      return;
+    }
+
+    // CASO 1: el DNI ya existe -> activar/ver ficha directamente, no se crea un legajo nuevo
+    if (empleadoCoincidenteDni) {
+      const legajoExistente = empleadoCoincidenteDni.legajo;
+      if (empleadoCoincidenteDni.estado !== 'ACTIVO') {
+        reactivarEmpleado(legajoExistente);
+      } else {
+        cargarNominaGeneral();
+        seleccionarEmpleado(legajoExistente);
+      }
+      modalNuevo.classList.remove('show');
+      return;
+    }
+
+    // CASO 2: DNI nuevo -> alta de legajo
+    const apellido = mNuevoApellido.value.trim().toUpperCase();
+    const nombre = mNuevoNombre.value.trim().toUpperCase();
+    if (!apellido || !nombre) {
+      lanzarToast('Complete apellido y nombre', 'error');
+      return;
+    }
+
+    if (!db) return;
+
+    const nuevoLegajo = calcularProximoLegajo();
+    const regLocal = `REG-PERS-${Date.now()}`;
+    const nombreCompleto = `${apellido} ${nombre}`.trim();
+
+    try {
+      db.prepare(`
+        INSERT INTO local_p_nomina_personal (legajo, apellido, nombre, dni, cuil, estado, reg_local, sincronizado, nombre_completo, imp_hora, jornal, forma_pago)
+        VALUES (?, ?, ?, ?, '', 'ACTIVO', ?, 0, ?, 0, 0, 'QUINCENA')
+      `).run(nuevoLegajo, apellido, nombre, dni, regLocal, nombreCompleto);
+
+      lanzarToast(`Legajo N° ${nuevoLegajo} creado correctamente`);
+      modalNuevo.classList.remove('show');
+      cargarNominaGeneral();
+      seleccionarEmpleado(nuevoLegajo);
+    } catch(e) { console.error(e); lanzarToast("Error al crear empleado", "error"); }
+  });
+
+  // GUARDAR FICHA EMPLEADO
+  window.guardarFichaEmpleado = function(legajo) {
+    if (!db) return;
+    try {
+      const ape = document.getElementById('fApellido').value.trim().toUpperCase();
+      const nom = document.getElementById('fNombre').value.trim().toUpperCase();
+      const dni = parseInt(document.getElementById('fDni').value) || 0;
+      const cuil = document.getElementById('fCuil').value.trim();
+      const sexo = document.getElementById('fSexo').value;
+      const fing = document.getElementById('fFechaIngreso').value;
+      const sec = document.getElementById('fSector').value;
+      const cat = document.getElementById('fCategoria').value;
+      const cc = document.getElementById('fCentroCosto').value;
+      const impHora = parseFloat(document.getElementById('fImpHora').value) || 0;
+      const jornal = parseFloat(document.getElementById('fJornal').value) || 0;
+      const formaPago = document.getElementById('fFormaPago').value;
+
+      const nombreCompleto = `${ape} ${nom}`.trim();
+
+      db.prepare(`
+        UPDATE local_p_nomina_personal 
+        SET apellido = ?, nombre = ?, dni = ?, cuil = ?, sexo = ?, fecha_ingreso = ?, sector = ?, categoria = ?, centro_costo = ?, nombre_completo = ?, imp_hora = ?, jornal = ?, forma_pago = ?, sincronizado = 0
+        WHERE legajo = ?
+      `).run(ape, nom, dni, cuil, sexo, fing, sec, cat, cc, nombreCompleto, impHora, jornal, formaPago, legajo);
+
+      lanzarToast("✅ Ficha y remuneración actualizadas");
+      cargarNominaGeneral();
+      seleccionarEmpleado(legajo);
+    } catch(e) { console.error(e); lanzarToast("Error al actualizar ficha", "error"); }
+  };
+
+  // GUARDAR DATOS PERSONALES (para formularios oficiales / legajo)
+  window.guardarDatosPersonales = function(legajo) {
+    if (!db) return;
+    try {
+      const fechaNacimiento = document.getElementById('pFechaNacimiento').value;
+      const estadoCivil = document.getElementById('pEstadoCivil').value;
+      const nacionalidad = document.getElementById('pNacionalidad').value.trim();
+      const telefono = document.getElementById('pTelefono').value.trim();
+      const email = document.getElementById('pEmail').value.trim();
+      const domicilio = document.getElementById('pDomicilio').value.trim();
+      const cp = document.getElementById('pCp').value.trim();
+      const localidad = document.getElementById('pLocalidad').value.trim();
+      const provincia = document.getElementById('pProvincia').value.trim();
+      const domicilioNotif = document.getElementById('pDomicilioNotif').value.trim();
+      const benefNombre = document.getElementById('pBenefNombre').value.trim();
+      const benefDni = document.getElementById('pBenefDni').value.trim();
+      const benefParentesco = document.getElementById('pBenefParentesco').value.trim();
+      const benefDomicilio = document.getElementById('pBenefDomicilio').value.trim();
+      const benefLocalidad = document.getElementById('pBenefLocalidad').value.trim();
+
+      // Se guarda en local_p_legajo_datos (tabla aparte, vinculada por legajo),
+      // no en local_p_nomina_personal: ver nota en SQL_NOMINA_CON_LEGAJO_DATOS.
+      db.prepare(`
+        INSERT INTO local_p_legajo_datos (
+          legajo, fecha_nacimiento, estado_civil, nacionalidad, telefono, email,
+          domicilio, cp, localidad, provincia, domicilio_notif,
+          beneficiario_nombre, beneficiario_dni, beneficiario_parentesco, beneficiario_domicilio, beneficiario_localidad,
+          sincronizado
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        ON CONFLICT(legajo) DO UPDATE SET
+          fecha_nacimiento = excluded.fecha_nacimiento,
+          estado_civil = excluded.estado_civil,
+          nacionalidad = excluded.nacionalidad,
+          telefono = excluded.telefono,
+          email = excluded.email,
+          domicilio = excluded.domicilio,
+          cp = excluded.cp,
+          localidad = excluded.localidad,
+          provincia = excluded.provincia,
+          domicilio_notif = excluded.domicilio_notif,
+          beneficiario_nombre = excluded.beneficiario_nombre,
+          beneficiario_dni = excluded.beneficiario_dni,
+          beneficiario_parentesco = excluded.beneficiario_parentesco,
+          beneficiario_domicilio = excluded.beneficiario_domicilio,
+          beneficiario_localidad = excluded.beneficiario_localidad,
+          sincronizado = 0
+      `).run(legajo, fechaNacimiento, estadoCivil, nacionalidad, telefono, email, domicilio, cp, localidad, provincia, domicilioNotif, benefNombre, benefDni, benefParentesco, benefDomicilio, benefLocalidad);
+
+      lanzarToast("✅ Datos personales actualizados");
+      cargarNominaGeneral();
+      seleccionarEmpleado(legajo);
+    } catch(e) { console.error(e); lanzarToast("Error al actualizar datos personales", "error"); }
+  };
+
+  // CORTE LABORAL (ACTIVO -> PASIVO, pendiente de liquidar)
+  const modalCorte = document.getElementById('modalCorteLaboral');
+  window.registrarCorte = function(legajo) {
+    const emp = listaNominaGlobal.find(p => p.legajo === legajo);
+    if (!emp) return;
+
+    document.getElementById('mCorteNombre').value = `${emp.nombre_completo || emp.apellido} (LEG: ${emp.legajo})`;
+    document.getElementById('mCorteFecha').value = new Date().toISOString().split('T')[0];
+    modalCorte.classList.add('show');
+  };
+
+  document.getElementById('btnCerrarModalCorte').addEventListener('click', () => modalCorte.classList.remove('show'));
+  document.getElementById('btnCancelarCorte').addEventListener('click', () => modalCorte.classList.remove('show'));
+
+  document.getElementById('btnConfirmarCorte').addEventListener('click', () => {
+    if (!legajoSeleccionadoActual || !db) return;
+    const emp = listaNominaGlobal.find(p => p.legajo === legajoSeleccionadoActual);
+    if (!emp) return;
+
+    try {
+      const fechaBaja = document.getElementById('mCorteFecha').value || new Date().toISOString().split('T')[0];
+
+      db.transaction(() => {
+        db.prepare(`UPDATE local_p_nomina_personal SET estado = 'PASIVO', sincronizado = 0 WHERE legajo = ?`).run(emp.legajo);
+
+        const regLocalHist = Date.now();
+        db.prepare(`
+          INSERT INTO local_p_personal_historial (
+            reg_local, legajo, nombre_completo, dni, fecha_desde, fecha_hasta, importe_hora, jornal, forma_pago, pago_mes, centro_costo, negocio, sincronizado
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `).run(regLocalHist, emp.legajo, emp.nombre_completo || `${emp.apellido} ${emp.nombre}`, emp.dni || 0, emp.fecha_ingreso || '', fechaBaja, emp.imp_hora || 0, emp.jornal || 0, emp.forma_pago || '', 0, emp.centro_costo || '', emp.sector || '');
+      })();
+
+      lanzarToast('Operario dado de baja. Estado: PASIVO (pendiente de liquidar)');
+      modalCorte.classList.remove('show');
+      cargarNominaGeneral();
+      seleccionarEmpleado(legajoSeleccionadoActual);
+    } catch(e) { console.error(e); lanzarToast('Error al registrar el corte', 'error'); }
+  });
+
+  // LIQUIDACIÓN FINAL (PASIVO -> INACTIVO)
+  const modalBaja = document.getElementById('modalDarDeBaja');
+  window.abrirModalBaja = function(legajo) {
+    const emp = listaNominaGlobal.find(p => p.legajo === legajo);
+    if (!emp) return;
+
+    document.getElementById('mBajaNombre').value = `${emp.nombre_completo || emp.apellido} (LEG: ${emp.legajo})`;
+    document.getElementById('mBajaFechaDesde').value = emp.fecha_ingreso || new Date().toISOString().split('T')[0];
+    document.getElementById('mBajaFechaHasta').value = new Date().toISOString().split('T')[0];
+    document.getElementById('mBajaImporteHora').value = emp.imp_hora || '';
+    document.getElementById('mBajaPagoMes').value = '';
+    document.getElementById('mBajaNegocio').value = emp.sector || '';
+
+    cargarCentrosCostoDropdown('mBajaCentroCosto', emp.centro_costo);
+    modalBaja.classList.add('show');
+  };
+
+  document.getElementById('btnCerrarModalBaja').addEventListener('click', () => modalBaja.classList.remove('show'));
+  document.getElementById('btnCancelarBaja').addEventListener('click', () => modalBaja.classList.remove('show'));
+
+  document.getElementById('btnConfirmarBajaLaboral').addEventListener('click', () => {
+    if (!legajoSeleccionadoActual || !db) return;
+    const emp = listaNominaGlobal.find(p => p.legajo === legajoSeleccionadoActual);
+    if (!emp) return;
+
+    try {
+      const fDesde = document.getElementById('mBajaFechaDesde').value;
+      const fHasta = document.getElementById('mBajaFechaHasta').value;
+      const impHora = parseFloat(document.getElementById('mBajaImporteHora').value) || 0;
+      const jornal = impHora * 8;
+      const formaPago = document.getElementById('mBajaFormaPago').value;
+      const cc = document.getElementById('mBajaCentroCosto').value;
+      const neg = document.getElementById('mBajaNegocio').value.trim();
+      const pagoMes = parseFloat(document.getElementById('mBajaPagoMes').value) || 0;
+
+      let maxId = 0;
+      try {
+        const resId = db.prepare(`SELECT MAX(id) as max_id FROM local_p_personal_historial`).get();
+        if (resId && resId.max_id) {
+          maxId = parseInt(resId.max_id);
+        }
+      } catch(e) { console.error("Error al obtener max id historial:", e); }
+      
+      const nuevoId = maxId + 1;
+      const regLocalHist = Date.now();
+
+      db.transaction(() => {
+        db.prepare(`UPDATE local_p_nomina_personal SET estado = 'INACTIVO', sincronizado = 0 WHERE legajo = ?`).run(legajoSeleccionadoActual);
+
+        db.prepare(`
+          INSERT INTO local_p_personal_historial (
+            id, reg_local, legajo, nombre_completo, dni, fecha_desde, fecha_hasta, importe_hora, jornal, forma_pago, pago_mes, centro_costo, negocio, sincronizado
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `).run(nuevoId, regLocalHist, emp.legajo, emp.nombre_completo || `${emp.apellido} ${emp.nombre}`, emp.dni || 0, fDesde, fHasta, impHora, jornal, formaPago, cc, neg);
+      })();
+
+      lanzarToast("Baja registrada e ingresada al Historial");
+      modalBaja.classList.remove('show');
+      cargarNominaGeneral();
+      seleccionarEmpleado(legajoSeleccionadoActual);
+    } catch(e) { console.error(e); lanzarToast("Error al procesar baja", "error"); }
+  });
+
+  window.reactivarEmpleado = function(legajo) {
+    if (!db) return;
+    try {
+      db.prepare(`UPDATE local_p_nomina_personal SET estado = 'ACTIVO', sincronizado = 0 WHERE legajo = ?`).run(legajo);
+      lanzarToast("Operario reactivado en la nómina activa");
+      cargarNominaGeneral();
+      seleccionarEmpleado(legajo);
+    } catch(e) { console.error(e); }
+  };
+
+  window.imprimirFichaPDF = function(legajo) {
+    const emp = listaNominaGlobal.find(p => p.legajo === legajo);
+    if (!emp) return;
+
+    let historiales = [];
+    let sanciones = [];
+    if (db) {
+      try {
+        historiales = db.prepare(`SELECT * FROM local_p_personal_historial WHERE legajo = ? ORDER BY id DESC`).all(legajo);
+        sanciones = db.prepare(`SELECT * FROM local_p_personal_sanciones WHERE legajo = ? ORDER BY CAST(id AS INTEGER) DESC`).all(legajo);
+      } catch(e) { console.error(e); }
+    }
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>FICHA_PERSONAL_${emp.legajo}</title>
+        <style>
+          @page { size: A4 portrait; margin: 12mm; }
+          * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          body { color: #0F172A; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+          .header { background: #0055A5; color: white; padding: 14px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+          .box { border: 1.2px solid #E2E8F0; border-radius: 10px; padding: 12px; margin-top: 12px; }
+          .title { font-size: 11px; font-weight: bold; color: #0055A5; text-transform: uppercase; border-bottom: 1px solid #CBD5E1; padding-bottom: 4px; margin-bottom: 8px; }
+          .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+          .lbl { font-size: 9px; color: #64748B; font-weight: bold; }
+          .val { font-size: 11px; font-weight: bold; color: #0F172A; margin-top: 2px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+          th { background: #F1F5F9; color: #475569; padding: 6px; font-size: 9px; text-align: left; border-bottom: 1px solid #CBD5E1; }
+          td { padding: 6px; border-bottom: 1px solid #E2E8F0; font-size: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div style="font-size:15px; font-weight:bold;">LEG. N° ${emp.legajo} · ${emp.nombre_completo || `${emp.apellido} ${emp.nombre}`}</div>
+            <div style="font-size:9px; color:#93C5FD;">FICHA INSTITUCIONAL DE NÓMINA DE PERSONAL</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px; font-weight:bold;">ESTADO: ${emp.estado}</div>
+            <div style="font-size:8px; color:#93C5FD;">AgroSoft J&L</div>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="title">DATOS PERSONALES Y REMUNERACIÓN</div>
+          <div class="grid">
+            <div><div class="lbl">DNI</div><div class="val">${emp.dni || '-'}</div></div>
+            <div><div class="lbl">CUIL</div><div class="val">${emp.cuil || '-'}</div></div>
+            <div><div class="lbl">CATEGORÍA</div><div class="val">${emp.categoria || '-'}</div></div>
+            <div><div class="lbl">IMPORTE HORA</div><div class="val">$ ${parseFloat(emp.imp_hora || 0).toLocaleString('es-AR')}</div></div>
+            <div><div class="lbl">JORNAL (8HS)</div><div class="val">$ ${parseFloat(emp.jornal || 0).toLocaleString('es-AR')}</div></div>
+            <div><div class="lbl">FORMA DE PAGO</div><div class="val">${emp.forma_pago || '-'}</div></div>
+            <div><div class="lbl">SECTOR</div><div class="val">${emp.sector || '-'}</div></div>
+            <div style="grid-column: span 2;"><div class="lbl">CENTRO DE COSTO</div><div class="val">${emp.centro_costo || '-'}</div></div>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="title">SANCIONES DISCIPLINARIAS REGISTRADAS</div>
+          ${sanciones.length === 0 
+            ? `<div style="font-size:10px; color:#64748B;">Sin sanciones o faltas registradas.</div>`
+            : `
+              <table>
+                <thead>
+                  <tr>
+                    <th>FECHA</th>
+                    <th>SANCIÓN</th>
+                    <th>MOTIVO</th>
+                    <th>DÍAS</th>
+                    <th>APLICÓ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sanciones.map(s => `
+                    <tr>
+                      <td>${s.fecha_san || '-'}</td>
+                      <td><b>${s.sancion_tipo || '-'}</b></td>
+                      <td>${s.incurrencia || '-'}</td>
+                      <td>${s.dias || 0}</td>
+                      <td>${s.aplico || '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `
+          }
+        </div>
+
+        <div class="box">
+          <div class="title">HISTORIAL LABORAL REGISTRADO</div>
+          ${historiales.length === 0 
+            ? `<div style="font-size:10px; color:#64748B;">Sin antecedentes de egreso o contratos anteriores.</div>`
+            : `
+              <table>
+                <thead>
+                  <tr>
+                    <th>DESDE</th>
+                    <th>HASTA</th>
+                    <th>PAGO</th>
+                    <th>VALOR HORA</th>
+                    <th style="text-align:right;">LIQUIDACIÓN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${historiales.map(h => `
+                    <tr>
+                      <td>${h.fecha_desde || '-'}</td>
+                      <td>${h.fecha_hasta || '-'}</td>
+                      <td>${h.forma_pago || '-'}</td>
+                      <td>$ ${parseFloat(h.importe_hora || 0).toLocaleString('es-AR')}</td>
+                      <td style="text-align:right; font-weight:bold;">$ ${parseFloat(h.pago_mes || 0).toLocaleString('es-AR')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `
+          }
+        </div>
+
+        <script>window.onload = function() { setTimeout(function() { window.print(); }, 400); };<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  };
+
+  // ================= IMPRESIÓN DE LEGAJO (FORMULARIOS OFICIALES) =================
+
+  function fmtFecha(iso) {
+    if (!iso) return '____/____/________';
+    const [y, m, dd] = iso.split('-');
+    if (!y || !m || !dd) return iso;
+    return `${dd}/${m}/${y}`;
+  }
+
+  function txt(v, fallback = '') {
+    return (v === null || v === undefined || v === '') ? fallback : v;
+  }
+
+  function datosLegajo(emp) {
+    const nombreApellido = emp.nombre_completo || `${emp.apellido || ''} ${emp.nombre || ''}`.trim();
+    const nombreInvertidoRaw = `${txt(emp.apellido)}, ${txt(emp.nombre)}`.replace(/^, |, $/, '');
+    return {
+      ...emp,
+      nombreApellido,
+      nombreInvertido: nombreInvertidoRaw || nombreApellido,
+      dniTexto: txt(emp.dni, '-'),
+      cuilTexto: txt(emp.cuil, '-'),
+      fechaNacimientoTexto: fmtFecha(emp.fecha_nacimiento),
+      estadoCivilTexto: txt(emp.estado_civil, '-'),
+      nacionalidadTexto: txt(emp.nacionalidad, 'Argentina'),
+      telefonoTexto: txt(emp.telefono, '-'),
+      emailTexto: txt(emp.email, '-'),
+      domicilioTexto: txt(emp.domicilio, '-'),
+      cpTexto: txt(emp.cp, '-'),
+      localidadTexto: txt(emp.localidad, '-'),
+      provinciaTexto: txt(emp.provincia, 'Rio Negro'),
+      domicilioNotifTexto: txt(emp.domicilio_notif, 'Idem'),
+      benefNombreTexto: txt(emp.beneficiario_nombre, '-'),
+      benefDniTexto: txt(emp.beneficiario_dni, '-'),
+      benefParentescoTexto: txt(emp.beneficiario_parentesco, '-'),
+      benefDomicilioTexto: txt(emp.beneficiario_domicilio, '-'),
+      benefLocalidadTexto: txt(emp.beneficiario_localidad, '-'),
+      fechaIngresoTexto: fmtFecha(emp.fecha_ingreso),
+      categoriaTexto: txt(emp.categoria, '-'),
+      sectorTexto: txt(emp.sector, '-'),
+      centroCostoTexto: txt(emp.centro_costo, '-')
+    };
+  }
+
+  const CSS_LEGAJO = `
+    @page { size: A4 portrait; margin: 14mm; }
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { color:#000; margin:0; padding:0; background:#FFF; font-size:11px; }
+    .hoja-legajo { page-break-after: always; padding-bottom: 10px; }
+    .hoja-legajo:last-child { page-break-after: auto; }
+    .doc-header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:6px; margin-bottom:14px; gap:10px; }
+    .doc-header .emp { font-weight:bold; font-size:12px; }
+    .doc-header .titulo { font-weight:800; font-size:13px; text-transform:uppercase; text-align:center; }
+    .doc-header .meta { font-size:9px; text-align:right; white-space:nowrap; }
+    .seccion-titulo { font-weight:800; font-size:11px; text-transform:uppercase; border-bottom:1px solid #000; margin:14px 0 8px; padding-bottom:2px; }
+    .campo-linea { display:flex; gap:6px; margin-bottom:6px; font-size:11px; }
+    .campo-linea .lbl { font-weight:bold; white-space:nowrap; }
+    .campo-linea .val { border-bottom:1px solid #000; flex-grow:1; padding:0 4px; }
+    .grid3 { display:grid; grid-template-columns: repeat(3,1fr); gap:8px 14px; }
+    .grid2 { display:grid; grid-template-columns: repeat(2,1fr); gap:8px 14px; }
+    .texto-legal { font-size:10.5px; line-height:1.55; text-align:justify; margin:0 0 8px; }
+    .texto-legal b { font-weight:800; }
+    table.tabla-legajo { width:100%; border-collapse:collapse; margin-top:6px; }
+    table.tabla-legajo th, table.tabla-legajo td { border:1px solid #000; padding:5px 6px; font-size:9.5px; }
+    table.tabla-legajo th { background:#F1F1F1; text-align:left; }
+    .firma-block { margin-top:40px; display:flex; justify-content:space-between; gap:20px; }
+    .firma-block .firma-cell { width:45%; text-align:center; border-top:1px solid #000; padding-top:4px; font-size:10px; }
+  `;
+
+  function generarFichaIngreso(d) {
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">Ficha de Ingreso de Personal</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}<br>FECHA: ${new Date().toLocaleDateString('es-AR')}</div>
+        </div>
+
+        <div class="seccion-titulo">Datos del Empleado</div>
+        <div class="campo-linea"><span class="lbl">Apellido y Nombre:</span><span class="val">${d.nombreInvertido}</span></div>
+        <div class="grid3">
+          <div class="campo-linea"><span class="lbl">DNI:</span><span class="val">${d.dniTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">CUIL:</span><span class="val">${d.cuilTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Fec. Nacimiento:</span><span class="val">${d.fechaNacimientoTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Nacionalidad:</span><span class="val">${d.nacionalidadTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Estado Civil:</span><span class="val">${d.estadoCivilTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Teléfono:</span><span class="val">${d.telefonoTexto}</span></div>
+        </div>
+
+        <div class="seccion-titulo">Domicilio</div>
+        <div class="grid3">
+          <div class="campo-linea" style="grid-column:span 2;"><span class="lbl">Domicilio Particular:</span><span class="val">${d.domicilioTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">C. Postal:</span><span class="val">${d.cpTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Localidad:</span><span class="val">${d.localidadTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Provincia:</span><span class="val">${d.provinciaTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Domicilio Notif.:</span><span class="val">${d.domicilioNotifTexto}</span></div>
+        </div>
+        <div class="campo-linea"><span class="lbl">Correo Electrónico:</span><span class="val">${d.emailTexto}</span></div>
+
+        <div class="seccion-titulo">Tareas</div>
+        <div class="grid2">
+          <div class="campo-linea"><span class="lbl">Categoría / Tarea:</span><span class="val">${d.categoriaTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Sección / Sector:</span><span class="val">${d.sectorTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Lugar de Trabajo:</span><span class="val">${d.centroCostoTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Fecha de Ingreso:</span><span class="val">${d.fechaIngresoTexto}</span></div>
+        </div>
+
+        <div class="seccion-titulo">Grupo Familiar</div>
+        <table class="tabla-legajo">
+          <thead><tr><th>Parentesco</th><th>Apellido y Nombre</th><th>Presenta Discapacidad</th></tr></thead>
+          <tbody>
+            <tr><td>Cónyuge / Concubino/a</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>Hijo/a</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>Hijo/a</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>Hijo/a</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          </tbody>
+        </table>
+
+        <div class="seccion-titulo">Beneficiario Seguro de Vida</div>
+        <div class="campo-linea"><span class="lbl">Nombre y Apellido:</span><span class="val">${d.benefNombreTexto}</span></div>
+        <div class="grid3">
+          <div class="campo-linea"><span class="lbl">DNI:</span><span class="val">${d.benefDniTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Parentesco:</span><span class="val">${d.benefParentescoTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Localidad:</span><span class="val">${d.benefLocalidadTexto}</span></div>
+        </div>
+        <div class="campo-linea"><span class="lbl">Domicilio:</span><span class="val">${d.benefDomicilioTexto}</span></div>
+
+        <div class="firma-block">
+          <div class="firma-cell">Firma del Trabajador</div>
+          <div class="firma-cell">Firma y Sello del Empleador</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarDDJJDomicilio(d) {
+    const hoy = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">Declaración Jurada de Domicilio</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}</div>
+        </div>
+
+        <div class="campo-linea"><span class="lbl">Trabajador:</span><span class="val">${d.nombreInvertido} — DNI ${d.dniTexto}</span></div>
+
+        <div class="seccion-titulo">Domicilio Declarado</div>
+        <div class="campo-linea"><span class="lbl">Domicilio:</span><span class="val">${d.domicilioTexto}</span></div>
+        <div class="grid3">
+          <div class="campo-linea"><span class="lbl">C. Postal:</span><span class="val">${d.cpTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Localidad:</span><span class="val">${d.localidadTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Provincia:</span><span class="val">${d.provinciaTexto}</span></div>
+        </div>
+        <div class="campo-linea"><span class="lbl">Teléfono:</span><span class="val">${d.telefonoTexto}</span></div>
+
+        <p class="texto-legal" style="margin-top:16px;">FIJACIÓN ESPECIAL DE RECEPCIÓN DE LA CORRESPONDENCIA Y/O TELEGRAMA: fijo en la oficina de correos y/o estafeta postal, de corresponder: Domicilio ___________________________________ Estafeta Nº _______ C. Postal _______ Localidad _______________ Provincia _______________.</p>
+
+        <p class="texto-legal">DECLARO BAJO JURAMENTO QUE LOS DATOS ARRIBA CONSIGNADOS SON EXACTOS Y CONTRAIGO EL COMPROMISO DE EFECTUAR LA NOTIFICACIÓN A MI EMPLEADOR EN FORMA FEHACIENTE DENTRO DEL TÉRMINO DE 48 HORAS, PARA EL EVENTO DE PRODUCIRSE CUALQUIER CAMBIO AL RESPECTO.</p>
+        <p class="texto-legal">ASIMISMO, ASUMO EXPRESAMENTE LA OBLIGACIÓN DE RETIRAR DE LA OFICINA DE CORREOS O ESTAFETA POSTAL O TELÉGRAFO PROVINCIAL, QUE HE FIJADO, LAS COMUNICACIONES QUE NO FUERAN DISTRIBUIDAS O ENTREGADAS EN MI DOMICILIO.</p>
+        <p class="texto-legal">Dejo constancia de haber recibido un duplicado del presente suscripto por el empleador, firmado de conformidad en ${EMPRESA.localidadEstablecimiento} a los ${hoy}.</p>
+
+        <div class="firma-block">
+          <div class="firma-cell">Firma del Trabajador<br>${d.nombreInvertido} — DNI ${d.dniTexto}</div>
+          <div class="firma-cell">Firma y Sello del Empleador</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarNOPE(d) {
+    const hoy = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">Contrato Individual de Trabajo Agrario<br>Personal No Permanente</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}</div>
+        </div>
+
+        <p class="texto-legal">Entre la empresa ${EMPRESA.razonSocial}, C.U.I.T. Nº ${EMPRESA.cuit}, con domicilio legal en ${EMPRESA.domicilioLegal}, representada en este acto por el Sr. ${EMPRESA.representante}, en adelante el <b>EMPLEADOR</b> por una parte, y el/la Sr./Sra. ${d.nombreInvertido}, D.N.I.: ${d.dniTexto}, de estado civil ${d.estadoCivilTexto} con domicilio en ${d.domicilioTexto} de la Localidad de ${d.localidadTexto}, Provincia de ${d.provinciaTexto}, en adelante denominado <b>“TRABAJADOR”</b>, por la otra parte, celebran el presente CONTRATO INDIVIDUAL DE TRABAJO AGRARIO PERSONAL NO PERMANENTE, sujeto a las normas generales y especialmente al “TITULO II, PERSONAL NO PERMANENTE, Principio de regulación – Remuneración – Diferendos” de la Ley Nº 22.248 – Régimen Nacional de Trabajo Agrario –, Artículos 77° al 84° inclusive, excluido del régimen de la Ley Nº 20.744 (art. 2°, inc. C), T.O. Decreto 390/76, demás normas laborales y supletoriamente a las declaraciones y estipulaciones siguientes:</p>
+
+        <p class="texto-legal"><b>PRIMERA:</b> El EMPLEADOR contrata al TRABAJADOR para desempeñarse como “PERSONAL TEMPORARIO NO PERMANENTE”, originadas ante las necesidades de la explotación de carácter no cíclico o estacional o por procesos temporales propios de la actividad u otras incluidas en la Ley de Trabajo Agrario, como así mismo en tareas ocasionales accidentales o supletorias, en el establecimiento agropecuario designado como “${EMPRESA.razonSocial}”, ubicado en ${EMPRESA.localidadEstablecimiento}, cuya propiedad es de ${EMPRESA.razonSocial}, o en cualquier otro, y su actividad se regirá por la Ley Nº 26.727 del Régimen de Trabajo Agrario y su reglamentario Decreto Nº 301/2013.</p>
+
+        <p class="texto-legal"><b>SEGUNDA:</b> Las tareas a desarrollar por el TRABAJADOR son exclusivamente generadas por procesos temporales propios de la actividad u ocasionales, no pudiendo cumplir otras tareas que no sean las propias de este inicio de relación laboral.</p>
+
+        <p class="texto-legal"><b>TERCERA:</b> El TRABAJADOR deberá realizar sus labores, obligatoriamente y siempre dentro de las previsiones de los Artículos Nº 4°, 5°, 6°, 7°, 11, 17, 20 y 23 de la Ley Nº 26.727 y sus reformas, quedando desechadas absolutamente cualquiera que se hicieren fuera de sus preceptos.</p>
+
+        <p class="texto-legal"><b>CUARTA:</b> Como salario por jornal diario en las tareas de ${d.categoriaTexto}, el TRABAJADOR percibirá la remuneración vigente fijada por la Comisión Nacional de Trabajo Agrario (CNTA) y/o por la Unión Argentina de Trabajadores Rurales y Estibadores (UATRE), pagadero por mes vencido, según lo establecido por los Artículos Nº 32, 33, 34, 35 y 36 de la Ley 26.727.</p>
+
+        <p class="texto-legal"><b>QUINTA:</b> Una vez dado cumplimiento a satisfacción del EMPLEADOR de los trabajos que dieron origen al ingreso del TRABAJADOR, se da por finalizada la relación laboral.</p>
+
+        <p class="texto-legal"><b>SEXTA:</b> La jornada de trabajo correrá de 8:30 a 12:30 hs y de 14:00 a 18:00 hs y podrá ser cambiada conforme a las conveniencias temporarias o climáticas, dentro del margen admitido por los artículos 40, 42 y 44 de la Ley 26.727 con los descansos previstos en la misma, salvo casos de excepción o fuerza mayor debidamente comunicados.</p>
+
+        <p class="texto-legal"><b>SÉPTIMA:</b> El TRABAJADOR recibirá las prestaciones de las liquidaciones de sueldos en el respectivo recibo de haberes y en el domicilio de la prestación de la actividad rural.</p>
+
+        <p class="texto-legal"><b>OCTAVA:</b> En caso de que el EMPLEADOR proporcione al TRABAJADOR el alojamiento mediante la entrega de una vivienda, en caso de producirse la extinción de la relación laboral por cualquier causa, el TRABAJADOR dispondrá de un plazo de hasta quince (15) días para desalojarla, de acuerdo a lo previsto en el artículo Nº 75 de la Ley 22.248.</p>
+
+        <p class="texto-legal"><b>NOVENA:</b> El trabajador Temporario percibirá, al concluir la relación laboral, una indemnización sustitutiva de sus vacaciones, equivalente al diez por ciento (10%) del total de las remuneraciones devengadas durante el período de prestación laboral (Artículo 23 de la Ley Nº 26.727).</p>
+
+        <p class="texto-legal"><b>DÉCIMA:</b> De acuerdo a la normativa vigente Resolución General Nº 899/00 y sus modificatorias Nº 943/00 y 2.016/06, la presente relación laboral se halla registrada bajo el sistema informático MI SIMPLIFICACIÓN de la AFIP, Modalidad de Contrato Nº 111 – Personal Temporario Ley Nº 26.727, cuyo duplicado que acredita la constancia del alta como personal en relación de dependencia se ha entregado al TRABAJADOR, firmando una copia del duplicado como constancia de su recepción.</p>
+
+        <p class="texto-legal"><b>DÉCIMA PRIMERA:</b> Los domicilios arriba indicados, fijados por cada una de las partes contratantes, serán válidos para todas las intimaciones, citaciones y otros efectos legales, sometiéndose las partes en caso de controversia/s a los Tribunales de Trabajo de la Segunda Circunscripción Judicial de la Provincia de Río Negro, con exclusión de cualquier otra jurisdicción.</p>
+
+        <p class="texto-legal"><b>DÉCIMA SEGUNDA:</b> El EMPLEADOR evaluará constantemente el desempeño eficiente y satisfactorio del TRABAJADOR en las tareas a su cargo, siendo facultativo del EMPLEADOR, previo llamado de atención y sanción disciplinaria, dar por finalizada la relación laboral.</p>
+
+        <p class="texto-legal"><b>DÉCIMA TERCERA:</b> En un todo de acuerdo con las cláusulas que anteceden, previa lectura y ratificación, las partes firman dos ejemplares de un mismo tenor y a un solo efecto, en la localidad de ${EMPRESA.localidadEstablecimiento}, Provincia de ${EMPRESA.provinciaEstablecimiento}, a ${hoy}.</p>
+
+        <div class="firma-block">
+          <div class="firma-cell">Firma del Trabajador<br>DNI ${d.dniTexto}</div>
+          <div class="firma-cell">Firma del Empleador<br>P/${EMPRESA.razonSocial} — CUIT ${EMPRESA.cuit}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarEventual(d, tarea) {
+    const hoy = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+    const tareaTxt = (tarea || 'TAREAS EVENTUALES').toUpperCase();
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">Contrato Individual de Trabajo Eventual</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}</div>
+        </div>
+
+        <p class="texto-legal">En ${EMPRESA.localidadEstablecimiento}, Provincia de ${EMPRESA.provinciaEstablecimiento}, a ${hoy}, entre el/la Sr./Sra. ${d.nombreInvertido}, DNI ${d.dniTexto}, con domicilio en ${d.domicilioTexto} de la localidad de ${d.localidadTexto}, Provincia de ${d.provinciaTexto}, en adelante <b>EL CONTRATADO</b>; y la empresa ${EMPRESA.razonSocial}, C.U.I.T. Nº ${EMPRESA.cuit}, con domicilio en ${EMPRESA.domicilioEstablecimiento}, de la localidad de ${EMPRESA.localidadEstablecimiento}, Provincia de ${EMPRESA.provinciaEstablecimiento}, representada en este acto por el Sr. ${EMPRESA.representante} en su carácter de ${EMPRESA.cargoRepresentante}, en adelante <b>LA EMPRESA</b>, acuerdan celebrar el presente CONTRATO INDIVIDUAL DE TRABAJO EVENTUAL, que se regirá por lo establecido en los artículos Nº 99, 100 y concordantes de la Ley de Contrato de Trabajo Nº 20.744, y de la Ley Nº 24.013 art. 68 al 74.</p>
+
+        <p class="texto-legal"><b>PRIMERA:</b> El EMPLEADOR contrata al TRABAJADOR para desempeñarse como “PERSONAL TEMPORARIO DE CARÁCTER EVENTUAL” exclusivamente en tareas de ${tareaTxt}, originadas ante las necesidades de la explotación de carácter no cíclico o estacional o por procesos temporales propios de la actividad u otras incluidas en la Ley de Trabajo, como así mismo en tareas ocasionales accidentales o supletorias, en el establecimiento agropecuario designado como “${EMPRESA.razonSocial}”, ubicado en ${EMPRESA.localidadEstablecimiento}, cuya propiedad es de ${EMPRESA.razonSocial}, o en cualquier otro, y su actividad se regirá por la Ley Nº 20.744 y su reglamentación.</p>
+
+        <p class="texto-legal"><b>SEGUNDA:</b> Las tareas a desarrollar por el TRABAJADOR son exclusivamente tareas de ${tareaTxt} de carácter eventual, generadas por procesos temporales propios de la actividad u ocasionales, no pudiendo cumplir otras tareas que no sean las propias de este inicio de relación laboral.</p>
+
+        <p class="texto-legal"><b>TERCERA:</b> El TRABAJADOR deberá realizar sus labores, obligatoriamente y siempre dentro de las previsiones de los Artículos Nº 4°, 5°, 6°, 7°, 11, 17, 20 y 23 de la Ley Nº 26.727 y sus reformas, quedando desechadas absolutamente cualquiera que se hicieren fuera de sus preceptos.</p>
+
+        <p class="texto-legal"><b>CUARTA:</b> Como salario por jornal diario, el TRABAJADOR percibirá la remuneración vigente fijada por la Comisión Nacional de Trabajo Agrario (CNTA) y/o por la Unión Argentina de Trabajadores Rurales y Estibadores (UATRE), pagadero por mes vencido, según lo establecido por los Artículos Nº 32, 33, 34, 35 y 36 de la Ley 26.727.</p>
+
+        <p class="texto-legal"><b>QUINTA:</b> Una vez dado cumplimiento a satisfacción del EMPLEADOR de los trabajos de ${tareaTxt}, se da por finalizada la relación laboral. El TRABAJADOR será evaluado en su desempeño, debiendo alcanzar el óptimo desarrollo para que se considere ser convocado para el próximo ciclo, caso contrario no será motivo de obligación ni derecho a retomar en próximos ciclos.</p>
+
+        <p class="texto-legal"><b>SEXTA:</b> La jornada de trabajo correrá de 8:30 a 12:30 hs y de 14:00 a 18:00 hs y podrá ser cambiada conforme a las conveniencias temporarias o climáticas, dentro del margen admitido por los artículos 40, 42 y 44 de la Ley 26.727, salvo casos de excepción o fuerza mayor debidamente comunicados.</p>
+
+        <p class="texto-legal"><b>SÉPTIMA:</b> El TRABAJADOR recibirá las prestaciones de las liquidaciones de sueldos en el respectivo recibo de haberes y en el domicilio de la prestación de la actividad rural.</p>
+
+        <p class="texto-legal"><b>OCTAVA:</b> El plazo de realización de las tareas está supeditado al cumplimiento satisfactorio de los trabajos detallados precedentemente y que hacen al origen del presente contrato de trabajo de carácter eventual.</p>
+
+        <p class="texto-legal"><b>NOVENA:</b> El trabajador percibirá, al concluir la relación laboral, una indemnización sustitutiva de sus vacaciones, equivalente al diez por ciento (10%) del total de las remuneraciones devengadas durante el período de prestación laboral (Artículo 23 de la Ley Nº 26.727).</p>
+
+        <p class="texto-legal"><b>DÉCIMA:</b> De acuerdo a la normativa vigente Resolución General Nº 899/00 y sus modificatorias, la presente relación laboral se halla registrada bajo el sistema informático MI SIMPLIFICACIÓN de la AFIP, Modalidad de Contrato Nº 012 – Trabajo Eventual, cuyo duplicado que acredita la constancia del alta se ha entregado al TRABAJADOR.</p>
+
+        <p class="texto-legal"><b>DÉCIMA PRIMERA:</b> Los domicilios arriba indicados serán válidos para todas las intimaciones, citaciones y otros efectos legales, sometiéndose las partes a los Tribunales de Trabajo de la Segunda Circunscripción Judicial de la Provincia de Río Negro, con exclusión de cualquier otra jurisdicción.</p>
+
+        <p class="texto-legal"><b>DÉCIMA SEGUNDA:</b> El EMPLEADOR evaluará constantemente el desempeño del TRABAJADOR en las tareas de ${tareaTxt}, siendo facultativo del EMPLEADOR, previo llamado de atención y sanción disciplinaria, dar por finalizada la relación laboral.</p>
+
+        <p class="texto-legal"><b>DÉCIMA TERCERA:</b> En un todo de acuerdo con las cláusulas que anteceden, previa lectura y ratificación, las partes firman dos ejemplares de un mismo tenor y a un solo efecto, en ${EMPRESA.localidadEstablecimiento}, Provincia de ${EMPRESA.provinciaEstablecimiento}, a ${hoy}.</p>
+
+        <div class="firma-block">
+          <div class="firma-cell">Firma del Trabajador<br>DNI ${d.dniTexto}</div>
+          <div class="firma-cell">Firma del Empleador<br>P/${EMPRESA.razonSocial} — CUIT ${EMPRESA.cuit}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarART(d) {
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">Notificación de Cobertura ART</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}</div>
+        </div>
+
+        <p class="texto-legal">Nombre de la ART: <b>${EMPRESA.art.nombre}</b> — Contrato Nº ${EMPRESA.art.contrato}.</p>
+        <p class="texto-legal">Informamos a todo el personal que se encuentra afiliado en la cobertura por accidentes de trabajo en la Aseguradora de Riesgos de Trabajo ${EMPRESA.art.nombre}. Por tal motivo, hacemos entrega de la tarjeta personal identificatoria, juntamente con el listado de prestadores y centros médicos habilitados por la ART para solicitar la atención y prestación médica que pudiera corresponderle.</p>
+
+        <p class="texto-legal"><b>Usted debe:</b></p>
+        <ul style="font-size:10.5px; line-height:1.6; margin:0 0 8px 18px;">
+          <li>Cumplir con la realización de los exámenes médicos en salud.</li>
+          <li>Denunciar ante su empleador o la ART los accidentes de trabajo o enfermedades profesionales que ocurran.</li>
+          <li>Utilizar correctamente los elementos de protección personal provistos por su empleador.</li>
+          <li>Participar en acciones de capacitación y formación sobre salud y seguridad en el trabajo, firmando la planilla de asistencia correspondiente.</li>
+          <li>Dar cumplimiento a las instrucciones y normas fijadas por la empresa.</li>
+          <li>Comunicar a su empleador cualquier hecho de riesgo relacionado con su puesto de trabajo o el establecimiento en general.</li>
+        </ul>
+
+        <p class="texto-legal"><b>Si usted sufre un accidente, tiene derecho a:</b></p>
+        <ul style="font-size:10.5px; line-height:1.6; margin:0 0 8px 18px;">
+          <li>Dirigirse a su empleador, la ART o centro médico habilitado por ésta, para solicitar atención médica.</li>
+          <li>Recibir de la ART todas las prestaciones que correspondan.</li>
+          <li>Ser informado por la ART de la incapacidad que presenta como consecuencia de un accidente de trabajo o enfermedad profesional.</li>
+          <li>Solicitar la intervención de la Comisión Médica de su zona si no está de acuerdo con la asistencia recibida.</li>
+        </ul>
+
+        <p class="texto-legal">Ante cualquier acontecimiento, deberá informar a través de su supervisor de área, responsable de Higiene y Seguridad o personal de Administración y RRHH. Servicios de emergencia ART: 0800-888-6060 (línea gratuita) / 011-4343-9090 (Buenos Aires).</p>
+
+        <p class="texto-legal">Recibí el material detallado, quedando notificado, comprometiéndome bajo juramento a dar estricto cumplimiento a lo allí establecido.</p>
+
+        <div class="grid2" style="margin-top:20px;">
+          <div class="campo-linea"><span class="lbl">Apellido y Nombre:</span><span class="val">${d.nombreInvertido}</span></div>
+          <div class="campo-linea"><span class="lbl">CUIL:</span><span class="val">${d.cuilTexto}</span></div>
+        </div>
+        <div class="firma-block">
+          <div class="firma-cell">Firma</div>
+          <div class="firma-cell">Fecha: ${new Date().toLocaleDateString('es-AR')}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarNormas(d, tipo) {
+    const esCampo = tipo === 'campo';
+    const titulo = esCampo ? 'Normas de Conducta — Sector Campo' : 'Normas de Conducta — Sector Empaque';
+    const { disposiciones, prohibiciones, escalada } = obtenerNormasTipo(esCampo ? 'CAMPO' : 'EMPAQUE');
+
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp">${EMPRESA.razonSocial}<br><span style="font-weight:400; font-size:9px;">CUIT ${EMPRESA.cuit}</span></div>
+          <div class="titulo">${titulo}</div>
+          <div class="meta">LEGAJO Nº ${txt(d.legajo,'-')}</div>
+        </div>
+
+        <p class="texto-legal">El compromiso de nuestros empleados es fundamental para el éxito de la empresa, rigiéndose dentro de los principios de buena fe. ${EMPRESA.razonSocial} ha establecido las siguientes normativas, de cumplimiento obligatorio sin excepción por nivel jerárquico, aplicables también a terceros que permanezcan dentro del establecimiento.</p>
+
+        <div class="seccion-titulo">Disposiciones Generales</div>
+        <ul style="font-size:10.5px; line-height:1.6; margin:0 0 8px 18px;">
+          ${disposiciones.map(x => `<li>${x}</li>`).join('')}
+        </ul>
+
+        <div class="seccion-titulo">Conducta del Personal — Está Prohibido</div>
+        <ul style="font-size:10.5px; line-height:1.6; margin:0 0 8px 18px;">
+          ${prohibiciones.map(x => `<li>${x}</li>`).join('')}
+        </ul>
+
+        <div class="seccion-titulo">Sanciones a Aplicar</div>
+        <p class="texto-legal">Llamado de atención por escrito (Apercibimiento / Amonestación) — Suspensión — Despido.</p>
+        <p class="texto-legal">En caso de accidente, el trabajador deberá dar aviso de inmediato al superior o al Dpto. de RRHH. En caso de inasistencia, deberá avisar dentro de las primeras cuatro horas de la jornada; si es por enfermedad, el certificado médico debe entregarse salvo impedimento, en cuyo caso lo presentará un tercero. El trabajador deberá cumplir con las normativas vigentes de prevención de contagios.</p>
+
+        <table class="tabla-legajo">
+          <thead><tr><th>Situación</th><th>Sanción</th></tr></thead>
+          <tbody>
+            ${escalada.map(([s, sa]) => `<tr><td>${s}</td><td>${sa}</td></tr>`).join('')}
+          </tbody>
+        </table>
+
+        <p class="texto-legal" style="margin-top:10px;">Por la presente se deja expreso, de común acuerdo, la existencia de las normas y conductas arriba detalladas, que el empleado declara conocer, aceptar y cumplir debidamente. Me notifico de conformidad y recibo copia del mismo.</p>
+
+        <div class="firma-block">
+          <div class="firma-cell">Firma<br>${d.nombreInvertido} — DNI ${d.dniTexto}</div>
+          <div class="firma-cell">${EMPRESA.localidadEstablecimiento} (R.N.), ${new Date().toLocaleDateString('es-AR')}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generarSeguroVida(d, talon) {
+    return `
+      <div class="hoja-legajo">
+        <div class="doc-header">
+          <div class="emp" style="font-size:10px;">${talon}</div>
+          <div class="titulo" style="font-size:12px;">Seguro de Vida Colectivo Obligatorio<br>Trabajadores Rurales (Ley 16.600)</div>
+          <div class="meta">Póliza Nº ${EMPRESA.seguroVida.poliza}</div>
+        </div>
+
+        <p class="texto-legal">Entidad Aseguradora: <b>${EMPRESA.seguroVida.aseguradora}</b></p>
+
+        <div class="seccion-titulo">Datos del Contratante</div>
+        <div class="campo-linea"><span class="lbl">Empleador:</span><span class="val">${EMPRESA.razonSocial} — CUIT ${EMPRESA.cuit}</span></div>
+        <div class="campo-linea"><span class="lbl">Domicilio:</span><span class="val">${EMPRESA.domicilioEstablecimiento}, ${EMPRESA.localidadEstablecimiento}, ${EMPRESA.provinciaEstablecimiento} (CP ${EMPRESA.cpEstablecimiento})</span></div>
+
+        <div class="seccion-titulo">Datos del Asegurado</div>
+        <div class="campo-linea"><span class="lbl">Legajo:</span><span class="val">${txt(d.legajo,'-')}</span></div>
+        <div class="campo-linea"><span class="lbl">Nombre y Apellido:</span><span class="val">${d.nombreInvertido}</span></div>
+        <div class="grid3">
+          <div class="campo-linea"><span class="lbl">DNI:</span><span class="val">${d.dniTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">CUIL:</span><span class="val">${d.cuilTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Fec. Nacimiento:</span><span class="val">${d.fechaNacimientoTexto}</span></div>
+          <div class="campo-linea"><span class="lbl">Fecha de Ingreso:</span><span class="val">${d.fechaIngresoTexto}</span></div>
+        </div>
+        <div class="campo-linea"><span class="lbl">Domicilio Particular:</span><span class="val">${d.domicilioTexto}, ${d.localidadTexto}, ${d.provinciaTexto} (CP ${d.cpTexto})</span></div>
+
+        <div class="seccion-titulo">Cobertura</div>
+        <p class="texto-legal">Capital Básico Uniforme y Obligatorio + Capital Adicional. Riesgos cubiertos: Muerte e Incapacidad Total y Permanente para el trabajo.</p>
+
+        <div class="seccion-titulo">Beneficiarios</div>
+        <table class="tabla-legajo">
+          <thead><tr><th>Nombre y Apellido</th><th>Parentesco</th><th>%</th><th>Documento</th></tr></thead>
+          <tbody>
+            <tr><td>${d.benefNombreTexto}</td><td>${d.benefParentescoTexto}</td><td>100</td><td>${d.benefDniTexto}</td></tr>
+          </tbody>
+        </table>
+
+        <div class="firma-block">
+          <div class="firma-cell">${EMPRESA.localidadEstablecimiento} (R.N.), ${new Date().toLocaleDateString('es-AR')}</div>
+          <div class="firma-cell">Firma del Asegurado o Impresión Digital</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // MODAL IMPRIMIR LEGAJO
+  const modalLegajo = document.getElementById('modalImprimirLegajo');
+  let legajoParaImprimir = null;
+
+  window.abrirModalImprimirLegajo = function(legajo) {
+    const emp = listaNominaGlobal.find(p => p.legajo === legajo);
+    if (!emp) return;
+    legajoParaImprimir = legajo;
+    document.getElementById('mLegajoEmpleadoNombre').textContent = `${emp.nombre_completo || `${emp.apellido} ${emp.nombre}`} — Legajo ${emp.legajo}`;
+    modalLegajo.classList.add('show');
+  };
+
+  document.getElementById('btnCerrarModalLegajo').addEventListener('click', () => modalLegajo.classList.remove('show'));
+  document.getElementById('btnCancelarLegajo').addEventListener('click', () => modalLegajo.classList.remove('show'));
+
+  document.querySelectorAll('.chkFormLegajo').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const eventualChecked = document.querySelector('.chkFormLegajo[value="eventual"]').checked;
+      document.getElementById('mLegajoTareaEventualBox').style.display = eventualChecked ? 'block' : 'none';
+    });
+  });
+
+  document.getElementById('btnGenerarLegajo').addEventListener('click', () => {
+    if (!legajoParaImprimir) return;
+    let emp;
+    if (db) {
+      try { emp = db.prepare(`${SQL_NOMINA_CON_LEGAJO_DATOS} WHERE n.legajo = ?`).get(legajoParaImprimir); }
+      catch(e) { console.error(e); }
+    }
+    if (!emp) emp = listaNominaGlobal.find(p => p.legajo === legajoParaImprimir);
+    if (!emp) return;
+
+    const d = datosLegajo(emp);
+    const seleccionados = Array.from(document.querySelectorAll('.chkFormLegajo:checked')).map(c => c.value);
+
+    if (seleccionados.length === 0) {
+      lanzarToast('Seleccione al menos un formulario', 'error');
+      return;
+    }
+
+    let paginas = '';
+    seleccionados.forEach(key => {
+      if (key === 'ficha_ingreso') paginas += generarFichaIngreso(d);
+      else if (key === 'ddjj_domicilio') paginas += generarDDJJDomicilio(d);
+      else if (key === 'nope') paginas += generarNOPE(d);
+      else if (key === 'eventual') {
+        const tarea = document.getElementById('mLegajoTareaEventual').value || 'TAREAS EVENTUALES';
+        paginas += generarEventual(d, tarea);
+      }
+      else if (key === 'art') paginas += generarART(d);
+      else if (key === 'normas_campo') paginas += generarNormas(d, 'campo');
+      else if (key === 'normas_empaque') paginas += generarNormas(d, 'empaque');
+      else if (key === 'seguro_vida') {
+        paginas += generarSeguroVida(d, 'TALÓN PARA EL EMPLEADOR');
+        paginas += generarSeguroVida(d, 'TALÓN PARA LA ASEGURADORA');
+        paginas += generarSeguroVida(d, 'TALÓN PARA EL ASEGURADO');
+      }
+    });
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>LEGAJO_${d.legajo}_${(d.apellido || '').toUpperCase()}</title>
+        <style>${CSS_LEGAJO}</style>
+      </head>
+      <body>
+        ${paginas}
+        <script>window.onload = function() { setTimeout(function() { window.print(); }, 400); };<\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+
+    modalLegajo.classList.remove('show');
+  });
+
+  const btnSincronizar = document.getElementById('btnSincronizar');
+  btnSincronizar.addEventListener('click', async () => {
+    btnSincronizar.disabled = true;
+    btnSincronizar.innerHTML = `Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { ejecutarSincronizacionCompleta } = require('../sincronizacion.js');
+        await ejecutarSincronizacionCompleta();
+
+        lanzarToast('¡Sincronización completa con Supabase!', 'success');
+        cargarNominaGeneral();
+        if (legajoSeleccionadoActual) renderizarPanelDetalle();
+      } catch (err) { 
+        console.error(err); 
+        lanzarToast('Error: ' + err.message, 'error'); 
+      } finally { 
+        btnSincronizar.disabled = false;
+        btnSincronizar.innerHTML = `Sincronizar`; 
+      }
+    } else {
+      setTimeout(() => { 
+        btnSincronizar.disabled = false;
+        btnSincronizar.innerHTML = `Sincronizar`; 
+        lanzarToast('Sincronización simulada.', 'success'); 
+      }, 1000);
+    }
+  });
+
+  cargarEmpresaConfig();
+  cargarCombosCentrosDeCosto();
+  cargarNominaGeneral();
+  if (listaNominaGlobal.length > 0) seleccionarEmpleado(listaNominaGlobal[0].legajo);
+})();
+</script>
+</body>
+</html>

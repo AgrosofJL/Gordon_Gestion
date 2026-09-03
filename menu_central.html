@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Menú Principal</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F3F5F1;
+    --color-surface: #FFFFFF;
+    --color-text: #1B231D;
+    --color-text-secondary: #5F6B62;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #123F2C;
+    --color-accent-soft: rgba(30, 107, 76, 0.10);
+    --color-gold: #B8862A;
+    --color-gold-soft: rgba(184, 134, 42, 0.14);
+    --color-danger: #C0483C;
+    --color-border: rgba(27, 35, 29, 0.10);
+    --radius-lg: 24px;
+    --radius-md: 14px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .barra-superior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 44px;
+    background-color: rgba(255, 255, 255, 0.78);
+    background-image: repeating-linear-gradient(
+      100deg,
+      rgba(30, 107, 76, 0.035) 0px,
+      rgba(30, 107, 76, 0.035) 1.5px,
+      transparent 1.5px,
+      transparent 38px
+    );
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Botón Sync */
+  .btn-sync {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 9px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-sync:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    border-color: var(--color-accent);
+  }
+
+  /* ESTO LO MODIFIQUE: Sombreado activo estilo Apple al presionar botones */
+  .btn-sync:active, .btn-logout:active, .card-modulo:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .btn-sync:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  .rotating {
+    animation: girar 1s linear infinite;
+  }
+
+  @keyframes girar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+  }
+
+  .marca .icono-marca {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .usuario-actual { display: flex; align-items: center; gap: 14px; }
+
+  .datos-usuario { line-height: 1.3; text-align: right; }
+  .datos-usuario .nombre { font-size: 14px; font-weight: 700; }
+
+  .rol-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-soft);
+    padding: 2px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .btn-logout {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    transition: background 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+  }
+  .btn-logout:hover { background: rgba(192, 72, 60, 0.08); color: var(--color-danger); }
+
+  .contenido {
+    padding: 40px 44px 60px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .saludo h1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+  .saludo p { margin: 0; color: var(--color-text-secondary); font-size: 15px; font-weight: 500; }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+    margin-top: 36px;
+  }
+
+  .card-modulo {
+    background: var(--color-surface);
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 32px 26px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    box-shadow: 0 2px 6px rgba(20, 30, 24, 0.03);
+    opacity: 0;
+    animation: entrar 0.45s ease forwards;
+    font-family: inherit;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+    width: 100%;
+  }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-modulo:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 45px rgba(20, 30, 24, 0.12);
+    border-color: var(--color-accent);
+  }
+
+  .icono-modulo {
+    width: 55px;
+    height: 55px;
+    border-radius: 16px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-modulo.admin .icono-modulo { background: var(--color-gold-soft); color: #8A6A1E; }
+
+  .card-modulo h3 { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--color-text); }
+  .card-modulo p { margin: 0; font-size: 14.5px; color: var(--color-text-secondary); line-height: 1.45; }
+
+  .card-modulo:focus-visible,
+  .btn-logout:focus-visible,
+  .btn-sync:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .barra-superior, .contenido { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="barra-superior">
+    <div class="marca">
+      <div class="icono-marca">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21c0-6 4-10 8-11-1 7-4 10-8 11Z"/>
+          <path d="M12 21c0-6-4-10-8-11 1 7 4 10 8 11Z"/>
+        </svg>
+      </div>
+      Gordon Gestión
+    </div>
+
+    <div class="usuario-actual">
+      <div class="datos-usuario">
+        <div class="nombre" id="nombreUsuario">—</div>
+        <span class="rol-badge" id="rolUsuario">—</span>
+      </div>
+      <div class="avatar" id="avatarIniciales">—</div>
+      
+      <!-- Botón Sync -->
+      <button class="btn-sync" id="btnSync">
+        <svg id="iconSync" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+        <span id="textSync">Sincronizar</span>
+      </button>
+
+      <button class="btn-logout" id="btnCerrarSesion" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/>
+          <path d="M16 17l5-5-5-5"/>
+          <path d="M21 12H9"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div class="saludo">
+      <h1 id="saludoTexto">—</h1>
+      <p id="fechaTexto">—</p>
+    </div>
+
+    <div class="grid-cards" id="gridCards"></div>
+  </div>
+
+<script>
+(function () {
+  const electronDisponible = typeof require === 'function';
+  let auth = null;
+  let connection = null;
+
+  if (electronDisponible) {
+    try {
+      auth = require('./auth.js');
+      connection = require('./conexion.js');
+    } catch (e) {
+      console.warn('No se pudo cargar la lógica nativa:', e.message);
+    }
+  }
+
+  const ROL_LABELS = { admin: 'Administrador', supervisor: 'Supervisor', operario: 'Operario' };
+
+  // ACA ES LO NUEVO: Se añade el ícono de 'jornadas' (reloj de fichaje/asistencia)
+  const ICONOS = {
+    campo: '<path d="M12 21c0-6 4-10 8-11-1 7-4 10-8 11Z"/><path d="M12 21c0-6-4-10-8-11 1 7 4 10 8 11Z"/><path d="M12 21V9"/>',
+    cosecha: '<path d="M4 10h16l-1.5 9a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 10Z"/><path d="M8 10 10 4h4l2 6"/><path d="M9 14v3M12 14v3M15 14v3"/>',
+    empaque: '<path d="M3 8 12 4l9 4-9 4-9-4Z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/>',
+    insumos: '<path d="M12 3c4 5 7 8.5 7 12a7 7 0 0 1-14 0c0-3.5 3-7 7-12Z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>',
+    labores: '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
+    administracion: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    jornadas: '<circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/>',
+    panol: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>',
+    admin: '<path d="M4 7h10M17 7h3M4 17h3M10 17h10"/><circle cx="14" cy="7" r="2"/><circle cx="7" cy="17" r="2"/>'
+  };
+
+  function svgIcono(nombre) {
+    const dPath = ICONOS[nombre] || ICONOS['administracion'];
+    return `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${dPath}</svg>`;
+  }
+
+  // ACA ES LO NUEVO: Se incluye la descripción para Jornadas
+  const DESC_DEFECTO = {
+    campo: 'Riego, aplicaciones y parámetros de campo',
+    cosecha: 'Resumen de parcelas y stock de campo',
+    empaque: 'Despachos, stock de pallets y de playa',
+    insumos: 'Catálogo, consumos, ingresos y stock',
+    labores: 'Mantenimientos Maquinaria, Usos y Combustibles',
+    administracion: 'Legajos de personal, RRHH y contabilidad',
+    jornadas: 'Carga de horas, partes diarios, partes de campo y asistencia',
+    panol: 'Órdenes de compra, ingresos, despacho y stock del pañol',
+    admin: 'Configuración general del sistema y usuarios'
+  };
+
+  function calcularIniciales(nombre) {
+    return (
+      (nombre || '')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p) => p[0].toUpperCase())
+        .join('') || '—'
+    );
+  }
+
+  function calcularSaludo(nombre) {
+    const hora = new Date().getHours();
+    let saludo = 'Buenas noches';
+    if (hora >= 6 && hora < 13) saludo = 'Buenos días';
+    else if (hora >= 13 && hora < 20) saludo = 'Buenas tardes';
+    const primerNombre = (nombre || '').split(' ')[0];
+    return primerNombre ? `${saludo}, ${primerNombre}` : saludo;
+  }
+
+  function formatearFecha() {
+    const texto = new Date().toLocaleDateString('es-AR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  // ESTO LO MODIFIQUE: Redirección agregada para 'jornadas' a personal/jornadas.html
+  function abrirModulo(key) {
+    if (electronDisponible) {
+      if (key === 'campo') {
+        window.location.href = 'campo/menu_campo.html';
+      } else if (key === 'insumos') {
+        window.location.href = 'insumos/menu_insumos.html';
+      } else if (key === 'empaque') {
+        window.location.href = 'empaque/menu_empaque.html';
+      } else if (key === 'administracion' || key === 'rrhh') {
+        window.location.href = 'administracion/menu_admin.html';
+      } else if (key === 'jornadas') {
+        console.log('jornadas');
+        window.location.href = 'administracion/jornadas.html';
+      } else if (key === 'cosecha') {
+        window.location.href = 'cosecha/menu_cosecha.html';
+      } else if (key === 'labores') {
+        window.location.href = 'maquinaria/maquinaria.html';
+      } else if (key === 'panol') {
+        window.location.href = 'pañol/pañolero.html';
+      } else if (key === 'admin') {
+        window.location.href = 'conf/configuracion.html';
+      } else {
+        alert('Redirigiendo a: ' + key);
+      }
+    } else {
+      if (key === 'jornadas') {
+        window.location.href = 'administracion/jornadas.html';
+      } else if (key === 'administracion' || key === 'rrhh') {
+        window.location.href = 'administracion/menu_admin.html';
+      } else {
+        alert('Vista previa del módulo "' + key + '".');
+      }
+    }
+  }
+
+  function cerrarSesion() {
+    if (auth) auth.cerrarSesion();
+    localStorage.removeItem('sesion_activa');
+    window.location.href = 'index.html';
+  }
+
+  async function obtenerMenuFiltrado(sesion) {
+    let list = [];
+    const online = navigator.onLine;
+    
+    if (!sesion) return [];
+
+    const usuario = (sesion.usuario || sesion.nombre_completo || '').trim().toLowerCase();
+    const rol = (sesion.rol || '').trim().toLowerCase();
+
+    // ACA ES LO NUEVO: Módulo Jornadas integrado en el MENU_MASTER
+    const MENU_MASTER = [
+      { key: 'campo', titulo: 'Campo', descripcion: DESC_DEFECTO.campo },
+      { key: 'cosecha', titulo: 'Cosecha', descripcion: DESC_DEFECTO.cosecha },
+      { key: 'empaque', titulo: 'Empaque', descripcion: DESC_DEFECTO.empaque },
+      { key: 'insumos', titulo: 'Insumos', descripcion: DESC_DEFECTO.insumos },
+      { key: 'labores', titulo: 'Maquinarias', descripcion: DESC_DEFECTO.labores },
+      { key: 'jornadas', titulo: 'Jornadas de Trabajo', descripcion: DESC_DEFECTO.jornadas },
+      { key: 'administracion', titulo: 'Administración (RRHH)', descripcion: DESC_DEFECTO.administracion },
+      { key: 'panol', titulo: 'Pañolero', descripcion: DESC_DEFECTO.panol },
+      { key: 'admin', titulo: 'Configuración Admin', descripcion: DESC_DEFECTO.admin, admin: true }
+    ];
+
+    // 👑 BYPASS SUPERUSUARIO: Si sos admin-1 o adm-1, mostramos TODO sin consultar BD
+    if (rol === 'admin-1' || rol === 'adm-1') {
+      console.log("Acceso Total concedido por Rol Administrador:", rol);
+      return MENU_MASTER;
+    }
+
+    let permisos = [];
+
+    // 1. Intentar Supabase (Nube)
+    if (online && typeof connection !== 'undefined' && connection && connection.supabaseCampo) {
+      try {
+        const { data, error } = await connection.supabaseCampo
+          .from('sys_permisos_usuario')
+          .select('menu, estado')
+          .or(`usuario.ilike."${usuario}",rol.ilike."${rol}"`)
+          .eq('estado', 1);
+
+        if (!error && data && data.length > 0) {
+          permisos = data.map(p => (p.menu || '').trim().toLowerCase());
+        } else if (error) {
+          console.warn("Supabase devolvió error:", error.message);
+        }
+      } catch (err) {
+        console.warn("Fallo en la llamada a Supabase, recurriendo a SQLite...", err);
+      }
+    }
+
+    // 2. Si la nube no devolvió permisos, consulta a SQLite local
+    if (permisos.length === 0 && typeof db !== 'undefined' && db) {
+      try {
+        const filas = db.prepare(`
+          SELECT DISTINCT LOWER(TRIM(menu)) AS menu 
+          FROM local_sys_permisos_usuario 
+          WHERE (LOWER(TRIM(usuario)) = ? OR LOWER(TRIM(rol)) = ?) 
+            AND (estado = 1 OR estado = '1' OR estado = 'true')
+        `).all(usuario, rol);
+
+        if (filas && filas.length > 0) {
+          permisos = filas.map(f => f.menu);
+        }
+      } catch (e) {
+        console.warn("Error leyendo SQLite local:", e.message);
+      }
+    }
+
+    // Deduplicar lista
+    permisos = [...new Set(permisos)];
+
+    console.log("Permisos cargados correctamente:", permisos);
+
+    if (permisos.length > 0) {
+      list = MENU_MASTER.filter(item => permisos.includes(item.key));
+    } else {
+      list = MENU_MASTER.filter(item => item.key === 'campo');
+    }
+
+    return list;
+  }
+
+  async function renderizar(sesion) {
+    document.getElementById('nombreUsuario').textContent = sesion.nombre_completo || sesion.usuario;
+    document.getElementById('rolUsuario').textContent = ROL_LABELS[sesion.rol] || sesion.rol || 'Operario';
+    document.getElementById('avatarIniciales').textContent = calcularIniciales(sesion.nombre_completo);
+    document.getElementById('saludoTexto').textContent = calcularSaludo(sesion.nombre_completo);
+    document.getElementById('fechaTexto').textContent = formatearFecha();
+
+    const modulos = await obtenerMenuFiltrado(sesion);
+
+    const grid = document.getElementById('gridCards');
+    grid.innerHTML = modulos
+      .map(
+        (m, i) => `
+      <button type="button" class="card-modulo${m.admin ? ' admin' : ''}" style="animation-delay:${i * 0.05}s" data-key="${m.key}">
+        <div>
+          <div class="icono-modulo">${svgIcono(m.key)}</div>
+          <h3>${m.titulo}</h3>
+          <p>${m.descripcion}</p>
+        </div>
+      </button>
+    `
+      )
+      .join('');
+
+    grid.querySelectorAll('.card-modulo').forEach((el) => {
+      el.addEventListener('click', () => abrirModulo(el.dataset.key));
+    });
+  }
+
+  const btnSync = document.getElementById('btnSync');
+  const iconSync = document.getElementById('iconSync');
+  const textSync = document.getElementById('textSync');
+
+  btnSync.addEventListener('click', async () => {
+    if (!navigator.onLine) {
+      alert("No tenés conexión a internet.");
+      return;
+    }
+
+    btnSync.disabled = true;
+    iconSync.classList.add('rotating');
+    textSync.textContent = 'Sincronizando...';
+
+    try {
+      const syncModule = require('./sincronizacion.js');
+      await syncModule.ejecutarSincronizacionCompleta();
+      
+      textSync.textContent = '¡Listo!';
+      if (auth) {
+        sesion = auth.obtenerSesionActiva();
+      }
+      await renderizar(sesion);
+
+      setTimeout(() => {
+        textSync.textContent = 'Sincronizar';
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      textSync.textContent = 'Error';
+    } finally {
+      btnSync.disabled = false;
+      iconSync.classList.remove('rotating');
+    }
+  });
+
+  document.getElementById('btnCerrarSesion').addEventListener('click', cerrarSesion);
+
+  let sesion = null;
+  if (auth) {
+    sesion = auth.obtenerSesionActiva();
+    if (!sesion) {
+      window.location.href = 'index.html';
+      return;
+    }
+  } else {
+    // sesion = { nombre_completo: 'Juanchi Dev', rol: 'admin', unidad_negocio: 'Campo Norte' };
+  }
+
+  renderizar(sesion);
+})();
+</script>
+</body>
+</html>

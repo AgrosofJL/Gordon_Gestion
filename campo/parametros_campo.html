@@ -1,0 +1,2953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Parámetros de Campo</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="../utilidades.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3; 
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); background-clip: content-box; }
+
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* BARRA LATERAL */
+  .sidebar {
+    width: 190px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header { margin-bottom: 30px; }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { 
+    background: #FFF9C4; 
+    border-color: #F9A825; 
+    color: #E65100;
+    transform: translateY(-1px);
+  }
+
+  /* Feedback táctil */
+  .btn-volver:active, 
+  .btn-nav-lateral:active, 
+  .card-item:active, 
+  .renglon-card:active, 
+  .btn-accion:active, 
+  .btn-global-add:active,
+  .btn-lista-add:active,
+  .modal-btn:active,
+  .tabla-interna-fila tbody tr:active,
+  .btn-opcion-menu:active,
+  .btn-sync-top:active,
+  .btn-excel:active,
+  .btn-reporte:active,
+  .btn-panel-action:active,
+  .btn-sembrar-col:active,
+  .btn-admin-col:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 16px; font-weight: 700; margin-top: 25px; color: var(--color-accent-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    transition: all 0.2s ease;
+    letter-spacing: 0.8px;
+  }
+  .btn-nav-lateral:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); }
+  .btn-nav-lateral.active { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(30, 107, 76, 0.05); }
+
+  /* CONTENIDO PRINCIPAL */
+  .main-content { flex-grow: 1; padding: 40px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .ruta-navegacion { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; flex-shrink: 0; }
+  .ruta-step { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+  .step-inicio { background: #E3F2FD; color: #0D47A1; }
+  .step-cultivo { background: #E8F5E9; color: #1B5E20; }
+  .step-variedad { background: #F3E5F5; color: #4A148C; }
+  .step-cuadro { background: #FFF3E0; color: #E65100; }
+  .ruta-step.clickable { cursor: pointer; }
+  .ruta-step.clickable:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .ruta-separator { color: var(--color-text-secondary); font-weight: bold; font-size: 12px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; gap: 12px; }
+  .seccion-titulo { font-size: 28px; font-weight: 700; margin: 0; color: var(--color-accent-dark); position: relative; padding-left: 15px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 7px; bottom: 7px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-accent), var(--color-accent-dark)); }
+
+  .btn-global-add {
+    background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(30, 107, 76, 0.15); transition: all 0.2s ease;
+  }
+  .btn-global-add:hover { background: var(--color-accent-dark); }
+
+  .btn-excel {
+    background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease;
+  }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+
+  .btn-reporte {
+    background: #0284C7; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.15); transition: all 0.2s ease;
+  }
+  .btn-reporte:hover { background: #0369A1; transform: translateY(-1px); }
+
+  .btn-sync-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .btn-sync-top:hover { background: #C8E6C9; color: #0B3C11; transform: translateY(-1px); }
+  .btn-sync-top.syncing { animation: pulseSync 1.5s infinite ease-in-out; pointer-events: none; opacity: 0.7; }
+  @keyframes pulseSync { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+  .btn-lista-add {
+    background: var(--color-accent-soft); color: var(--color-accent); border: 1px dashed var(--color-accent);
+    border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s ease;
+  }
+  .btn-lista-add:hover { background: var(--color-accent); color: #FFFFFF; border-style: solid; }
+
+  .grid-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; overflow-y: auto; flex-grow: 1; padding-top: 4px; }
+
+  .card-item {
+    background: linear-gradient(180deg, #FFFFFF, #FCFDFC); 
+    border: 1px solid var(--color-border); 
+    border-radius: var(--radius-lg); 
+    padding: 22px; 
+    cursor: pointer; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; 
+    text-align: left; 
+    position: relative; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    min-height: 170px;
+  }
+  .card-item:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 24px rgba(30, 107, 76, 0.1); 
+    border-color: var(--color-accent); 
+  }
+  .card-item::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow 0.2s ease; pointer-events: none; }
+  .card-item:hover::after { box-shadow: inset 0 0 0 1.5px var(--color-accent); }
+
+  .card-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .card-item-header h4 { margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text); }
+  
+  .card-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F0F4F1;
+    border: 1px solid var(--color-border);
+    padding: 8px;
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+  }
+  .card-info-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #F9FAF9;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(0,0,0,0.03);
+  }
+  .card-info-line { display: flex; justify-content: space-between; font-size: 12px; }
+  .card-info-line span { color: var(--color-text-secondary); }
+  .card-info-line strong { color: var(--color-text); font-weight: 600; }
+
+  /* Split Columnas */
+  .split-tres-columnas { display: flex; gap: 20px; width: 100%; flex-grow: 1; height: 0; overflow: hidden; }
+
+  .columna-split { display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); height: 100%; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.01); transition: box-shadow 0.2s ease; }
+  .col-1 { width: 260px; flex-shrink: 0; }
+  .col-2 { width: 270px; flex-shrink: 0; }
+  .col-3 { flex-grow: 1; }
+
+  .columna-header-sticky { padding: 16px 20px; background: #F8F9F8; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .columna-header-sticky h4 { margin: 0; font-size: 12px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .columna-body-scroll { padding: 16px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; background: #FAFAFA; scroll-behavior: smooth; }
+  .columna-body-scroll.no-padding { padding: 0; background: #FFFFFF; }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); }
+  .badge-estado.activo { background: rgba(46, 117, 89, 0.1); color: var(--color-accent); }
+  
+  .badge-fila { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; display: inline-block; border: 1px solid transparent; }
+  .badge-fila.ok { background: #E8F5E9; color: #2E7D32; border-color: rgba(46,125,50,0.2); }
+  .badge-fila.brecha { background: #FFF3E0; color: #E65100; border-color: rgba(230,81,0,0.2); }
+  .badge-fila.mantenimiento { background: #FFEBEE; color: #C62828; border-color: rgba(198,40,40,0.2); }
+  .badge-fila.vacia { background: #ECEFF1; color: #455A64; border-color: rgba(69,90,100,0.2); }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+  .renglon-card:hover { border-color: var(--color-accent); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .renglon-card.clickable { cursor: pointer; }
+  .renglon-card.selected { border-color: var(--color-accent); background: var(--color-accent-soft); box-shadow: 0 0 0 1px var(--color-accent); }
+
+  .renglon-data-container { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; flex-grow: 1; }
+  .renglon-info-block { display: flex; flex-direction: column; }
+  .renglon-info-block span.label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .renglon-info-block span.value { font-size: 13px; font-weight: 600; color: var(--color-text); }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 10px; background: #F0F2F0; border-bottom: 1px solid var(--color-border); }
+  .tabla-interna-fila td { padding: 12px 10px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 13px; }
+  
+  .tabla-interna-fila tbody tr { cursor: pointer; transition: background-color 0.15s ease; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-accent-soft); }
+  .tabla-interna-fila tr:last-child td { border-bottom: none; }
+
+  .acciones-wrapper { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+  .btn-accion {
+    border: 1px solid var(--color-border); background: #FFFFFF; cursor: pointer; padding: 6px; border-radius: var(--radius-md);
+    display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--color-text-secondary);
+  }
+  .btn-accion:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-color: var(--color-text-secondary); }
+  .btn-accion.edit:hover { background: #FFFDE7; border-color: #FFF176; color: #F57F17; }
+  .btn-accion.delete:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
+
+  /* Modal */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 540px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; color: var(--color-accent-dark); margin: 0; }
+  .modal-subtitle { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-accent); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-accent-soft); }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  .contenedor-matriz-temporal { background: #F8F9FA; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px; margin-top: 8px; }
+  .contenedor-matriz-temporal h5 { margin: 0 0 8px 0; font-size: 11px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .tabla-temporal { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+  .tabla-temporal th { padding: 6px; background: #ECEFF1; color: var(--color-text-secondary); font-weight: 700; border-bottom: 1px solid var(--color-border); }
+  .tabla-temporal td { padding: 6px; border-bottom: 1px solid var(--color-border); }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-accent); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-accent-dark); }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+
+  .cuadro-manager-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; margin-top: 10px; align-items: start; }
+  .cuadro-manager-listbox { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAFAFA; max-height: 280px; overflow-y: auto; padding: 10px; }
+  .cuadro-manager-rowitem { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-bottom: 1px solid #EAEAEA; font-size: 13px; }
+  .cuadro-manager-rowitem:last-child { border-bottom: none; }
+  .cuadro-manager-rowitem label { font-weight: 500; color: var(--color-text); cursor: pointer; display: flex; justify-content: space-between; width: 100%; }
+  .cuadro-manager-actions { display: flex; flex-direction: column; gap: 14px; }
+  .cuadro-action-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .cuadro-action-title { font-size: 11px; font-weight: 700; color: var(--color-accent-dark); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .btn-panel-action { background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; margin-top: 8px; width: 100%; text-align: center; }
+  .btn-panel-action:hover { background: var(--color-accent-dark); }
+  .btn-panel-action.danger { background: #C62828; }
+  .btn-panel-action.danger:hover { background: #B71C1C; }
+
+  .header-acciones-col { display: flex; align-items: center; gap: 8px; }
+  .btn-sembrar-col {
+    background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md);
+    padding: 7px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.4px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(30, 107, 76, 0.2); transition: all 0.2s ease;
+  }
+  .btn-sembrar-col:hover { background: var(--color-accent-dark); transform: translateY(-1px); }
+  .btn-admin-col {
+    background: #FFFDE7; color: #F57F17; border: 1px solid #FBC02D; border-radius: var(--radius-md);
+    padding: 7px 11px; font-size: 11px; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+  }
+  .btn-admin-col:hover { background: #FFF9C4; color: #E65100; transform: translateY(-1px); }
+
+  .panel-inactivar-acciones { display: flex; flex-direction: column; gap: 8px; }
+  .btn-panel-action.warning { background: #F57C00; }
+  .btn-panel-action.warning:hover { background: #E65100; }
+
+  .badge-sector-pill {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #E0F2FE;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight" id="lblUltimoAcceso">VIERNES 17 DE JULIO DE 2026</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:24px;">
+      <div class="system-datetime" id="topDateTime">VIERNES 17 DE JULIO DE 2026</div>
+      <button class="btn-sync-top" id="btnSincronizarTodo">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="iconSync"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar Todo
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Configuración</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-seccion="cultivos">CULTIVOS</button>
+        <button class="btn-nav-lateral" data-seccion="plantaciones">PLANTACIONES</button>
+        <button class="btn-nav-lateral" data-seccion="sectores">SECTORES</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="ruta-navegacion" id="rutaNavegacion"></div>
+      
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Cargando...</h1>
+        <div id="headerAccion" style="display:flex; gap:10px;"></div>
+      </div>
+      
+      <div id="contenedorDinamico" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+  }
+
+  let seccionActual = 'cultivos'; 
+  let cultivoSeleccionado = null; 
+  let variedadSeleccionada = null; 
+  let zonaSeleccionada = null; 
+  let sectorSeleccionado = null; 
+  let parcelaSeleccionadaId = null; 
+
+  let plantacionCuadroSubSeleccionado = null;
+  let cultivoCuadroSubSeleccionado = null;
+
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const rutaNavegacion = document.getElementById('rutaNavegacion');
+  const btnVolver = document.getElementById('btnVolver');
+  const headerAccion = document.getElementById('headerAccion');
+  const btnSincronizarTodo = document.getElementById('btnSincronizarTodo');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  const ORIENTACIONES_VALLE = ['NORTE', 'SUR'];
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function escapeAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '&quot;');
+  }
+
+  async function pedirConfirmacion(titulo, mensaje, tipo) {
+    if (typeof GordonConfirm === 'function') {
+      return await GordonConfirm({ titulo, mensaje, tipo: tipo || 'advertencia', textoOk: 'Aceptar', textoCancelar: 'Cancelar' });
+    }
+    return window.confirm(titulo + '\n\n' + mensaje);
+  }
+
+  function lanzarNotificacionFlotante(mensaje, tipo) {
+    tipo = tipo || 'success';
+    const tarjeta = document.createElement('div');
+    tarjeta.className = 'toast-card ' + tipo;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = '<div style="font-size:18px; display:flex; align-items:center;">' + icono + '</div><div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">' + mensaje + '</div>';
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => {
+      tarjeta.classList.remove('show');
+      setTimeout(() => tarjeta.remove(), 350);
+    }, 4000);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+    modalTitle.textContent = title; 
+    modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; 
+    customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = "Guardar";
+    modalBtnSave.style.background = "var(--color-accent)";
+  }
+
+  function closeMiniModal() { 
+    customModal.classList.remove('show'); 
+    modalBody.innerHTML = ''; 
+    modalSaveHandler = null; 
+  }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+  window.closeMiniModal = closeMiniModal;
+
+  function inyectarBotonExcelHTML() {
+    return '<button class="btn-excel" onclick="window.modalAbrirExportarExcel()" title="Exportar y Gestionar Semillas en Excel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> EXCEL</button>';
+  }
+
+  // ACA ES LO NUEVO: Botón de Informe Profesional de Marcos y Parcelas
+  function inyectarBotonReporteMarcosHTML() {
+    return '<button class="btn-reporte" onclick="window.modalAbrirReporteMarcos()" title="Informe y Exportación de Marcos de Plantación"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> INFORME PARCELAS</button>';
+  }
+
+  // ACA ES LO NUEVO: Botón de Siembra Masiva
+  function inyectarBotonSiembraMasivaHTML() {
+    return '<button class="btn-global-add" style="background:#2E7D32;" onclick="window.modalSiembraMasivaSectores()" title="Siembra Masiva en Múltiples Parcelas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> SIEMBRA MASIVA</button>';
+  }
+
+  btnVolver.addEventListener('click', () => { window.location.href = 'menu_campo.html'; });
+
+  btnSincronizarTodo.addEventListener('click', async () => {
+    btnSincronizarTodo.classList.add('syncing');
+    btnSincronizarTodo.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizando...';
+    
+    if (isElectron) {
+      try {
+        const { subirCambiosLocales } = require('../subir.js'); 
+        const { sincronizarTodo } = require('../sincronizacion.js');
+        await subirCambiosLocales();
+        await sincronizarTodo();
+        lanzarNotificacionFlotante("¡Sincronización bidireccional exitosa con Hosting de Agrosoft J&L!", "success");
+      } catch (err) {
+        console.error(err);
+        lanzarNotificacionFlotante("Error de sincronización: " + err.message, "error");
+      } finally {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Todo';
+        cargarSeccion();
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = "Sincronizar Todo";
+        lanzarNotificacionFlotante("Sincronización simulada en entorno de pruebas.", "warning");
+      }, 1000);
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      cultivoSeleccionado = null; variedadSeleccionada = null; zonaSeleccionada = null;
+      sectorSeleccionado = null; parcelaSeleccionadaId = null;
+      plantacionCuadroSubSeleccionado = null; cultivoCuadroSubSeleccionado = null;
+      seccionActual = btn.dataset.seccion;
+      cargarSeccion();
+    });
+  });
+
+  function cargarSeccion() {
+    headerAccion.innerHTML = '';
+    customModal.querySelector('.modal-box').style.maxWidth = '540px'; 
+    if (seccionActual === 'cultivos') {
+      if (cultivoSeleccionado) { mostrarVariedadesSplitView(cultivoSeleccionado); }
+      else { mostrarCultivos(); }
+    } else if (seccionActual === 'plantaciones') {
+      mostrarPlantacionesSplitView();
+    } else if (seccionActual === 'sectores') {
+      mostrarSectoresSplitView();
+    }
+  }
+
+  function actualizarRuta(pasos) {
+    rutaNavegacion.innerHTML = pasos.map((paso, idx) => {
+      let colorClass = 'step-inicio';
+      if (idx === 1) colorClass = 'step-cultivo';
+      if (idx === 2) colorClass = 'step-variedad';
+      if (idx === 3) colorClass = 'step-cuadro';
+      const clickableClass = paso.accion ? 'clickable' : '';
+      const onClickAttr = paso.accion ? `onclick="${paso.accion}"` : '';
+      const stepHtml = `<span class="ruta-step ${colorClass} ${clickableClass}" ${onClickAttr}>${paso.texto}</span>`;
+      return idx === pasos.length - 1 ? stepHtml : `${stepHtml} <span class="ruta-separator">/</span> `;
+    }).join('');
+  }
+
+  window.navegarPaso = function(nivel) {
+    if (nivel === 1) { cultivoSeleccionado = null; variedadSeleccionada = null; cultivoCuadroSubSeleccionado = null; }
+    cargarSeccion();
+  };
+  window.navegarPasoSectores = function(nivel) { if (nivel === 1) { sectorSeleccionado = null; parcelaSeleccionadaId = null; } cargarSeccion(); };
+
+  function obtenerIconoCultivoSVG(nombreEspecie) {
+    const nombre = String(nombreEspecie || '').toLowerCase();
+    if (nombre.includes('manzana')) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D32F2F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4.97 0 9-3.03 9-8 0-4.97-4.03-7-9-7s-9 2.03-9 7c0 4.97 4.03 8 9 8z"/><path d="M12 7V4c0-1 1-2 2-2"/></svg>`;
+    }
+    if (nombre.includes('durazno') || nombre.includes('ciruela') || nombre.includes('pera') || nombre.includes('fruta') || nombre.includes('poda')) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F57C00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 5V2"/><path d="M12 5c2-1.5 3-1.5 4-3"/></svg>`;
+    }
+    return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 3c-1 4-1.5 6-3.1 11.2A7 7 0 0 1 11 20z"/><path d="M9 13h4"/></svg>`;
+  }
+
+  // =========================================================================
+  // 1. VISTA: CULTIVOS
+  // =========================================================================
+  function mostrarCultivos() {
+    seccionTitulo.textContent = "Cultivos";
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Cultivos' }]);
+    
+    headerAccion.innerHTML = `
+      ${inyectarBotonExcelHTML()}
+      <button class="btn-global-add" id="btnAgregarCultivo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Agregar Cultivo</button>
+    `;
+    document.getElementById('btnAgregarCultivo').addEventListener('click', modalAgregarCultivo);
+
+    let cultivos = [];
+    if (db) {
+      try { cultivos = db.prepare(`SELECT c.cod_esp, c.especie, COALESCE(SUM(p.sup), 0) as total_sup, COUNT(DISTINCT v.id_var) as cant_var FROM local_p_cultivo c LEFT JOIN local_p_variedades v ON c.cod_esp = v.cod_esp LEFT JOIN local_p_inventario_plantacion p ON v.variedad = p.variedad AND p.estado = 'ACTIVO' GROUP BY c.cod_esp, c.especie ORDER BY c.especie ASC`).all(); } catch (err) { console.error(err); }
+    } else { cultivos = [{ cod_esp: 1, especie: 'Manzanas', total_sup: 12.4, cant_var: 3 }]; }
+
+    contenedorDinamico.innerHTML = `
+      <div class="grid-datos">
+        ${cultivos.map(c => `
+          <div class="card-item" onclick="generarRutaPorCultivo(${c.cod_esp})">
+            <div class="card-item-header">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div class="card-icon-wrapper">${obtenerIconoCultivoSVG(c.especie)}</div>
+                <h4>${escapeHtml(c.especie)}</h4>
+              </div>
+              <span class="badge-estado activo">Activo</span>
+            </div>
+            <div class="card-info-box">
+              <div class="card-info-line"><span>Sup. Activa:</span><strong>${Number(c.total_sup).toFixed(2)} ha</strong></div>
+              <div class="card-info-line"><span>Variedades:</span><strong>${c.cant_var} tipos</strong></div>
+              <div class="card-info-line"><span>Código Sistema:</span><strong>#${c.cod_esp}</strong></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  window.generarRutaPorCultivo = function(codEsp) { cultivoSeleccionado = codEsp; variedadSeleccionada = null; cultivoCuadroSubSeleccionado = null; cargarSeccion(); };
+
+  function modalAgregarCultivo() {
+    const fields = `<div class="modal-group"><label>Nombre del Cultivo (Especie)</label><input type="text" id="cultivoNombre" class="modal-input" placeholder="Ej. Durazno" /></div>`;
+    openMiniModal('Agregar Cultivo', 'Ingrese el nombre del nuevo cultivo.', fields, () => {
+      const nombre = document.getElementById('cultivoNombre').value.trim();
+      if (!nombre) return lanzarNotificacionFlotante('Complete el campo obligatorio.', 'warning');
+      if (db) {
+        try {
+          const row = db.prepare("SELECT COALESCE(MAX(cod_esp), 0) as maxId FROM local_p_cultivo").get();
+          db.prepare("INSERT INTO local_p_cultivo (cod_esp, especie, sincronizado) VALUES (?, ?, 0)").run(row.maxId + 1, nombre);
+          lanzarNotificacionFlotante(`Cultivo '${nombre}' guardado localmente`, 'success');
+          closeMiniModal(); cargarSeccion();
+        } catch(e) { lanzarNotificacionFlotante(e.message, 'error'); }
+      } else { closeMiniModal(); }
+    });
+  }
+
+  // =========================================================================
+  // 2. VISTA: VARIEDADES + INVENTARIO (TRIPLE COLUMNA)
+  // =========================================================================
+  function mostrarVariedadesSplitView(codEsp) {
+    seccionTitulo.textContent = "Variedades y Plantación";
+    let nombreCultivo = "Cultivo #" + codEsp;
+    if (db) { try { const row = db.prepare('SELECT especie FROM local_p_cultivo WHERE cod_esp = ?').get(codEsp); if (row) nombreCultivo = row.especie; } catch(e){} }
+    actualizarRuta([{ texto: 'Cultivos', accion: 'navegarPaso(1)' }, { texto: nombreCultivo }]);
+
+    headerAccion.innerHTML = `
+      ${inyectarBotonExcelHTML()}
+      <button class="btn-global-add" id="btnAgregarVariedad"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>Agregar Variedad</button>
+    `;
+    document.getElementById('btnAgregarVariedad').addEventListener('click', () => modalAgregarVariedad(codEsp, nombreCultivo));
+
+    let variedades = [];
+    if (db) {
+      try { variedades = db.prepare(`SELECT v.id_var, v.variedad, v.especie, v.color, v.estado, COALESCE(SUM(p.sup), 0) as total_sup, COUNT(p.id_inv) as parcelas FROM local_p_variedades v LEFT JOIN local_p_inventario_plantacion p ON v.variedad = p.variedad AND p.estado = 'ACTIVO' WHERE v.cod_esp = ? GROUP BY v.id_var, v.variedad, v.especie, v.color, v.estado ORDER BY v.variedad ASC`).all(codEsp); } catch (err) { console.error(err); }
+    }
+
+    if (variedades.length > 0 && (!variedadSeleccionada || !variedades.some(v => v.variedad === variedadSeleccionada))) {
+      variedadSeleccionada = variedades[0].variedad;
+      cultivoCuadroSubSeleccionado = null;
+    }
+    if (variedades.length === 0) { variedadSeleccionada = null; cultivoCuadroSubSeleccionado = null; }
+
+    let cuadrosAgrupados = [];
+    if (db && variedadSeleccionada) {
+      try {
+        cuadrosAgrupados = db.prepare(`
+          SELECT
+            c.cod_parcela,
+            c.nombre as cuadro,
+            COALESCE(c.sup, 0) as cuadro_sup,
+            COALESCE(c.sector, 'SIN ZONA') as zona_nombre,
+            COUNT(inv.id_inv) as total_filas,
+            SUM(inv.sup) as total_sup
+          FROM local_p_inventario_plantacion inv
+          INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco
+          INNER JOIN local_p_cuadros c ON m.cod_parcela = c.cod_parcela
+          WHERE inv.variedad = ? AND inv.estado = 'ACTIVO'
+          GROUP BY c.cod_parcela, c.nombre, COALESCE(c.sector, 'SIN ZONA')
+          ORDER BY c.nombre ASC
+        `).all(variedadSeleccionada);
+      } catch (err) { console.error("Error agrupando cuadros por variedad:", err); }
+    }
+
+    if (cuadrosAgrupados.length > 0 && !cultivoCuadroSubSeleccionado) { cultivoCuadroSubSeleccionado = cuadrosAgrupados[0].cuadro; }
+    if (cuadrosAgrupados.length === 0) cultivoCuadroSubSeleccionado = null;
+
+    let filasDetalladas = [];
+    if (db && cultivoCuadroSubSeleccionado) {
+      try {
+        filasDetalladas = db.prepare(`
+          SELECT
+            m.cuadro as marco_cuadro,
+            m.nombre_zona as marco_sector,
+            m.turno as marco_turno,
+            m.valvula_riego as marco_valvula,
+            m.cod_marco,
+            m.SupTotal as marco_sup,
+            inv.id_inv,
+            inv.fila,
+            inv.sup,
+            inv.variedad,
+            inv.mtrs_surco,
+            inv.estado_fila,
+            inv.estado,
+            inv.ciclo,
+            inv.fecha_siembra,
+            inv.semillas_x_mtrs
+          FROM local_p_marcos_plantacion m
+          LEFT JOIN local_p_inventario_plantacion inv ON m.cod_marco = inv.cod_marco AND inv.estado = 'ACTIVO'
+          WHERE m.cod_parcela IN (SELECT cod_parcela FROM local_p_cuadros WHERE nombre = ?)
+          ORDER BY CAST(inv.fila AS INTEGER) ASC, inv.fila ASC, m.cod_marco ASC
+        `).all(cultivoCuadroSubSeleccionado);
+      } catch (err) { console.error("Error cargando filas detalladas por variedad:", err); }
+    }
+
+    const cuadroSelObjVar = cuadrosAgrupados.find(c => c.cuadro === cultivoCuadroSubSeleccionado) || null;
+    const codParcelaVarSel = cuadroSelObjVar ? cuadroSelObjVar.cod_parcela : null;
+    const supCuadroVarSel = cuadroSelObjVar ? cuadroSelObjVar.cuadro_sup : 0;
+
+    contenedorDinamico.innerHTML = `
+      <div class="split-tres-columnas">
+        <div class="columna-split col-1">
+          <div class="columna-header-sticky">
+            <h4>Variedades</h4>
+          </div>
+          <div class="columna-body-scroll">
+            ${variedades.map(v => {
+              const sel = v.variedad === variedadSeleccionada ? 'selected' : '';
+              const escVar = escapeAttr(v.variedad);
+              const escColor = escapeAttr(v.color || 'N/A');
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarVariedadSplit('${escVar}')">
+                  <div class="renglon-info-block" style="flex-grow:1;">
+                    <span class="value" style="font-size:14px;">${escapeHtml(v.variedad)}</span>
+                    <span class="label">${escapeHtml(v.color || 'N/A')} · ${escapeHtml(v.estado || 'ACTIVO')}</span>
+                    <span class="label" style="margin-top:2px; font-weight:bold; color:var(--color-accent);">${Number(v.total_sup).toFixed(2)} ha</span>
+                  </div>
+                  <!-- ACA ES LO NUEVO: Acciones de Edición y Borrado en Cards de Variedad -->
+                  <div class="acciones-wrapper" onclick="event.stopPropagation();">
+                    <button class="btn-accion edit" onclick="window.modalEditarVariedad(${v.id_var}, '${escVar}', '${escColor}')" title="Editar Variedad">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </button>
+                    <button class="btn-accion delete" onclick="window.modalEliminarVariedad(${v.id_var}, '${escVar}')" title="Eliminar Variedad">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${variedades.length === 0 ? '<div class="vista-vacia">Sin variedades registradas.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="columna-split col-2">
+          <div class="columna-header-sticky">
+            <h4>Cuadros</h4>
+          </div>
+          <div class="columna-body-scroll">
+            ${cuadrosAgrupados.map(c => {
+              const sel = c.cuadro === cultivoCuadroSubSeleccionado ? 'selected' : '';
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarSubCuadroCultivo('${escapeAttr(c.cuadro)}')">
+                  <div class="renglon-info-block">
+                    <span class="value" style="font-size:14px;">${escapeHtml(c.cuadro)}</span>
+                    <span class="label">Zona: ${escapeHtml(c.zona_nombre)}</span>
+                    <span class="label" style="margin-top:2px; font-weight:bold; color:var(--color-accent);">${c.total_filas} surcos · ${Number(c.total_sup).toFixed(2)} ha</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${cuadrosAgrupados.length === 0 ? '<div class="vista-vacia">Sin plantaciones para esta variedad.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="columna-split col-3">
+          <div class="columna-header-sticky">
+            <h4>Surcos en ${escapeHtml(cultivoCuadroSubSeleccionado || '—')}</h4>
+            <div class="header-acciones-col">
+              <button class="btn-admin-col" id="btnAdminVar" ${codParcelaVarSel ? '' : 'disabled style="opacity:0.4; cursor:not-allowed;"'} title="Administrar Parcela">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Administrar
+              </button>
+              <button class="btn-sembrar-col" id="btnSembrarVar" ${codParcelaVarSel ? '' : 'disabled style="opacity:0.4; cursor:not-allowed;"'} title="Sembrar en este cuadro">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                SEMBRAR
+              </button>
+            </div>
+          </div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                  <th style="width:70px; text-align:center; background:#ECEFF1; color:var(--color-accent-dark);">FILA</th>
+                  <th>SUPERFICIE</th>
+                  <th>METROS SURCO</th>
+                  <th style="width:110px; text-align:center;">SEMILLAS X MT</th>
+                  <th>CICLO</th>
+                  <th>FECHA SIEMBRA</th>
+                  <th style="width:115px; text-align:center;">CONDICIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasDetalladas.map(f => {
+                  let tieneVariedad = f.id_inv && f.variedad;
+                  let estFila = (f.estado_fila || 'OK').toUpperCase();
+                  let badgeClass = 'ok';
+                  if (!tieneVariedad) { badgeClass = 'vacia'; estFila = 'VACÍA'; }
+                  else if (estFila === 'BRECHA') badgeClass = 'brecha';
+                  else if (estFila === 'MANTENIMIENTO' || estFila === 'ROTURA') badgeClass = 'mantenimiento';
+
+                  const nroFilaAMostrar = tieneVariedad ? f.fila : 'M.' + f.cod_marco;
+                  const pedigriVariedad = escapeAttr(f.variedad || '');
+                  const pedigriZona = escapeAttr(f.marco_sector || 'SIN ZONA');
+                  const cleanFilaNum = escapeAttr(String(nroFilaAMostrar));
+
+                  return `
+                    <tr onclick="window.modalMenuOpcionesRenglon(${f.id_inv || 0}, ${f.sup || f.marco_sup || 0}, '${pedigriVariedad}', '${pedigriZona}', '${estFila}', '${cleanFilaNum}', ${f.semillas_x_mtrs || 0})">
+                      <td style="text-align:center; font-size:14px; font-weight:700; color:var(--color-accent-dark); background:#FAFAFA;"><strong>${nroFilaAMostrar}</strong></td>
+                      <td>${f.sup ? parseFloat(f.sup).toFixed(3) + ' ha' : parseFloat(f.marco_sup || 0).toFixed(3) + ' ha'}</td>
+                      <td>${escapeHtml(f.mtrs_surco || '—')}</td>
+                      <td style="text-align:center; font-weight:bold; color:#107C41; background:rgba(16,124,65,0.04); font-size:14px;">${f.semillas_x_mtrs || 0}</td>
+                      <td><span style="font-weight:bold; color:var(--color-accent);">${tieneVariedad ? 'C.' + (f.ciclo || 1) : '—'}</span></td>
+                      <td>📅 ${escapeHtml(f.fecha_siembra || '—')}</td>
+                      <td style="text-align:center;"><span class="badge-fila ${badgeClass}">${estFila}</span></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+            ${filasDetalladas.length === 0 ? '<div class="vista-vacia">Seleccione un cuadro con plantación en la columna central.</div>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const btnSembrarVar = document.getElementById('btnSembrarVar');
+    if (btnSembrarVar && codParcelaVarSel) {
+      btnSembrarVar.addEventListener('click', () => window.modalSembrarProcedimientoAvanzado(codParcelaVarSel, cultivoCuadroSubSeleccionado));
+    }
+    const btnAdminVar = document.getElementById('btnAdminVar');
+    if (btnAdminVar && codParcelaVarSel) {
+      btnAdminVar.addEventListener('click', () => window.modalEditarCuadro(codParcelaVarSel, supCuadroVarSel, cultivoCuadroSubSeleccionado));
+    }
+  }
+
+  window.cambiarVariedadSplit = function(nombreVar) { variedadSeleccionada = nombreVar; cultivoCuadroSubSeleccionado = null; mostrarVariedadesSplitView(cultivoSeleccionado); };
+  window.cambiarSubCuadroCultivo = function(cuadro) { cultivoCuadroSubSeleccionado = cuadro; mostrarVariedadesSplitView(cultivoSeleccionado); };
+
+  function modalAgregarVariedad(codEsp, fontCultivo) {
+    const fields = `
+      <div class="modal-group"><label>Cultivo</label><input type="text" class="modal-input" value="${escapeHtml(fontCultivo)}" disabled style="background:#ECEFF1;" /></div>
+      <div class="modal-group"><label>Nombre Variedad</label><input type="text" id="varNombre" class="modal-input" placeholder="Ej. Gala" /></div>
+      <div class="modal-group"><label>Color</label><select id="varColor" class="modal-select"><option value="N/A">N/A</option><option value="AMARILLA">AMARILLA</option><option value="MORADA">MORADA</option><option value="BLANCA">BLANCA</option><option value="ROJA">ROJA</option></select></div>
+    `;
+    openMiniModal('Agregar Variedad', `Guardando en ${fontCultivo}`, fields, () => {
+      const nombre = document.getElementById('varNombre').value.trim();
+      const color = document.getElementById('varColor').value;
+      if (!nombre) return lanzarNotificacionFlotante('Complete el nombre de la variedad.', 'warning');
+      if (db) {
+        try {
+          const row = db.prepare("SELECT COALESCE(MAX(id_var), 0) as maxId FROM local_p_variedades").get();
+          db.prepare(`INSERT INTO local_p_variedades (id_var, cod_esp, variedad, especie, color, estado, sincronizado) VALUES (?, ?, ?, ?, ?, 'ACTIVO', 0)`).run(row.maxId + 1, codEsp, nombre, fontCultivo, color);
+          lanzarNotificacionFlotante(`Variedad '${nombre}' registrada`, 'success');
+          closeMiniModal(); cargarSeccion();
+        } catch(e) { lanzarNotificacionFlotante(e.message, 'error'); }
+      } else { closeMiniModal(); }
+    });
+  }
+
+  // ACA ES LO NUEVO: Editar Variedad
+  window.modalEditarVariedad = function(idVar, nombreActual, colorActual) {
+    const fields = `
+      <div class="modal-group"><label>Nombre Variedad</label><input type="text" id="editVarNombre" class="modal-input" value="${escapeAttr(nombreActual)}" /></div>
+      <div class="modal-group"><label>Color</label><select id="editVarColor" class="modal-select">
+        <option value="N/A" ${colorActual === 'N/A' ? 'selected' : ''}>N/A</option>
+        <option value="AMARILLA" ${colorActual === 'AMARILLA' ? 'selected' : ''}>AMARILLA</option>
+        <option value="MORADA" ${colorActual === 'MORADA' ? 'selected' : ''}>MORADA</option>
+        <option value="BLANCA" ${colorActual === 'BLANCA' ? 'selected' : ''}>BLANCA</option>
+        <option value="ROJA" ${colorActual === 'ROJA' ? 'selected' : ''}>ROJA</option>
+      </select></div>
+    `;
+    openMiniModal('Editar Variedad', `Modificar datos de ${nombreActual}`, fields, () => {
+      const nuevoNombre = document.getElementById('editVarNombre').value.trim();
+      const nuevoColor = document.getElementById('editVarColor').value;
+      if (!nuevoNombre) return lanzarNotificacionFlotante('El nombre no puede quedar vacío.', 'warning');
+
+      if (db) {
+        try {
+          db.transaction(() => {
+            db.prepare("UPDATE local_p_variedades SET variedad = ?, color = ?, sincronizado = 0 WHERE id_var = ?").run(nuevoNombre, nuevoColor, idVar);
+            db.prepare("UPDATE local_p_inventario_plantacion SET variedad = ?, sincronizado = 0 WHERE variedad = ?").run(nuevoNombre, nombreActual);
+          })();
+          lanzarNotificacionFlotante(`Variedad '${nuevoNombre}' actualizada`, 'success');
+          if (variedadSeleccionada === nombreActual) variedadSeleccionada = nuevoNombre;
+          closeMiniModal();
+          cargarSeccion();
+        } catch(err) {
+          lanzarNotificacionFlotante(err.message, 'error');
+        }
+      } else {
+        closeMiniModal();
+      }
+    });
+  };
+
+  // ACA ES LO NUEVO: Eliminar Variedad
+  window.modalEliminarVariedad = async function(idVar, nombreVar) {
+    const ok = await pedirConfirmacion('Eliminar Variedad', `¿Desea eliminar la variedad '${nombreVar}'?\nSe dará de baja del catálogo.`, 'peligro');
+    if (!ok) return;
+
+    if (db) {
+      try {
+        db.prepare("DELETE FROM local_p_variedades WHERE id_var = ?").run(idVar);
+        lanzarNotificacionFlotante(`Variedad '${nombreVar}' eliminada`, 'success');
+        if (variedadSeleccionada === nombreVar) variedadSeleccionada = null;
+        cargarSeccion();
+      } catch(err) {
+        lanzarNotificacionFlotante(err.message, 'error');
+      }
+    }
+  };
+
+  // =========================================================================
+  // 3. VISTA: PLANTACIONES (Zonas / Cuadros / Surcos)
+  // =========================================================================
+  function mostrarPlantacionesSplitView() {
+    seccionTitulo.textContent = "Zonas de Plantación";
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Plantaciones' }]);
+    headerAccion.innerHTML = `${inyectarBotonReporteMarcosHTML()} ${inyectarBotonExcelHTML()}`;
+
+    let zonas = [];
+    if (db) {
+      try {
+        zonas = db.prepare(`SELECT COALESCE(sector, 'SIN ZONA') as zona_nombre, COALESCE(SUM(sup), 0) as total_sup, COUNT(cod_parcela) as total_filas FROM local_p_cuadros GROUP BY COALESCE(sector, 'SIN ZONA')`).all();
+      } catch (err) { console.error(err); }
+    } else {
+      zonas = [{ zona_nombre: 'Sector Norte', total_sup: 12.0, total_filas: 2 }];
+    }
+
+    if (zonas.length > 0 && (!zonaSeleccionada || !zonas.some(z => z.zona_nombre === zonaSeleccionada))) {
+      zonaSeleccionada = zonas[0].zona_nombre;
+      plantacionCuadroSubSeleccionado = null;
+    }
+    if (zonas.length === 0) { zonaSeleccionada = null; plantacionCuadroSubSeleccionado = null; }
+
+    let cuadrosAgrupadosEnZona = [];
+    if (db && zonaSeleccionada) {
+      try {
+        cuadrosAgrupadosEnZona = db.prepare(`
+          SELECT cod_parcela, nombre as cuadro, COALESCE(sup, 0) as total_sup
+          FROM local_p_cuadros
+          WHERE COALESCE(sector, 'SIN ZONA') = ?
+          ORDER BY cod_parcela ASC
+        `).all(zonaSeleccionada);
+      } catch (err) { console.error(err); }
+    }
+
+    if (cuadrosAgrupadosEnZona.length > 0 && !plantacionCuadroSubSeleccionado) {
+      plantacionCuadroSubSeleccionado = cuadrosAgrupadosEnZona[0].cuadro;
+    }
+    if (cuadrosAgrupadosEnZona.length === 0) plantacionCuadroSubSeleccionado = null;
+
+    let filasDetalladasZona = [];
+    if (db && plantacionCuadroSubSeleccionado) {
+      try {
+        filasDetalladasZona = db.prepare(`
+          SELECT
+            m.cod_marco,
+            m.SupTotal as marco_sup,
+            m.valvula_riego as marco_valvula,
+            inv.id_inv,
+            inv.variedad,
+            inv.sup,
+            inv.mtrs_surco,
+            inv.semillas_x_mtrs,
+            inv.v_riego,
+            inv.fecha_siembra,
+            inv.estado_fila,
+            inv.cuadro as ciclo,
+            inv.zona,
+            inv.fila
+          FROM local_p_marcos_plantacion m
+          LEFT JOIN local_p_inventario_plantacion inv ON m.cod_marco = inv.cod_marco AND inv.estado = 'ACTIVO'
+          WHERE m.cod_parcela IN (SELECT cod_parcela FROM local_p_cuadros WHERE nombre = ?) OR m.cuadro = ? OR m.nombre_parcela = ?
+          ORDER BY CAST(inv.fila AS INTEGER) ASC, inv.fila ASC, m.cod_marco ASC
+        `).all(plantacionCuadroSubSeleccionado, plantacionCuadroSubSeleccionado, plantacionCuadroSubSeleccionado);
+      } catch (err) { console.error(err); }
+    }
+
+    const cuadroSelObjZona = cuadrosAgrupadosEnZona.find(c => c.cuadro === plantacionCuadroSubSeleccionado) || null;
+    const codParcelaZonaSel = cuadroSelObjZona ? cuadroSelObjZona.cod_parcela : null;
+    const supCuadroZonaSel = cuadroSelObjZona ? cuadroSelObjZona.total_sup : 0;
+
+    contenedorDinamico.innerHTML = `
+      <div class="split-tres-columnas">
+        <div class="columna-split col-1">
+          <div class="columna-header-sticky">
+            <h4>Zonas</h4>
+          </div>
+          <div class="columna-body-scroll">
+            ${zonas.map(z => {
+              const sel = z.zona_nombre === zonaSeleccionada ? 'selected' : '';
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarZonaSplit('${escapeAttr(z.zona_nombre)}')">
+                  <div class="renglon-info-block">
+                    <span class="value" style="font-size:14px;">${escapeHtml(z.zona_nombre)}</span>
+                    <span class="label" style="margin-top:2px; font-weight:bold; color:var(--color-accent);">${z.total_filas} cuadros · ${Number(z.total_sup).toFixed(2)} ha</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${zonas.length === 0 ? '<div class="vista-vacia">Sin zonas registradas.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="columna-split col-2">
+          <div class="columna-header-sticky">
+            <h4>Cuadros</h4>
+          </div>
+          <div class="columna-body-scroll">
+            ${cuadrosAgrupadosEnZona.map(c => {
+              const sel = c.cuadro === plantacionCuadroSubSeleccionado ? 'selected' : '';
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarSubCuadroPlantacion('${escapeAttr(c.cuadro)}')">
+                  <div class="renglon-info-block">
+                    <span class="value" style="font-size:14px; color:var(--color-accent-dark);">${escapeHtml(c.cuadro)}</span>
+                    <span class="label" style="font-weight:600; margin-top:4px;">Superficie: ${Number(c.total_sup).toFixed(2)} ha</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${cuadrosAgrupadosEnZona.length === 0 ? '<div class="vista-vacia">Sin cuadros activos en esta área.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="columna-split col-3">
+          <div class="columna-header-sticky">
+            <h4>Surcos en Cuadro ${escapeHtml(plantacionCuadroSubSeleccionado || '—')}</h4>
+            <div class="header-acciones-col">
+              <button class="btn-admin-col" id="btnAdminZona" ${codParcelaZonaSel ? '' : 'disabled style="opacity:0.4; cursor:not-allowed;"'} title="Administrar Parcela">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Administrar
+              </button>
+              <button class="btn-sembrar-col" id="btnSembrarZona" ${codParcelaZonaSel ? '' : 'disabled style="opacity:0.4; cursor:not-allowed;"'} title="Sembrar en este cuadro">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                SEMBRAR
+              </button>
+            </div>
+          </div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                  <th style="width:70px; text-align:center; background:#ECEFF1; color:var(--color-accent-dark);">FILA</th>
+                  <th>VARIEDAD DE CULTIVO</th>
+                  <th>SUPERFICIE</th>
+                  <th>METROS SURCO</th>
+                  <th style="width:110px; text-align:center;">SEMILLAS X MT</th>
+                  <th>VÁLVULA RIEGO</th>
+                  <th>FECHA SIEMBRA</th>
+                  <th style="width:115px; text-align:center;">CONDICIÓN</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasDetalladasZona.map(f => {
+                  let tieneVariedad = f.id_inv && f.variedad;
+                  let estFila = (f.estado_fila || 'OK').toUpperCase();
+                  let badgeClass = 'ok';
+                  if (!tieneVariedad) { badgeClass = 'vacia'; estFila = 'VACÍA'; }
+                  else if (estFila === 'BRECHA') badgeClass = 'brecha';
+                  else if (estFila === 'MANTENIMIENTO' || estFila === 'ROTURA') badgeClass = 'mantenimiento';
+
+                  const nroFilaAMostrar = tieneVariedad ? f.fila : 'M.' + f.cod_marco;
+                  const escapedVariedad = escapeAttr(f.variedad || '');
+                  const escapedZona = escapeAttr(f.zona || 'SIN ZONA');
+                  const cleanFilaNum = escapeAttr(String(nroFilaAMostrar));
+
+                  return `
+                    <tr onclick="window.modalMenuOpcionesRenglon(${f.id_inv || 0}, ${f.sup || f.marco_sup || 0}, '${escapedVariedad}', '${escapedZona}', '${estFila}', '${cleanFilaNum}', ${f.semillas_x_mtrs || 0})">
+                      <td style="text-align:center; font-size:14px; font-weight:700; color:var(--color-accent-dark); background:#FAFAFA;"><strong>${nroFilaAMostrar}</strong></td>
+                      <td>
+                        <span style="color:#1B5E20; font-weight:700; font-size:13px;">${tieneVariedad ? escapeHtml(f.variedad) : '—'}</span>
+                        <small style="color:var(--color-text-secondary); display:block; font-size:11px;">${tieneVariedad ? escapeHtml(f.ciclo) : '—'}</small>
+                      </td>
+                      <td>${f.sup ? parseFloat(f.sup).toFixed(3) + ' ha' : parseFloat(f.marco_sup || 0).toFixed(3) + ' ha'}</td>
+                      <td>${escapeHtml(f.mtrs_surco || '—')}</td>
+                      <td style="text-align:center; font-weight:bold; color:#107C41; background:rgba(16,124,65,0.04); font-size:14px;">${f.semillas_x_mtrs || 0}</td>
+                      <td>💧 ${escapeHtml(f.v_riego || f.marco_valvula || '—')}</td>
+                      <td>📅 ${escapeHtml(f.fecha_siembra || '—')}</td>
+                      <td style="text-align:center;"><span class="badge-fila ${badgeClass}">${estFila}</span></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+            ${filasDetalladasZona.length === 0 ? '<div class="vista-vacia">Seleccione un cuadro con plantación en la columna central.</div>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const btnSembrarZona = document.getElementById('btnSembrarZona');
+    if (btnSembrarZona && codParcelaZonaSel) {
+      btnSembrarZona.addEventListener('click', () => window.modalSembrarProcedimientoAvanzado(codParcelaZonaSel, plantacionCuadroSubSeleccionado));
+    }
+    const btnAdminZona = document.getElementById('btnAdminZona');
+    if (btnAdminZona && codParcelaZonaSel) {
+      btnAdminZona.addEventListener('click', () => window.modalEditarCuadro(codParcelaZonaSel, supCuadroZonaSel, plantacionCuadroSubSeleccionado));
+    }
+  }
+
+  window.cambiarZonaSplit = function(zona) { zonaSeleccionada = zona; plantacionCuadroSubSeleccionado = null; mostrarPlantacionesSplitView(); };
+  window.cambiarSubCuadroPlantacion = function(cuadro) { plantacionCuadroSubSeleccionado = cuadro; mostrarPlantacionesSplitView(); };
+
+  // =========================================================================
+  // 4. VISTA: SECTORES (TRIPLE COLUMNA)
+  // =========================================================================
+  function mostrarSectoresSplitView() {
+    seccionTitulo.textContent = "Gestión Física de Sectores";
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Sectores' }]);
+
+    let sectores = [];
+    if (db) {
+      try { sectores = db.prepare(`SELECT COALESCE(sector, 'SIN SECTOR') as sector_nombre, COALESCE(SUM(sup), 0) as total_sup, COUNT(cod_parcela) as total_cuadros FROM local_p_cuadros GROUP BY COALESCE(sector, 'SIN SECTOR')`).all(); } catch(e) {}
+    } else { sectores = [{ sector_nombre: 'Sector Norte', total_sup: 12, total_cuadros: 2 }]; }
+
+    if (!sectorSeleccionado && sectores.length > 0) { sectorSeleccionado = sectores[0].sector_nombre; }
+
+    let cuadros = [];
+    if (db && sectorSeleccionado) {
+      try { cuadros = db.prepare(`SELECT * FROM local_p_cuadros WHERE COALESCE(sector, 'SIN SECTOR') = ?`).all(sectorSeleccionado); } catch(e){}
+    }
+
+    if (cuadros.length > 0 && !parcelaSeleccionadaId) { parcelaSeleccionadaId = cuadros[0].cod_parcela; }
+
+    // ESTO LO MODIFIQUE: Se agregan botones de informe y siembra masiva en la cabecera
+    headerAccion.innerHTML = `${inyectarBotonSiembraMasivaHTML()} ${inyectarBotonReporteMarcosHTML()} ${inyectarBotonExcelHTML()}`;
+
+    let filasInventario = [];
+    let cuadroNombreActivo = "—";
+    if (db && parcelaSeleccionadaId) {
+      try {
+        const cRow = db.prepare("SELECT nombre FROM local_p_cuadros WHERE cod_parcela = ?").get(parcelaSeleccionadaId);
+        if (cRow) cuadroNombreActivo = cRow.nombre;
+
+        // 1. Cargar siembras activas
+        filasInventario = db.prepare(`
+          SELECT 
+            m.cuadro as marco_cuadro,
+            m.nombre_zona as marco_sector,
+            m.turno as marco_turno,
+            m.valvula_riego as marco_valvula,
+            m.cod_marco,
+            m.SupTotal as marco_sup,
+            inv.id_inv,
+            inv.fila as inv_fila,
+            inv.sup as inv_sup,
+            inv.variedad,
+            inv.mtrs_surco as inv_mtrs,
+            inv.estado_fila,
+            inv.estado,
+            inv.ciclo,
+            inv.fecha_siembra,
+            inv.semillas_x_mtrs
+          FROM local_p_marcos_plantacion m
+          LEFT JOIN local_p_inventario_plantacion inv 
+                 ON m.cod_marco = inv.cod_marco 
+                AND inv.estado = 'ACTIVO'
+          WHERE m.cod_parcela = ?
+          ORDER BY CAST(COALESCE(inv.fila, m.cod_marco) AS INTEGER) ASC, m.cod_marco ASC
+        `).all(parcelaSeleccionadaId);
+
+        // 2. Si no hay filas activas, traer histórico
+        const tieneFilasActivas = filasInventario.some(f => f.id_inv && f.estado === 'ACTIVO');
+        if (!tieneFilasActivas) {
+          const filasHistoricas = db.prepare(`
+            SELECT 
+              m.cuadro as marco_cuadro,
+              m.nombre_zona as marco_sector,
+              m.turno as marco_turno,
+              m.valvula_riego as marco_valvula,
+              m.cod_marco,
+              m.SupTotal as marco_sup,
+              inv.id_inv,
+              inv.fila as inv_fila,
+              inv.sup as inv_sup,
+              inv.variedad,
+              inv.mtrs_surco as inv_mtrs,
+              inv.estado_fila,
+              inv.estado,
+              inv.ciclo,
+              inv.fecha_siembra,
+              inv.semillas_x_mtrs
+            FROM local_p_marcos_plantacion m
+            LEFT JOIN local_p_inventario_plantacion inv 
+                   ON m.cod_marco = inv.cod_marco
+            WHERE m.cod_parcela = ?
+            ORDER BY CAST(COALESCE(inv.fila, m.cod_marco) AS INTEGER) ASC, inv.id_inv DESC
+          `).all(parcelaSeleccionadaId);
+
+          if (filasHistoricas.length > 0) {
+            const mapaVistos = new Set();
+            filasInventario = [];
+            filasHistoricas.forEach(f => {
+              const k = `${f.cod_marco}_${f.inv_fila}`;
+              if (!mapaVistos.has(k)) {
+                mapaVistos.add(k);
+                filasInventario.push(f);
+              }
+            });
+            filasInventario.sort((a, b) => (parseInt(a.inv_fila || a.cod_marco) || 0) - (parseInt(b.inv_fila || b.cod_marco) || 0));
+          }
+        }
+      } catch(err) { console.error("Error cargando tabla 3:", err); }
+    }
+
+    let mapeoFilasAgrupadas = {};
+    filasInventario.forEach(f => {
+      let nroFila = f.inv_fila;
+      if (nroFila === null || nroFila === undefined || nroFila === '') {
+        nroFila = 'M.' + f.cod_marco;
+      }
+
+      if (!mapeoFilasAgrupadas[nroFila]) { mapeoFilasAgrupadas[nroFila] = []; }
+      mapeoFilasAgrupadas[nroFila].push(f);
+    });
+
+    contenedorDinamico.innerHTML = `
+      <div class="split-tres-columnas">
+        <div class="columna-split col-1">
+          <div class="columna-header-sticky">
+            <h4>Sectores</h4>
+            <button class="btn-lista-add" id="addSectorBtn" title="Nuevo Sector">+</button>
+          </div>
+          <div class="columna-body-scroll">
+            ${sectores.map(s => {
+              const sel = s.sector_nombre === sectorSeleccionado ? 'selected' : '';
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarSectorSplit('${escapeAttr(s.sector_nombre)}')">
+                  <div class="renglon-info-block">
+                    <span class="value" style="font-size:14px;">${escapeHtml(s.sector_nombre)}</span>
+                    <span class="label">${s.total_cuadros} Cuadros · ${Number(s.total_sup).toFixed(1)} ha</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="columna-split col-2">
+          <div class="columna-header-sticky">
+            <h4>Cuadros</h4>
+            <button class="btn-lista-add" id="addCuadroBtn" title="Nuevo Cuadro">+</button>
+          </div>
+          <div class="columna-body-scroll">
+            ${cuadros.map(c => {
+              const sel = c.cod_parcela === parcelaSeleccionadaId ? 'selected' : '';
+              const escapedNombre = escapeAttr(c.nombre || '');
+              const supVal = Number(c.sup || 0);
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarParcelaSplit(${c.cod_parcela})">
+                  <div class="renglon-data-container" style="gap:12px;">
+                    <div class="renglon-info-block">
+                      <span class="label">Cuadro</span>
+                      <span class="value" style="font-size:14px; color:var(--color-accent-dark);">${escapeHtml(c.nombre || '—')}</span>
+                    </div>
+                    <div class="renglon-info-block" style="margin-left:auto; text-align:right;">
+                      <span class="label">Superficie</span>
+                      <span class="value">${supVal.toFixed(3)} ha</span>
+                    </div>
+                  </div>
+                  <div class="acciones-wrapper" onclick="event.stopPropagation();" style="margin-left:8px;">
+                    <button class="btn-accion edit" onclick="window.modalEditarCuadro(${c.cod_parcela}, ${supVal}, '${escapedNombre}')" title="Administrar Parcela">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </button>
+                    <button class="btn-accion delete" onclick="window.modalEliminarCuadro(${c.cod_parcela})" title="Eliminar Cuadro">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${cuadros.length === 0 ? '<div class="vista-vacia">Sin cuadros.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="columna-split col-3">
+          <div class="columna-header-sticky">
+            <h4>Detalles: ${escapeHtml(cuadroNombreActivo)}</h4>
+            <button class="btn-global-add" style="padding: 4px 12px; font-size:11px;" id="addFilaBtn" title="Sembrar en este cuadro">
+               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:2px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+               SEMBRAR
+            </button>
+          </div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                  <th style="width:75px; background:#ECEFF1; font-weight:bold; color:var(--color-accent-dark); text-align:center;">Nro FILA</th>
+                  <th>UBICACIÓN</th>
+                  <th>SUP</th>
+                  <th>MTRS SURCO</th>
+                  <th>VARIEDAD / FECHA</th>
+                  <th style="width:100px; text-align:center; background:#E8F5E9; color:#1B5E20;">SEM X MT</th>
+                  <th style="width:115px; text-align:center;">ESTADO FILA</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.keys(mapeoFilasAgrupadas).map(nroFila => {
+                  const subRegistros = mapeoFilasAgrupadas[nroFila];
+                  return subRegistros.map((reg, index) => {
+                    const tieneSiembra = reg.id_inv && reg.variedad && reg.estado === 'ACTIVO';
+                    
+                    let celdaVariedadYFecha = `<span style="color:#E65100; font-weight:600; font-size:11px; background:rgba(230,81,0,0.08); padding:3px 8px; border-radius:10px;">VACÍA</span>`;
+                    if (tieneSiembra) {
+                      celdaVariedadYFecha = `
+                        <div style="display:flex; flex-direction:column; line-height:1.2;">
+                          <span style="color:#1B5E20; font-weight:700; font-size:13px;">${escapeHtml(reg.variedad)} <small style="color:var(--color-text-secondary); font-weight:400;">(C.${escapeHtml(reg.ciclo || '—')})</small></span>
+                          <span style="color:var(--color-text-secondary); font-size:11px; margin-top:2px;">📅 ${escapeHtml(reg.fecha_siembra || '—')}</span>
+                        </div>
+                      `;
+                    }
+                    
+                    let estFilaNormalizado = (reg.estado_fila || 'OK').toUpperCase();
+                    let badgeClass = 'ok';
+                    if (!tieneSiembra) { 
+                      badgeClass = 'vacia'; 
+                      estFilaNormalizado = 'VACÍA'; 
+                    }
+                    else if (estFilaNormalizado === 'BRECHA') badgeClass = 'brecha';
+                    else if (estFilaNormalizado === 'MANTENIMIENTO' || estFilaNormalizado === 'ROTURA') badgeClass = 'mantenimiento';
+
+                    const cleanFilaNum = escapeAttr(String(nroFila));
+                    const escapedVariedad = escapeAttr(reg.variedad || '');
+                    const escapedSector = escapeAttr(reg.marco_cuadro || sectorSeleccionado || '');
+                    
+                    const supAMostrar = tieneSiembra ? (reg.inv_sup || 0) : (reg.marco_sup || 0);
+                    const mtrsAMostrar = tieneSiembra ? (reg.inv_mtrs || '—') : '—';
+
+                    return `
+                      <tr onclick="window.modalMenuOpcionesRenglon(${reg.id_inv || 0}, ${supAMostrar}, '${escapedVariedad}', '${escapedSector}', '${estFilaNormalizado}', '${cleanFilaNum}', ${reg.semillas_x_mtrs || 0}, ${reg.cod_marco})">
+                        ${index === 0 ? `<td rowspan="${subRegistros.length}" style="vertical-align:middle; text-align:center; font-size:15px; font-weight:700; color:var(--color-accent-dark); background:#F4F6F4; border-right:1px solid var(--color-border); border-bottom:1px solid var(--color-border);"><strong>${nroFila}</strong></td>` : ''}
+                        <td><strong>${escapeHtml(reg.marco_cuadro || cuadroNombreActivo)}</strong></td>
+                        <td>${supAMostrar ? parseFloat(supAMostrar).toFixed(3) + ' ha' : '0.00 ha'}</td>
+                        <td>${escapeHtml(mtrsAMostrar)}</td>
+                        <td>${celdaVariedadYFecha}</td>
+                        <td style="text-align:center; font-weight:bold; color:#107C41; background:rgba(16,124,65,0.03); font-size:14px;">${tieneSiembra ? (reg.semillas_x_mtrs || 0) : 0}</td>
+                        <td style="text-align:center;"><span class="badge-fila ${badgeClass}">${estFilaNormalizado}</span></td>
+                      </tr>
+                    `;
+                  }).join('');
+                }).join('')}
+              </tbody>
+            </table>
+            ${filasInventario.length === 0 ? '<div class="vista-vacia">No hay marcos creados para este cuadro.</div>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('addSectorBtn').addEventListener('click', window.modalAgregarSectorNuevo);
+    document.getElementById('addCuadroBtn').addEventListener('click', () => window.modalAgregarCuadroASector(sectorSeleccionado));
+    document.getElementById('addFilaBtn').addEventListener('click', () => window.modalSembrarProcedimientoAvanzado(parcelaSeleccionadaId, cuadroNombreActivo));
+  }
+
+  window.cambiarSectorSplit = function(sector) { sectorSeleccionado = sector; parcelaSeleccionadaId = null; mostrarSectoresSplitView(); };
+  window.cambiarParcelaSplit = function(idParcela) { parcelaSeleccionadaId = idParcela; mostrarSectoresSplitView(); };
+
+  // =========================================================================
+  // MODAL DE ADMINISTRACIÓN DE PARCELA (CUADRO)
+  // =========================================================================
+  window.modalEditarCuadro = function(codParcela, supActual, nombreCuadro) {
+    customModal.querySelector('.modal-box').style.maxWidth = '750px'; 
+    
+    let filasDeLaParcela = [];
+    if (db) {
+      try {
+        filasDeLaParcela = db.prepare(`
+          SELECT 
+            m.cod_marco, 
+            inv.id_inv, 
+            inv.variedad, 
+            inv.semillas_x_mtrs, 
+            inv.fecha_siembra, 
+            inv.estado,
+            inv.fila
+          FROM local_p_marcos_plantacion m
+          LEFT JOIN local_p_inventario_plantacion inv ON m.cod_marco = inv.cod_marco AND inv.estado = 'ACTIVO'
+          WHERE m.cod_parcela = ?
+          ORDER BY CAST(inv.fila AS INTEGER) ASC, inv.fila ASC, m.cod_marco ASC
+        `).all(codParcela);
+      } catch (err) { console.error("Error cargando filas del cuadro:", err); }
+    }
+
+    const hoyStr = new Date().toISOString().split('T')[0];
+    const nombreCuadroEsc = escapeAttr(nombreCuadro || '');
+
+    const panelHtml = `
+      <div style="background:var(--color-accent-soft); padding:12px 16px; border-radius:var(--radius-md); border:1px solid rgba(30,107,76,0.15); display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:10px;">
+        <div style="font-size:14px; font-weight:700; color:var(--color-accent-dark);">📍 Parcela: ${escapeHtml(nombreCuadro)}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="font-size:11px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase;">Superficie (ha):</label>
+          <input type="number" id="txtPanelCuadroSup" class="modal-input" step="0.001" value="${Number(supActual || 0).toFixed(3)}" style="width:110px; padding:4px 8px; font-weight:bold; background:#FFF;" />
+        </div>
+      </div>
+
+      <div class="cuadro-manager-layout">
+        <div>
+          <div style="display:flex; justify-content:between; align-items:center; margin-bottom:6px; padding:0 4px;">
+            <span style="font-size:11px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.5px;">Seleccionar Líneas</span>
+          </div>
+          <div class="cuadro-manager-listbox">
+            <div class="cuadro-manager-rowitem" style="background:#ECEFF1; border-radius:4px; font-weight:bold;">
+              <input type="checkbox" id="chkMasterCuadroRows" onclick="window.toggleMasterCheckboxesCuadro(this)" style="transform: scale(1.1); cursor:pointer;" />
+              <label for="chkMasterCuadroRows" style="color:var(--color-accent-dark);">[ Seleccionar Todo ]</label>
+            </div>
+            ${filasDeLaParcela.map(f => {
+              const idInvVal = f.id_inv || 0;
+              const tieneSiembra = f.id_inv && f.variedad;
+              const nroFilaAMostrar = tieneSiembra ? f.fila : 'M.' + f.cod_marco;
+              const descVariedad = tieneSiembra ? escapeHtml(f.variedad) : '<span style="color:#78909C; font-style:italic;">[Línea Vacía / Sin Siembra]</span>';
+              return `
+                <div class="cuadro-manager-rowitem">
+                  <input type="checkbox" class="chk-cuadro-rowitem" data-id-inv="${idInvVal}" value="${idInvVal}" id="chkFilaInv_${nroFilaAMostrar}" style="transform: scale(1.1); cursor:pointer;" ${!tieneSiembra ? 'disabled style="opacity:0.4;"' : ''} />
+                  <label for="chkFilaInv_${nroFilaAMostrar}" style="${!tieneSiembra ? 'color:var(--color-text-secondary); opacity:0.7;' : ''}">
+                    <span><strong>Fila ${nroFilaAMostrar}</strong> · <small style="color:var(--color-accent); font-weight:600;">${descVariedad}</small></span>
+                    <span style="color:var(--color-text-secondary); font-size:11px;">(${f.semillas_x_mtrs || 0} s/m)</span>
+                  </label>
+                </div>
+              `;
+            }).join('')}
+            ${filasDeLaParcela.length === 0 ? '<div class="vista-vacia" style="padding:20px 0;">No se encontraron surcos estructurales configurados.</div>' : ''}
+          </div>
+        </div>
+
+        <div class="cuadro-manager-actions">
+          <div class="cuadro-action-card" style="border-color:#BAE6FD; background:#F0F9FF;">
+            <div class="cuadro-action-title" style="color:#0369A1;">➕ d) Crear Nuevas Filas en Parcela</div>
+            <p style="margin:0 0 8px 0; font-size:11px; color:var(--color-text-secondary); line-height:1.3;">Crear surcos adicionales continuando la numeración e impactando los 4 sectores del valle con recálculo automático de superficie.</p>
+            <button class="btn-panel-action" style="background:#0284C7; margin-top:0;" onclick="window.abrirModalCrearMasFilas(${codParcela}, '${nombreCuadroEsc}', ${supActual || 0})">➕ Crear Nuevas Filas</button>
+          </div>
+
+          <div class="cuadro-action-card">
+            <div class="cuadro-action-title">🌱 b) Dosificación de Semillas (Lote)</div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="number" id="numPanelSemillas" class="modal-input" min="0" placeholder="Cant. Semillas" style="padding:6px 10px;" />
+              <button class="btn-panel-action" style="margin-top:0; width:auto; white-space:nowrap;" onclick="window.ejecutarPanelCambiarSemillasLote()">Aplicar</button>
+            </div>
+          </div>
+
+          <div class="cuadro-action-card">
+            <div class="cuadro-action-title">📅 c) Fecha de Siembra (Lote)</div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="date" id="datePanelFecha" class="modal-input" value="${hoyStr}" style="padding:5px 10px;" />
+              <button class="btn-panel-action" style="margin-top:0; width:auto; white-space:nowrap;" onclick="window.ejecutarPanelCambiarFechaLote()">Aplicar</button>
+            </div>
+          </div>
+
+          <div class="cuadro-action-card" style="border-color:#FFCDD2; background:#FFF9F9;">
+            <div class="cuadro-action-title" style="color:#C62828;">⚠️ a) Zona de Inactivación</div>
+            <p style="margin:0 0 8px 0; font-size:11px; color:var(--color-text-secondary); line-height:1.3;">Inactiva surcos pasándolos al historial. Podés dar de baja solo las filas tildadas o el cuadro completo.</p>
+            <div class="panel-inactivar-acciones">
+              <button class="btn-panel-action warning" onclick="window.ejecutarPanelInactivarSeleccionadas()">🗂️ Inactivar Filas Seleccionadas</button>
+              <button class="btn-panel-action danger" onclick="window.ejecutarPanelVaciarParcelaCompleta(${codParcela}, '${nombreCuadroEsc}')">🚨 Vaciar Parcela Completa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    openMiniModal(`Administración de Parcela`, `Gestión Operativa Integral`, panelHtml, () => {
+      const nSup = parseFloat(document.getElementById('txtPanelCuadroSup').value);
+      if (isNaN(nSup)) return lanzarNotificacionFlotante('Ingrese un valor de superficie válido.', 'warning');
+      
+      if (db) {
+        try {
+          db.prepare("UPDATE local_p_cuadros SET sup = ?, sincronizado = 0 WHERE cod_parcela = ?").run(nSup, codParcela);
+          lanzarNotificacionFlotante(`Dimensiones del cuadro actualizadas a ${nSup} ha`, 'success');
+          closeMiniModal(); cargarSeccion();
+        } catch(e) { lanzarNotificacionFlotante(e.message, 'error'); }
+      } else {
+        closeMiniModal();
+      }
+    });
+  };
+
+  // ESTO LO MODIFIQUE: Creación de más filas recalculando la superficie total automáticamente
+  window.abrirModalCrearMasFilas = function(codParcela, nombreCuadro, supActual) {
+    if (!codParcela) return;
+    customModal.querySelector('.modal-box').style.maxWidth = '680px';
+
+    let marcos = [];
+    if (db) {
+      try {
+        marcos = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cod_parcela = ? ORDER BY cod_marco ASC").all(codParcela);
+        if (marcos.length === 0) {
+          marcos = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cuadro LIKE ? || '%' OR nombre_parcela LIKE '%' || ? ORDER BY cod_marco ASC").all(nombreCuadro, nombreCuadro);
+        }
+      } catch(e) {}
+    }
+
+    if (marcos.length === 0) {
+      marcos = construirMarcosValle(nombreCuadro).map((c, idx) => ({
+        ...c,
+        cod_marco: idx + 1,
+        SupTotal: parseFloat(supActual || 4.0) / 4,
+        nombre_zona: sectorSeleccionado || 'ZONA GENERAL',
+        turno: 1
+      }));
+    }
+
+    let maxFilaNum = 0;
+    let filaEjemplo = null;
+
+    if (db && marcos.length > 0) {
+      try {
+        const placeholders = marcos.map(() => '?').join(',');
+        const cods = marcos.map(m => m.cod_marco);
+        const rowMax = db.prepare(`
+          SELECT MAX(CAST(fila AS INTEGER)) as maxFila 
+          FROM local_p_inventario_plantacion 
+          WHERE cod_marco IN (${placeholders})
+        `).get(...cods);
+        if (rowMax && rowMax.maxFila) maxFilaNum = parseInt(rowMax.maxFila);
+
+        filaEjemplo = db.prepare(`
+          SELECT * FROM local_p_inventario_plantacion 
+          WHERE cod_marco IN (${placeholders}) 
+          ORDER BY id_inv DESC LIMIT 1
+        `).get(...cods);
+      } catch(e) {}
+    }
+
+    const proximaFilaInicio = maxFilaNum + 1;
+
+    const fields = `
+      <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:10px;">
+        <div style="font-size:13px; font-weight:800; color:var(--color-accent-dark);">📍 Parcela: ${escapeHtml(nombreCuadro)}</div>
+        <div style="font-size:11px; color:var(--color-text-secondary); margin-top:2px;">
+          Última fila actual: <strong>#${maxFilaNum}</strong> · La nueva numeración iniciará en: <strong style="color:var(--color-accent);">#${proximaFilaInicio}</strong>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="numFilasACrear">¿Cuántas filas vas a crear?</label>
+          <input type="number" id="numFilasACrear" class="modal-input" min="1" max="100" value="5" style="font-size:15px; font-weight:700; color:var(--color-accent-dark);" />
+        </div>
+        <div class="modal-group">
+          <label for="mtrsNuevasFilas">Metros de Surco</label>
+          <input type="number" id="mtrsNuevasFilas" class="modal-input" min="1" value="${filaEjemplo?.mtrs_surco || 100}" />
+        </div>
+      </div>
+
+      <div id="lblInfoNuevaSup" style="font-size:12px; font-weight:700; color:var(--color-accent); margin-bottom:8px;"></div>
+
+      <div class="contenedor-matriz-temporal">
+        <h5>Previsualización de Filas a Crear (${marcos.length} sectores por fila)</h5>
+        <div style="max-height:160px; overflow-y:auto; background:#FFF; border:1px solid var(--color-border); border-radius:4px;">
+          <table class="tabla-temporal">
+            <thead>
+              <tr>
+                <th style="width:65px; text-align:center;">Fila</th>
+                <th>Cuadro / Orientación</th>
+                <th>Válvula</th>
+                <th>Mtrs Surco</th>
+                <th>Superficie</th>
+              </tr>
+            </thead>
+            <tbody id="bodyPreviewNuevasFilas"></tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    openMiniModal(`➕ Crear Más Filas en ${nombreCuadro}`, `Generación estructurada de nuevos surcos`, fields, () => {
+      const cantACrear = parseInt(document.getElementById('numFilasACrear').value);
+      const mtrsSurcoInp = parseFloat(document.getElementById('mtrsNuevasFilas').value) || 100;
+      if (isNaN(cantACrear) || cantACrear < 1) return lanzarNotificacionFlotante('Ingrese una cantidad válida de filas a crear.', 'warning');
+
+      if (!db) return closeMiniModal();
+
+      try {
+        let idInvSiguiente = obtenerSiguienteIdInventario();
+        const stmtInsert = db.prepare(`
+          INSERT INTO local_p_inventario_plantacion 
+            (id_inv, cod_marco, zona, turno_riego, orientacion, cuadro, fila, v_riego, mtrs_surco, sup, variedad, estado, ciclo, estado_fila, fecha_siembra, semillas_x_mtrs, sincronizado) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'ACTIVO', 1, 'OK', '01/01/2100', 0, 0)
+        `);
+
+        let totalCreadas = 0;
+        const totalFilasFinal = maxFilaNum + cantACrear;
+        // ACA ES LO NUEVO: Fórmula Automática (Total Filas * 1.60 / 10000)
+        const nuevaSupCalculada = (totalFilasFinal * mtrsSurcoInp * 1.60) / 10000;
+        const supPorMarco = nuevaSupCalculada / 4;
+        const supPorFila = supPorMarco / totalFilasFinal;
+
+        const transaccionCrearFilas = db.transaction(() => {
+          // Actualizar la superficie del cuadro y marcos
+          db.prepare("UPDATE local_p_cuadros SET sup = ?, sincronizado = 0 WHERE cod_parcela = ?").run(nuevaSupCalculada, codParcela);
+          db.prepare("UPDATE local_p_marcos_plantacion SET SupTotal = ?, sincronizado = 0 WHERE cod_parcela = ?").run(supPorMarco, codParcela);
+
+          for (let f = proximaFilaInicio; f < proximaFilaInicio + cantACrear; f++) {
+            marcos.forEach(m => {
+              const orient = m.orientacion || 'NORTE';
+              const valv = m.valvula_riego || 'NORTE';
+              const cuadroInv = `${m.cuadro || nombreCuadro} - ${orient.charAt(0)}`;
+              const zonaNombre = m.nombre_zona || (filaEjemplo?.zona) || sectorSeleccionado || 'ZONA GENERAL';
+
+              stmtInsert.run(
+                idInvSiguiente++,
+                m.cod_marco,
+                zonaNombre,
+                m.turno || 1,
+                orient,
+                cuadroInv,
+                f,
+                valv,
+                String(mtrsSurcoInp),
+                supPorFila
+              );
+              totalCreadas++;
+            });
+          }
+        });
+
+        transaccionCrearFilas();
+        lanzarNotificacionFlotante(`Se crearon ${cantACrear} filas físicas (${totalCreadas} registros) en ${nombreCuadro}. Superficie actualizada a ${nuevaSupCalculada.toFixed(3)} ha`, 'success');
+        closeMiniModal();
+        mostrarSectoresSplitView();
+        window.modalEditarCuadro(codParcela, nuevaSupCalculada, nombreCuadro);
+      } catch(err) {
+        console.error(err);
+        lanzarNotificacionFlotante('Error al crear filas: ' + err.message, 'error');
+      }
+    }, 'Crear Filas');
+
+    const inpCant = document.getElementById('numFilasACrear');
+    const inpMtrs = document.getElementById('mtrsNuevasFilas');
+    const bodyPrev = document.getElementById('bodyPreviewNuevasFilas');
+    const lblSup = document.getElementById('lblInfoNuevaSup');
+
+    function refrescarPreviewNuevasFilas() {
+      const cant = parseInt(inpCant.value) || 0;
+      const mtrs = parseFloat(inpMtrs.value) || 100;
+      if (cant < 1) {
+        bodyPrev.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#C62828;">Indique una cantidad mayor a 0</td></tr>`;
+        lblSup.textContent = '';
+        return;
+      }
+
+      const totalFilasFinal = maxFilaNum + cant;
+      const supCalc = (totalFilasFinal * mtrs * 1.60) / 10000;
+      const supPorFila = (supCalc / 4) / totalFilasFinal;
+      lblSup.textContent = `🌱 Superficie calculada: ${cant} filas nuevas (Total ${totalFilasFinal} filas) = ${supCalc.toFixed(3)} ha`;
+
+      let html = '';
+      for (let f = proximaFilaInicio; f < proximaFilaInicio + cant; f++) {
+        marcos.forEach((m, idx) => {
+          const orient = m.orientacion || 'NORTE';
+          const valv = m.valvula_riego || 'NORTE';
+          const cuadroInv = `${m.cuadro || nombreCuadro} - ${orient.charAt(0)}`;
+          html += `
+            <tr>
+              ${idx === 0 ? `<td rowspan="${marcos.length}" style="text-align:center; font-weight:bold; background:#F4F6F4; vertical-align:middle; border-right:1px solid #D2D7D3;">#${f}</td>` : ''}
+              <td><span class="badge-sector-pill">${escapeHtml(cuadroInv)}</span></td>
+              <td>${escapeHtml(valv)}</td>
+              <td>${mtrs}m</td>
+              <td>${supPorFila.toFixed(4)} ha</td>
+            </tr>
+          `;
+        });
+      }
+      bodyPrev.innerHTML = html;
+    }
+
+    inpCant.addEventListener('input', refrescarPreviewNuevasFilas);
+    inpMtrs.addEventListener('input', refrescarPreviewNuevasFilas);
+    refrescarPreviewNuevasFilas();
+  };
+
+  window.toggleMasterCheckboxesCuadro = function(master) {
+    document.querySelectorAll('.chk-cuadro-rowitem:not([disabled])').forEach(chk => chk.checked = master.checked);
+  };
+
+  window.ejecutarPanelCambiarSemillasLote = function() {
+    const checkboxes = document.querySelectorAll('.chk-cuadro-rowitem:checked');
+    if (checkboxes.length === 0) return lanzarNotificacionFlotante("Seleccione al menos una fila válida de la lista.", "warning");
+    
+    const inputSemillas = document.getElementById('numPanelSemillas');
+    const valorSemillas = parseInt(inputSemillas ? inputSemillas.value : NaN);
+    if (isNaN(valorSemillas) || valorSemillas < 0) return lanzarNotificacionFlotante("Ingrese un número válido de semillas.", "warning");
+
+    if (db) {
+      try {
+        const stmt = db.prepare("UPDATE local_p_inventario_plantacion SET semillas_x_mtrs = ?, sincronizado = 0 WHERE id_inv = ?");
+        let procesados = 0;
+        
+        const transaccion = db.transaction(() => {
+          checkboxes.forEach(chk => {
+            const idInv = parseInt(chk.dataset.idInv);
+            if (idInv && idInv > 0) {
+              stmt.run(valorSemillas, idInv);
+              procesados++;
+            }
+          });
+        });
+        transaccion();
+        
+        lanzarNotificacionFlotante(`Dosificación cambiada a (${valorSemillas} s/m) en ${procesados} surcos activos`, "success");
+        closeMiniModal(); cargarSeccion();
+      } catch (err) { lanzarNotificacionFlotante(err.message, "error"); }
+    } else {
+      closeMiniModal();
+    }
+  };
+
+  window.ejecutarPanelCambiarFechaLote = function() {
+    const checkboxes = document.querySelectorAll('.chk-cuadro-rowitem:checked');
+    if (checkboxes.length === 0) return lanzarNotificacionFlotante("Seleccione al menos una fila válida de la lista.", "warning");
+    
+    const fechaValor = document.getElementById('datePanelFecha').value;
+    if (!fechaValor) return lanzarNotificacionFlotante("Seleccione una fecha válida.", "warning");
+
+    if (db) {
+      try {
+        const stmt = db.prepare("UPDATE local_p_inventario_plantacion SET fecha_siembra = ?, sincronizado = 0 WHERE id_inv = ?");
+        let procesados = 0;
+        
+        const transaccion = db.transaction(() => {
+          checkboxes.forEach(chk => {
+            const idInv = parseInt(chk.dataset.idInv);
+            if (idInv && idInv > 0) {
+              stmt.run(fechaValor, idInv);
+              procesados++;
+            }
+          });
+        });
+        transaccion();
+        
+        lanzarNotificacionFlotante(`Fecha actualizada a [${fechaValor}] en ${procesados} surcos activos`, "success");
+        closeMiniModal(); cargarSeccion();
+      } catch (err) { lanzarNotificacionFlotante(err.message, "error"); }
+    } else {
+      closeMiniModal();
+    }
+  };
+
+  window.ejecutarPanelInactivarSeleccionadas = async function() {
+    const checkboxes = document.querySelectorAll('.chk-cuadro-rowitem:checked');
+    if (checkboxes.length === 0) return lanzarNotificacionFlotante("Seleccione al menos una fila válida de la lista.", "warning");
+
+    const ok = await pedirConfirmacion(
+      'Inactivar filas seleccionadas',
+      `¿Inactivar ${checkboxes.length} fila(s) seleccionada(s)?\nPasarán al historial como INACTIVAS.`,
+      'advertencia'
+    );
+    if (!ok) return;
+
+    if (db) {
+      try {
+        const stmt = db.prepare("UPDATE local_p_inventario_plantacion SET estado = 'INACTIVO', sincronizado = 0 WHERE id_inv = ?");
+        let procesados = 0;
+
+        const transaccion = db.transaction(() => {
+          checkboxes.forEach(chk => {
+            const idInv = parseInt(chk.dataset.idInv);
+            if (idInv && idInv > 0) {
+              stmt.run(idInv);
+              procesados++;
+            }
+          });
+        });
+        transaccion();
+
+        lanzarNotificacionFlotante(`Se inactivaron ${procesados} surco(s) seleccionado(s)`, "success");
+        closeMiniModal(); cargarSeccion();
+      } catch (err) { lanzarNotificacionFlotante(err.message, "error"); }
+    } else {
+      closeMiniModal();
+    }
+  };
+
+  window.ejecutarPanelVaciarParcelaCompleta = async function(codParcela, nombreCuadro) {
+    const ok = await pedirConfirmacion(
+      'Vaciar cuadro',
+      `¿Está totalmente seguro de vaciar el cuadro '${nombreCuadro}'?\nEsto colocará todas las siembras actuales como INACTIVAS en el sistema.`,
+      'peligro'
+    );
+    if (!ok) return;
+
+    if (db) {
+      try {
+        const res = db.prepare(`
+          UPDATE local_p_inventario_plantacion 
+          SET estado = 'INACTIVO', sincronizado = 0 
+          WHERE estado = 'ACTIVO' 
+            AND cod_marco IN (
+              SELECT cod_marco 
+              FROM local_p_marcos_plantacion 
+              WHERE cod_parcela = ?
+            )
+        `).run(codParcela);
+        
+        lanzarNotificacionFlotante(`¡Parcela vaciada con éxito! Se archivaron ${res.changes} registros de siembra.`, "success");
+        closeMiniModal(); 
+        cargarSeccion();
+      } catch (err) { 
+        console.error("Error al vaciar parcela:", err);
+        lanzarNotificacionFlotante(err.message, "error"); 
+      }
+    } else {
+      closeMiniModal();
+    }
+  };
+
+  window.modalEliminarCuadro = function(codParcela) {
+    const fields = `<p style="font-size:14px; color:var(--color-text-secondary);">¿Borrar este cuadro permanentemente?</p>`;
+    openMiniModal('Eliminar Cuadro', 'Confirmar remoción', fields, () => {
+      if (db) { try { db.prepare("DELETE FROM local_p_cuadros WHERE cod_parcela = ?").run(codParcela); lanzarNotificacionFlotante("Cuadro eliminado", 'success'); closeMiniModal(); cargarSeccion(); } catch(e){ lanzarNotificacionFlotante(e.message, 'error'); } } 
+      else { closeMiniModal(); }
+    });
+  };
+
+  // =========================================================================
+  // FUNCIONES DE AUTO-INCREMENTO Y AUXILIARES
+  // =========================================================================
+  // ACA ES LO NUEVO: Función para calcular Max(cod_parcela) + 1
+  function obtenerSiguienteIdCuadros() {
+    if (db) {
+      try {
+        const row = db.prepare("SELECT COALESCE(MAX(cod_parcela), 0) as maxId FROM local_p_cuadros").get();
+        return row.maxId + 1;
+      } catch(e) { console.error('Error calculando cod_parcela:', e); }
+    }
+    return 1;
+  }
+
+  function obtenerSiguienteIdMarcos() {
+    if (db) { try { const row = db.prepare("SELECT COALESCE(MAX(cod_marco), 0) as maxId FROM local_p_marcos_plantacion").get(); return row.maxId + 1; } catch(e){} }
+    return 1;
+  }
+
+  function obtenerSiguienteIdInventario() {
+    if (db) { try { const row = db.prepare("SELECT COALESCE(MAX(id_inv), 0) as maxId FROM local_p_inventario_plantacion").get(); return row.maxId + 1; } catch(e){} }
+    return 1;
+  }
+
+  function obtenerPerfilSector(sector) {
+    const porDefecto = { tipo: 'Valle', negocio: 'Gordon Campo' };
+    if (!db || !sector) return porDefecto;
+    try {
+      const row = db.prepare(`
+        SELECT tipo, negocio, COUNT(*) as cant
+        FROM local_p_cuadros
+        WHERE COALESCE(sector, 'SIN SECTOR') = ? AND tipo IS NOT NULL AND TRIM(tipo) <> ''
+        GROUP BY tipo, negocio
+        ORDER BY cant DESC
+        LIMIT 1
+      `).get(sector);
+      if (row) return { tipo: row.tipo, negocio: row.negocio || porDefecto.negocio };
+    } catch(e) { console.error('No se pudo leer el perfil del sector:', e); }
+    return porDefecto;
+  }
+
+  function esSectorValle(tipo) { return String(tipo || '').trim().toUpperCase() === 'VALLE'; }
+
+  function abreviarZonaInventario(sector, nombreCuadro) {
+    const m = String(nombreCuadro || '').match(/(\d+)\s*$/);
+    return m ? `${sector} P${m[1]}` : `${sector} ${nombreCuadro}`.trim();
+  }
+
+  function construirMarcosValle(nombreCuadro) {
+    const combos = [];
+    ORIENTACIONES_VALLE.forEach(valvula => {
+      ORIENTACIONES_VALLE.forEach(orientacion => {
+        combos.push({
+          cuadro: `${nombreCuadro} ${valvula}`,
+          valvula_riego: valvula,
+          orientacion: orientacion,
+          cuadro_inventario: `${nombreCuadro} ${valvula} - ${orientacion.charAt(0)}`
+        });
+      });
+    });
+    return combos;
+  }
+
+  // ESTO LO MODIFIQUE: Cálculo automático de superficie en Nuevo Cuadro (cantFilas * mtrs * 1.60 / 10000)
+  window.modalAgregarCuadroASector = function(sectorPadre) {
+    if (!sectorPadre) return lanzarNotificacionFlotante('Seleccione un sector.', 'warning');
+    customModal.querySelector('.modal-box').style.maxWidth = '680px';
+
+    const perfil = obtenerPerfilSector(sectorPadre);
+    const esValle = esSectorValle(perfil.tipo);
+
+    const bloqueValle = !esValle ? '' : `
+      <div class="contenedor-matriz-temporal">
+        <h5>Marco de Plantación (Valle) · Cálculo automático de Sup: (Filas × Largo × 1.60 / 10000)</h5>
+        <div class="modal-row-grid">
+          <div class="modal-group"><label for="addCuaFilaDesde">Fila Desde</label><input type="number" id="addCuaFilaDesde" class="modal-input" min="1" value="1" /></div>
+          <div class="modal-group"><label for="addCuaFilaHasta">Fila Hasta</label><input type="number" id="addCuaFilaHasta" class="modal-input" min="1" value="25" /></div>
+        </div>
+        <div class="modal-row-grid">
+          <div class="modal-group"><label for="addCuaMtrs">Metros de Surco</label><input type="number" id="addCuaMtrs" class="modal-input" step="0.01" min="0" value="100" /></div>
+          <div class="modal-group"><label for="addCuaTurno">Turno de Riego</label><input type="number" id="addCuaTurno" class="modal-input" min="1" placeholder="Opcional" /></div>
+        </div>
+        <div class="modal-row-grid">
+          <div class="modal-group"><label for="addCuaLamina">Lámina de Riego</label><input type="number" id="addCuaLamina" class="modal-input" min="0" value="4" /></div>
+          <div class="modal-group" style="visibility:hidden;"></div>
+        </div>
+        <div style="max-height:150px; overflow-y:auto; background:#FFF; margin-top:8px;">
+          <table class="tabla-temporal" id="tablaPreviewMarcos">
+            <thead><tr><th>Cuadro (Marco)</th><th>Válvula</th><th>Orientación</th><th>Sup. Marco</th><th>Etiqueta Inventario</th></tr></thead>
+            <tbody id="bodyPreviewMarcos"><tr><td colspan="5" style="text-align:center; color:var(--color-text-secondary); padding:10px;">Escriba el nombre del cuadro...</td></tr></tbody>
+          </table>
+        </div>
+        <div id="resumenPreviewMarcos" style="margin-top:8px; font-size:11.5px; font-weight:700; color:var(--color-accent-dark);"></div>
+      </div>
+    `;
+
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Sector Destino</label><input type="text" class="modal-input" value="${escapeHtml(sectorPadre)}" disabled style="background:#ECEFF1;" /></div>
+        <div class="modal-group"><label>Tipo / Negocio (heredado)</label><input type="text" class="modal-input" value="${escapeHtml(perfil.tipo)} · ${escapeHtml(perfil.negocio)}" disabled style="background:#ECEFF1;" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label for="addCuaNombre">Nombre Cuadro</label><input type="text" id="addCuaNombre" class="modal-input" placeholder="${esValle ? 'Ej. PARCELA 20' : 'Ej. Cuadro 15'}" /></div>
+        <div class="modal-group"><label for="addCuaSup">Superficie Total (ha) [Auto]</label><input type="number" id="addCuaSup" class="modal-input" step="0.001" placeholder="Ej. 0.400" /></div>
+      </div>
+      ${bloqueValle}
+    `;
+
+    openMiniModal('Nuevo Cuadro', `Añadir parcela en ${sectorPadre}`, fields, () => {
+      const cua = document.getElementById('addCuaNombre').value.trim().toUpperCase();
+      const sup = parseFloat(document.getElementById('addCuaSup').value);
+      if (!cua || isNaN(sup)) return lanzarNotificacionFlotante('Complete los datos.', 'warning');
+
+      let desdeF = 0, hastaF = 0, mtrsSurco = 0, turno = null, lamina = 4, supPorMarco = 0, supPorFila = 0;
+      if (esValle) {
+        desdeF = parseInt(document.getElementById('addCuaFilaDesde').value);
+        hastaF = parseInt(document.getElementById('addCuaFilaHasta').value);
+        mtrsSurco = parseFloat(document.getElementById('addCuaMtrs').value);
+        const turnoRaw = parseInt(document.getElementById('addCuaTurno').value);
+        turno = isNaN(turnoRaw) ? null : turnoRaw;
+        const laminaRaw = parseInt(document.getElementById('addCuaLamina').value);
+        lamina = isNaN(laminaRaw) ? 4 : laminaRaw;
+        if (isNaN(desdeF) || isNaN(hastaF) || desdeF < 1 || desdeF > hastaF) return lanzarNotificacionFlotante('Rango de filas inválido.', 'warning');
+        if (isNaN(mtrsSurco) || mtrsSurco <= 0) return lanzarNotificacionFlotante('Indique los metros de surco.', 'warning');
+        const cantFilas = (hastaF - desdeF) + 1;
+        supPorMarco = sup / 4;
+        supPorFila = supPorMarco / cantFilas;
+      }
+
+      if (!db) return closeMiniModal();
+
+      try {
+        let nuevoCod = 0;
+        const altaEnCascada = db.transaction(() => {
+          nuevoCod = obtenerSiguienteIdCuadros();
+          db.prepare(`INSERT INTO local_p_cuadros (cod_parcela, sector, sup, nombre, tipo, negocio, sincronizado) VALUES (?, ?, ?, ?, ?, ?, 0)`)
+            .run(nuevoCod, sectorPadre, sup, cua, perfil.tipo, perfil.negocio);
+
+          if (!esValle) return;
+
+          const zonaInv = abreviarZonaInventario(sectorPadre, cua);
+          const nombreParcela = `${sectorPadre} ${cua}`;
+          let codMarco = obtenerSiguienteIdMarcos();
+          const marcosCreados = construirMarcosValle(cua).map(combo => {
+            const cod = codMarco++;
+            db.prepare(`INSERT INTO local_p_marcos_plantacion (cod_marco, cod_parcela, nombre_parcela, SupTotal, valvula_riego, lamina_riego, cuadro, orientacion, nombre_zona, turno, sincronizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`)
+              .run(cod, nuevoCod, nombreParcela, supPorMarco, combo.valvula_riego, lamina, combo.cuadro, combo.orientacion, sectorPadre, turno);
+            return { ...combo, cod_marco: cod };
+          });
+
+          let idInv = obtenerSiguienteIdInventario();
+          const insertInv = db.prepare(`INSERT INTO local_p_inventario_plantacion (id_inv, cod_marco, zona, turno_riego, orientacion, cuadro, fila, v_riego, mtrs_surco, sup, variedad, estado, ciclo, estado_fila, fecha_siembra, semillas_x_mtrs, sincronizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 'ACTIVO', 1, '', '01/01/2100', 0, 0)`);
+          for (let f = desdeF; f <= hastaF; f++) {
+            marcosCreados.forEach(marco => {
+              insertInv.run(idInv++, marco.cod_marco, zonaInv, turno, marco.orientacion, marco.cuadro_inventario, f, marco.valvula_riego, String(mtrsSurco), supPorFila);
+            });
+          }
+        });
+        altaEnCascada();
+
+        const detalle = esValle ? ` · 4 marcos y ${((hastaF - desdeF) + 1) * 4} filas de inventario` : '';
+        lanzarNotificacionFlotante(`Cuadro creado con Sup: ${sup.toFixed(3)} ha${detalle}`, 'success');
+        parcelaSeleccionadaId = nuevoCod; closeMiniModal(); cargarSeccion();
+      } catch(e){ lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+
+    if (!esValle) return;
+
+    const inpNombre = document.getElementById('addCuaNombre');
+    const inpSup = document.getElementById('addCuaSup');
+    const inpDesde = document.getElementById('addCuaFilaDesde');
+    const inpHasta = document.getElementById('addCuaFilaHasta');
+    const inpMtrs = document.getElementById('addCuaMtrs');
+    const bodyPrev = document.getElementById('bodyPreviewMarcos');
+    const resumenPrev = document.getElementById('resumenPreviewMarcos');
+
+    // ACA ES LO NUEVO: Función de auto-cálculo de superficie
+    function calcularSuperficieAutomatica() {
+      const desde = parseInt(inpDesde.value) || 0;
+      const hasta = parseInt(inpHasta.value) || 0;
+      const mtrs = parseFloat(inpMtrs.value) || 100;
+      if (desde > 0 && hasta >= desde) {
+        const cantFilas = (hasta - desde) + 1;
+        const supCalc = (cantFilas * mtrs * 1.60) / 10000;
+        inpSup.value = supCalc.toFixed(4);
+      }
+    }
+
+    function refrescarPreviewMarcos() {
+      calcularSuperficieAutomatica();
+      const nombre = inpNombre.value.trim().toUpperCase();
+      const supTotal = parseFloat(inpSup.value) || 0;
+      const desde = parseInt(inpDesde.value);
+      const hasta = parseInt(inpHasta.value);
+
+      if (!nombre) {
+        bodyPrev.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--color-text-secondary); padding:10px;">Escriba el nombre del cuadro...</td></tr>`;
+        resumenPrev.textContent = '';
+        return;
+      }
+      const supMarco = supTotal / 4;
+      bodyPrev.innerHTML = construirMarcosValle(nombre).map(c => `
+        <tr>
+          <td style="font-weight:700; color:var(--color-accent-dark);">${escapeHtml(c.cuadro)}</td>
+          <td>${escapeHtml(c.valvula_riego)}</td>
+          <td>${escapeHtml(c.orientacion)}</td>
+          <td>${supMarco.toFixed(4)} ha</td>
+          <td style="color:#1B5E20; font-weight:600;">${escapeHtml(c.cuadro_inventario)}</td>
+        </tr>
+      `).join('');
+
+      if (isNaN(desde) || isNaN(hasta) || desde < 1 || desde > hasta) {
+        resumenPrev.innerHTML = `<span style="color:#C62828;">Rango de filas inválido</span>`;
+        return;
+      }
+      const cantFilas = (hasta - desde) + 1;
+      resumenPrev.textContent = `Se generarán 4 marcos y ${cantFilas} filas × 4 = ${cantFilas * 4} registros (${(supMarco / cantFilas).toFixed(5)} ha por fila). Superficie Total: ${supTotal.toFixed(3)} ha`;
+    }
+
+    [inpNombre, inpDesde, inpHasta, inpMtrs].forEach(el => el.addEventListener('input', refrescarPreviewMarcos));
+    refrescarPreviewMarcos();
+  };
+
+  window.modalAgregarSectorNuevo = function() {
+    const fields = `
+      <div class="modal-group"><label>Nombre del Sector</label><input type="text" id="addSecNombre" class="modal-input" placeholder="Ej. Cuartel Sur" /></div>
+      <div class="modal-group"><label>Nombre del Cuadro Base</label><input type="text" id="addSecCuadro" class="modal-input" placeholder="Ej. Cuadro 01" /></div>
+      <div class="modal-group"><label>Superficie Cuadro (ha)</label><input type="number" id="addSecSup" class="modal-input" step="0.001" placeholder="Ej. 0.400" /></div>
+    `;
+    openMiniModal('Nuevo Sector', 'Registre una nueva sección.', fields, () => {
+      const sec = document.getElementById('addSecNombre').value.trim(); const cua = document.getElementById('addSecCuadro').value.trim(); const sup = parseFloat(document.getElementById('addSecSup').value);
+      if (!sec || !cua || isNaN(sup)) return lanzarNotificacionFlotante('Complete todos los campos.', 'warning');
+      if (db) {
+        try {
+          const nuevoCod = obtenerSiguienteIdCuadros();
+          db.prepare(`INSERT INTO local_p_cuadros (cod_parcela, sector, sup, nombre, tipo, negocio, sincronizado) VALUES (?, ?, ?, ?, 'Valle', 'Gordon Campo', 0)`).run(nuevoCod, sec, sup, cua);
+          lanzarNotificacionFlotante(`Sector y Cuadro Base creados`, 'success'); sectorSeleccionado = sec; parcelaSeleccionadaId = nuevoCod; closeMiniModal(); cargarSeccion();
+        } catch(e){ lanzarNotificacionFlotante(e.message, 'error'); }
+      } else { closeMiniModal(); }
+    });
+  };
+
+  // =========================================================================
+  // ACA ES LO NUEVO: INFORME PROFESIONAL DE PARCELAS Y MARCOS (PREVIEW + PDF / EXCEL)
+  // =========================================================================
+  window.modalAbrirReporteMarcos = function() {
+    customModal.querySelector('.modal-box').style.maxWidth = '900px';
+
+    let datosReporte = [];
+    if (db) {
+      try {
+        datosReporte = db.prepare(`
+          SELECT 
+            c.cod_parcela,
+            COALESCE(c.sector, 'SIN SECTOR') as sector,
+            c.nombre as cuadro,
+            COALESCE(c.sup, 0) as sup_cuadro,
+            (SELECT COUNT(DISTINCT inv.fila) FROM local_p_inventario_plantacion inv INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco WHERE m.cod_parcela = c.cod_parcela) as cant_filas,
+            (SELECT COALESCE(MAX(inv.mtrs_surco), '100') FROM local_p_inventario_plantacion inv INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco WHERE m.cod_parcela = c.cod_parcela) as mtrs_surco,
+            (SELECT COALESCE(SUM(inv.sup), 0) FROM local_p_inventario_plantacion inv INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco WHERE m.cod_parcela = c.cod_parcela AND inv.estado = 'ACTIVO') as sup_activa,
+            (SELECT COUNT(m.cod_marco) FROM local_p_marcos_plantacion m WHERE m.cod_parcela = c.cod_parcela) as cant_marcos
+          FROM local_p_cuadros c
+          ORDER BY c.sector ASC, c.nombre ASC
+        `).all();
+      } catch(err) { console.error("Error cargando informe:", err); }
+    }
+
+    const htmlReporte = `
+      <div style="background:#FFFFFF; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--color-accent); padding-bottom:10px; margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0; font-size:16px; color:var(--color-accent-dark); text-transform:uppercase;">Gordon Gestión · Informe Estructural de Parcelas</h3>
+            <span style="font-size:11px; color:var(--color-text-secondary); font-weight:600;">ESTRUCTURA DE CAMPO, MARCOS DE PLANTACIÓN Y SUPERFICIES ACTIVAS</span>
+          </div>
+          <div style="text-align:right; font-size:11px; font-weight:bold; color:var(--color-text-secondary);">
+            FECHA: ${new Date().toLocaleDateString('es-AR')}
+          </div>
+        </div>
+
+        <div style="max-height:380px; overflow-y:auto;">
+          <table class="tabla-interna-fila" style="width:100%;">
+            <thead style="position:sticky; top:0; z-index:10;">
+              <tr>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold;">SECTOR</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold;">PARCELA / CUADRO</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold; text-align:center;">SUP TOTAL</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold; text-align:center;">MTRS SURCO</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold; text-align:center;">CANT. FILAS</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold; text-align:center;">SUP ACTIVA</th>
+                <th style="background:#E8F5E9; color:#1B5E20; font-weight:bold; text-align:center;">MARCOS</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${datosReporte.map(d => `
+                <tr>
+                  <td><span class="badge-sector-pill">${escapeHtml(d.sector)}</span></td>
+                  <td style="font-weight:700; color:var(--color-accent-dark);">📁 ${escapeHtml(d.cuadro)}</td>
+                  <td style="text-align:center; font-weight:bold;">${Number(d.sup_cuadro).toFixed(3)} ha</td>
+                  <td style="text-align:center;">${escapeHtml(d.mtrs_surco)} m</td>
+                  <td style="text-align:center; font-weight:bold; color:var(--color-accent-dark);"># ${d.cant_filas}</td>
+                  <td style="text-align:center; color:#1B5E20; font-weight:bold;">${Number(d.sup_activa).toFixed(3)} ha</td>
+                  <td style="text-align:center;">${d.cant_marcos} marcos</td>
+                </tr>
+              `).join('')}
+              ${datosReporte.length === 0 ? '<tr><td colspan="7" class="vista-vacia">No hay cuadros configurados.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    openMiniModal("Informe de Parcelas y Marcos de Plantación", "Previsualización y Exportación", htmlReporte, async () => {
+      if (!isElectron) {
+        return window.print();
+      }
+      try {
+        const ExcelJS = require('exceljs');
+        const os = require('os');
+        const pathMod = require('path');
+        const fs = require('fs');
+
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet('Resumen de Parcelas');
+
+        ws.columns = [
+          { header: 'SECTOR', key: 'sector', width: 22 },
+          { header: 'NOMBRE CUADRO', key: 'cuadro', width: 24 },
+          { header: 'SUP TOTAL (HA)', key: 'sup_cuadro', width: 16 },
+          { header: 'MTRS SURCO', key: 'mtrs', width: 14 },
+          { header: 'CANTIDAD FILAS', key: 'cant_filas', width: 16 },
+          { header: 'SUP ACTIVA (HA)', key: 'sup_activa', width: 16 },
+          { header: 'MARCOS CONFIGURADOS', key: 'cant_marcos', width: 22 }
+        ];
+
+        const headerRow = ws.getRow(1);
+        headerRow.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6B4C' } };
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+        headerRow.height = 24;
+
+        datosReporte.forEach(d => {
+          ws.addRow({
+            sector: d.sector,
+            cuadro: d.cuadro,
+            sup_cuadro: Number(d.sup_cuadro.toFixed(3)),
+            mtrs: d.mtrs_surco,
+            cant_filas: d.cant_filas,
+            sup_activa: Number(d.sup_activa.toFixed(3)),
+            cant_marcos: d.cant_marcos
+          });
+        });
+
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+        const nombreArchivo = `Informe_Parcelas_Marcos_${stamp}.xlsx`;
+        const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+        if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+        const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+
+        await wb.xlsx.writeFile(rutaFinal);
+        lanzarNotificacionFlotante(`¡Informe guardado en Descargas: ${nombreArchivo}!`, "success");
+        closeMiniModal();
+      } catch(e) {
+        lanzarNotificacionFlotante('Error al exportar: ' + e.message, 'error');
+      }
+    });
+
+    modalBtnSave.textContent = "Descargar Excel";
+    modalBtnSave.style.background = "#0284C7";
+  };
+
+  // =========================================================================
+  // ACA ES LO NUEVO: SIEMBRA MASIVA EN MÚLTIPLES PARCELAS
+  // =========================================================================
+  window.modalSiembraMasivaSectores = function() {
+    customModal.querySelector('.modal-box').style.maxWidth = '780px';
+
+    let cultivos = [];
+    let cuadros = [];
+    if (db) {
+      try {
+        cultivos = db.prepare("SELECT cod_esp, especie FROM local_p_cultivo ORDER BY especie ASC").all();
+        cuadros = db.prepare(`
+          SELECT 
+            c.cod_parcela,
+            COALESCE(c.sector, 'SIN SECTOR') as sector,
+            c.nombre,
+            c.sup,
+            (SELECT COUNT(DISTINCT fila) FROM local_p_inventario_plantacion inv INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco WHERE m.cod_parcela = c.cod_parcela) as cant_filas
+          FROM local_p_cuadros c
+          ORDER BY c.sector ASC, c.nombre ASC
+        `).all();
+      } catch(e){}
+    }
+
+    const hoyStr = new Date().toISOString().split('T')[0];
+
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="masivoCultivo">Cultivo *</label>
+          <select id="masivoCultivo" class="modal-select" style="font-weight:700;">
+            <option value="">-- Seleccionar Cultivo --</option>
+            ${cultivos.map(c => `<option value="${c.cod_esp}">${escapeHtml(c.especie)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="modal-group">
+          <label for="masivoVariedad">Variedad *</label>
+          <select id="masivoVariedad" class="modal-select" disabled><option value="">-- Elija un cultivo --</option></select>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="masivoFecha">Fecha de Siembra *</label>
+          <input type="date" id="masivoFecha" class="modal-input" value="${hoyStr}" />
+        </div>
+        <div class="modal-group">
+          <label for="masivoCiclo">Ciclo Productivo</label>
+          <select id="masivoCiclo" class="modal-select">
+            <option value="1">Ciclo 1</option>
+            <option value="2">Ciclo 2</option>
+            <option value="3" selected>Ciclo 3</option>
+            <option value="4">Ciclo 4</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="masivoSemillas">Semillas por Metro</label>
+          <input type="number" id="masivoSemillas" class="modal-input" min="0" value="12" />
+        </div>
+        <div class="modal-group">
+          <label for="masivoMtrs">Largo de Surco (m)</label>
+          <input type="number" id="masivoMtrs" class="modal-input" min="1" value="100" />
+        </div>
+      </div>
+
+      <div class="contenedor-matriz-temporal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h5>Seleccionar Parcelas Destino</h5>
+          <label style="font-size:11px; font-weight:bold; color:var(--color-accent-dark); cursor:pointer;">
+            <input type="checkbox" id="chkMasterMasivo" onclick="window.toggleMasterMasivo(this)" /> Seleccionar Todas
+          </label>
+        </div>
+        <div style="max-height:180px; overflow-y:auto; background:#FFF; border:1px solid var(--color-border); border-radius:4px; padding:6px;">
+          ${cuadros.map(c => `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid #F0F0F0; font-size:12px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600;">
+                <input type="checkbox" class="chk-masivo-parcela" value="${c.cod_parcela}" data-nombre="${escapeAttr(c.nombre)}" />
+                <span>${escapeHtml(c.nombre)} <small style="color:var(--color-text-secondary);">(${escapeHtml(c.sector)})</small></span>
+              </label>
+              <span style="color:var(--color-accent); font-weight:bold;">${c.cant_filas || 0} filas · ${Number(c.sup).toFixed(2)} ha</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    openMiniModal("🌱 Siembra Masiva en Parcelas", "Inactiva lo anterior e inserta la nueva variedad en lote", fields, () => {
+      const cultivoId = document.getElementById('masivoCultivo').value;
+      const variedadName = document.getElementById('masivoVariedad').value;
+      const fechaSiembra = document.getElementById('masivoFecha').value;
+      const ciclo = parseInt(document.getElementById('masivoCiclo').value) || 1;
+      const semillas = parseInt(document.getElementById('masivoSemillas').value) || 0;
+      const mtrs = parseFloat(document.getElementById('masivoMtrs').value) || 100;
+
+      const parcelasTildadas = Array.from(document.querySelectorAll('.chk-masivo-parcela:checked')).map(c => parseInt(c.value));
+      if (!cultivoId || !variedadName || !fechaSiembra) return lanzarNotificacionFlotante("Complete cultivo, variedad y fecha.", "warning");
+      if (parcelasTildadas.length === 0) return lanzarNotificacionFlotante("Seleccione al menos una parcela destino.", "warning");
+
+      if (!db) return closeMiniModal();
+
+      try {
+        let idInvSig = obtenerSiguienteIdInventario();
+        let totalImpactadas = 0;
+
+        const transaccionMasiva = db.transaction(() => {
+          parcelasTildadas.forEach(codParcela => {
+            const cInfo = db.prepare("SELECT * FROM local_p_cuadros WHERE cod_parcela = ?").get(codParcela);
+            if (!cInfo) return;
+
+            // 1. Asegurar marcos
+            let marcos = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cod_parcela = ?").all(codParcela);
+            if (marcos.length === 0) {
+              const supMarco = (cInfo.sup || 1) / 4;
+              let codMarcoSig = obtenerSiguienteIdMarcos();
+              marcos = construirMarcosValle(cInfo.nombre).map(combo => {
+                const cod = codMarcoSig++;
+                db.prepare("INSERT INTO local_p_marcos_plantacion (cod_marco, cod_parcela, nombre_parcela, SupTotal, valvula_riego, lamina_riego, cuadro, orientacion, nombre_zona, turno, sincronizado) VALUES (?, ?, ?, ?, ?, 4, ?, ?, ?, 1, 0)")
+                  .run(cod, codParcela, `${cInfo.sector} ${cInfo.nombre}`, supMarco, combo.valvula_riego, combo.cuadro, combo.orientacion, cInfo.sector);
+                return { ...combo, cod_marco: cod, SupTotal: supMarco };
+              });
+            }
+
+            // 2. Inactivar todo lo activo en esta parcela
+            db.prepare(`
+              UPDATE local_p_inventario_plantacion 
+              SET estado = 'INACTIVO', sincronizado = 0 
+              WHERE estado = 'ACTIVO' AND cod_marco IN (SELECT cod_marco FROM local_p_marcos_plantacion WHERE cod_parcela = ?)
+            `).run(codParcela);
+
+            // 3. Determinar número de filas históricas
+            const filasHist = db.prepare(`
+              SELECT DISTINCT fila FROM local_p_inventario_plantacion 
+              WHERE cod_marco IN (SELECT cod_marco FROM local_p_marcos_plantacion WHERE cod_parcela = ?)
+            `).all(codParcela);
+
+            let cantFilas = filasHist.length > 0 ? filasHist.length : 25;
+            const supMarcoBase = marcos[0]?.SupTotal || 0.25;
+            const supPorFila = supMarcoBase / cantFilas;
+
+            const insertInv = db.prepare(`
+              INSERT INTO local_p_inventario_plantacion 
+                (id_inv, cod_marco, zona, turno_riego, orientacion, cuadro, fila, v_riego, mtrs_surco, sup, variedad, estado, ciclo, estado_fila, fecha_siembra, semillas_x_mtrs, sincronizado) 
+              VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', ?, 'OK', ?, ?, 0)
+            `);
+
+            for (let f = 1; f <= cantFilas; f++) {
+              marcos.forEach(m => {
+                const orient = m.orientacion || 'NORTE';
+                const valv = m.valvula_riego || 'NORTE';
+                const cInv = `${m.cuadro || cInfo.nombre} - ${orient.charAt(0)}`;
+                insertInv.run(
+                  idInvSig++,
+                  m.cod_marco,
+                  cInfo.sector || 'ZONA',
+                  orient,
+                  cInv,
+                  f,
+                  valv,
+                  String(mtrs),
+                  supPorFila,
+                  variedadName,
+                  ciclo,
+                  fechaSiembra,
+                  semillas
+                );
+              });
+            }
+            totalImpactadas++;
+          });
+        });
+
+        transaccionMasiva();
+        lanzarNotificacionFlotante(`Siembra masiva de '${variedadName}' completada en ${totalImpactadas} parcelas con éxito.`, 'success');
+        closeMiniModal();
+        cargarSeccion();
+      } catch(err) {
+        console.error(err);
+        lanzarNotificacionFlotante("Error en siembra masiva: " + err.message, "error");
+      }
+    });
+
+    const masCultivo = document.getElementById('masivoCultivo');
+    const masVar = document.getElementById('masivoVariedad');
+    masCultivo.addEventListener('change', () => {
+      if (!masCultivo.value) {
+        masVar.innerHTML = '<option value="">-- Elija un cultivo --</option>';
+        masVar.disabled = true;
+        return;
+      }
+      let list = [];
+      if (db) {
+        try { list = db.prepare("SELECT variedad FROM local_p_variedades WHERE cod_esp = ? ORDER BY variedad ASC").all(masCultivo.value); } catch(e){}
+      }
+      masVar.innerHTML = '<option value="">-- Seleccionar Variedad --</option>' + list.map(v => `<option value="${escapeHtml(v.variedad)}">${escapeHtml(v.variedad)}</option>`).join('');
+      masVar.disabled = false;
+    });
+
+    window.toggleMasterMasivo = function(chk) {
+      document.querySelectorAll('.chk-masivo-parcela').forEach(c => c.checked = chk.checked);
+    };
+  };
+
+  // =========================================================================
+  // SISTEMA INTEGRADO DE PREVISUALIZACIÓN Y ACCIÓN MASIVA EXCEL
+  // =========================================================================
+  window.modalAbrirExportarExcel = function() {
+    customModal.querySelector('.modal-box').style.maxWidth = '850px'; 
+
+    let queryBase = "SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO'";
+    let args = [];
+    let subtituloFiltro = "Todos los Cuadros Activos";
+
+    if (seccionActual === 'cultivos') {
+      if (variedadSeleccionada) {
+        queryBase += " AND variedad = ?"; args.push(variedadSeleccionada); subtituloFiltro = `Filtrado por Variedad: ${variedadSeleccionada}`;
+      } else if (cultivoSeleccionado) {
+        queryBase += " AND variedad IN (SELECT variedad FROM local_p_variedades WHERE cod_esp = ?)"; args.push(cultivoSeleccionado); subtituloFiltro = "Filtrado por Cultivo General";
+      }
+    } else if (seccionActual === 'plantaciones' && zonaSeleccionada) {
+      queryBase += " AND cuadro IN (SELECT nombre FROM local_p_cuadros WHERE COALESCE(sector, 'SIN ZONA') = ?)"; args.push(zonaSeleccionada); subtituloFiltro = `Filtrado por Zona Física: ${zonaSeleccionada}`;
+    } else if (seccionActual === 'sectores' && parcelaSeleccionadaId) {
+      queryBase += " AND cod_marco IN (SELECT cod_marco FROM local_p_marcos_plantacion WHERE cod_parcela = ?)"; args.push(parcelaSeleccionadaId); subtituloFiltro = "Filtrado por Cuadro Específico";
+    }
+
+    queryBase += " ORDER BY cuadro ASC, CAST(fila AS INTEGER) ASC";
+
+    let surcosAExportar = [];
+    if (db) { try { surcosAExportar = db.prepare(queryBase).all(...args); } catch(err){ console.error(err); } }
+
+    const excelBodyHtml = `
+      <div style="display:flex; gap:12px; align-items:center; background:#E8F5E9; padding:14px; border-radius:var(--radius-md); border:1px solid #C8E6C9; margin-bottom:15px;">
+        <div style="font-size:12px; font-weight:700; color:#1B5E20; text-transform:uppercase; letter-spacing:0.5px;">🌱 Dosificación Masiva (Semillas por Metro):</div>
+        <input type="number" id="txtSemillasLoteExcel" class="modal-input" style="width:110px; padding:6px 10px;" placeholder="Cant. Semillas" min="0" />
+        <button class="modal-btn save" style="padding:6px 16px; font-size:12px; background:#107C41;" onclick="window.ejecutarAsignacionMasivaSemillas('${escapeAttr(queryBase)}', ${JSON.stringify(args)})">Aplicar a esta lista</button>
+      </div>
+
+      <div style="max-height:350px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md); background:#FFFFFF;">
+        <table class="tabla-interna-fila" style="width:100%;">
+          <thead>
+            <tr style="position:sticky; top:0; z-index:10;">
+              <th style="background:#F0F2F0; font-weight:700; color:var(--color-accent-dark);">PARCELA</th>
+              <th style="background:#F0F2F0; text-align:center;">NRO SURCO(fila)</th>
+              <th style="background:#F0F2F0; text-align:center;">LARGO SURCO</th>
+              <th style="background:#F0F2F0; text-align:center;">SUP</th>
+              <th style="background:#F0F2F0; text-align:center; background:#E8F5E9; color:#1B5E20; font-weight:700;">SEMILLAS X METRO</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${surcosAExportar.map(s => `
+              <tr>
+                <td style="font-weight:700; color:var(--color-text); padding-left:14px;">📁 ${escapeHtml(s.cuadro || '—')}</td>
+                <td style="text-align:center; font-weight:700; background:#FAFAFA;"># ${s.fila}</td>
+                <td style="text-align:center; color:var(--color-text-secondary);">${escapeHtml(s.mtrs_surco || '100m')}</td>
+                <td style="text-align:center;">${s.sup ? parseFloat(s.sup).toFixed(3) + ' ha' : '0.00 ha'}</td>
+                <td style="text-align:center; font-weight:bold; color:#107C41; background:rgba(16,124,65,0.05); font-size:14px;">${s.semillas_x_mtrs || 0}</td>
+              </tr>
+            `).join('')}
+            ${surcosAExportar.length === 0 ? '<tr><td colspan="5" class="vista-vacia">Ningún surco activo coincide con el filtro de pantalla.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    openMiniModal(
+      "Previsualización de Hojas Excel de Campo",
+      `Infraestructura Agrosoft J&L · ${subtituloFiltro} (${surcosAExportar.length} registros)`,
+      excelBodyHtml,
+      async () => {
+        if (!isElectron) {
+          return lanzarNotificacionFlotante("La descarga de Excel solo está disponible en la app de escritorio.", "warning");
+        }
+        if (surcosAExportar.length === 0) {
+          return lanzarNotificacionFlotante("No hay surcos para exportar con el filtro actual.", "warning");
+        }
+        try {
+          const ExcelJS = require('exceljs');
+          const os = require('os');
+          const pathMod = require('path');
+          const fs = require('fs');
+
+          const wb = new ExcelJS.Workbook();
+          wb.creator = 'Gordon Gestión · Agrosoft J&L';
+          const ws = wb.addWorksheet('Surcos de Campo');
+
+          ws.columns = [
+            { header: 'PARCELA / CUADRO', key: 'cuadro', width: 24 },
+            { header: 'NRO SURCO (FILA)', key: 'fila', width: 16 },
+            { header: 'VARIEDAD', key: 'variedad', width: 22 },
+            { header: 'LARGO SURCO', key: 'mtrs', width: 14 },
+            { header: 'SUPERFICIE (HA)', key: 'sup', width: 15 },
+            { header: 'SEMILLAS X METRO', key: 'sem', width: 18 },
+            { header: 'CICLO', key: 'ciclo', width: 10 },
+            { header: 'FECHA SIEMBRA', key: 'fecha', width: 16 },
+            { header: 'ESTADO FILA', key: 'estado', width: 16 }
+          ];
+
+          const headerRow = ws.getRow(1);
+          headerRow.eachCell(cell => {
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6B4C' } };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          });
+          headerRow.height = 22;
+
+          surcosAExportar.forEach(s => {
+            ws.addRow({
+              cuadro: s.cuadro || '—',
+              fila: s.fila,
+              variedad: s.variedad || '—',
+              mtrs: s.mtrs_surco || '',
+              sup: (s.sup !== null && s.sup !== undefined && s.sup !== '') ? Number(parseFloat(s.sup).toFixed(3)) : 0,
+              sem: s.semillas_x_mtrs || 0,
+              ciclo: (s.ciclo !== null && s.ciclo !== undefined) ? ('C.' + s.ciclo) : '—',
+              fecha: s.fecha_siembra || '—',
+              estado: (s.estado_fila || 'OK')
+            });
+          });
+
+          const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+          const nombreArchivo = `Surcos_Campo_${stamp}.xlsx`;
+          const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+          if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+          const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+
+          await wb.xlsx.writeFile(rutaFinal);
+          lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombreArchivo}!`, "success");
+          closeMiniModal();
+        } catch (err) {
+          console.error(err);
+          lanzarNotificacionFlotante("Error al generar el Excel: " + err.message, "error");
+        }
+      }
+    );
+    modalBtnSave.textContent = "Descargar .XLSX";
+    modalBtnSave.style.background = "#107C41";
+  };
+
+  window.ejecutarAsignacionMasivaSemillas = function(queryFiltro, arrayArgs) {
+    const inputValor = document.getElementById('txtSemillasLoteExcel');
+    const valorSemillas = parseInt(inputValor ? inputValor.value : NaN);
+    
+    if (isNaN(valorSemillas) || valorSemillas < 0) {
+      return lanzarNotificacionFlotante("Ingrese una cantidad válida de semillas.", "warning");
+    }
+
+    if (db) {
+      try {
+        let queryUpdate = queryFiltro.split("WHERE")[1].split("ORDER BY")[0];
+        let sqlFinal = `UPDATE local_p_inventario_plantacion SET semillas_x_mtrs = ?, sincronizado = 0 WHERE ${queryUpdate}`;
+        
+        db.prepare(sqlFinal).run(valorSemillas, ...arrayArgs);
+        lanzarNotificacionFlotante(`Asignación masiva exitosa: ${valorSemillas} semillas/metro aplicadas`, "success");
+        
+        closeMiniModal();
+        cargarSeccion(); 
+      } catch (err) {
+        lanzarNotificacionFlotante("Error al aplicar cambios en lote: " + err.message, "error");
+      }
+    } else {
+      closeMiniModal();
+    }
+  };
+
+  // =========================================================================
+  // SIEMBRA ASISTIDA EN CASCADA COMPLETA (VALLE 4 SECTORES)
+  // =========================================================================
+  window.modalSembrarProcedimientoAvanzado = function(codParcela, cuadroNombre) {
+    if (!codParcela && !cuadroNombre) {
+      return lanzarNotificacionFlotante('Seleccione un cuadro en la columna central.', 'warning');
+    }
+    customModal.querySelector('.modal-box').style.maxWidth = '720px';
+
+    let cuadroInfo = null;
+    if (db) {
+      try {
+        cuadroInfo = db.prepare("SELECT * FROM local_p_cuadros WHERE cod_parcela = ? OR nombre = ?").get(codParcela, cuadroNombre);
+      } catch(e) { console.error('Error obteniendo cuadro:', e); }
+    }
+    const codParcelaReal = cuadroInfo ? cuadroInfo.cod_parcela : codParcela;
+    const cuadroNombreReal = cuadroInfo ? cuadroInfo.nombre : (cuadroNombre || 'PARCELA');
+    const sectorReal = (cuadroInfo && cuadroInfo.sector) ? cuadroInfo.sector : (sectorSeleccionado || 'ZONA GENERAL');
+
+    let marcosParcela = [];
+    if (db && codParcelaReal) {
+      try {
+        marcosParcela = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cod_parcela = ? ORDER BY cod_marco ASC").all(codParcelaReal);
+      } catch(e) {}
+    }
+
+    if (marcosParcela.length === 0 && db) {
+      try {
+        marcosParcela = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cuadro LIKE ? || '%' OR nombre_parcela LIKE '%' || ? ORDER BY cod_marco ASC").all(cuadroNombreReal, cuadroNombreReal);
+      } catch(e) {}
+    }
+
+    let filasHistoricasInv = [];
+    if (db && marcosParcela.length > 0) {
+      try {
+        const placeholders = marcosParcela.map(() => '?').join(',');
+        const cods = marcosParcela.map(m => m.cod_marco);
+        filasHistoricasInv = db.prepare(`
+          SELECT 
+            inv.fila,
+            inv.variedad,
+            inv.estado,
+            inv.mtrs_surco,
+            inv.sup,
+            inv.fecha_siembra,
+            inv.semillas_x_mtrs,
+            inv.cuadro as ciclo,
+            m.cuadro as marco_cuadro,
+            m.valvula_riego,
+            m.orientacion
+          FROM local_p_inventario_plantacion inv
+          INNER JOIN local_p_marcos_plantacion m ON inv.cod_marco = m.cod_marco
+          WHERE inv.cod_marco IN (${placeholders})
+          ORDER BY CAST(inv.fila AS INTEGER) ASC, inv.fila ASC
+        `).all(...cods);
+      } catch(e) { console.error("Error recuperando histórico de inventario:", e); }
+    }
+
+    let minFila = 1, maxFila = 1;
+    const filasUnicasNums = Array.from(new Set(filasHistoricasInv.map(f => parseInt(f.fila)).filter(n => !isNaN(n)))).sort((a, b) => a - b);
+    if (filasUnicasNums.length > 0) {
+      minFila = Math.min(...filasUnicasNums);
+      maxFila = Math.max(...filasUnicasNums);
+    }
+
+    let cultivos = [];
+    if (db) { 
+      try { 
+        cultivos = db.prepare("SELECT cod_esp, especie FROM local_p_cultivo ORDER BY especie ASC").all(); 
+      } catch(e){} 
+    } else { 
+      cultivos = [{ cod_esp: 1, especie: 'Manzanas' }]; 
+    }
+
+    const hoyStr = new Date().toISOString().split('T')[0];
+
+    const estadoFilasTexto = filasUnicasNums.length > 0 
+      ? `Filas detectadas en inventario: #${minFila} a #${maxFila} (${filasUnicasNums.length} fila/s física/s)`
+      : `Parcela vacía / Sin registros previos de siembra`;
+
+    const fields = `
+      <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px; font-weight:800; color:var(--color-accent-dark);">📍 ${escapeHtml(cuadroNombreReal)}</span>
+          <span class="badge-sector-pill">${escapeHtml(sectorReal)}</span>
+        </div>
+        <div style="font-size:11px; color:var(--color-text-secondary); margin-top:3px;">
+          ${estadoFilasTexto} · <strong style="color:var(--color-accent);">4 Sectores por Fila (NORTE-N, NORTE-S, SUR-N, SUR-S)</strong>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="smbCultivo">Cultivo *</label>
+          <select id="smbCultivo" class="modal-select" style="font-weight:700;">
+            <option value="">-- Seleccione Cultivo --</option>
+            ${cultivos.map(c => `<option value="${c.cod_esp}">${escapeHtml(c.especie)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="modal-group">
+          <label for="smbVariedad">Variedad *</label>
+          <select id="smbVariedad" class="modal-select" disabled><option value="">-- Elija un cultivo --</option></select>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="smbDesde">Desde Fila</label>
+          <input type="number" id="smbDesde" class="modal-input" min="1" value="${minFila}" />
+        </div>
+        <div class="modal-group">
+          <label for="smbHasta">Hasta Fila (Aumentar para agregar más filas)</label>
+          <input type="number" id="smbHasta" class="modal-input" min="1" value="${maxFila}" />
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="smbCiclo">Ciclo Productivo</label>
+          <select id="smbCiclo" class="modal-select">
+            <option value="1">Ciclo 1</option>
+            <option value="2">Ciclo 2</option>
+            <option value="3" selected>Ciclo 3</option>
+            <option value="4">Ciclo 4</option>
+          </select>
+        </div>
+        <div class="modal-group">
+          <label for="smbFecha">Fecha de Siembra</label>
+          <input type="date" id="smbFecha" class="modal-input" value="${hoyStr}" />
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label for="smbSemillasXMtrs">Semillas por Metro</label>
+          <input type="number" id="smbSemillasXMtrs" class="modal-input" min="0" value="12" placeholder="Ej. 12" />
+        </div>
+        <div class="modal-group">
+          <label for="smbMtrsSurco">Largo Surco (Metros)</label>
+          <input type="number" id="smbMtrsSurco" class="modal-input" min="1" value="100" />
+        </div>
+      </div>
+
+      <div class="contenedor-matriz-temporal">
+        <h5>Previsualización de Siembra (Se impacta en los 4 sectores por fila)</h5>
+        <div style="max-height:140px; overflow-y:auto; background:#FFF;">
+          <table class="tabla-temporal" id="tablaPreviewSiembra">
+            <thead>
+              <tr>
+                <th style="width:65px; text-align:center;">Fila</th>
+                <th>Sector / Orientación (4 por fila)</th>
+                <th>Variedad</th>
+                <th>Fecha</th>
+                <th>Dosif.</th>
+              </tr>
+            </thead>
+            <tbody id="bodyPreviewSiembra">
+              <tr><td colspan="5" style="text-align:center; color:var(--color-text-secondary); padding:10px;">Defina el rango y variedad...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    openMiniModal(`🌱 Sembrar en ${cuadroNombreReal}`, 'Configuración de siembra y generación de líneas', fields, () => {
+      const cultivoId = document.getElementById('smbCultivo').value;
+      const variedadName = document.getElementById('smbVariedad').value;
+      const desdeF = parseInt(document.getElementById('smbDesde').value);
+      const hastaF = parseInt(document.getElementById('smbHasta').value);
+      const cicloId = parseInt(document.getElementById('smbCiclo').value);
+      const fechaSiembra = document.getElementById('smbFecha').value;
+      const semillasXMtrs = parseInt(document.getElementById('smbSemillasXMtrs').value) || 0;
+      const mtrsSurco = parseFloat(document.getElementById('smbMtrsSurco').value) || 100;
+
+      if (!cultivoId || !variedadName || isNaN(desdeF) || isNaN(hastaF) || !fechaSiembra) { 
+        return lanzarNotificacionFlotante('Complete todos los parámetros requeridos.', 'warning');
+      }
+      if (desdeF > hastaF || desdeF < 1) { 
+        return lanzarNotificacionFlotante('Rango de filas numérico inválido.', 'warning'); 
+      }
+
+      if (!db) return closeMiniModal();
+
+      try {
+        const transaccionSiembra = db.transaction(() => {
+          let marcosActuales = db.prepare("SELECT * FROM local_p_marcos_plantacion WHERE cod_parcela = ? ORDER BY cod_marco ASC").all(codParcelaReal);
+          
+          if (marcosActuales.length === 0) {
+            const supCuadro = (cuadroInfo && cuadroInfo.sup) ? parseFloat(cuadroInfo.sup) : 4.0;
+            const supPorMarco = supCuadro / 4;
+            const zonaInv = abreviarZonaInventario(sectorReal, cuadroNombreReal);
+            const nombreParcela = `${sectorReal} ${cuadroNombreReal}`;
+
+            let codMarcoAuto = obtenerSiguienteIdMarcos();
+            marcosActuales = construirMarcosValle(cuadroNombreReal).map(combo => {
+              const cod = codMarcoAuto++;
+              db.prepare(`INSERT INTO local_p_marcos_plantacion (cod_marco, cod_parcela, nombre_parcela, SupTotal, valvula_riego, lamina_riego, cuadro, orientacion, nombre_zona, turno, sincronizado) VALUES (?, ?, ?, ?, ?, 4, ?, ?, ?, 1, 0)`)
+                .run(cod, codParcelaReal, nombreParcela, supPorMarco, combo.valvula_riego, combo.cuadro, combo.orientacion, sectorReal);
+              return { ...combo, cod_marco: cod, SupTotal: supPorMarco };
+            });
+          }
+
+          const cantFilasTotal = (hastaF - desdeF) + 1;
+          const supMarcoBase = (marcosActuales[0] && marcosActuales[0].SupTotal) ? parseFloat(marcosActuales[0].SupTotal) : 1.0;
+          const supPorFila = supMarcoBase / cantFilasTotal;
+
+          const stmtSelectActivo = db.prepare(`SELECT id_inv FROM local_p_inventario_plantacion WHERE cod_marco = ? AND CAST(fila AS INTEGER) = ? AND estado = 'ACTIVO'`);
+          const stmtUpdateInactivo = db.prepare(`UPDATE local_p_inventario_plantacion SET estado = 'INACTIVO', sincronizado = 0 WHERE id_inv = ?`);
+          const stmtInsertInv = db.prepare(`
+            INSERT INTO local_p_inventario_plantacion 
+              (id_inv, cod_marco, zona, turno_riego, orientacion, cuadro, fila, v_riego, mtrs_surco, sup, variedad, estado, ciclo, estado_fila, fecha_siembra, semillas_x_mtrs, sincronizado) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', ?, 'OK', ?, ?, 0)
+          `);
+
+          let idInvSiguiente = obtenerSiguienteIdInventario();
+
+          for (let f = desdeF; f <= hastaF; f++) {
+            marcosActuales.forEach(marco => {
+              const rowActiva = stmtSelectActivo.get(marco.cod_marco, f);
+              if (rowActiva) {
+                stmtUpdateInactivo.run(rowActiva.id_inv);
+              }
+
+              const orientacion = marco.orientacion || 'NORTE';
+              const valvula = marco.valvula_riego || 'NORTE';
+              const etiquetaCuadroInv = marco.cuadro_inventario || `${marco.cuadro || cuadroNombreReal} - ${orientacion.charAt(0)}`;
+              const zonaInv = marco.nombre_zona || sectorReal;
+
+              stmtInsertInv.run(
+                idInvSiguiente++,
+                marco.cod_marco,
+                zonaInv,
+                marco.turno || 1,
+                orientacion,
+                etiquetaCuadroInv,
+                f,
+                valvula,
+                String(mtrsSurco),
+                supPorFila,
+                variedadName,
+                cicloId,
+                fechaSiembra,
+                semillasXMtrs
+              );
+            });
+          }
+        });
+
+        transaccionSiembra();
+        lanzarNotificacionFlotante(`Siembra de '${variedadName}' completada en ${cuadroNombreReal} (Filas #${desdeF} a #${hastaF})`, 'success');
+        closeMiniModal(); 
+        cargarSeccion();
+      } catch(err) { 
+        console.error(err);
+        lanzarNotificacionFlotante('Error en siembra: ' + err.message, 'error'); 
+      }
+    });
+
+    const cSel = document.getElementById('smbCultivo');
+    const vSel = document.getElementById('smbVariedad');
+    const inpDesde = document.getElementById('smbDesde');
+    const inpHasta = document.getElementById('smbHasta');
+    const bodyPreview = document.getElementById('bodyPreviewSiembra');
+
+    function actualizarSimulacionTabla() {
+      const desdeF = parseInt(inpDesde.value); 
+      const hastaF = parseInt(inpHasta.value); 
+      const varSeleccionada = vSel.value || '—';
+      const inputSem = document.getElementById('smbSemillasXMtrs');
+      const semVal = inputSem ? (inputSem.value || 0) : 0;
+
+      if (isNaN(desdeF) || isNaN(hastaF) || desdeF > hastaF || desdeF < 1) { 
+        bodyPreview.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#C62828;">Rango numérico inválido</td></tr>`; 
+        return; 
+      }
+
+      const sectoresNombres = ['NORTE - N', 'NORTE - S', 'SUR - N', 'SUR - S'];
+      let html = '';
+      for (let f = desdeF; f <= hastaF; f++) {
+        sectoresNombres.forEach((sec, idx) => {
+          html += `
+            <tr>
+              ${idx === 0 ? `<td rowspan="4" style="text-align:center; font-weight:bold; background:#F4F6F4; vertical-align:middle; border-right:1px solid #D2D7D3;">#${f}</td>` : ''}
+              <td><span class="badge-sector-pill">${escapeHtml(cuadroNombreReal)} ${sec}</span></td>
+              <td style="color:#1B5E20; font-weight:700;">${escapeHtml(varSeleccionada)}</td>
+              <td>${hoyStr}</td>
+              <td style="text-align:center; font-weight:bold; color:#107C41;">${semVal} s/m</td>
+            </tr>
+          `;
+        });
+      }
+      bodyPreview.innerHTML = html;
+    }
+
+    cSel.addEventListener('change', () => {
+      if (!cSel.value) { 
+        vSel.innerHTML = '<option value="">-- Elija un cultivo --</option>'; 
+        vSel.disabled = true; 
+        return; 
+      }
+      let list = []; 
+      if (db) { 
+        try { 
+          list = db.prepare("SELECT variedad FROM local_p_variedades WHERE cod_esp = ? ORDER BY variedad ASC").all(cSel.value); 
+        } catch(e){} 
+      }
+      vSel.innerHTML = '<option value="">-- Seleccione Variedad --</option>' + list.map(v => `<option value="${escapeHtml(v.variedad)}">${escapeHtml(v.variedad)}</option>`).join('');
+      vSel.disabled = false; 
+      actualizarSimulacionTabla();
+    });
+
+    vSel.addEventListener('change', actualizarSimulacionTabla); 
+    inpDesde.addEventListener('input', actualizarSimulacionTabla); 
+    inpHasta.addEventListener('input', actualizarSimulacionTabla);
+    document.getElementById('smbSemillasXMtrs').addEventListener('input', actualizarSimulacionTabla);
+  };
+
+  cargarSeccion();
+})();
+</script>
+</body>
+</html>

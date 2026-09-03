@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Catálogo de Insumos</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F5F4F1;
+    --color-surface: #FFFFFF;
+    --color-text: #211C16;
+    --color-text-secondary: #6B6255;
+    --color-border: #E0DCD4;
+    --color-ins: #B45309;
+    --color-ins-dark: #7C3809;
+    --color-ins-soft: rgba(180, 83, 9, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-blue: #0071E3;
+    --color-blue-soft: #EBF3FA;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DAD4C8; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-ins); background-clip: content-box; }
+
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid var(--color-border); height: 55px; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-ins); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-ins { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  .sidebar { width: 190px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+  .sidebar-header { margin-bottom: 30px; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .card-item:active, .renglon-card:active, .btn-accion:active,
+  .btn-global-add:active, .modal-btn:active, .btn-excel:active, .rubro-chip:active, .subrubro-chip:active, .fila-articulo:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 16px; font-weight: 700; margin-top: 25px; color: var(--color-ins-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .main-content { flex-grow: 1; padding: 30px 40px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .ruta-navegacion { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; flex-shrink: 0; }
+  .ruta-step { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+  .step-inicio { background: #FBEEDD; color: #7C3809; }
+  .step-nivel1 { background: #FBEEDD; color: #7C3809; }
+  .ruta-step.clickable { cursor: pointer; }
+  .ruta-step.clickable:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .ruta-separator { color: var(--color-text-secondary); font-weight: bold; font-size: 12px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo { font-size: 26px; font-weight: 700; margin: 0; color: var(--color-ins-dark); position: relative; padding-left: 15px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-ins), var(--color-ins-dark)); }
+
+  .btn-global-add { background: var(--color-ins); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.20); transition: all 0.2s ease; }
+  .btn-global-add:hover { background: var(--color-ins-dark); }
+
+  .btn-secundario { background: #FFFFFF; color: var(--color-ins-dark); border: 1px solid var(--color-ins); border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-secundario:hover { background: var(--color-ins-soft); }
+
+  .btn-excel { background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease; }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+
+  .btn-pdf { background: #B91C1C; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.15); transition: all 0.2s ease; }
+  .btn-pdf:hover { background: #991515; transform: translateY(-1px); }
+
+  .seccion-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
+
+  /* ACA ES LO NUEVO: Panel de selección jerárquica de Rubros y Sub-rubros */
+  .panel-filtros-jerarquicos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; flex-shrink: 0; }
+  .buscador-catalogo { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: #FFFFFF; font-family: inherit; font-size: 13px; }
+  .buscador-catalogo:focus { outline: none; border-color: var(--color-ins); box-shadow: 0 0 0 3px var(--color-ins-soft); }
+
+  .rubro-chip-wrap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .rubro-chip { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+  .rubro-chip:hover { border-color: var(--color-ins); color: var(--color-ins-dark); }
+  .rubro-chip.selected { background: var(--color-ins); border-color: var(--color-ins); color: #FFFFFF; }
+
+  .subrubro-chip-wrap { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 10px 14px; background: #EFECE6; border-radius: var(--radius-md); border: 1px dashed var(--color-border); }
+  .subrubro-chip-title { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; margin-right: 6px; letter-spacing: 0.5px; }
+  .subrubro-chip { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); border-radius: 14px; padding: 4px 10px; font-size: 10.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .subrubro-chip:hover { border-color: var(--color-blue); color: var(--color-blue); }
+  .subrubro-chip.selected { background: var(--color-blue); border-color: var(--color-blue); color: #FFFFFF; }
+
+  /* ACA ES LO NUEVO: Tabla de Stock Estructural */
+  .tabla-stock-contenedor { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+  .tabla-stock { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+  .tabla-stock th { background: #FAFAFA; color: var(--color-text-secondary); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 16px; border-bottom: 1px solid var(--color-border); }
+  .tabla-stock td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+  .tabla-stock tr:last-child td { border-bottom: none; }
+  .tabla-stock tr.fila-articulo { cursor: pointer; transition: background 0.15s ease; }
+  .tabla-stock tr.fila-articulo:hover { background: #FFFDE7; }
+
+  .art-codigo { font-weight: 700; color: var(--color-text); font-size: 13px; }
+  .art-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .badge-rubro-sm { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: var(--color-ins-soft); color: var(--color-ins-dark); display: inline-block; white-space: nowrap; }
+  .badge-subrubro-sm { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: #ECEFF1; color: #455A64; display: inline-block; white-space: nowrap; margin-left: 4px; }
+
+  .col-num { text-align: center; font-weight: 700; font-size: 12px; }
+  .num-ing { color: var(--color-text); }
+  .num-sal { color: var(--color-ins); }
+  .num-dev { color: var(--color-blue); }
+  .num-neto { font-weight: 900; font-size: 13px; }
+  .num-neto.positivo { color: var(--color-ok); }
+  .num-neto.cero { color: var(--color-text-secondary); }
+  .num-neto.negativo { color: var(--color-warn); }
+
+  /* Mini Modal Pro */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 540px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; color: var(--color-ins-dark); margin: 0; }
+  .modal-subtitle { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-ins); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-ins-soft); }
+  .modal-input:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-ins); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-ins-dark); }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+
+  /* Vista de ficha (detalle de un artículo) */
+  .ficha-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 20px; padding: 20px; margin-bottom: 18px; }
+  .ficha-card-titulo { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 14px; }
+  .ficha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .stock-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .stock-hero-valor { font-size: 34px; font-weight: 900; color: var(--color-ins-dark); line-height: 1; }
+  .stock-hero-label { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  /* MASTER-DETAIL SPLIT (MISMO FORMATO QUE INGRESOS/EGRESOS) */
+  .oc-split-container { display: grid; grid-template-columns: 340px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+
+  .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+
+  .oc-card-item { background: #F8F6F2; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-ins); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-ins); background: var(--color-ins-soft); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12); }
+
+  .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-ins-dark); }
+  .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+
+  .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
+
+  .oc-info-card-header { background: #F8F6F2; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      operario en turno... <span class="highlight" id="lblOperario">RESPONSABLE DE BODEGA</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-ins">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Insumos</div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="ruta-navegacion" id="rutaNavegacion"></div>
+
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Cargando...</h1>
+        <div id="headerAccion" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const path = require('path');
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+  }
+
+  let operarioName = 'Responsable de Bodega';
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { /* auth opcional */ }
+  }
+
+  // =========================================================================
+  // Helpers de acceso a datos
+  // =========================================================================
+  function q(sql, ...args) {
+    if (!db) return [];
+    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
+  }
+  function qGet(sql, ...args) {
+    if (!db) return null;
+    try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
+  }
+  function qRun(sql, ...args) {
+    if (!db) return { changes: 0 };
+    try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toFixed(2); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  function generarToken() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let resultado = '';
+    for (let i = 0; i < 10; i++) resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    return resultado;
+  }
+
+  const RUBROS_AGROQUIMICOS = ['AGROQUÍMICO', 'AGROQUÍMICOS', 'AGROQUIMICO', 'AGROQUIMICOS'];
+  function esRubroAgroquimico(rubro, subRubro) {
+    const r = String(rubro || '').trim().toUpperCase();
+    const sr = String(subRubro || '').trim().toUpperCase();
+    return RUBROS_AGROQUIMICOS.includes(r) || RUBROS_AGROQUIMICOS.includes(sr);
+  }
+
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const rutaNavegacion = document.getElementById('rutaNavegacion');
+  const btnVolver = document.getElementById('btnVolver');
+  const headerAccion = document.getElementById('headerAccion');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = `
+      <div style="font-size:18px; display:flex; align-items:center;">${icono}</div>
+      <div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">${mensaje}</div>
+    `;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 4000);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = 'Guardar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  function botonExcelHTML(onclickCall, titulo) {
+    return `
+      <button class="btn-excel" onclick="${onclickCall}" title="${titulo || 'Exportar a Excel'}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        EXCEL
+      </button>
+    `;
+  }
+  function botonPdfHTML(onclickCall, titulo) {
+    return `
+      <button class="btn-pdf" onclick="${onclickCall}" title="${titulo || 'Exportar a PDF'}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        PDF
+      </button>
+    `;
+  }
+
+  function actualizarRuta(pasos) {
+    rutaNavegacion.innerHTML = pasos.map((paso, idx) => {
+      const colorClass = idx === 0 ? 'step-inicio' : 'step-nivel1';
+      const clickableClass = paso.accion ? 'clickable' : '';
+      const onClickAttr = paso.accion ? `onclick="${paso.accion}"` : '';
+      const stepHtml = `<span class="ruta-step ${colorClass} ${clickableClass}" ${onClickAttr}>${paso.texto}</span>`;
+      return idx === pasos.length - 1 ? stepHtml : `${stepHtml} <span class="ruta-separator">/</span> `;
+    }).join('');
+  }
+
+  btnVolver.addEventListener('click', () => { window.location.href = 'pañolero.html'; });
+
+  // =========================================================================
+  // ESTO LO MODIFIQUE: Cálculo estructurado de stock (Ingresos, Salidas, Dev y Neto)
+  // replicando la misma fórmula usada en la app de Flutter
+  // =========================================================================
+  function obtenerCatalogoConStock() {
+    return q(`
+      SELECT 
+        cat.*,
+        IFNULL(tot.ingresos, 0) as ingresos,
+        IFNULL(tot.salidas, 0) + IFNULL(mov.salidas, 0) as salidas,
+        IFNULL(tot.devoluciones, 0) as devoluciones,
+        IFNULL(tot.neto, 0) - IFNULL(mov.salidas, 0) as stock_neto
+      FROM local_i_insumos_catalogo cat
+      LEFT JOIN (
+        SELECT 
+          d.articulo,
+          SUM(CASE WHEN d.cantidad > 0 AND d.reg_egreso IS NULL THEN d.cantidad ELSE 0 END) as ingresos,
+          SUM(CASE WHEN d.cantidad < 0 AND UPPER(IFNULL(cat2.rubro, d.articulo_rubro)) NOT IN ('AGROQUÍMICOS','AGROQUIMICOS') AND UPPER(IFNULL(cat2.sub_rubro, d.art_subrubro)) NOT IN ('AGROQUÍMICOS','AGROQUIMICOS') THEN ABS(d.cantidad) ELSE 0 END) as salidas,
+          SUM(CASE WHEN d.cantidad > 0 AND d.reg_egreso IS NOT NULL THEN d.cantidad ELSE 0 END) as devoluciones,
+          SUM(CASE 
+            WHEN d.cantidad > 0 THEN d.cantidad 
+            WHEN d.cantidad < 0 AND UPPER(IFNULL(cat2.rubro, d.articulo_rubro)) NOT IN ('AGROQUÍMICOS','AGROQUIMICOS') AND UPPER(IFNULL(cat2.sub_rubro, d.art_subrubro)) NOT IN ('AGROQUÍMICOS','AGROQUIMICOS') THEN d.cantidad 
+            ELSE 0 
+          END) as neto
+        FROM local_i_insumos_detalle d
+        LEFT JOIN local_i_insumos_catalogo cat2 ON d.articulo = cat2.articulo
+        GROUP BY d.articulo
+      ) tot ON tot.articulo = cat.articulo
+      LEFT JOIN (
+        SELECT 
+          m.articulo,
+          SUM(ABS(m.cantidad)) as salidas
+        FROM local_i_insumos_movimientos m
+        LEFT JOIN local_i_insumos_catalogo cat3 ON m.articulo = cat3.articulo
+        WHERE UPPER(m.estado) = 'DESPACHADO'
+          AND (
+            UPPER(IFNULL(cat3.rubro,'')) IN ('AGROQUÍMICOS','AGROQUIMICOS')
+            OR UPPER(IFNULL(cat3.sub_rubro,'')) IN ('AGROQUÍMICOS','AGROQUIMICOS')
+            OR UPPER(IFNULL(m.sub_rubro,'')) IN ('AGROQUÍMICOS','AGROQUIMICOS')
+          )
+        GROUP BY m.articulo
+      ) mov ON mov.articulo = cat.articulo
+      ORDER BY cat.articulo ASC
+    `);
+  }
+
+  // =========================================================================
+  // SECCIÓN: Listado de catálogo con jerarquía de Rubros / Subrubros y Tabla Estructural
+  // =========================================================================
+  let catalogoCache = [];
+  let rubroFiltro = null;
+  let subRubroFiltro = null;
+  let queryBusqueda = '';
+
+  let articuloSeleccionadoCodigo = null;
+  let modoEdicionFicha = false;
+
+  function obtenerFichaSeleccionada() {
+    return catalogoCache.find(c => c.articulo === articuloSeleccionadoCodigo) || null;
+  }
+
+  function renderCatalogo() {
+    seccionTitulo.textContent = 'Catálogo de Insumos';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Catálogo' }]);
+    headerAccion.innerHTML = `
+      ${botonExcelHTML("window.exportarCatalogoExcel()", 'Exportar catálogo a Excel')}
+      ${botonPdfHTML("window.exportarCatalogoPdf()", 'Exportar catálogo a PDF')}
+      <button class="btn-global-add" id="btnNuevoArticulo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        NUEVO ARTÍCULO
+      </button>
+    `;
+    document.getElementById('btnNuevoArticulo').addEventListener('click', () => window.abrirModalNuevoArticulo());
+
+    catalogoCache = obtenerCatalogoConStock();
+
+    // Obtención de rubros y subrubros dinámicos
+    const rubrosDisponibles = Array.from(new Set(catalogoCache.map(a => String(a.rubro || 'SIN RUBRO').trim().toUpperCase()))).sort();
+    
+    let subRubrosDisponibles = [];
+    if (rubroFiltro) {
+      subRubrosDisponibles = Array.from(new Set(
+        catalogoCache
+          .filter(a => String(a.rubro || 'SIN RUBRO').trim().toUpperCase() === rubroFiltro)
+          .map(a => String(a.sub_rubro || 'SIN SUBRUBRO').trim().toUpperCase())
+      )).sort();
+    }
+
+    const query = queryBusqueda.toLowerCase();
+    const itemsFiltrados = catalogoCache.filter(a => {
+      const coincideRubro = !rubroFiltro || String(a.rubro || 'SIN RUBRO').trim().toUpperCase() === rubroFiltro;
+      const coincideSubRubro = !subRubroFiltro || String(a.sub_rubro || 'SIN SUBRUBRO').trim().toUpperCase() === subRubroFiltro;
+      const coincideBusqueda = !query
+        || String(a.articulo || '').toLowerCase().includes(query)
+        || String(a.descripcion || '').toLowerCase().includes(query)
+        || String(a.descripcion1 || '').toLowerCase().includes(query)
+        || String(a.sub_rubro || '').toLowerCase().includes(query);
+      return coincideRubro && coincideSubRubro && coincideBusqueda;
+    });
+
+    if (itemsFiltrados.length === 0) {
+      articuloSeleccionadoCodigo = null;
+    } else if (!articuloSeleccionadoCodigo || !itemsFiltrados.some(a => a.articulo === articuloSeleccionadoCodigo)) {
+      articuloSeleccionadoCodigo = itemsFiltrados[0].articulo;
+    }
+
+    // MASTER-DETAIL: panel chico con filtros + lista de artículos, panel grande con la ficha (mismo formato que ingresos/egresos)
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-ins-dark); margin-bottom:2px;">ARTÍCULOS (${itemsFiltrados.length})</div>
+          <input type="text" id="buscadorCatalogo" class="buscador-catalogo" placeholder="Buscar código, descripción o sub-rubro..." value="${escapeHtml(queryBusqueda)}" />
+
+          <div class="rubro-chip-wrap">
+            <button type="button" class="rubro-chip ${!rubroFiltro ? 'selected' : ''}" data-rubro="">TODOS (${catalogoCache.length})</button>
+            ${rubrosDisponibles.map(r => {
+              const countR = catalogoCache.filter(item => String(item.rubro || 'SIN RUBRO').trim().toUpperCase() === r).length;
+              return `<button type="button" class="rubro-chip ${rubroFiltro === r ? 'selected' : ''}" data-rubro="${escapeHtml(r)}">${escapeHtml(r)} (${countR})</button>`;
+            }).join('')}
+          </div>
+
+          ${rubroFiltro && subRubrosDisponibles.length > 0 ? `
+            <div class="subrubro-chip-wrap">
+              <span class="subrubro-chip-title">Sub-rubros:</span>
+              <button type="button" class="subrubro-chip ${!subRubroFiltro ? 'selected' : ''}" data-subrubro="">TODOS</button>
+              ${subRubrosDisponibles.map(sr => `
+                <button type="button" class="subrubro-chip ${subRubroFiltro === sr ? 'selected' : ''}" data-subrubro="${escapeHtml(sr)}">${escapeHtml(sr)}</button>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:4px;" id="catalogoScrollRoot">
+            ${itemsFiltrados.length === 0 ? '<div class="vista-vacia">No se encontraron artículos con ese criterio.</div>' : ''}
+            ${itemsFiltrados.map(a => {
+              const neto = parseFloat(a.stock_neto) || 0;
+              const claseNeto = neto > 0 ? 'positivo' : (neto < 0 ? 'negativo' : 'cero');
+              return `
+                <div class="oc-card-item ${articuloSeleccionadoCodigo === a.articulo ? 'active' : ''}" data-articulo-sel="${escapeHtml(a.articulo)}">
+                  <div class="oc-card-num">${escapeHtml(a.articulo)}</div>
+                  <div class="oc-card-prov">${escapeHtml(a.descripcion || 'Sin descripción')}</div>
+                  <div class="oc-card-date">
+                    <span class="badge-rubro-sm">${escapeHtml(a.rubro || 'SIN RUBRO')}</span>
+                    <span class="num-neto ${claseNeto}" style="font-weight:800;">${n1(neto)} ${escapeHtml(a.unidad || '')}</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="oc-detail-panel" id="panelFichaArticulo">
+          ${renderDetalleFichaHTML()}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('buscadorCatalogo').addEventListener('input', (e) => {
+      queryBusqueda = e.target.value;
+      const q = queryBusqueda.toLowerCase();
+      document.querySelectorAll('#catalogoScrollRoot .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+
+    document.querySelectorAll('.rubro-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        rubroFiltro = chip.dataset.rubro || null;
+        subRubroFiltro = null;
+        renderCatalogo();
+      });
+    });
+
+    document.querySelectorAll('.subrubro-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        subRubroFiltro = chip.dataset.subrubro || null;
+        renderCatalogo();
+      });
+    });
+
+    document.querySelectorAll('[data-articulo-sel]').forEach(el => {
+      el.addEventListener('click', () => { abrirFichaArticulo(el.dataset.articuloSel); });
+    });
+
+    wireDetalleFicha();
+  }
+
+  // =========================================================================
+  // SECCIÓN: Ficha de un artículo (panel de detalle)
+  // =========================================================================
+  function abrirFichaArticulo(articulo) {
+    articuloSeleccionadoCodigo = articulo;
+    modoEdicionFicha = false;
+    renderCatalogo();
+  }
+
+  function refrescarPanelFicha() {
+    const panel = document.getElementById('panelFichaArticulo');
+    if (!panel) return;
+    panel.innerHTML = renderDetalleFichaHTML();
+    wireDetalleFicha();
+  }
+
+  function renderDetalleFichaHTML() {
+    const a = obtenerFichaSeleccionada();
+    if (!a) return '<div class="vista-vacia">Seleccioná un artículo del listado para ver su ficha.</div>';
+
+    const dis = modoEdicionFicha ? '' : 'disabled';
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div class="stock-hero-valor">${n1(a.stock_neto)} <span style="font-size:16px; color:var(--color-text-secondary);">${escapeHtml(a.unidad || '')}</span></div>
+          <div class="stock-hero-label">${escapeHtml(a.articulo)} · Stock Neto (Ing: ${n1(a.ingresos)} | Sal: ${n1(a.salidas)} | Dev: ${n1(a.devoluciones)})</div>
+          <div style="margin-top:8px;">
+            <span class="badge-rubro-sm">${escapeHtml(a.rubro || 'SIN RUBRO')}</span>
+            <span class="badge-subrubro-sm">${escapeHtml(a.sub_rubro || 'GENERAL')}</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn-secundario" id="btnIngresoRapido" style="padding:6px 12px; font-size:11px;">+ INGRESO</button>
+          <button class="btn-secundario" id="btnEgresoRapido" style="padding:6px 12px; font-size:11px;">- EGRESO</button>
+          <button class="btn-secundario" id="btnToggleEditarFicha" style="padding:6px 12px; font-size:11px;">${modoEdicionFicha ? 'CANCELAR' : '✏️ EDITAR FICHA'}</button>
+        </div>
+      </div>
+
+      <div class="ficha-card" style="margin-bottom:0;">
+        <div class="ficha-card-titulo">📋 Ficha del Artículo</div>
+        <div class="ficha-grid">
+          <div class="modal-group"><label>Artículo (código)</label><input type="text" id="fichaArticulo" class="modal-input" value="${escapeHtml(a.articulo)}" disabled /></div>
+          <div class="modal-group"><label>Unidad</label><input type="text" id="fichaUnidad" class="modal-input" value="${escapeHtml(a.unidad || '')}" ${dis} /></div>
+          <div class="modal-group"><label>Rubro</label><input type="text" id="fichaRubro" class="modal-input" value="${escapeHtml(a.rubro || '')}" ${dis} /></div>
+          <div class="modal-group"><label>Sub-Rubro</label><input type="text" id="fichaSubRubro" class="modal-input" value="${escapeHtml(a.sub_rubro || '')}" ${dis} /></div>
+          <div class="modal-group"><label>Descripción</label><input type="text" id="fichaDescripcion" class="modal-input" value="${escapeHtml(a.descripcion || '')}" ${dis} /></div>
+          <div class="modal-group"><label>Descripción Secundaria</label><input type="text" id="fichaDescripcion1" class="modal-input" value="${escapeHtml(a.descripcion1 || '')}" ${dis} /></div>
+          <div class="modal-group"><label>Tipo de Cambio (TC)</label><input type="number" id="fichaTc" class="modal-input" step="0.01" value="${n2(a.tc)}" ${dis} /></div>
+          <div class="modal-group"><label>Tipo de Ítem (TI)</label><input type="number" id="fichaTi" class="modal-input" step="0.01" value="${n2(a.ti)}" ${dis} /></div>
+          <div class="modal-group">
+            <label>Habilitado</label>
+            <select id="fichaHabilitado" class="modal-select" ${dis}>
+              <option value="SI" ${String(a.habilitado || 'SI').toUpperCase() === 'SI' ? 'selected' : ''}>SÍ</option>
+              <option value="NO" ${String(a.habilitado || 'SI').toUpperCase() === 'NO' ? 'selected' : ''}>NO</option>
+            </select>
+          </div>
+        </div>
+        ${modoEdicionFicha ? `
+          <div style="margin-top:18px;">
+            <button class="btn-global-add" id="btnGuardarFicha" style="width:100%; justify-content:center; height:44px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              GUARDAR CAMBIOS
+            </button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  function wireDetalleFicha() {
+    const a = obtenerFichaSeleccionada();
+    if (!a) return;
+
+    const btnIng = document.getElementById('btnIngresoRapido');
+    if (btnIng) btnIng.addEventListener('click', () => window.abrirModalIngresoRapido());
+    const btnEg = document.getElementById('btnEgresoRapido');
+    if (btnEg) btnEg.addEventListener('click', () => window.abrirModalEgresoRapido());
+    const btnTog = document.getElementById('btnToggleEditarFicha');
+    if (btnTog) btnTog.addEventListener('click', () => { modoEdicionFicha = !modoEdicionFicha; refrescarPanelFicha(); });
+    const btnGuardar = document.getElementById('btnGuardarFicha');
+    if (btnGuardar) btnGuardar.addEventListener('click', () => guardarFichaArticulo());
+  }
+
+  function guardarFichaArticulo() {
+    const a = obtenerFichaSeleccionada();
+    if (!a) return;
+    const nuevaFicha = {
+      unidad: document.getElementById('fichaUnidad').value.trim(),
+      rubro: document.getElementById('fichaRubro').value.trim().toUpperCase(),
+      sub_rubro: document.getElementById('fichaSubRubro').value.trim().toUpperCase(),
+      descripcion: document.getElementById('fichaDescripcion').value.trim(),
+      descripcion1: document.getElementById('fichaDescripcion1').value.trim(),
+      tc: parseFloat(document.getElementById('fichaTc').value) || 0,
+      ti: parseFloat(document.getElementById('fichaTi').value) || 0,
+      habilitado: document.getElementById('fichaHabilitado').value
+    };
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+    try {
+      qRun(`
+        UPDATE local_i_insumos_catalogo
+        SET unidad = ?, rubro = ?, sub_rubro = ?, descripcion = ?, descripcion1 = ?, tc = ?, ti = ?, habilitado = ?, sincronizado = 0
+        WHERE articulo = ?
+      `, nuevaFicha.unidad, nuevaFicha.rubro, nuevaFicha.sub_rubro, nuevaFicha.descripcion, nuevaFicha.descripcion1,
+         nuevaFicha.tc, nuevaFicha.ti, nuevaFicha.habilitado, a.articulo);
+      lanzarNotificacionFlotante('Ficha actualizada correctamente.', 'success');
+      modoEdicionFicha = false;
+      renderCatalogo();
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al guardar la ficha: ' + e.message, 'error');
+    }
+  }
+
+  // =========================================================================
+  // ESTO LO MODIFIQUE: Carga segura de Rubros y Sub-rubros para el Modal
+  // =========================================================================
+  function obtenerRubrosDisponibles() {
+    const rubros = q(`
+      SELECT DISTINCT rubro FROM local_i_insumos_rubros WHERE rubro IS NOT NULL AND TRIM(rubro) != ''
+      UNION
+      SELECT DISTINCT rubro FROM local_i_insumos_catalogo WHERE rubro IS NOT NULL AND TRIM(rubro) != ''
+      ORDER BY rubro ASC
+    `);
+    return rubros.map(r => String(r.rubro).trim().toUpperCase()).filter((v, i, a) => v && a.indexOf(v) === i);
+  }
+
+  function cargarSubRubrosEnSelect(rubro, selectEl) {
+    if (!rubro) {
+      selectEl.innerHTML = '<option value="">Elegí primero el rubro...</option>';
+      return;
+    }
+    const rubroUpper = rubro.toUpperCase();
+    const subrubros = q(`
+      SELECT DISTINCT sub_rubro FROM local_i_insumos_subrubros WHERE UPPER(rubro) = ? AND sub_rubro IS NOT NULL AND TRIM(sub_rubro) != ''
+      UNION
+      SELECT DISTINCT sub_rubro FROM local_i_insumos_catalogo WHERE UPPER(rubro) = ? AND sub_rubro IS NOT NULL AND TRIM(sub_rubro) != ''
+      ORDER BY sub_rubro ASC
+    `, rubroUpper, rubroUpper);
+
+    selectEl.innerHTML = '<option value="">Sin sub-rubro</option>'
+      + subrubros.map(s => `<option value="${escapeHtml(s.sub_rubro)}">${escapeHtml(s.sub_rubro)}</option>`).join('');
+  }
+
+  window.abrirModalNuevoArticulo = function() {
+    const rubros = obtenerRubrosDisponibles();
+    const opcionesRubro = rubros.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+
+    const fields = `
+      <div class="modal-group"><label>Artículo (código)</label><input type="text" id="nuevoArticuloCodigo" class="modal-input" placeholder="Ej: UREA-46" /></div>
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Rubro</label>
+          <select id="nuevoArticuloRubro" class="modal-select">
+            <option value="">Seleccioná un rubro...</option>
+            ${opcionesRubro}
+          </select>
+        </div>
+        <div class="modal-group">
+          <label>Sub-Rubro</label>
+          <select id="nuevoArticuloSubRubro" class="modal-select">
+            <option value="">Elegí primero el rubro...</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-group"><label>Descripción</label><input type="text" id="nuevoArticuloDescripcion" class="modal-input" /></div>
+      <div class="modal-group"><label>Descripción Secundaria</label><input type="text" id="nuevoArticuloDescripcion1" class="modal-input" /></div>
+      <div class="modal-group"><label>Unidad</label><input type="text" id="nuevoArticuloUnidad" class="modal-input" placeholder="Ej: LTS, KGS, UN" /></div>
+    `;
+
+    openMiniModal('Nuevo Artículo de Catálogo', 'Se crea habilitado y en stock cero', fields, () => {
+      const codigo = document.getElementById('nuevoArticuloCodigo').value.trim();
+      const rubro = document.getElementById('nuevoArticuloRubro').value.trim().toUpperCase();
+      const subRubro = document.getElementById('nuevoArticuloSubRubro').value.trim().toUpperCase();
+      if (!codigo) return lanzarNotificacionFlotante('Ingresá el código de artículo.', 'warning');
+      if (!rubro) return lanzarNotificacionFlotante('Seleccioná el rubro.', 'warning');
+      const existe = qGet('SELECT articulo FROM local_i_insumos_catalogo WHERE articulo = ?', codigo);
+      if (existe) return lanzarNotificacionFlotante('Ya existe un artículo con ese código.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+      try {
+        qRun(`
+          INSERT INTO local_i_insumos_catalogo
+            (id, reg_local, rubro, sub_rubro, articulo, descripcion, descripcion1, descripcion2, tc, ti, unidad, habilitado, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `, generarToken(), generarToken(),
+           rubro, subRubro, codigo,
+           document.getElementById('nuevoArticuloDescripcion').value.trim(),
+           document.getElementById('nuevoArticuloDescripcion1').value.trim(),
+           '', 0, 0,
+           document.getElementById('nuevoArticuloUnidad').value.trim(),
+           'SI');
+        lanzarNotificacionFlotante('Artículo creado con éxito.', 'success');
+        closeMiniModal();
+        renderCatalogo();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al crear el artículo: ' + e.message, 'error');
+      }
+    });
+
+    document.getElementById('nuevoArticuloRubro').addEventListener('change', function() {
+      cargarSubRubrosEnSelect(this.value, document.getElementById('nuevoArticuloSubRubro'));
+    });
+  };
+
+  // =========================================================================
+  // Ingreso rápido
+  // =========================================================================
+  window.abrirModalIngresoRapido = function() {
+    const a = obtenerFichaSeleccionada();
+    if (!a) return;
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="ingFecha" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Cantidad</label><input type="number" id="ingCantidad" class="modal-input" step="0.01" min="0" placeholder="0.00" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Proveedor</label><input type="text" id="ingProveedor" class="modal-input" placeholder="S/D" /></div>
+        <div class="modal-group"><label>Remito</label><input type="text" id="ingRemito" class="modal-input" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Costo Unitario (USD)</label><input type="number" id="ingCosto" class="modal-input" step="0.01" min="0" placeholder="0.00" /></div>
+        <div class="modal-group"><label>Depósito Destino</label><input type="text" id="ingDeposito" class="modal-input" value="GENERAL" /></div>
+      </div>
+      <div class="modal-group"><label>Vencimiento del Lote (opcional)</label><input type="date" id="ingVencimiento" class="modal-input" /></div>
+    `;
+    openMiniModal('Registrar Ingreso', a.articulo, fields, () => {
+      const cantidad = parseFloat(document.getElementById('ingCantidad').value);
+      if (isNaN(cantidad) || cantidad <= 0) return lanzarNotificacionFlotante('Ingresá una cantidad válida.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+      const fecha = document.getElementById('ingFecha').value || hoyStr();
+      const proveedor = document.getElementById('ingProveedor').value.trim() || 'S/D';
+      const remito = document.getElementById('ingRemito').value.trim();
+      const costo = parseFloat(document.getElementById('ingCosto').value) || 0;
+      const deposito = document.getElementById('ingDeposito').value.trim() || 'GENERAL';
+      const vencimiento = document.getElementById('ingVencimiento').value || '';
+
+      try {
+        const ejecutar = db.transaction(() => {
+          const tokenLote = generarToken();
+          const nextIngresoId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumosingresos') || {}).maxI || 0) + 1;
+
+          qRun(`
+            INSERT INTO local_i_insumosingresos
+              (id, reg_local, reg_orden, fecha, remito, orden_compra, proveedor, articulo, descripcion, tc, ti,
+               cantidad, imp_uni_usd, cotizacion, fec_venc, estado, recibio, desposito, habilitado, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextIngresoId, tokenLote, 'N/A', fecha, remito, 'N/A', proveedor, a.articulo, a.descripcion || '',
+             a.tc || 0, a.ti || 0, cantidad, costo, 1, vencimiento, 'ACTIVO', operarioName, deposito, 'SI');
+
+          const nextDetalleId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+          qRun(`
+            INSERT INTO local_i_insumos_detalle
+              (id, reg_local, reg_ingr, articulo, cantidad, imp_uni, cotizacion, imp_uni_usd, maquina, cod_parcela,
+               parcela, variedad, ubicación, fila, centro_costo, operario, campaña, unidad_negocio,
+               articulo_rubro, art_subrubro, tc, ti, ciclo_contable, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextDetalleId, generarToken(), tokenLote, a.articulo, cantidad, costo, 1, costo, '', 0,
+             '', 0, deposito, 'S/F', '', operarioName, String(new Date().getFullYear()), '',
+             a.rubro || '', a.sub_rubro || '', a.tc || 0, a.ti || 0, 'ABIERTO');
+        });
+        ejecutar();
+        lanzarNotificacionFlotante('Ingreso registrado y stock actualizado.', 'success');
+        closeMiniModal();
+        abrirFichaArticulo(a.articulo);
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al registrar el ingreso: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // Egreso rápido
+  // =========================================================================
+  window.abrirModalEgresoRapido = function() {
+    const a = obtenerFichaSeleccionada();
+    if (!a) return;
+    const esAgroquimico = esRubroAgroquimico(a.rubro, a.sub_rubro);
+    const fields = `
+      <p style="font-size:11.5px; color:var(--color-text-secondary); margin:0 0 4px;">
+        ${esAgroquimico ? 'Artículo agroquímico: el egreso se registra como despacho de bodega.' : 'Artículo general: el egreso se descuenta directo del detalle de insumos.'}
+      </p>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="egFecha" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Cantidad</label><input type="number" id="egCantidad" class="modal-input" step="0.01" min="0" placeholder="0.00" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Depósito Origen</label><input type="text" id="egDeposito" class="modal-input" value="GENERAL" /></div>
+        <div class="modal-group"><label>Destino / Motivo</label><input type="text" id="egDestino" class="modal-input" placeholder="Ej: Consumo interno" /></div>
+      </div>
+    `;
+    openMiniModal('Registrar Egreso', a.articulo, fields, () => {
+      const cantidad = parseFloat(document.getElementById('egCantidad').value);
+      if (isNaN(cantidad) || cantidad <= 0) return lanzarNotificacionFlotante('Ingresá una cantidad válida.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+      const fecha = document.getElementById('egFecha').value || hoyStr();
+      const deposito = document.getElementById('egDeposito').value.trim() || 'GENERAL';
+      const destino = document.getElementById('egDestino').value.trim() || 'Consumo interno';
+
+      try {
+        if (esAgroquimico) {
+          const nextMovId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+          qRun(`
+            INSERT INTO local_i_insumos_movimientos
+              (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, descripcion, tc, ti, cantidad,
+               imp_uni_usd, cotizacion, fec_venc, estado, deposito_origen, destino, remito, sub_rubro, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextMovId, generarToken(), '', fecha, operarioName, destino, a.articulo, a.descripcion || '',
+             String(a.tc || 0), String(a.ti || 0), cantidad, 0, 1, '', 'DESPACHADO', deposito, destino, '', a.sub_rubro || '');
+        } else {
+          const nextDetalleId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+          qRun(`
+            INSERT INTO local_i_insumos_detalle
+              (id, reg_local, articulo, cantidad, ubicación, centro_costo, operario, campaña,
+               articulo_rubro, art_subrubro, tc, ti, ciclo_contable, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextDetalleId, generarToken(), a.articulo, -cantidad, deposito, destino, operarioName,
+             String(new Date().getFullYear()), a.rubro || '', a.sub_rubro || '', a.tc || 0, a.ti || 0, 'ABIERTO');
+        }
+        lanzarNotificacionFlotante('Egreso registrado y stock actualizado.', 'success');
+        closeMiniModal();
+        abrirFichaArticulo(a.articulo);
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al registrar el egreso: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // Exportación a Excel y PDF con Desglose de Stock
+  // =========================================================================
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB45309' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  window.exportarCatalogoExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerCatalogoConStock();
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay artículos para exportar.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Insumos';
+      crearHojaEstilizada(wb, 'Catalogo de Insumos', [
+        { header: 'ARTÍCULO', key: 'articulo', width: 20 },
+        { header: 'RUBRO', key: 'rubro', width: 18 },
+        { header: 'SUB-RUBRO', key: 'subrubro', width: 18 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', width: 28 },
+        { header: 'UNIDAD', key: 'unidad', width: 10 },
+        { header: 'INGRESOS', key: 'ingresos', width: 12 },
+        { header: 'SALIDAS', key: 'salidas', width: 12 },
+        { header: 'DEV', key: 'devoluciones', width: 12 },
+        { header: 'STOCK NETO', key: 'stock', width: 14 }
+      ], filas.map(a => ({
+        articulo: a.articulo, rubro: a.rubro, subrubro: a.sub_rubro, descripcion: a.descripcion,
+        unidad: a.unidad, ingresos: Number(n1(a.ingresos)), salidas: Number(n1(a.salidas)),
+        devoluciones: Number(n1(a.devoluciones)), stock: Number(n1(a.stock_neto))
+      })));
+      const nombre = `Catalogo_Insumos_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  };
+
+  window.exportarCatalogoPdf = function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerCatalogoConStock();
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay artículos para exportar.', 'warning');
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs'); const pathMod = require('path'); const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const margen = 15;
+      let cursorY = 14;
+
+      try {
+        const logoBase64 = fs.readFileSync(pathMod.join(__dirname, '../logo.png')).toString('base64');
+        doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, cursorY, 20, 20);
+      } catch (e) { console.error('No se pudo cargar logo.png:', e.message); }
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(124, 56, 9);
+      doc.text('GORDON GESTIÓN · AGROSOFT J&L', margen + 26, cursorY + 5);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(107, 98, 85);
+      doc.text('Catálogo de Insumos con Control Estructural de Stock', margen + 26, cursorY + 11);
+
+      cursorY += 24;
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margen, right: margen },
+        head: [['Artículo', 'Rubro / Sub-Rubro', 'Descripción', 'ING', 'SAL', 'DEV', 'Stock Neto']],
+        body: filas.map(a => [
+          a.articulo,
+          `${a.rubro || ''}\n${a.sub_rubro || ''}`,
+          `${a.descripcion || ''} ${a.descripcion1 || ''}`.trim(),
+          n1(a.ingresos), n1(a.salidas), n1(a.devoluciones), `${n1(a.stock_neto)} ${a.unidad || ''}`
+        ]),
+        headStyles: { fillColor: [180, 83, 9], textColor: 255, fontSize: 8 },
+        styles: { fontSize: 8 },
+        theme: 'striped'
+      });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+        doc.text(`Generado el ${new Date().toLocaleString('es-AR')}`, margen, doc.internal.pageSize.getHeight() - 8);
+        doc.text(`Página ${i} de ${totalPaginas}`, doc.internal.pageSize.getWidth() - margen, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+      }
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const nombre = `Catalogo_Insumos_${hoyStr()}.pdf`;
+      fs.writeFileSync(pathMod.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  };
+
+  // =========================================================================
+  // Arranque
+  // =========================================================================
+  document.getElementById('topDateTime').textContent = new Date()
+    .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+    .toUpperCase();
+  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+
+  renderCatalogo();
+})();
+</script>
+</body>
+</html>

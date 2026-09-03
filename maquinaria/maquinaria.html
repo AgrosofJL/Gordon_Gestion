@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Control de Maquinarias y Equipos</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-border: #D2D7D3;
+    --color-adm: #1E6B4C;
+    --color-adm-dark: #104630;
+    --color-adm-soft: rgba(30, 107, 76, 0.08);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-blue: #0071E3;
+    --color-blue-soft: #EBF3FA;
+    --color-amber: #B45309;
+    --color-amber-soft: #FFFBEB;
+    --color-amber-border: #FCD34D;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-adm); background-clip: content-box; }
+
+  /* Barra Superior */
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 8px 24px; border-bottom: 1px solid var(--color-border); height: 55px; flex-shrink: 0; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-adm); font-weight: 700; }
+  .top-right-bar { display: flex; align-items: center; gap: 14px; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Botón Sync Superior Derecho */
+  .btn-sync-top { display: flex; align-items: center; gap: 5px; background: var(--color-adm-soft); border: 1px solid rgba(30, 107, 76, 0.25); color: var(--color-adm-dark); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+  .btn-sync-top:hover { background: var(--color-adm); color: #FFFFFF; }
+  .btn-sync-top svg { transition: transform 0.4s ease; }
+  .btn-sync-top:hover svg { transform: rotate(180deg); }
+
+  /* Layout */
+  .layout-adm { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+  .sidebar { width: 220px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 18px 12px; flex-shrink: 0; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 8px 12px; border-radius: var(--radius-md); font-size: 11.5px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: 100%; justify-content: center; box-shadow: 0 1px 3px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  /* Feedback táctil activo */
+  .btn-volver:active, .nav-tab:active, .btn-action:active, .fila-card-master:active, .modal-btn:active, .btn-sync-top:active, .btn-tab-archivero:active, .chip-preset:active, .btn-lupa-cell:active, .btn-accion:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 2px 6px rgba(251, 192, 45, 0.25) !important; transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 12px; font-weight: 800; margin-top: 16px; color: var(--color-adm-dark); letter-spacing: 0.5px; text-transform: uppercase; padding-left: 2px; }
+  .sidebar-nav { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .nav-tab { padding: 9px 12px; border-radius: var(--radius-md); font-size: 11.5px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s ease; border: 1px solid transparent; display: flex; align-items: center; gap: 8px; }
+  .nav-tab:hover { background: var(--color-bg); color: var(--color-adm-dark); }
+  .nav-tab.active { background: var(--color-adm-soft); color: var(--color-adm-dark); border-color: rgba(30, 107, 76, 0.2); }
+
+  .main-content { flex-grow: 1; padding: 18px 24px; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Header */
+  .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; gap: 10px; flex-wrap: wrap; }
+  .seccion-titulo-wrap { position: relative; padding-left: 12px; }
+  .seccion-titulo-wrap::before { content: ''; position: absolute; left: 0; top: 2px; bottom: 2px; width: 4px; border-radius: 4px; background: linear-gradient(180deg, var(--color-adm), var(--color-adm-dark)); }
+  .seccion-titulo { font-size: 20px; font-weight: 800; margin: 0; color: var(--color-adm-dark); line-height: 1.15; }
+  .seccion-subtitulo { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-top: 2px; }
+
+  /* ACA ES LO NUEVO: Botones de cabecera más compactos, sobrios y estéticos */
+  .header-acciones { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .btn-action { border: 1px solid transparent; border-radius: var(--radius-sm); padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s ease; letter-spacing: 0.3px; }
+  .btn-nuevo { background: var(--color-adm); color: #FFFFFF; box-shadow: 0 2px 6px rgba(30, 107, 76, 0.15); }
+  .btn-nuevo:hover { background: var(--color-adm-dark); transform: translateY(-1px); }
+
+  .btn-excel { background: #FFFFFF; border-color: #107C41; color: #107C41; }
+  .btn-excel:hover { background: #107C41; color: #FFFFFF; transform: translateY(-1px); }
+  .btn-pdf { background: #FFFFFF; border-color: #B91C1C; color: #B91C1C; }
+  .btn-pdf:hover { background: #B91C1C; color: #FFFFFF; transform: translateY(-1px); }
+
+  /* Filtros superiores */
+  .filtro-fechas-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+  .filtro-fechas-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+  .chip-preset { background: var(--color-adm-soft); color: var(--color-adm-dark); border: 1px solid transparent; border-radius: 16px; padding: 5px 10px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .chip-preset:hover { background: var(--color-adm); color: #fff; transform: translateY(-1px); }
+  .filtro-fechas-inputs { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  /* Layout Master-Detail */
+  .master-detail-grid { display: grid; grid-template-columns: 330px 1fr; gap: 14px; flex-grow: 1; overflow: hidden; }
+  .panel-master { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .panel-detail { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+
+  /* ACA ES LO NUEVO: Tarjeta de Labor en panel izquierdo con contenedor de acciones */
+  .fila-card-master { background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 11px; cursor: pointer; transition: all 0.15s ease; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .fila-card-master:hover { border-color: var(--color-adm); background: #FFFFFF; }
+  .fila-card-master.active { border-color: var(--color-adm); background: var(--color-adm-soft); box-shadow: 0 2px 6px rgba(30, 107, 76, 0.10); }
+
+  .f-title { font-size: 11.5px; font-weight: 800; color: var(--color-adm-dark); }
+  .f-sub { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); margin-top: 2px; }
+
+  .card-master-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .btn-mini-card { border: 1px solid var(--color-border); background: #FFFFFF; border-radius: 6px; padding: 4px 6px; font-size: 10px; cursor: pointer; transition: all 0.15s ease; color: var(--color-text-secondary); }
+  .btn-mini-card:hover { transform: translateY(-1px); }
+  .btn-mini-card.edit:hover { background: #FFFDE7; border-color: #FBC02D; color: #F57F17; }
+  .btn-mini-card.del:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
+
+  /* Pestañas Archivero */
+  .contenedor-pestanas-archivero { display: flex; gap: 6px; border-bottom: 2px solid var(--color-border); flex-shrink: 0; }
+  .btn-tab-archivero { padding: 7px 12px; background: #EBEFEA; border: 1px solid var(--color-border); border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s ease; position: relative; bottom: -2px; }
+  .btn-tab-archivero.active { background: #FFFFFF; color: var(--color-adm-dark); border-bottom: 3px solid var(--color-adm); }
+
+  /* Widget de Tanque/Batería de Gasoil */
+  .tanque-widget-container { background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px 16px; display: flex; align-items: center; gap: 16px; }
+  .tanque-grafico { width: 55px; height: 90px; border: 3px solid #334155; border-radius: 10px; position: relative; background: #E2E8F0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+  .tanque-fill { width: 100%; background: linear-gradient(180deg, #F59E0B 0%, #B45309 100%); transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .tanque-info { display: flex; flex-direction: column; gap: 3px; }
+  .tanque-info .vol-val { font-size: 22px; font-weight: 900; font-family: 'Roboto', sans-serif; color: #B45309; }
+
+  /* Tabla Custom */
+  .tabla-custom { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .tabla-custom th { position: sticky; top: 0; background: #FAFAF8; padding: 8px 10px; font-size: 9.5px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; border-bottom: 1px solid var(--color-border); text-align: left; z-index: 1; }
+  .tabla-custom td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+
+  .badge-tag { padding: 2px 7px; border-radius: 5px; font-size: 9px; font-weight: 800; text-transform: uppercase; display: inline-block; }
+  .tag-verde { background: var(--color-ok-soft); color: var(--color-ok); }
+  .tag-azul { background: var(--color-blue-soft); color: var(--color-blue); }
+  .tag-amarillo { background: var(--color-amber-soft); color: #92400E; border: 1px solid var(--color-amber-border); }
+
+  .search-input { width: 100%; padding: 8px 10px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-size: 11.5px; outline: none; background: #F8FAFC; }
+  .search-input:focus { border-color: var(--color-adm); background: #FFFFFF; }
+
+  .tabla-masiva-wrap { max-height: 380px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAFAFA; margin-top: 8px; }
+  .tabla-masiva { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .tabla-masiva th { background: #ECEFF1; position: sticky; top: 0; z-index: 2; padding: 7px 6px; font-size: 9px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; text-align: left; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+  .tabla-masiva td { padding: 5px 6px; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+  .input-grid-cell { width: 100%; padding: 5px 6px; border-radius: 6px; border: 1px solid var(--color-border); font-size: 11px; background: #FFFFFF; font-family: inherit; }
+
+  .flex-cell-operario { display: flex; align-items: center; gap: 4px; }
+  .btn-lupa-cell { background: var(--color-adm-soft); border: 1px solid var(--color-border); border-radius: 6px; padding: 4px 7px; font-size: 11px; cursor: pointer; transition: all 0.15s ease; flex-shrink: 0; }
+  .btn-lupa-cell:hover { background: var(--color-adm); color: white; }
+
+  .acciones-wrapper { display: flex; gap: 5px; align-items: center; justify-content: flex-end; }
+  .btn-accion { border: 1px solid var(--color-border); background: #FFFFFF; cursor: pointer; padding: 4px 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--color-text-secondary); }
+  .btn-accion:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .btn-accion.edit:hover { background: #FFFDE7; border-color: #FFF176; color: #F57F17; }
+  .btn-accion.delete:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
+
+  /* Modales */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1800; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 20px; width: 100%; max-width: 680px; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14); border: 1px solid var(--color-border); max-height: 90vh; display: flex; flex-direction: column; }
+  .modal-box.modal-wide { max-width: 1120px !important; }
+  .modal-header { margin-bottom: 12px; flex-shrink: 0; }
+  .modal-title { font-size: 15px; font-weight: 800; color: var(--color-adm-dark); margin: 0; }
+  .modal-body { display: flex; flex-direction: column; gap: 9px; overflow-y: auto; padding-right: 4px; flex-grow: 1; }
+  .modal-group { display: flex; flex-direction: column; gap: 3px; }
+  .modal-group label { font-size: 9.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .modal-input, .modal-select { width: 100%; padding: 7px 10px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); font-size: 11.5px; background: #FAFAFA; outline: none; font-family: inherit; }
+  .modal-input:focus, .modal-select:focus { border-color: var(--color-adm); background: #FFFFFF; }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-row-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-shrink: 0; }
+  .modal-btn { border-radius: var(--radius-sm); padding: 7px 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-adm); color: #FFFFFF; }
+  .modal-btn.danger { background: var(--color-warn); color: #FFFFFF; }
+
+  /* Toast Notifications */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; gap: 10px; width: 320px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu último acceso fue: <span class="highlight" id="lblUltimoAcceso">HOY 16:00 HS</span>
+      &nbsp;|&nbsp; Módulo de <span class="highlight">Control de Maquinarias</span>
+    </div>
+    <div class="top-right-bar">
+      <div class="system-datetime" id="topDateTime">—</div>
+      <button class="btn-sync-top" onclick="window.sincronizarMaquinaria()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+        Sincronizar Todo
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-adm">
+    <!-- SIDEBAR LATERAL -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">← Volver</button>
+      <div class="sidebar-titulo">Maquinarias</div>
+      <div class="sidebar-nav">
+        <div class="nav-tab active" id="tabParque" onclick="window.cambiarSeccion('PARQUE')">🚜 Parque y Equipos</div>
+        <div class="nav-tab" id="tabLabores" onclick="window.cambiarSeccion('LABORES')">⏱️ Labores / Horas</div>
+        <div class="nav-tab" id="tabCombustible" onclick="window.cambiarSeccion('COMBUSTIBLE')">⛽ Combustibles</div>
+        <div class="nav-tab" id="tabAplicaciones" onclick="window.cambiarSeccion('APLICACIONES')">🌿 Aplicaciones</div>
+      </div>
+      <div style="margin-top:auto; font-size:10px; font-weight:bold; color:var(--color-text-secondary); text-align:center;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div id="vistaDinamica" style="display:flex; flex-direction:column; flex-grow:1; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box" id="customModalBox">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título Modal</h3>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar Registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SECUNDARIO: LUPA DE BUSQUEDA DE OPERARIOS ACTIVOS -->
+  <div class="modal-overlay" id="lupaModal">
+    <div class="modal-box" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🔍 Buscar Operario Activo</h3>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="lupaBuscadorInput" class="search-input" placeholder="🔎 Escribí nombre, legajo o categoría..." />
+        <div style="max-height: 270px; overflow-y: auto; margin-top: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-md);" id="lupaListaOperarios"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="document.getElementById('lupaModal').classList.remove('show')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+  let generarRegLocal = null;
+
+  if (isElectron) {
+    try {
+      const basesModule = require('../bases.js');
+      db = basesModule.db;
+      generarRegLocal = basesModule.generarRegLocal;
+    } catch (e) {
+      try {
+        const Database = require('better-sqlite3');
+        db = new Database(require('../db_path.js').DB_PATH);
+      } catch (err) { console.warn('Modo navegador activo / sin electron:', err.message); }
+    }
+  }
+
+  let operarioName = 'OPERARIO BODEGA';
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) {}
+  }
+
+  function q(sql, ...args) { if (!db) return []; try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; } }
+  function qGet(sql, ...args) { if (!db) return null; try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; } }
+  function qRun(sql, ...args) { if (!db) return { changes: 0 }; try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; } }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function sumarDiasStr(str, n) {
+    if (!str) return hoyStr();
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + n);
+    return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+  }
+  function primerDiaMesStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-01'; }
+
+  function escapeHtml(s) { 
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;'); 
+  }
+
+  function escapeAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '&quot;');
+  }
+
+  function generarToken() { 
+    if (generarRegLocal) return generarRegLocal();
+    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let r = ''; for (let i = 0; i < 10; i++) r += c.charAt(Math.floor(Math.random() * c.length));
+    return r;
+  }
+
+  const toastContenedor = document.getElementById('toastContenedor');
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    tarjeta.innerHTML = `<div style="font-size:15px;">${tipo === 'success' ? '✅' : '⚠️'}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 3500);
+  }
+
+  const customModal = document.getElementById('customModal');
+  const customModalBox = document.getElementById('customModalBox');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, fieldsHtml, onSave, saveLabel, isWide = false, isDanger = false) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = fieldsHtml; 
+    if (isWide) customModalBox.classList.add('modal-wide'); else customModalBox.classList.remove('modal-wide');
+    customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.textContent = saveLabel || 'Guardar Registro';
+    if (isDanger) {
+      modalBtnSave.className = 'modal-btn danger';
+    } else {
+      modalBtnSave.className = 'modal-btn save';
+    }
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); customModalBox.classList.remove('modal-wide'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  /* ACA ES LO NUEVO: Función para pedir confirmación en toda la pantalla */
+  function solicitarConfirmacion(titulo, mensaje, accionConfirmar) {
+    const html = `
+      <div style="font-size:12.5px; color:var(--color-text); line-height:1.4; padding:6px 0;">
+        ${mensaje}
+      </div>
+    `;
+    openMiniModal(titulo, html, () => {
+      closeMiniModal();
+      accionConfirmar();
+    }, 'Sí, Eliminar', false, true);
+  }
+
+  // ESTADOS GLOBALES
+  let _seccionActiva = 'PARQUE';
+  let _maquinaSeleccionadaId = null;
+  let _tabArchiveroActiva = 'mantenimientos';
+  let _laborSeleccionadaNombre = null;
+  let _ordenAplicacionSeleccionada = null;
+  let _tabCombustibleFiltro = 'egresos';
+
+  let _laboresDesde = primerDiaMesStr();
+  let _laboresHasta = hoyStr();
+  let _laboresUnidadNegocio = '';
+  let _laboresSector = '';
+  let _laboresFiltroLabor = '';
+
+  const vistaDinamica = document.getElementById('vistaDinamica');
+
+  window.cambiarSeccion = function(sec) {
+    _seccionActiva = sec;
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    if (sec === 'PARQUE') document.getElementById('tabParque').classList.add('active');
+    if (sec === 'LABORES') document.getElementById('tabLabores').classList.add('active');
+    if (sec === 'COMBUSTIBLE') document.getElementById('tabCombustible').classList.add('active');
+    if (sec === 'APLICACIONES') document.getElementById('tabAplicaciones').classList.add('active');
+    renderizarVistas();
+  };
+
+  function renderizarVistas() {
+    if (_seccionActiva === 'PARQUE') renderParqueMasterDetail();
+    if (_seccionActiva === 'LABORES') renderLaboresGrouped();
+    if (_seccionActiva === 'COMBUSTIBLE') renderCombustibleStock();
+    if (_seccionActiva === 'APLICACIONES') renderAplicacionesOrders();
+  }
+
+  window.sincronizarMaquinaria = function() {
+    lanzarNotificacionFlotante('Sincronización de maquinarias completada', 'success');
+  };
+
+  // =========================================================================
+  // CONSULTAS DINÁMICAS (OPERARIOS, LABORES Y CUADROS POR NEGOCIO)
+  // =========================================================================
+  function obtenerOperariosPreferidos() {
+    if (!db) return [{ legajo: '0', nombre: operarioName, categoria: 'GENERAL' }];
+    try {
+      const sql = `
+        SELECT legajo, COALESCE(nombre_completo, apellido || ', ' || nombre) as nombre, categoria 
+        FROM local_p_nomina_personal 
+        WHERE UPPER(estado) = 'ACTIVO' 
+          AND (UPPER(categoria) LIKE '%TRACTORISTA%' 
+            OR UPPER(categoria) LIKE '%AUTOELEVADORISTA%' 
+            OR UPPER(categoria) LIKE '%CONDUCTOR%' 
+            OR UPPER(categoria) LIKE '%CODUCTOR%')
+        ORDER BY nombre ASC
+      `;
+      const res = db.prepare(sql).all();
+      if (res && res.length > 0) return res;
+    } catch(e) {}
+    return obtenerTodosOperariosActivos();
+  }
+
+  function obtenerTodosOperariosActivos() {
+    if (!db) return [{ legajo: '0', nombre: operarioName, categoria: 'GENERAL' }];
+    try {
+      const sql = `
+        SELECT legajo, COALESCE(nombre_completo, apellido || ', ' || nombre) as nombre, categoria 
+        FROM local_p_nomina_personal 
+        WHERE UPPER(estado) = 'ACTIVO' 
+        ORDER BY nombre ASC
+      `;
+      const res = db.prepare(sql).all();
+      if (res && res.length > 0) return res;
+    } catch(e) {}
+    return [{ legajo: '0', nombre: operarioName, categoria: 'GENERAL' }];
+  }
+
+  function obtenerLaboresConMaquina() {
+    if (!db) return [];
+    try {
+      const sql = `SELECT DISTINCT labor FROM local_p_macro_labores WHERE UPPER(macro_labor) = 'LABORES CON MAQUINA' AND labor IS NOT NULL AND labor != '' ORDER BY labor ASC`;
+      const res = db.prepare(sql).all();
+      if (res && res.length > 0) return res;
+    } catch (e) {}
+
+    try {
+      const sql = `SELECT DISTINCT labor FROM local_p_macro_labores WHERE labor IS NOT NULL AND labor != '' ORDER BY labor ASC`;
+      const res = db.prepare(sql).all();
+      if (res && res.length > 0) return res;
+    } catch (e) {}
+
+    try {
+      return db.prepare(`SELECT DISTINCT labor FROM local_m_labores_maquinaria WHERE labor IS NOT NULL AND labor != '' ORDER BY labor ASC`).all();
+    } catch (e) { return []; }
+  }
+
+  function obtenerSectoresPorNegocio(unidadNegocio) {
+    if (!db) return [];
+    const uNeg = (unidadNegocio || '').trim().toUpperCase();
+    try {
+      let sql = `SELECT DISTINCT COALESCE(sector, tipo) as sector FROM local_p_cuadros WHERE COALESCE(sector, tipo) IS NOT NULL AND TRIM(COALESCE(sector, tipo)) != ''`;
+      const params = [];
+      if (uNeg) {
+        sql += ` AND UPPER(COALESCE(negocio, '')) = ?`;
+        params.push(uNeg);
+      }
+      sql += ` ORDER BY sector ASC`;
+      const res = db.prepare(sql).all(...params);
+      if (res && res.length > 0) return res;
+    } catch (e) {}
+    return [];
+  }
+
+  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO: 
+     Obtiene TODAS las parcelas desde local_p_cuadros según la Unidad de Negocio,
+     garantizando que ninguna parcela quede excluida */
+  function obtenerParcelasDetalladas(sector, unidadNegocio) {
+    if (!db) return [];
+    const sec = (sector || '').trim().toUpperCase();
+    const uNeg = (unidadNegocio || '').trim().toUpperCase();
+
+    try {
+      let sql = `
+        SELECT 
+          c.nombre as parcela,
+          c.cod_parcela as cod_marco,
+          COALESCE(c.sup, 0) as sup,
+          COALESCE(c.sector, c.tipo, 'GENERAL') as sector,
+          COALESCE(c.negocio, '') as negocio
+        FROM local_p_cuadros c
+        WHERE c.nombre IS NOT NULL AND TRIM(c.nombre) != ''
+      `;
+      const params = [];
+
+      if (uNeg) {
+        sql += ` AND (UPPER(COALESCE(c.negocio, '')) = ? OR UPPER(COALESCE(c.tipo, '')) = ?)`;
+        params.push(uNeg, uNeg);
+      }
+
+      if (sec && sec !== 'TODOS') {
+        sql += ` AND (UPPER(COALESCE(c.sector, '')) = ? OR UPPER(COALESCE(c.tipo, '')) = ? OR UPPER(COALESCE(c.nombre, '')) LIKE ?)`;
+        params.push(sec, sec, `%${sec}%`);
+      }
+
+      sql += ` ORDER BY c.nombre ASC`;
+      const res = db.prepare(sql).all(...params);
+      if (res && res.length > 0) return res;
+
+      // Resguardo sin filtro de sector si no hubo coincidencias
+      if (uNeg) {
+        const resFallback = db.prepare(`SELECT nombre as parcela, cod_parcela as cod_marco, COALESCE(sup, 0) as sup FROM local_p_cuadros WHERE UPPER(COALESCE(negocio, '')) = ? ORDER BY nombre ASC`).all(uNeg);
+        if (resFallback && resFallback.length > 0) return resFallback;
+      }
+
+      return db.prepare(`SELECT nombre as parcela, cod_parcela as cod_marco, COALESCE(sup, 0) as sup FROM local_p_cuadros ORDER BY nombre ASC`).all();
+    } catch (e) {
+      console.error('Error al obtener parcelas de local_p_cuadros:', e);
+      return [];
+    }
+  }
+
+  // =========================================================================
+  // 1. PARQUE DE MAQUINARIAS (MASTER-DETAIL + SOLAPAS ARCHIVERO)
+  // =========================================================================
+  function renderParqueMasterDetail() {
+    let parque = q(`SELECT * FROM local_par_maquinaria_herramientas ORDER BY id DESC`);
+
+    if (!_maquinaSeleccionadaId && parque.length > 0) {
+      _maquinaSeleccionadaId = parque[0].id;
+    }
+
+    const unidadSel = parque.find(p => p.id == _maquinaSeleccionadaId) || (parque.length > 0 ? parque[0] : null);
+
+    vistaDinamica.innerHTML = `
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Parque de Maquinarias y Equipos</h1>
+          <div class="seccion-subtitulo">Inventario unificado y expediente por unidad</div>
+        </div>
+        <div class="header-acciones">
+          <button class="btn-action btn-excel" onclick="window.exportarExcel('PARQUE')">📊 Excel</button>
+          <button class="btn-action btn-pdf" onclick="window.exportarPDF('PARQUE')">📄 PDF</button>
+          <button class="btn-action btn-nuevo" onclick="window.abrirModalNuevoEquipo()">➕ Alta de Equipo</button>
+        </div>
+      </div>
+
+      <div class="master-detail-grid">
+        <div class="panel-master">
+          <input type="text" id="busqParque" class="search-input" placeholder="Buscar por código o unidad..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:6px;" id="listMasterMaquinas">
+            ${parque.length === 0 ? '<div style="font-size:11px; color:var(--color-text-secondary); text-align:center; padding:20px;">Sin maquinarias cargadas.</div>' : ''}
+            ${parque.map(p => `
+              <div class="fila-card-master ${p.id == _maquinaSeleccionadaId ? 'active' : ''}" onclick="window.seleccionarMaquina(${p.id})">
+                <div style="flex-grow:1; min-width:0;">
+                  <div class="f-title">${escapeHtml(p.unidad)}</div>
+                  <div class="f-sub">CÓD: <b>${escapeHtml(p.codigo_interno || '#' + p.id)}</b> · ${escapeHtml(p.tipo || 'GENERAL')}</div>
+                </div>
+                <button type="button" class="btn-mini-card del" onclick="event.stopPropagation(); window.eliminarEquipo(${p.id}, '${escapeAttr(p.unidad)}');" title="Eliminar equipo">🗑️</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="panel-detail">
+          ${!unidadSel ? '<div style="font-size:12px; color:var(--color-text-secondary); text-align:center; padding:100px 0;">Seleccione una unidad del listado lateral.</div>' : `
+            <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:15px; font-weight:800; color:var(--color-adm-dark);">${escapeHtml(unidadSel.unidad)}</div>
+                <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary); margin-top:2px;">
+                  CÓD: <span style="color:var(--color-adm);">${escapeHtml(unidadSel.codigo_interno || 'S/C')}</span> | 
+                  POTENCIA: ${escapeHtml(unidadSel.potencia || 'S/D')} | 
+                  MOTOR: ${escapeHtml(unidadSel.motor || 'S/D')} | 
+                  SERIE: ${escapeHtml(unidadSel.serie || 'S/D')}
+                </div>
+              </div>
+              <span class="badge-tag tag-verde">${escapeHtml(unidadSel.propietario || 'PROPIO')}</span>
+            </div>
+
+            <div class="contenedor-pestanas-archivero">
+              <button class="btn-tab-archivero ${_tabArchiveroActiva === 'mantenimientos' ? 'active' : ''}" onclick="window.cambiarTabArchivero('mantenimientos')">🛠️ MANTENIMIENTOS</button>
+              <button class="btn-tab-archivero ${_tabArchiveroActiva === 'combustible' ? 'active' : ''}" onclick="window.cambiarTabArchivero('combustible')">⛽ COMBUSTIBLE</button>
+              <button class="btn-tab-archivero ${_tabArchiveroActiva === 'labores' ? 'active' : ''}" onclick="window.cambiarTabArchivero('labores')">⏱️ LABORES</button>
+              <button class="btn-tab-archivero ${_tabArchiveroActiva === 'horas' ? 'active' : ''}" onclick="window.cambiarTabArchivero('horas')">📊 HORAS TRABAJADAS</button>
+            </div>
+
+            <div style="flex-grow:1; overflow-y:auto;" id="contenidoTabArchivero">
+              ${renderContenidoTabArchivero(unidadSel)}
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+
+    const inputB = document.getElementById('busqParque');
+    if (inputB) {
+      inputB.addEventListener('input', e => {
+        const qStr = e.target.value.toLowerCase();
+        document.querySelectorAll('#listMasterMaquinas .fila-card-master').forEach(c => {
+          c.style.display = c.textContent.toLowerCase().includes(qStr) ? 'flex' : 'none';
+        });
+      });
+    }
+  }
+
+  window.seleccionarMaquina = function(id) {
+    _maquinaSeleccionadaId = id;
+    renderParqueMasterDetail();
+  };
+
+  window.cambiarTabArchivero = function(tab) {
+    _tabArchiveroActiva = tab;
+    renderParqueMasterDetail();
+  };
+
+  window.eliminarEquipo = function(id, nombre) {
+    solicitarConfirmacion('Eliminar Maquinaria', `¿Deseas eliminar del sistema la unidad <strong>${escapeHtml(nombre)}</strong>?`, () => {
+      try {
+        qRun('DELETE FROM local_par_maquinaria_herramientas WHERE id = ?', id);
+        lanzarNotificacionFlotante('Equipo eliminado con éxito.', 'success');
+        _maquinaSeleccionadaId = null;
+        renderParqueMasterDetail();
+      } catch (e) {
+        lanzarNotificacionFlotante(e.message, 'error');
+      }
+    });
+  };
+
+  function renderContenidoTabArchivero(m) {
+    const nombreMaq = m.unidad;
+    const codMaq = m.id;
+
+    if (_tabArchiveroActiva === 'mantenimientos') {
+      let mants = q(`SELECT * FROM local_r_mantenimiento_maquinaria WHERE maquina = ? ORDER BY fecha DESC, id DESC`, nombreMaq);
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark);">HISTORIAL DE SERVICIOS Y MANTENIMIENTOS</div>
+          <button type="button" class="btn-action btn-nuevo" style="padding:4px 10px; font-size:10.5px;" onclick="window.abrirModalNuevoMantenimiento('${escapeAttr(nombreMaq)}')">🛠️ + Cargar Mantenimiento</button>
+        </div>
+        <table class="tabla-custom">
+          <thead>
+            <tr>
+              <th>FECHA</th>
+              <th>SERVICE / MANTENIMIENTO</th>
+              <th>TIPO</th>
+              <th>RESPONSABLE</th>
+              <th>INSUMO / REPUESTO</th>
+              <th style="text-align:right;">HS/KM ACTUAL</th>
+              <th style="text-align:right;">PRÓX. SERVICE</th>
+              <th style="text-align:right;">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${mants.length === 0 ? '<tr><td colspan="8" style="text-align:center; color:var(--color-text-secondary); padding:20px;">Sin registros de mantenimiento para esta unidad.</td></tr>' : ''}
+            ${mants.map(mt => `
+              <tr>
+                <td>📅 ${escapeHtml(mt.fecha || 'S/F')}</td>
+                <td><strong>${escapeHtml(mt.mantenimiento || 'SERVICE GENERAL')}</strong></td>
+                <td><span class="badge-tag tag-azul">${escapeHtml(mt.tipo_mant || 'PREVENTIVO')}</span></td>
+                <td>${escapeHtml(mt.responsable || '—')}</td>
+                <td>${mt.insumo ? `${escapeHtml(mt.insumo)} (${parseFloat(mt.cantidad || 0)} u. @ $${parseFloat(mt.imp_uni || 0).toLocaleString('es-AR')})` : '—'}</td>
+                <td style="text-align:right; font-weight:700;">${mt.hs_km != null ? parseFloat(mt.hs_km).toFixed(1) : '—'}</td>
+                <td style="text-align:right; font-weight:800; color:var(--color-amber);">${mt.proximo_ser != null ? parseFloat(mt.proximo_ser).toFixed(1) : '—'}</td>
+                <td style="text-align:right;">
+                  <button type="button" class="btn-accion delete" onclick="window.eliminarMantenimiento(${mt.id}, '${escapeAttr(mt.reg_local)}')" title="Eliminar service">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    if (_tabArchiveroActiva === 'combustible') {
+      let cargas = q(`SELECT * FROM local_c_consumos_combustibles WHERE maquina = ? OR cod_maq = ? ORDER BY fecha DESC`, nombreMaq, codMaq);
+      let totalLts = cargas.reduce((a, b) => a + (parseFloat(b.litros || b.cantidad) || 0), 0);
+      return `
+        <div style="font-size:11px; font-weight:800; color:var(--color-amber); margin-bottom:8px;">TOTAL DESPACHADO EN ESTA UNIDAD: ${totalLts.toFixed(1)} LTS</div>
+        <table class="tabla-custom">
+          <thead><tr><th>FECHA</th><th>RESPONSABLE</th><th>CISTERNA</th><th>LABOR</th><th>U. NEGOCIO</th><th style="text-align:right;">LITROS</th><th style="text-align:right;">ACCIONES</th></tr></thead>
+          <tbody>
+            ${cargas.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--color-text-secondary); padding:20px;">Sin cargas de combustible registradas.</td></tr>' : ''}
+            ${cargas.map(c => `
+              <tr>
+                <td>📅 ${escapeHtml(c.fecha || 'S/F')}</td>
+                <td>${escapeHtml(c.responsable || '—')}</td>
+                <td><span class="badge-tag tag-amarillo">${escapeHtml(c.cisterna || 'CISTERNA')}</span></td>
+                <td>${escapeHtml(c.labor || '—')}</td>
+                <td>${escapeHtml(c.unidad_negocio || '—')}</td>
+                <td style="text-align:right; font-weight:800; color:var(--color-amber);">${parseFloat(c.litros || c.cantidad || 0).toFixed(1)} Lts</td>
+                <td style="text-align:right;">
+                  <button type="button" class="btn-accion delete" onclick="window.eliminarConsumoCombustible(${c.id}, '${escapeAttr(c.reg_local)}')" title="Eliminar carga">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    if (_tabArchiveroActiva === 'labores') {
+      let lab = q(`SELECT * FROM local_m_labores_maquinaria WHERE maquina = ? ORDER BY fecha DESC`, nombreMaq);
+      return `
+        <table class="tabla-custom">
+          <thead><tr><th>FECHA</th><th>PARCELA</th><th>SUP TRAB</th><th>LABOR</th><th>OPERARIO</th><th style="text-align:right;">HORAS</th><th style="text-align:right;">ACCIONES</th></tr></thead>
+          <tbody>
+            ${lab.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:var(--color-text-secondary); padding:20px;">Sin partes de labor registrados.</td></tr>' : ''}
+            ${lab.map(l => `
+              <tr>
+                <td>📅 ${escapeHtml(l.fecha || 'S/F')}</td>
+                <td><b>${escapeHtml((l.sector || 'S/D').substring(0, 10))}</b></td>
+                <td><span class="badge-tag tag-amarillo">${parseFloat(l.sup_trab || 0).toFixed(2)} ha</span></td>
+                <td><span class="badge-tag tag-verde">${escapeHtml(l.labor || 'GENERAL')}</span></td>
+                <td>${escapeHtml(l.operario || '—')}</td>
+                <td style="text-align:right; font-weight:800; color:var(--color-adm);">${parseFloat(l.horas || 0).toFixed(1)} hs</td>
+                <td style="text-align:right;">
+                  <button type="button" class="btn-accion delete" onclick="window.modalEliminarLabor(${l.id}, '${escapeAttr(l.reg_local)}')" title="Eliminar labor">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    if (_tabArchiveroActiva === 'horas') {
+      let lab = q(`SELECT SUM(CAST(horas AS REAL)) as tot_hs, COUNT(*) as partes FROM local_m_labores_maquinaria WHERE maquina = ?`, nombreMaq);
+      let totHs = (lab[0] && lab[0].tot_hs) ? parseFloat(lab[0].tot_hs) : 0;
+      let partes = (lab[0] && lab[0].partes) ? lab[0].partes : 0;
+      return `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px;">
+          <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:16px;">
+            <span style="font-size:10px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase;">Horas Trabajadas Acumuladas</span>
+            <div style="font-size:26px; font-weight:900; color:var(--color-blue); margin-top:4px;">${totHs.toFixed(1)} HS</div>
+          </div>
+          <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:16px;">
+            <span style="font-size:10px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase;">Total de Partes Cumplidos</span>
+            <div style="font-size:26px; font-weight:900; color:var(--color-ok); margin-top:4px;">${partes} PARTES</div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  window.eliminarMantenimiento = function(id, regLocal) {
+    solicitarConfirmacion('Eliminar Mantenimiento', '¿Eliminar este registro de service y mantenimiento?', () => {
+      try {
+        qRun('DELETE FROM local_r_mantenimiento_maquinaria WHERE id = ? AND reg_local = ?', id, regLocal);
+        lanzarNotificacionFlotante('Mantenimiento eliminado.', 'success');
+        renderParqueMasterDetail();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.eliminarConsumoCombustible = function(id, regLocal) {
+    solicitarConfirmacion('Eliminar Despacho', '¿Eliminar este registro de consumo de combustible?', () => {
+      try {
+        qRun('DELETE FROM local_c_consumos_combustibles WHERE id = ? AND reg_local = ?', id, regLocal);
+        lanzarNotificacionFlotante('Despacho eliminado.', 'success');
+        renderCombustibleStock();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.abrirModalNuevoMantenimiento = function(maquinaPre) {
+    let maquinasDB = q(`SELECT id, unidad, codigo_interno FROM local_par_maquinaria_herramientas ORDER BY unidad ASC`);
+    const operariosPref = obtenerOperariosPreferidos();
+
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Fecha de Mantenimiento *</label>
+          <input type="date" id="nmFecha" class="modal-input" value="${hoyStr()}" />
+        </div>
+        <div class="modal-group">
+          <label>Tipo de Mantenimiento *</label>
+          <select id="nmTipoMant" class="modal-select" style="font-weight:700;">
+            <option value="PREVENTIVO">PREVENTIVO</option>
+            <option value="CORRECTIVO">CORRECTIVO</option>
+            <option value="PREDICTIVO">PREDICTIVO</option>
+            <option value="SERVICE GENERAL">SERVICE GENERAL</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-group">
+        <label>Máquina / Equipo *</label>
+        <select id="nmMaquina" class="modal-select" style="font-weight:700;">
+          ${maquinasDB.map(m => `<option value="${escapeHtml(m.unidad)}" ${maquinaPre === m.unidad ? 'selected' : ''}>[${escapeHtml(m.codigo_interno || '#' + m.id)}] - ${escapeHtml(m.unidad)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label>Mantenimiento / Trabajo Realizado *</label>
+        <input type="text" id="nmMantenimiento" class="modal-input" placeholder="Ej: Cambio de aceite y filtros..." />
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Responsable / Mecánico</label>
+          <div class="flex-cell-operario">
+            <select id="nmResponsable" class="modal-select">
+              ${operariosPref.map(o => `<option value="${escapeHtml(o.nombre)}">${escapeHtml(o.nombre)}</option>`).join('')}
+            </select>
+            <button type="button" class="btn-lupa-cell" id="nmBtnLupaResp" title="Buscar operario activo">🔍</button>
+          </div>
+        </div>
+        <div class="modal-group">
+          <label>Unidad de Negocio</label>
+          <select id="nmUnidadNegocio" class="modal-select">
+            <option value="FRUTALES">FRUTALES</option>
+            <option value="HORTALIZAS">HORTALIZAS</option>
+            <option value="EMPAQUE">EMPAQUE</option>
+            <option value="GANADERIA">GANADERIA</option>
+            <option value="GENERAL">GENERAL</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Hs / Km Actuales</label>
+          <input type="number" id="nmHsKm" class="modal-input" step="0.5" placeholder="Ej: 2450.0" />
+        </div>
+        <div class="modal-group">
+          <label>Próximo Service (Hs / Km)</label>
+          <input type="number" id="nmProximoSer" class="modal-input" step="0.5" placeholder="Ej: 2700.0" style="color:var(--color-amber); font-weight:800;" />
+        </div>
+      </div>
+
+      <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark); margin-top:8px;">INSUMO O REPUESTO UTILIZADO (OPCIONAL):</div>
+      <div class="modal-row-grid3">
+        <div class="modal-group">
+          <label>Insumo / Repuesto</label>
+          <input type="text" id="nmInsumo" class="modal-input" placeholder="Ej: Aceite 15W40 15L" />
+        </div>
+        <div class="modal-group">
+          <label>Cantidad</label>
+          <input type="number" id="nmCantidad" class="modal-input" step="0.1" placeholder="Ej: 1" />
+        </div>
+        <div class="modal-group">
+          <label>Importe Unitario ($)</label>
+          <input type="number" id="nmImpUni" class="modal-input" step="0.01" placeholder="Ej: 45000" />
+        </div>
+      </div>
+    `;
+
+    openMiniModal('🛠️ Registrar Mantenimiento de Maquinaria', fields, () => {
+      const maquina = document.getElementById('nmMaquina').value;
+      const mantenimiento = document.getElementById('nmMantenimiento').value.trim().toUpperCase();
+      if (!mantenimiento) return lanzarNotificacionFlotante('Ingrese la descripción del mantenimiento', 'error');
+
+      const fecha = document.getElementById('nmFecha').value || hoyStr();
+      const tipoMant = document.getElementById('nmTipoMant').value.trim().toUpperCase();
+      const responsable = document.getElementById('nmResponsable').value.trim().toUpperCase() || operarioName;
+      const unidadNegocio = document.getElementById('nmUnidadNegocio').value.trim().toUpperCase();
+      const centroCosto = unidadNegocio;
+      const campana = fecha.slice(0, 4);
+
+      const hsKm = parseFloat(document.getElementById('nmHsKm').value) || null;
+      const proximoSer = parseFloat(document.getElementById('nmProximoSer').value) || null;
+      const insumo = document.getElementById('nmInsumo').value.trim().toUpperCase() || null;
+      const cantidad = parseFloat(document.getElementById('nmCantidad').value) || null;
+      const impUni = parseFloat(document.getElementById('nmImpUni').value) || null;
+
+      if (!db) {
+        lanzarNotificacionFlotante('Modo vista previa activo: no se guardó', 'error');
+        closeMiniModal();
+        return;
+      }
+
+      try {
+        let maxI = qGet(`SELECT COALESCE(MAX(id), 0) as maxId FROM local_r_mantenimiento_maquinaria`).maxId;
+        const nextId = maxI + 1;
+        const regLocal = generarToken();
+
+        qRun(`
+          INSERT INTO local_r_mantenimiento_maquinaria (
+            id, reg_local, fecha, maquina, responsable, tipo_mant, mantenimiento, cantidad, insumo, imp_uni, hs_km, proximo_ser, centro_costo, unidad_negocio, ciclo_contable, campana, sincronizado
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `, nextId, regLocal, fecha, maquina, responsable, tipoMant, mantenimiento, cantidad, insumo, impUni, hsKm, proximoSer, centroCosto, unidadNegocio, campana, campana);
+
+        lanzarNotificacionFlotante('Mantenimiento registrado con éxito.', 'success');
+        closeMiniModal();
+        renderParqueMasterDetail();
+      } catch(e) {
+        console.error(e);
+        lanzarNotificacionFlotante('Error al registrar mantenimiento: ' + e.message, 'error');
+      }
+    });
+
+    setTimeout(() => {
+      document.getElementById('nmBtnLupaResp').addEventListener('click', () => {
+        abrirLupaOperarios(document.getElementById('nmResponsable'));
+      });
+    }, 100);
+  };
+
+  // =========================================================================
+  // 2. SECCIÓN: LABORES Y HORAS (CARDS CON EDICIÓN Y BORRADO COMPLETO)
+  // =========================================================================
+  function renderLaboresGrouped() {
+    let sqlGrupos = `
+      SELECT 
+        labor,
+        MAX(sector) as parcela_corta,
+        SUM(CAST(horas AS REAL)) as suma_horas,
+        COUNT(*) as total_partes
+      FROM local_m_labores_maquinaria
+      WHERE fecha BETWEEN ? AND ?
+    `;
+    const paramsG = [_laboresDesde, _laboresHasta];
+
+    if (_laboresUnidadNegocio) { sqlGrupos += ` AND UPPER(unidad_negocio) = ?`; paramsG.push(_laboresUnidadNegocio.toUpperCase()); }
+    if (_laboresSector) { sqlGrupos += ` AND UPPER(sector) LIKE ?`; paramsG.push(`%${_laboresSector.toUpperCase()}%`); }
+    if (_laboresFiltroLabor) { sqlGrupos += ` AND UPPER(labor) LIKE ?`; paramsG.push(`%${_laboresFiltroLabor.toUpperCase()}%`); }
+
+    sqlGrupos += ` GROUP BY labor ORDER BY labor ASC`;
+
+    let grupos = q(sqlGrupos, ...paramsG);
+
+    if ((!_laborSeleccionadaNombre || !grupos.some(g => g.labor === _laborSeleccionadaNombre)) && grupos.length > 0) {
+      _laborSeleccionadaNombre = grupos[0].labor;
+    }
+
+    let sqlDetalle = `
+      SELECT 
+        MAX(id) as id,
+        reg_local,
+        fecha,
+        sector,
+        labor,
+        maquina,
+        operario,
+        unidad_negocio,
+        SUM(CAST(sup_trab AS REAL)) as sup_trab,
+        SUM(CAST(horas AS REAL)) as horas
+      FROM local_m_labores_maquinaria 
+      WHERE fecha BETWEEN ? AND ?
+    `;
+    const paramsD = [_laboresDesde, _laboresHasta];
+
+    if (_laborSeleccionadaNombre) { sqlDetalle += ` AND labor = ?`; paramsD.push(_laborSeleccionadaNombre); }
+    if (_laboresUnidadNegocio) { sqlDetalle += ` AND UPPER(unidad_negocio) = ?`; paramsD.push(_laboresUnidadNegocio.toUpperCase()); }
+    if (_laboresSector) { sqlDetalle += ` AND UPPER(sector) LIKE ?`; paramsD.push(`%${_laboresSector.toUpperCase()}%`); }
+
+    sqlDetalle += ` GROUP BY fecha, sector, labor, maquina ORDER BY fecha DESC, id DESC`;
+    let detalleLabores = _laborSeleccionadaNombre ? q(sqlDetalle, ...paramsD) : [];
+
+    const sectoresDisponibles = obtenerSectoresPorNegocio(_laboresUnidadNegocio);
+    const laboresConMaq = obtenerLaboresConMaquina();
+
+    vistaDinamica.innerHTML = `
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Labores y Horas de Maquinaria</h1>
+          <div class="seccion-subtitulo">Resumen agrupado y partes de trabajo agrícola por unidad</div>
+        </div>
+        <div class="header-acciones">
+          <button class="btn-action btn-excel" onclick="window.exportarExcel('LABORES')">📊 Excel</button>
+          <button class="btn-action btn-pdf" onclick="window.exportarPDF('LABORES')">📄 PDF</button>
+          <button class="btn-action btn-nuevo" onclick="window.abrirModalCargaMasivaLabores()">🚜 + CARGA MASIVA DE LABORES</button>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Filtros Superiores -->
+      <div class="filtro-fechas-card">
+        <div class="filtro-fechas-chips">
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasLabores(7)">Últimos 7 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasLabores(30)">Últimos 30 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasLabores('mes')">Este mes</button>
+        </div>
+
+        <div class="filtro-fechas-inputs">
+          <div class="modal-group">
+            <label>DESDE</label>
+            <input type="date" id="fltLabDesde" class="modal-input" value="${_laboresDesde}" style="padding:5px 8px;" />
+          </div>
+          <div class="modal-group">
+            <label>HASTA</label>
+            <input type="date" id="fltLabHasta" class="modal-input" value="${_laboresHasta}" style="padding:5px 8px;" />
+          </div>
+          <div class="modal-group">
+            <label>UNIDAD DE NEGOCIO</label>
+            <select id="fltLabUnidadNegocio" class="modal-select" style="padding:5px 8px; font-weight:700;">
+              <option value="">TODAS LAS UNIDADES</option>
+              <option value="FRUTALES" ${_laboresUnidadNegocio === 'FRUTALES' ? 'selected' : ''}>FRUTALES</option>
+              <option value="HORTALIZAS" ${_laboresUnidadNegocio === 'HORTALIZAS' ? 'selected' : ''}>HORTALIZAS</option>
+              <option value="EMPAQUE" ${_laboresUnidadNegocio === 'EMPAQUE' ? 'selected' : ''}>EMPAQUE</option>
+              <option value="GANADERIA" ${_laboresUnidadNegocio === 'GANADERIA' ? 'selected' : ''}>GANADERIA</option>
+              <option value="GENERAL" ${_laboresUnidadNegocio === 'GENERAL' ? 'selected' : ''}>GENERAL</option>
+            </select>
+          </div>
+          <div class="modal-group">
+            <label>SECTOR</label>
+            <select id="fltLabSector" class="modal-select" style="padding:5px 8px;">
+              <option value="">TODOS LOS SECTORES</option>
+              ${sectoresDisponibles.map(s => `<option value="${escapeHtml(s.sector)}" ${_laboresSector.toUpperCase() === s.sector.toUpperCase() ? 'selected' : ''}>${escapeHtml(s.sector)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="modal-group">
+            <label>LABOR</label>
+            <select id="fltLabFiltroLabor" class="modal-select" style="padding:5px 8px;">
+              <option value="">TODAS LAS LABORES</option>
+              ${laboresConMaq.map(l => `<option value="${escapeHtml(l.labor)}" ${_laboresFiltroLabor.toUpperCase() === l.labor.toUpperCase() ? 'selected' : ''}>${escapeHtml(l.labor)}</option>`).join('')}
+            </select>
+          </div>
+          <button type="button" class="btn-sync-top" id="btnAplicarFiltrosLabores" style="padding:5px 12px;">Filtrar</button>
+        </div>
+      </div>
+
+      <div class="master-detail-grid">
+        <!-- LISTA IZQUIERDA AGRUPADA (CARDS CON ACCIONES COMPLETAS) -->
+        <div class="panel-master">
+          <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark); margin-bottom:4px;">LABORES REGISTRADAS (${grupos.length})</div>
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;">
+            ${grupos.length === 0 ? '<div style="font-size:11px; color:var(--color-text-secondary); text-align:center; padding:20px;">Sin labores para los filtros seleccionados.</div>' : ''}
+            ${grupos.map(g => `
+              <div class="fila-card-master ${g.labor === _laborSeleccionadaNombre ? 'active' : ''}" onclick="window.seleccionarGrupoLabor('${escapeAttr(g.labor)}')">
+                <div style="flex-grow:1; min-width:0;">
+                  <div class="f-title">${escapeHtml(g.labor)}</div>
+                  <div class="f-sub">PARCELA: <b>${escapeHtml((g.parcela_corta || 'S/D').substring(0, 10))}</b> · <span style="color:var(--color-adm); font-weight:800;">${parseFloat(g.suma_horas || 0).toFixed(1)} Hs</span> (${g.total_partes} partes)</div>
+                </div>
+                <!-- ACA ES LO NUEVO: Botones para Editar y Borrar toda la labor del bloque -->
+                <div class="card-master-actions" onclick="event.stopPropagation();">
+                  <button type="button" class="btn-mini-card edit" onclick="window.modalRenombrarLaborBloque('${escapeAttr(g.labor)}')" title="Renombrar labor en todo el bloque">✏️</button>
+                  <button type="button" class="btn-mini-card del" onclick="window.modalEliminarLaborCompleta('${escapeAttr(g.labor)}')" title="Borrar TODOS los registros de esta labor en el período">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- DETALLE DERECHA EN TABLA -->
+        <div class="panel-detail">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:6px;">
+            <div style="font-size:13px; font-weight:800; color:var(--color-adm-dark);">
+              DETALLE DE LABOR: <span style="color:var(--color-ok);">${escapeHtml(_laborSeleccionadaNombre || 'SELECCIONE UNA LABOR')}</span>
+            </div>
+            ${_laborSeleccionadaNombre ? `
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn-mini-card edit" onclick="window.modalRenombrarLaborBloque('${escapeAttr(_laborSeleccionadaNombre)}')">✏️ Editar Nombre</button>
+                <button type="button" class="btn-mini-card del" onclick="window.modalEliminarLaborCompleta('${escapeAttr(_laborSeleccionadaNombre)}')">🗑️ Borrar Todo</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <table class="tabla-custom">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>PARCELA</th>
+                <th>SUP TRAB</th>
+                <th>LABOR</th>
+                <th>MAQUINA</th>
+                <th style="text-align:right;">HORAS</th>
+                <th style="text-align:right;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${detalleLabores.length === 0 ? '<tr><td colspan="7" style="text-align:center; padding:20px;">Sin partes registrados para esta labor en el período.</td></tr>' : ''}
+              ${detalleLabores.map(l => `
+                <tr>
+                  <td>📅 ${escapeHtml(l.fecha || 'S/F')}</td>
+                  <td><b title="${escapeHtml(l.sector)}">${escapeHtml((l.sector || 'S/D').substring(0, 10))}</b></td>
+                  <td><span class="badge-tag tag-amarillo">${parseFloat(l.sup_trab || 0).toFixed(2)} ha</span></td>
+                  <td><span class="badge-tag tag-verde">${escapeHtml(l.labor || 'GENERAL')}</span></td>
+                  <td><strong>${escapeHtml(l.maquina || 'S/M').toUpperCase()}</strong></td>
+                  <td style="text-align:right; font-weight:900; color:var(--color-adm);">${parseFloat(l.horas || 0).toFixed(1)} hs</td>
+                  <td style="text-align:right;">
+                    <div class="acciones-wrapper">
+                      <button type="button" class="btn-accion edit" onclick="window.modalEditarLabor(${l.id}, '${escapeAttr(l.reg_local)}')" title="Ver / Editar labor completa">✏️</button>
+                      <button type="button" class="btn-accion delete" onclick="window.modalEliminarLabor(${l.id}, '${escapeAttr(l.reg_local)}')" title="Eliminar este parte">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btnAplicarFiltrosLabores').addEventListener('click', () => {
+      _laboresDesde = document.getElementById('fltLabDesde').value;
+      _laboresHasta = document.getElementById('fltLabHasta').value;
+      _laboresUnidadNegocio = document.getElementById('fltLabUnidadNegocio').value;
+      _laboresSector = document.getElementById('fltLabSector').value;
+      _laboresFiltroLabor = document.getElementById('fltLabFiltroLabor').value;
+      renderLaboresGrouped();
+    });
+
+    document.getElementById('fltLabUnidadNegocio').addEventListener('change', (e) => {
+      _laboresUnidadNegocio = e.target.value;
+      _laboresSector = '';
+      renderLaboresGrouped();
+    });
+  }
+
+  /* ACA ES LO NUEVO: Borrar toda la labor completa con confirmación */
+  window.modalEliminarLaborCompleta = function(nombreLabor) {
+    let cant = qGet(`SELECT COUNT(*) as c FROM local_m_labores_maquinaria WHERE labor = ? AND fecha BETWEEN ? AND ?`, nombreLabor, _laboresDesde, _laboresHasta).c;
+    solicitarConfirmacion(
+      'Eliminar Labor Completa',
+      `¿Estás seguro de eliminar <strong>TODOS</strong> los partes de la labor <strong>"${escapeHtml(nombreLabor)}"</strong>?<br><br>Se borrarán permanentemente <strong>${cant} registro(s)</strong> cargados entre <b>${_laboresDesde}</b> y <b>${_laboresHasta}</b>.`,
+      () => {
+        try {
+          qRun(`DELETE FROM local_m_labores_maquinaria WHERE labor = ? AND fecha BETWEEN ? AND ?`, nombreLabor, _laboresDesde, _laboresHasta);
+          lanzarNotificacionFlotante(`Se eliminaron todos los registros de "${nombreLabor}".`, 'success');
+          _laborSeleccionadaNombre = null;
+          renderLaboresGrouped();
+        } catch(e) {
+          lanzarNotificacionFlotante(e.message, 'error');
+        }
+      }
+    );
+  };
+
+  /* ACA ES LO NUEVO: Renombrar o editar el nombre de la labor en todo el bloque */
+  window.modalRenombrarLaborBloque = function(nombreLabor) {
+    const fields = `
+      <div class="modal-group">
+        <label>Nombre actual de la labor</label>
+        <input type="text" class="modal-input" value="${escapeHtml(nombreLabor)}" disabled style="background:#EFEFEF; font-weight:700;" />
+      </div>
+      <div class="modal-group">
+        <label>Nuevo nombre para la labor *</label>
+        <input type="text" id="rnNuevoNombreLabor" class="modal-input" value="${escapeHtml(nombreLabor)}" />
+      </div>
+      <div style="font-size:11px; color:var(--color-text-secondary); margin-top:4px;">
+        Este cambio actualizará todos los partes de trabajo registrados en el período seleccionado.
+      </div>
+    `;
+
+    openMiniModal('✏️ Modificar Nombre de Labor en Bloque', fields, () => {
+      const nuevoNom = document.getElementById('rnNuevoNombreLabor').value.trim().toUpperCase();
+      if (!nuevoNom) return lanzarNotificacionFlotante('El nombre no puede quedar vacío.', 'warning');
+      if (nuevoNom === nombreLabor) return closeMiniModal();
+
+      try {
+        qRun(`UPDATE local_m_labores_maquinaria SET labor = ?, sincronizado = 0 WHERE labor = ? AND fecha BETWEEN ? AND ?`, nuevoNom, nombreLabor, _laboresDesde, _laboresHasta);
+        qRun(`UPDATE local_p_macro_labores SET labor = ?, sincronizado = 0 WHERE labor = ?`, nuevoNom, nombreLabor);
+        lanzarNotificacionFlotante(`Labor renombrada a "${nuevoNom}".`, 'success');
+        _laborSeleccionadaNombre = nuevoNom;
+        closeMiniModal();
+        renderLaboresGrouped();
+      } catch (e) {
+        lanzarNotificacionFlotante(e.message, 'error');
+      }
+    });
+  };
+
+  /* ESTO LO MODIFIQUE: Edición de un parte individual permitiendo elegir la parcela desde local_p_cuadros */
+  window.modalEditarLabor = function(id, regLocal) {
+    const row = qGet('SELECT * FROM local_m_labores_maquinaria WHERE id = ? AND reg_local = ?', id, regLocal);
+    if (!row) return lanzarNotificacionFlotante('No se encontró el registro.', 'error');
+    
+    const uNeg = (row.unidad_negocio || _laboresUnidadNegocio || 'FRUTALES').trim().toUpperCase();
+    const parcelas = obtenerParcelasDetalladas('', uNeg);
+    const maquinasDB = q(`SELECT id, unidad, codigo_interno FROM local_par_maquinaria_herramientas ORDER BY unidad ASC`);
+
+    const fields = `
+      <div style="background:#F8FAFC; border:1px solid var(--color-border); padding:8px 12px; border-radius:var(--radius-md); margin-bottom:8px;">
+        <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark);">EDITAR PARTE DE TRABAJO #${id}</div>
+        <div style="font-size:10.5px; color:var(--color-text-secondary); margin-top:2px;">
+          Unidad de Negocio: <strong>${escapeHtml(uNeg)}</strong> | Operario actual: <strong>${escapeHtml(row.operario || '—')}</strong>
+        </div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="editLabFecha" class="modal-input" value="${row.fecha || hoyStr()}" /></div>
+        <div class="modal-group"><label>Máquina</label>
+          <select id="editLabMaquina" class="modal-select">
+            ${maquinasDB.map(m => `<option value="${escapeHtml(m.unidad)}" ${m.unidad === row.maquina ? 'selected' : ''}>[${escapeHtml(m.codigo_interno || '#' + m.id)}] ${escapeHtml(m.unidad)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Horas Trabajadas</label><input type="number" id="editLabHoras" class="modal-input" step="0.1" value="${parseFloat(row.horas || 0).toFixed(1)}" /></div>
+        <div class="modal-group"><label>Sup. Trabajada (ha)</label><input type="number" id="editLabSup" class="modal-input" step="0.01" value="${parseFloat(row.sup_trab || 0).toFixed(2)}" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Labor</label><input type="text" id="editLabNombre" class="modal-input" value="${escapeHtml(row.labor || '')}" /></div>
+        <div class="modal-group"><label>Parcela / Cuadro (desde p_cuadros)</label>
+          <select id="editLabParcelaSelect" class="modal-select" style="font-weight:700;">
+            ${parcelas.map(p => `<option value="${escapeHtml(p.parcela)}" data-sup="${p.sup}" ${p.parcela === row.sector ? 'selected' : ''}>${escapeHtml(p.parcela)} (${parseFloat(p.sup || 0).toFixed(2)} ha)</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+
+    openMiniModal('✏️ Editar Parte de Labor Completo', fields, () => {
+      const nf = document.getElementById('editLabFecha').value || hoyStr();
+      const nh = parseFloat(document.getElementById('editLabHoras').value);
+      const ns = parseFloat(document.getElementById('editLabSup').value);
+      const nl = document.getElementById('editLabNombre').value.trim().toUpperCase();
+      const nsec = document.getElementById('editLabParcelaSelect').value.trim().toUpperCase();
+      const nmaq = document.getElementById('editLabMaquina').value;
+
+      if (isNaN(nh) || isNaN(ns)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
+      try {
+        qRun('UPDATE local_m_labores_maquinaria SET fecha = ?, horas = ?, sup_trab = ?, labor = ?, sector = ?, maquina = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?', nf, nh, ns, nl, nsec, nmaq, id, regLocal);
+        lanzarNotificacionFlotante('Parte actualizado con éxito.', 'success');
+        closeMiniModal();
+        renderLaboresGrouped();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+
+    setTimeout(() => {
+      const selParc = document.getElementById('editLabParcelaSelect');
+      const inpSup = document.getElementById('editLabSup');
+      if (selParc && inpSup) {
+        selParc.addEventListener('change', () => {
+          const opt = selParc.options[selParc.selectedIndex];
+          if (opt && opt.dataset.sup) {
+            inpSup.value = parseFloat(opt.dataset.sup || 0).toFixed(2);
+          }
+        });
+      }
+    }, 100);
+  };
+
+  window.modalEliminarLabor = function(id, regLocal) {
+    solicitarConfirmacion('Eliminar Parte de Labor', '¿Estás seguro de eliminar este registro de labor individual? Esta acción no se puede deshacer.', () => {
+      try {
+        qRun('DELETE FROM local_m_labores_maquinaria WHERE id = ? AND reg_local = ?', id, regLocal);
+        lanzarNotificacionFlotante('Registro eliminado con éxito.', 'success');
+        renderLaboresGrouped();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.aplicarPresetFechasLabores = function(dias) {
+    _laboresHasta = hoyStr();
+    _laboresDesde = dias === 'mes' ? primerDiaMesStr() : sumarDiasStr(hoyStr(), -dias);
+    renderLaboresGrouped();
+  };
+
+  window.seleccionarGrupoLabor = function(nombre) {
+    _laborSeleccionadaNombre = nombre;
+    renderLaboresGrouped();
+  };
+
+  let targetSelectOperarioRef = null;
+  function abrirLupaOperarios(targetSelect) {
+    targetSelectOperarioRef = targetSelect;
+    const operariosActivos = obtenerTodosOperariosActivos();
+    const cont = document.getElementById('lupaListaOperarios');
+    const inputB = document.getElementById('lupaBuscadorInput');
+    inputB.value = '';
+
+    function pintarLista(lista) {
+      cont.innerHTML = lista.map(o => `
+        <div style="padding:8px 12px; border-bottom:1px solid var(--color-border); cursor:pointer; font-size:11.5px; display:flex; justify-content:space-between; align-items:center;" class="itemOperarioLupa" data-nombre="${escapeHtml(o.nombre)}">
+          <div>
+            <strong>${escapeHtml(o.nombre)}</strong>
+            <div style="font-size:10px; color:var(--color-text-secondary);">Legajo ${escapeHtml(o.legajo)} · ${escapeHtml(o.categoria || 'GENERAL')}</div>
+          </div>
+          <span style="font-size:11px; font-weight:700; color:var(--color-adm);">Seleccionar ➔</span>
+        </div>
+      `).join('');
+
+      cont.querySelectorAll('.itemOperarioLupa').forEach(el => {
+        el.addEventListener('click', () => {
+          const nom = el.dataset.nombre;
+          if (targetSelectOperarioRef) {
+            let opt = Array.from(targetSelectOperarioRef.options).find(o => o.value === nom);
+            if (!opt) {
+              opt = document.createElement('option');
+              opt.value = nom;
+              opt.textContent = nom;
+              targetSelectOperarioRef.appendChild(opt);
+            }
+            targetSelectOperarioRef.value = nom;
+          }
+          document.getElementById('lupaModal').classList.remove('show');
+        });
+      });
+    }
+
+    pintarLista(operariosActivos);
+    document.getElementById('lupaModal').classList.add('show');
+
+    inputB.oninput = (e) => {
+      const qStr = e.target.value.toLowerCase().trim();
+      pintarLista(operariosActivos.filter(o => 
+        (o.nombre || '').toLowerCase().includes(qStr) || 
+        (o.legajo || '').toLowerCase().includes(qStr) || 
+        (o.categoria || '').toLowerCase().includes(qStr)
+      ));
+    };
+  }
+
+  window.abrirModalNuevaLaborMacro = function(unidadNegocioActual, onDoneCallback) {
+    const fields = `
+      <div class="modal-group">
+        <label>NOMBRE DE LA NUEVA LABOR *</label>
+        <input type="text" id="nlNombreLabor" class="modal-input" placeholder="Ej: DESMALEZADO, RASTRILLADO..." />
+      </div>
+      <div class="modal-group">
+        <label>UNIDAD DE NEGOCIO SELECCIONADA</label>
+        <input type="text" id="nlUnidadNegocio" class="modal-input" value="${escapeHtml(unidadNegocioActual || 'FRUTALES')}" readonly style="background:#EFEFEF; font-weight:700;" />
+      </div>
+    `;
+
+    openMiniModal('➕ Alta de Nueva Labor', fields, () => {
+      const nomLabor = document.getElementById('nlNombreLabor').value.trim().toUpperCase();
+      if (!nomLabor) return lanzarNotificacionFlotante('Ingresá el nombre de la labor', 'error');
+
+      if (!db) {
+        lanzarNotificacionFlotante('Modo vista previa activo: no se guardó', 'error');
+        closeMiniModal();
+        return;
+      }
+
+      try {
+        let maxI = qGet(`SELECT COALESCE(MAX(id), 0) as maxId FROM local_p_macro_labores`).maxId;
+        const nextId = maxI + 1;
+        const regLocal = generarToken();
+
+        qRun(`
+          INSERT INTO local_p_macro_labores (id, reg_local, macro_labor, labor, unidad_negocio, sincronizado)
+          VALUES (?, ?, 'LABORES CON MAQUINA', ?, ?, 0)
+        `, nextId, regLocal, nomLabor, unidadNegocioActual);
+
+        lanzarNotificacionFlotante(`Labor "${nomLabor}" guardada en local_p_macro_labores.`, 'success');
+        closeMiniModal();
+        if (onDoneCallback) onDoneCallback(nomLabor);
+      } catch(e) {
+        console.error(e);
+        lanzarNotificacionFlotante('Error al guardar la labor: ' + e.message, 'error');
+      }
+    });
+  };
+
+  /* ESTO LO MODIFIQUE: Carga Masiva de Labores mostrando TODAS las parcelas desde local_p_cuadros */
+  window.abrirModalCargaMasivaLabores = function() {
+    let maquinasDB = q(`SELECT id, unidad, codigo_interno FROM local_par_maquinaria_herramientas ORDER BY unidad ASC`);
+    const laboresConMaq = obtenerLaboresConMaquina();
+    const operariosPref = obtenerOperariosPreferidos();
+
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>FECHA DEL PARTE *</label>
+          <input type="date" id="mcFecha" class="modal-input" value="${hoyStr()}" />
+        </div>
+        <div class="modal-group">
+          <label>UNIDAD DE NEGOCIO *</label>
+          <select id="mcUnidadNegocio" class="modal-select" style="font-weight:700;">
+            <option value="FRUTALES">FRUTALES</option>
+            <option value="HORTALIZAS">HORTALIZAS</option>
+            <option value="EMPAQUE">EMPAQUE</option>
+            <option value="GANADERIA">GANADERIA</option>
+            <option value="GENERAL">GENERAL</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark);">RENGLONES DE LABORES Y REPARTO DE MÁQUINAS:</div>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-action" id="mcBtnNuevaLabor" style="padding:4px 10px; font-size:10.5px; background:#0071E3; color:white;">➕ Nueva Labor</button>
+          <button type="button" class="btn-action btn-nuevo" id="mcBtnAgregarRenglon" style="padding:4px 10px; font-size:10.5px;">➕ Agregar Renglón</button>
+        </div>
+      </div>
+
+      <div class="tabla-masiva-wrap">
+        <table class="tabla-masiva">
+          <thead>
+            <tr>
+              <th style="width:180px;">MÁQUINA / TRACTOR</th>
+              <th style="width:140px;">LABOR</th>
+              <th style="width:130px;">SECTOR</th>
+              <th style="width:160px;">CUADRO / PARCELA (P_CUADROS)</th>
+              <th style="width:90px;">SUP TRAB (HA)</th>
+              <th style="width:80px;">HORAS TRAB.</th>
+              <th style="width:170px;">OPERARIO</th>
+              <th style="width:40px; text-align:center;">ELIM.</th>
+            </tr>
+          </thead>
+          <tbody id="mcTbodyMaquinas"></tbody>
+        </table>
+      </div>
+    `;
+
+    openMiniModal('🚜 Carga Masiva de Labores por Maquinaria', fields, guardarCargaMasivaLabores, 'Guardar Partes Masivos', true);
+
+    function refrescarSelectoresLaborGlobales(nuevaLaborSeleccionada) {
+      const ultimasLabores = obtenerLaboresConMaquina();
+      document.querySelectorAll('.mcSelectLabor').forEach(sel => {
+        const prevVal = sel.value;
+        sel.innerHTML = '<option value="">-- Labor --</option>' + 
+          ultimasLabores.map(l => `<option value="${escapeHtml(l.labor)}">${escapeHtml(l.labor)}</option>`).join('');
+        sel.value = nuevaLaborSeleccionada || prevVal;
+      });
+    }
+
+    function crearHtmlRenglon() {
+      const tr = document.createElement('tr');
+      tr.className = 'mcFilaMaq';
+      tr.innerHTML = `
+        <td>
+          <select class="input-grid-cell mcSelectMaquina">
+            <option value="">-- Seleccionar Máquina --</option>
+            ${maquinasDB.map(m => `<option value="${m.id}" data-unidad="${escapeHtml(m.unidad)}">[${escapeHtml(m.codigo_interno || '#' + m.id)}] ${escapeHtml(m.unidad)}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <select class="input-grid-cell mcSelectLabor">
+            <option value="">-- Labor --</option>
+            ${laboresConMaq.map(l => `<option value="${escapeHtml(l.labor)}">${escapeHtml(l.labor)}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <select class="input-grid-cell mcSelectSector">
+            <option value="">-- Todos los Sectores --</option>
+          </select>
+        </td>
+        <td>
+          <select class="input-grid-cell mcSelectParcela" style="font-weight:700;">
+            <option value="">-- Seleccionar Cuadro --</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" step="0.01" class="input-grid-cell mcInputSup" placeholder="0.00" style="font-weight:700; color:var(--color-amber);" />
+        </td>
+        <td>
+          <input type="number" step="0.5" class="input-grid-cell mcInputHoras" placeholder="0.0" />
+        </td>
+        <td>
+          <div class="flex-cell-operario">
+            <select class="input-grid-cell mcSelectOperario">
+              ${operariosPref.map(o => `<option value="${escapeHtml(o.nombre)}">${escapeHtml(o.nombre)}</option>`).join('')}
+            </select>
+            <button type="button" class="btn-lupa-cell mcBtnLupaOperario" title="Buscar operario">🔍</button>
+          </div>
+        </td>
+        <td style="text-align:center;">
+          <button type="button" class="btn-accion delete mcBtnDelRow" title="Eliminar renglón">❌</button>
+        </td>
+      `;
+
+      const selectSec = tr.querySelector('.mcSelectSector');
+      const selectParc = tr.querySelector('.mcSelectParcela');
+      const inputSup = tr.querySelector('.mcInputSup');
+
+      function actualizarSectoresDelRenglon() {
+        const uNegActual = document.getElementById('mcUnidadNegocio').value;
+        const sectores = obtenerSectoresPorNegocio(uNegActual);
+        selectSec.innerHTML = '<option value="">-- Todos los Sectores --</option>' +
+          sectores.map(s => `<option value="${escapeHtml(s.sector)}">${escapeHtml(s.sector)}</option>`).join('');
+        
+        // Cargar todas las parcelas de ese negocio desde local_p_cuadros
+        const parcelas = obtenerParcelasDetalladas('', uNegActual);
+        selectParc.innerHTML = '<option value="">-- Seleccionar Cuadro --</option>' +
+          parcelas.map(p => `<option value="${escapeHtml(p.parcela)}" data-marco="${p.cod_marco}" data-sup="${p.sup}">${escapeHtml(p.parcela)} (${parseFloat(p.sup || 0).toFixed(2)} ha)</option>`).join('');
+      }
+
+      actualizarSectoresDelRenglon();
+
+      selectSec.onchange = () => {
+        const secVal = selectSec.value;
+        const uNegActual = document.getElementById('mcUnidadNegocio').value;
+        const parcelas = obtenerParcelasDetalladas(secVal, uNegActual);
+        selectParc.innerHTML = '<option value="">-- Seleccionar Cuadro --</option>' +
+          parcelas.map(p => `<option value="${escapeHtml(p.parcela)}" data-marco="${p.cod_marco}" data-sup="${p.sup}">${escapeHtml(p.parcela)} (${parseFloat(p.sup || 0).toFixed(2)} ha)</option>`).join('');
+        inputSup.value = '';
+      };
+
+      selectParc.onchange = () => {
+        const optSel = selectParc.options[selectParc.selectedIndex];
+        if (optSel && optSel.value) {
+          const supVal = parseFloat(optSel.dataset.sup || 0);
+          inputSup.value = supVal > 0 ? supVal.toFixed(2) : '';
+        } else {
+          inputSup.value = '';
+        }
+      };
+
+      tr.querySelector('.mcBtnLupaOperario').addEventListener('click', () => {
+        abrirLupaOperarios(tr.querySelector('.mcSelectOperario'));
+      });
+
+      tr.querySelector('.mcBtnDelRow').addEventListener('click', () => {
+        tr.remove();
+      });
+
+      return tr;
+    }
+
+    const tbody = document.getElementById('mcTbodyMaquinas');
+    tbody.appendChild(crearHtmlRenglon());
+
+    document.getElementById('mcBtnAgregarRenglon').addEventListener('click', () => {
+      tbody.appendChild(crearHtmlRenglon());
+    });
+
+    document.getElementById('mcBtnNuevaLabor').addEventListener('click', () => {
+      const uNegActual = document.getElementById('mcUnidadNegocio').value;
+      window.abrirModalNuevaLaborMacro(uNegActual, (nuevaLabor) => {
+        refrescarSelectoresLaborGlobales(nuevaLabor);
+      });
+    });
+
+    document.getElementById('mcUnidadNegocio').addEventListener('change', () => {
+      const uNeg = document.getElementById('mcUnidadNegocio').value;
+      document.querySelectorAll('.mcFilaMaq').forEach(row => {
+        const selectSec = row.querySelector('.mcSelectSector');
+        const selectParc = row.querySelector('.mcSelectParcela');
+        const sectores = obtenerSectoresPorNegocio(uNeg);
+        selectSec.innerHTML = '<option value="">-- Todos los Sectores --</option>' +
+          sectores.map(s => `<option value="${escapeHtml(s.sector)}">${escapeHtml(s.sector)}</option>`).join('');
+        
+        const parcelas = obtenerParcelasDetalladas('', uNeg);
+        selectParc.innerHTML = '<option value="">-- Seleccionar Cuadro --</option>' +
+          parcelas.map(p => `<option value="${escapeHtml(p.parcela)}" data-marco="${p.cod_marco}" data-sup="${p.sup}">${escapeHtml(p.parcela)} (${parseFloat(p.sup || 0).toFixed(2)} ha)</option>`).join('');
+      });
+    });
+  };
+
+  function guardarCargaMasivaLabores() {
+    if (!db) return;
+
+    const fecha = document.getElementById('mcFecha').value || hoyStr();
+    const unidadNegocio = document.getElementById('mcUnidadNegocio').value.trim().toUpperCase();
+    const centroCosto = unidadNegocio;
+    const campaña = fecha.slice(0, 4);
+
+    const filas = Array.from(document.querySelectorAll('.mcFilaMaq'));
+    if (filas.length === 0) return lanzarNotificacionFlotante('Agregá al menos un renglón.', 'error');
+
+    try {
+      let maxId = qGet(`SELECT COALESCE(MAX(id), 0) as maxId FROM local_m_labores_maquinaria`).maxId;
+
+      const stmt = db.prepare(`
+        INSERT INTO local_m_labores_maquinaria
+          (id, reg_local, fecha, operario, cod_maq, maquina, cod_sector, sector, labor, horas, centro_costo, unidad_negocio, ciclo_contable, campaña, sup_trab, sincronizado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      `);
+
+      let creados = 0;
+      db.transaction(() => {
+        filas.forEach(f => {
+          const selMaq = f.querySelector('.mcSelectMaquina');
+          const codMaq = selMaq.value ? parseInt(selMaq.value) : null;
+          const optMaq = selMaq.options[selMaq.selectedIndex];
+          const maquina = optMaq ? (optMaq.dataset.unidad || optMaq.text) : 'MAQUINARIA GENERAL';
+
+          const hsTotales = parseFloat(f.querySelector('.mcInputHoras').value) || 0;
+          const supTrab = parseFloat(f.querySelector('.mcInputSup').value) || 0;
+          const selectParc = f.querySelector('.mcSelectParcela');
+
+          const cuadroVal = selectParc.value.trim().toUpperCase();
+          const operario = f.querySelector('.mcSelectOperario').value.trim().toUpperCase() || operarioName;
+          const labor = f.querySelector('.mcSelectLabor').value.trim().toUpperCase() || 'LABOR CON MAQUINARIA';
+
+          if (codMaq && hsTotales > 0 && cuadroVal) {
+            let marcos = [];
+            try {
+              const sqlMarcos = `
+                SELECT DISTINCT m.cod_marco
+                FROM local_p_cuadros c
+                INNER JOIN local_p_marcos_plantacion m ON CAST(m.cod_parcela AS TEXT) = CAST(c.cod_parcela AS TEXT)
+                INNER JOIN local_p_inventario_plantacion i ON CAST(i.cod_marco AS TEXT) = CAST(m.cod_marco AS TEXT)
+                WHERE UPPER(c.nombre) = ? AND UPPER(COALESCE(i.estado, 'ACTIVO')) = 'ACTIVO'
+              `;
+              marcos = db.prepare(sqlMarcos).all(cuadroVal);
+            } catch(e) {}
+
+            if (!marcos || marcos.length === 0) {
+              try {
+                const sqlMarcos2 = `
+                  SELECT DISTINCT m.cod_marco
+                  FROM local_p_cuadros c
+                  INNER JOIN local_p_marcos_plantacion m ON CAST(m.cod_parcela AS TEXT) = CAST(c.cod_parcela AS TEXT)
+                  WHERE UPPER(c.nombre) = ?
+                `;
+                marcos = db.prepare(sqlMarcos2).all(cuadroVal);
+              } catch(e) {}
+            }
+
+            if (marcos && marcos.length > 0) {
+              const hsPorMarco = hsTotales / marcos.length;
+              const supPorMarco = supTrab / marcos.length;
+
+              marcos.forEach(mRow => {
+                maxId++;
+                creados++;
+                stmt.run(maxId, generarToken(), fecha, operario, codMaq, maquina, mRow.cod_marco, cuadroVal, labor, hsPorMarco, centroCosto, unidadNegocio, campaña, campaña, supPorMarco);
+              });
+            } else {
+              const optParc = selectParc.options[selectParc.selectedIndex];
+              const codSectorMarco = (optParc && optParc.dataset.marco) ? parseInt(optParc.dataset.marco) : null;
+              maxId++;
+              creados++;
+              stmt.run(maxId, generarToken(), fecha, operario, codMaq, maquina, codSectorMarco, cuadroVal, labor, hsTotales, centroCosto, unidadNegocio, campaña, campaña, supTrab);
+            }
+          }
+        });
+      })();
+
+      if (creados === 0) return lanzarNotificacionFlotante('Seleccioná la máquina e ingresá las horas trabajadas en los renglones.', 'warning');
+
+      lanzarNotificacionFlotante(`¡Partes de labor generados con éxito!`, 'success');
+      closeMiniModal();
+      renderLaboresGrouped();
+    } catch (e) {
+      console.error(e);
+      lanzarNotificacionFlotante('Error en la carga masiva: ' + e.message, 'error');
+    }
+  }
+
+  // =========================================================================
+  // 3. COMBUSTIBLE (STOCK CISTERNA + EGRESOS E INGRESOS REALES)
+  // =========================================================================
+  function renderCombustibleStock() {
+    let consumosEgresos = q(`SELECT * FROM local_c_consumos_combustibles ORDER BY fecha DESC, id DESC`);
+    let ingresosCisterna = q(`SELECT * FROM local_c_ingresos_combustibles ORDER BY fecha DESC, id DESC`);
+
+    let totalEgresos = consumosEgresos.reduce((a, b) => a + (parseFloat(b.litros || b.cantidad) || 0), 0);
+    let totalIngresos = ingresosCisterna.reduce((a, b) => a + (parseFloat(b.litros) || 0), 0);
+
+    let stockDisponible = Math.max(0, totalIngresos - totalEgresos);
+    let capacidadMaximaCisterna = totalIngresos > 0 ? totalIngresos : 10000;
+    let porcentajeStock = Math.min(100, Math.round((stockDisponible / capacidadMaximaCisterna) * 100));
+
+    vistaDinamica.innerHTML = `
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Control y Balance de Combustible</h1>
+          <div class="seccion-subtitulo">Monitoreo de stock en cisterna y despachos a maquinaria</div>
+        </div>
+        <div class="header-acciones">
+          <button class="btn-action btn-excel" onclick="window.exportarExcel('COMBUSTIBLE')">📊 Excel</button>
+          <button class="btn-action" style="background:#0071E3; color:white;" onclick="window.abrirModalIngresoCisterna()">⛽ + INGRESAR COMBUSTIBLE</button>
+          <button class="btn-action btn-nuevo" onclick="window.abrirModalNuevoCombustibleEgreso()">🚜 + CONSUMIR / DESPACHAR</button>
+        </div>
+      </div>
+
+      <div class="tanque-widget-container" style="margin-bottom:12px;">
+        <div class="tanque-grafico">
+          <div class="tanque-fill" style="height: ${porcentajeStock}%;"></div>
+        </div>
+        <div class="tanque-info">
+          <span style="font-size:10px; font-weight:800; color:var(--color-text-secondary); text-transform:uppercase;">NIVEL DE CISTERNA PRINCIPAL</span>
+          <div class="vol-val">${stockDisponible.toLocaleString('es-AR', {minimumFractionDigits:1, maximumFractionDigits:1})} LTS</div>
+          <span style="font-size:11px; font-weight:700; color:var(--color-ok);">${porcentajeStock}% Disponible · Acumulado Ingresos: ${totalIngresos.toLocaleString('es-AR')} Lts</span>
+        </div>
+      </div>
+
+      <div class="contenedor-pestanas-archivero" style="margin-bottom:10px;">
+        <button class="btn-tab-archivero ${_tabCombustibleFiltro === 'egresos' ? 'active' : ''}" onclick="window.cambiarFiltroCombustible('egresos')">🚜 EGRESOS (DESPACHOS A MÁQUINAS)</button>
+        <button class="btn-tab-archivero ${_tabCombustibleFiltro === 'ingresos' ? 'active' : ''}" onclick="window.cambiarFiltroCombustible('ingresos')">⛽ INGRESOS (COMPRAS CISTERNA)</button>
+      </div>
+
+      <div class="tabla-container" style="flex-grow:1; overflow-y:auto;">
+        ${_tabCombustibleFiltro === 'egresos' ? `
+          <table class="tabla-custom">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>DESDE CISTERNA</th>
+                <th>MÁQUINA DESTINO</th>
+                <th>RESPONSABLE / CARGÓ</th>
+                <th>LABOR</th>
+                <th>U. NEGOCIO</th>
+                <th style="text-align:right;">LITROS</th>
+                <th style="text-align:right;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${consumosEgresos.length === 0 ? '<tr><td colspan="8" style="text-align:center; padding:20px;">Sin consumos registrados.</td></tr>' : ''}
+              ${consumosEgresos.map(c => `
+                <tr>
+                  <td>📅 ${escapeHtml(c.fecha || 'S/F')}</td>
+                  <td><span class="badge-tag tag-amarillo">${escapeHtml(c.cisterna || 'CISTERNA CENTRAL')}</span></td>
+                  <td><strong>${escapeHtml(c.maquina || 'S/M').toUpperCase()}</strong></td>
+                  <td>${escapeHtml(c.responsable || '—')}</td>
+                  <td>${escapeHtml(c.labor || '—')}</td>
+                  <td>${escapeHtml(c.unidad_negocio || '—')}</td>
+                  <td style="text-align:right; font-weight:900; color:#B45309;">${parseFloat(c.litros || c.cantidad || 0).toFixed(1)} Lts</td>
+                  <td style="text-align:right;">
+                    <button type="button" class="btn-accion delete" onclick="window.eliminarConsumoCombustible(${c.id}, '${escapeAttr(c.reg_local)}')" title="Eliminar consumo">🗑️</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : `
+          <table class="tabla-custom">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>PROVEEDOR</th>
+                <th>REMITO / FACTURA</th>
+                <th>RESPONSABLE BODEGA</th>
+                <th style="text-align:right;">LITROS INGRESADOS</th>
+                <th style="text-align:right;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ingresosCisterna.length === 0 ? '<tr><td colspan="6" style="text-align:center; padding:20px;">Sin ingresos a cisterna registrados.</td></tr>' : ''}
+              ${ingresosCisterna.map(i => `
+                <tr>
+                  <td>📅 ${escapeHtml(i.fecha || 'S/F')}</td>
+                  <td><strong>${escapeHtml(i.proveedor || 'S/P')}</strong></td>
+                  <td>${escapeHtml(i.remito || 'S/R')}</td>
+                  <td>${escapeHtml(i.recibio || 'BODEGA')}</td>
+                  <td style="text-align:right; font-weight:900; color:var(--color-ok);">${parseFloat(i.litros || 0).toFixed(1)} Lts</td>
+                  <td style="text-align:right;">
+                    <button type="button" class="btn-accion delete" onclick="window.eliminarIngresoCombustible(${i.id}, '${escapeAttr(i.reg_local)}')" title="Eliminar ingreso">🗑️</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `}
+      </div>
+    `;
+  }
+
+  window.eliminarIngresoCombustible = function(id, regLocal) {
+    solicitarConfirmacion('Eliminar Ingreso', '¿Eliminar este registro de ingreso de combustible a cisterna?', () => {
+      try {
+        qRun('DELETE FROM local_c_ingresos_combustibles WHERE id = ? AND reg_local = ?', id, regLocal);
+        lanzarNotificacionFlotante('Ingreso eliminado.', 'success');
+        renderCombustibleStock();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.cambiarFiltroCombustible = function(fil) {
+    _tabCombustibleFiltro = fil;
+    renderCombustibleStock();
+  };
+
+  window.abrirModalNuevoCombustibleEgreso = function() {
+    let maquinasDB = q(`SELECT id, unidad, codigo_interno FROM local_par_maquinaria_herramientas ORDER BY unidad ASC`);
+    const operariosPref = obtenerOperariosPreferidos();
+    const laboresConMaq = obtenerLaboresConMaquina();
+
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Fecha de Carga</label>
+          <input type="date" id="megFecha" class="modal-input" value="${hoyStr()}" />
+        </div>
+        <div class="modal-group">
+          <label>Litros / Cantidad Despachada</label>
+          <input type="number" id="megLitros" class="modal-input" step="0.5" placeholder="Ej: 120" style="font-weight:800; color:var(--color-amber);" />
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Desde Dónde (Cisterna Origen)</label>
+          <input type="text" id="megCisterna" class="modal-input" value="CISTERNA PRINCIPAL" />
+        </div>
+        <div class="modal-group">
+          <label>Quién Cargó / Responsable</label>
+          <div class="flex-cell-operario">
+            <select id="megResponsable" class="modal-select">
+              ${operariosPref.map(o => `<option value="${escapeHtml(o.nombre)}">${escapeHtml(o.nombre)}</option>`).join('')}
+            </select>
+            <button type="button" class="btn-lupa-cell" id="megBtnLupaResp" title="Buscar operario activo">🔍</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-group">
+        <label>Hacia Dónde (Máquina / Equipo Destino)</label>
+        <select id="megMaquinaSelect" class="modal-select" style="font-weight:700;">
+          <option value="">-- Seleccionar maquinaria del parque --</option>
+          ${maquinasDB.map(m => `<option value="${m.id}" data-nombre="${escapeHtml(m.unidad)}">[${escapeHtml(m.codigo_interno || '#' + m.id)}] - ${escapeHtml(m.unidad)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Unidad de Negocio</label>
+          <select id="megUnidadNegocio" class="modal-select">
+            <option value="FRUTALES">FRUTALES</option>
+            <option value="HORTALIZAS">HORTALIZAS</option>
+            <option value="EMPAQUE">EMPAQUE</option>
+            <option value="GANADERIA">GANADERIA</option>
+            <option value="GENERAL">GENERAL</option>
+          </select>
+        </div>
+        <div class="modal-group">
+          <label>Labor Realizada</label>
+          <select id="megLabor" class="modal-select">
+            ${laboresConMaq.map(l => `<option value="${escapeHtml(l.labor)}">${escapeHtml(l.labor)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Sector</label>
+          <select id="megSector" class="modal-select">
+            <option value="">-- Seleccionar Sector --</option>
+          </select>
+        </div>
+        <div class="modal-group">
+          <label>Cuadro / Parcela (p_cuadros)</label>
+          <select id="megParcela" class="modal-select" style="font-weight:700;">
+            <option value="">-- Seleccionar Cuadro --</option>
+          </select>
+        </div>
+      </div>
+    `;
+
+    openMiniModal('🚜 Despacho de Combustible (Egreso)', fields, () => {
+      const fecha = document.getElementById('megFecha').value || hoyStr();
+      const litros = parseFloat(document.getElementById('megLitros').value) || 0;
+      const cisterna = document.getElementById('megCisterna').value.trim().toUpperCase() || 'CISTERNA PRINCIPAL';
+      const responsable = document.getElementById('megResponsable').value.trim().toUpperCase() || operarioName;
+      
+      const selectMaq = document.getElementById('megMaquinaSelect');
+      const codMaq = selectMaq.value ? parseInt(selectMaq.value) : null;
+      const optSel = selectMaq.options[selectMaq.selectedIndex];
+      const maquina = optSel ? (optSel.getAttribute('data-nombre') || optSel.text) : 'MAQUINARIA GENERAL';
+
+      const labor = document.getElementById('megLabor').value.trim().toUpperCase() || 'LABOR GENERAL';
+      const unidadNegocio = document.getElementById('megUnidadNegocio').value.trim().toUpperCase() || 'FRUTALES';
+      const centroCosto = unidadNegocio;
+      const campaña = fecha.slice(0, 4);
+
+      if (litros <= 0) return lanzarNotificacionFlotante('Ingrese una cantidad de litros válida', 'error');
+
+      if (!db) {
+        lanzarNotificacionFlotante('Modo vista previa activo: consumo no guardado', 'error');
+        closeMiniModal();
+        return;
+      }
+
+      try {
+        let maxId = 0;
+        try {
+          const rMax = db.prepare(`SELECT MAX(id) as max_id FROM local_c_consumos_combustibles`).get();
+          if (rMax && rMax.max_id) maxId = parseInt(rMax.max_id);
+        } catch(e) {}
+
+        const nuevoId = maxId + 1;
+        const regLocal = generarToken();
+
+        db.prepare(`
+          INSERT INTO local_c_consumos_combustibles (
+            id, reg_local, fecha, cod_maq, maquina, responsable, cantidad, litros, labor, centro_costo, cisterna, unidad_negocio, campaña, sincronizado
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `).run(nuevoId, regLocal, fecha, codMaq, maquina, responsable, litros, litros, labor, centroCosto, cisterna, unidadNegocio, campaña);
+
+        lanzarNotificacionFlotante('Despacho de combustible registrado con éxito.', 'success');
+        closeMiniModal();
+        renderCombustibleStock();
+      } catch(e) {
+        console.error('Error al insertar egreso de combustible:', e);
+        lanzarNotificacionFlotante('Error al guardar el consumo de combustible', 'error');
+      }
+    });
+
+    setTimeout(() => {
+      const uNeg = document.getElementById('megUnidadNegocio');
+      const secSel = document.getElementById('megSector');
+      const parcSel = document.getElementById('megParcela');
+
+      function cargarSectoresComb() {
+        const sectores = obtenerSectoresPorNegocio(uNeg.value);
+        secSel.innerHTML = '<option value="">-- Seleccionar Sector --</option>' +
+          sectores.map(s => `<option value="${escapeHtml(s.sector)}">${escapeHtml(s.sector)}</option>`).join('');
+        
+        const parcelas = obtenerParcelasDetalladas('', uNeg.value);
+        parcSel.innerHTML = '<option value="">-- Seleccionar Cuadro --</option>' +
+          parcelas.map(p => `<option value="${escapeHtml(p.parcela)}">${escapeHtml(p.parcela)}</option>`).join('');
+      }
+
+      uNeg.addEventListener('change', cargarSectoresComb);
+      secSel.addEventListener('change', () => {
+        const parcelas = obtenerParcelasDetalladas(secSel.value, uNeg.value);
+        parcSel.innerHTML = '<option value="">-- Seleccionar Cuadro --</option>' +
+          parcelas.map(p => `<option value="${escapeHtml(p.parcela)}">${escapeHtml(p.parcela)}</option>`).join('');
+      });
+
+      cargarSectoresComb();
+
+      document.getElementById('megBtnLupaResp').addEventListener('click', () => {
+        abrirLupaOperarios(document.getElementById('megResponsable'));
+      });
+    }, 100);
+  };
+
+  window.abrirModalIngresoCisterna = function() {
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="niFecha" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Litros Comprados</label><input type="number" id="niLitros" class="modal-input" placeholder="Ej: 1500" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Proveedor</label><input type="text" id="niProveedor" class="modal-input" placeholder="Ej: YPF AGRO" /></div>
+        <div class="modal-group"><label>N° Remito / Factura</label><input type="text" id="niRemito" class="modal-input" placeholder="Ej: R-0001-9988" /></div>
+      </div>
+    `;
+
+    openMiniModal('Ingreso de Combustible a Cisterna', fields, () => {
+      const lts = parseFloat(document.getElementById('niLitros').value);
+      if (!lts || lts <= 0) return lanzarNotificacionFlotante('Ingrese litros válidos', 'error');
+
+      if (!db) {
+        lanzarNotificacionFlotante('Modo vista previa activo: ingreso no guardado', 'error');
+        closeMiniModal();
+        return;
+      }
+
+      try {
+        let maxI = 0;
+        try {
+          const rMax = db.prepare(`SELECT MAX(id) as max_id FROM local_c_ingresos_combustibles`).get();
+          if (rMax && rMax.max_id) maxI = parseInt(rMax.max_id);
+        } catch(e) {}
+
+        const nextId = maxI + 1;
+
+        qRun(`
+          INSERT INTO local_c_ingresos_combustibles (id, reg_local, fecha, litros, proveedor, remito, recibio, sincronizado)
+          VALUES (?,?,?,?,?,?,?,0)
+        `, nextId, generarToken(), document.getElementById('niFecha').value || hoyStr(), lts, document.getElementById('niProveedor').value.trim() || 'PROVEEDOR N/E', document.getElementById('niRemito').value.trim() || 'S/R', operarioName);
+
+        lanzarNotificacionFlotante('Combustible ingresado con éxito.', 'success');
+        closeMiniModal();
+        renderCombustibleStock();
+      } catch(e) { lanzarNotificacionFlotante('Error: ' + e.message, 'error'); }
+    });
+  };
+
+  // =========================================================================
+  // 4. APLICACIONES
+  // =========================================================================
+  function renderAplicacionesOrders() {
+    let ordenes = q(`SELECT * FROM local_p_aplicacionesOrdenes ORDER BY orden DESC`);
+
+    if (!_ordenAplicacionSeleccionada && ordenes.length > 0) {
+      _ordenAplicacionSeleccionada = ordenes[0].orden;
+    }
+
+    const ordSel = ordenes.find(o => o.orden == _ordenAplicacionSeleccionada) || (ordenes.length > 0 ? ordenes[0] : null);
+
+    vistaDinamica.innerHTML = `
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Ordenes de Aplicación y Pulverizado</h1>
+          <div class="seccion-subtitulo">Tratamientos fitosanitarios, recetas agronómicas y ejecución</div>
+        </div>
+        <div class="header-acciones">
+          <button class="btn-action btn-excel" onclick="window.exportarExcel('APLICACIONES')">📊 Excel</button>
+          <button class="btn-action btn-pdf" onclick="window.exportarPDF('APLICACIONES')">📄 PDF Receta</button>
+        </div>
+      </div>
+
+      <div class="master-detail-grid">
+        <div class="panel-master">
+          <div style="font-size:11px; font-weight:800; color:var(--color-adm-dark); margin-bottom:6px;">ÓRDENES DE TRABAJO</div>
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;">
+            ${ordenes.length === 0 ? '<div style="font-size:11px; color:var(--color-text-secondary); text-align:center; padding:20px;">Sin órdenes de aplicación.</div>' : ''}
+            ${ordenes.map(o => `
+              <div class="fila-card-master ${o.orden == _ordenAplicacionSeleccionada ? 'active' : ''}" onclick="window.seleccionarOrdenAplicacion('${o.orden}')">
+                <div style="flex-grow:1;">
+                  <div class="f-title">ORDEN N° #${o.orden}</div>
+                  <div class="f-sub">📅 ${o.fecha || '-'} · ${escapeHtml(o.motivo_aplicacion || 'FITOSANITARIO')}</div>
+                </div>
+                <button type="button" class="btn-mini-card del" onclick="event.stopPropagation(); window.eliminarOrdenAplicacion('${o.orden}');" title="Eliminar orden">🗑️</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="panel-detail">
+          ${!ordSel ? '<div style="font-size:12px; color:var(--color-text-secondary); text-align:center; padding:100px 0;">Seleccione una orden de aplicación.</div>' : `
+            <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:12px 16px;">
+              <span style="font-size:10px; font-weight:800; color:var(--color-adm); text-transform:uppercase;">RECETA AGRONÓMICA / MOTIVO</span>
+              <div style="font-size:15px; font-weight:800; color:var(--color-adm-dark); margin-top:2px;">ORDEN DE APLICACIÓN N° #${ordSel.orden}</div>
+              <div style="font-size:11.5px; font-weight:600; color:var(--color-text); margin-top:3px;">
+                TRATAMIENTO: <strong>${escapeHtml(ordSel.motivo_aplicacion || 'S/D')}</strong> (${escapeHtml(ordSel.tipo_aplicacion || 'FITOSANITARIO')})
+              </div>
+            </div>
+
+            <div style="font-size:11px; font-weight:800; color:var(--color-text-secondary); margin-top:8px;">EJECUCIÓN EN CAMPO Y EQUIPOS UTILIZADOS</div>
+
+            <table class="tabla-custom">
+              <thead>
+                <tr>
+                  <th>TRACTOR UTILIZADO</th>
+                  <th>PULVERIZADORA</th>
+                  <th>CUADROS / PARCELAS</th>
+                  <th style="text-align:right;">VOLUMEN (LTS)</th>
+                  <th style="text-align:center;">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>${escapeHtml(ordSel.tractor_usado || 'S/D')}</strong></td>
+                  <td>${escapeHtml(ordSel.maquina_usada || 'S/D')}</td>
+                  <td>${escapeHtml(ordSel.parcelas || '—')}</td>
+                  <td style="text-align:right; font-weight:800; color:var(--color-blue);">${parseFloat(ordSel.volumen_aplic || 0).toLocaleString('es-AR')} Lts</td>
+                  <td style="text-align:center;"><span class="badge-tag tag-verde">${escapeHtml(ordSel.estado || 'REALIZADO')}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>
+    `;
+  }
+
+  window.seleccionarOrdenAplicacion = function(nro) {
+    _ordenAplicacionSeleccionada = nro;
+    renderAplicacionesOrders();
+  };
+
+  window.eliminarOrdenAplicacion = function(orden) {
+    solicitarConfirmacion('Eliminar Orden de Aplicación', `¿Deseas eliminar la orden de aplicación <strong>#${orden}</strong>?`, () => {
+      try {
+        qRun('DELETE FROM local_p_aplicacionesOrdenes WHERE orden = ?', orden);
+        lanzarNotificacionFlotante('Orden eliminada con éxito.', 'success');
+        _ordenAplicacionSeleccionada = null;
+        renderAplicacionesOrders();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  // MODAL ALTA EQUIPO
+  window.abrirModalNuevoEquipo = function() {
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Nombre / Unidad</label><input type="text" id="neUnidad" class="modal-input" placeholder="Ej: Tractor John Deere 5075E" /></div>
+        <div class="modal-group"><label>Código Interno</label><input type="text" id="neCodigo" class="modal-input" placeholder="Ej: TRAC-01" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Tipo</label><input type="text" id="neTipo" class="modal-input" placeholder="Tractor, Pulverizadora..." /></div>
+        <div class="modal-group"><label>Potencia (HP)</label><input type="text" id="nePotencia" class="modal-input" placeholder="Ej: 75 HP" /></div>
+      </div>
+    `;
+
+    openMiniModal('Alta de Equipo / Herramienta', fields, () => {
+      const unidad = document.getElementById('neUnidad').value.trim();
+      if (!unidad) return lanzarNotificacionFlotante('El nombre del equipo es obligatorio.', 'error');
+
+      if (!db) {
+        lanzarNotificacionFlotante('Modo vista previa activo', 'error');
+        closeMiniModal();
+        return;
+      }
+
+      try {
+        const maxEq = qGet(`SELECT MAX(id) as maxId FROM local_par_maquinaria_herramientas`);
+        const nextId = (maxEq && maxEq.maxId ? maxEq.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_par_maquinaria_herramientas
+            (id, unidad, codigo_interno, tipo, potencia, propietario, sincronizado)
+          VALUES (?,?,?,?,?,?,0)
+        `, nextId, unidad.toUpperCase(), document.getElementById('neCodigo').value.trim() || null, document.getElementById('neTipo').value.trim().toUpperCase() || 'MAQUINARIA', document.getElementById('nePotencia').value.trim() || null, 'PROPIO');
+
+        lanzarNotificacionFlotante('Equipo registrado con éxito.', 'success');
+        closeMiniModal();
+        renderParqueMasterDetail();
+      } catch(e) { lanzarNotificacionFlotante('Error al crear equipo: ' + e.message, 'error'); }
+    });
+  };
+
+  window.exportarExcel = function(tipo) {
+    lanzarNotificacionFlotante(`Exportando ${tipo} a Excel...`, 'success');
+  };
+
+  window.exportarPDF = function(tipo) {
+    lanzarNotificacionFlotante(`Generando PDF de ${tipo}...`, 'success');
+  };
+
+  document.getElementById('btnVolver').addEventListener('click', () => { window.history.back(); });
+  
+  const fechaFormateada = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('topDateTime').textContent = fechaFormateada;
+  document.getElementById('lblUltimoAcceso').textContent = fechaFormateada;
+
+  renderizarVistas();
+})();
+</script>
+</body>
+</html>

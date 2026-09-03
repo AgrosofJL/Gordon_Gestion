@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Recepción Pro de Materia Prima</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-light: #F8FAFC;
+    --card-color: #FFFFFF;
+    --input-fill: #F1F5F9;
+    --azul-francia: #0055A5;
+    --naranja-led: #F97316;
+    --verde-exito: #10B981;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --color-border: #E2E8F0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--bg-light); color: var(--text-primary); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 30px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; }
+  .user-access-info span.highlight { color: var(--azul-francia); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+
+  .top-actions-container { display: flex; align-items: center; gap: 10px; }
+
+  .btn-sync-top {
+    background: #E0F2FE; color: var(--azul-francia); border: 1px solid rgba(0,85,165,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-sync-top:hover { background: #BAE6FD; }
+
+  .btn-action-top {
+    background: #FFF7ED; color: var(--naranja-led); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: var(--radius-md);
+    padding: 8px 14px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .btn-action-top:hover { background: #FFEDD5; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* SIDEBAR LATERAL CON BOTONES DE SOLAPA */
+  .sidebar {
+    width: 240px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    flex-shrink: 0;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+    margin-bottom: 20px;
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+  .btn-nav-lateral:hover { background: rgba(0,85,165,0.06); color: var(--azul-francia); }
+  .btn-nav-lateral.active { background: rgba(0,85,165,0.08); color: var(--azul-francia); border-color: rgba(0,85,165,0.3); }
+
+  .badge-count {
+    background: var(--azul-francia);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .badge-orange { background: var(--naranja-led); }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; overflow-y: auto; }
+
+  .card-item {
+    background: var(--card-color);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+
+  .badge-mini {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-block;
+  }
+  .badge-blue { background: rgba(0, 85, 165, 0.1); color: var(--azul-francia); }
+  .badge-green { background: rgba(16, 185, 129, 0.1); color: var(--verde-exito); }
+  .badge-orange { background: rgba(249, 115, 22, 0.1); color: var(--naranja-led); }
+
+  .btn-accion-card {
+    background: var(--azul-francia);
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-accion-card:hover { background: #00407D; }
+
+  /* MODALES */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--card-color); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 580px; border: 1.5px solid rgba(0,85,165,0.3); max-height: 90vh; display: flex; flex-direction: column; }
+  .modal-body { overflow-y: auto; flex-grow: 1; margin-top: 12px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .form-group label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: var(--radius-md);
+    border: 1.2px solid var(--color-border);
+    background: var(--input-fill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid var(--azul-francia); color: var(--azul-francia); }
+  .toast-card.error { border-left: 4px solid #EF4444; color: #EF4444; }
+</style>
+</head>
+<body>
+
+  <!-- ACA ES LO NUEVO: MODAL INGRESO TERCEROS -->
+<div class="modal-overlay" id="modalTerceros">
+  <div class="modal-box">
+    <h3 style="margin:0 0 12px 0; font-size:13px; color:var(--azul-francia);">INGRESO DE MATERIA PRIMA (TERCEROS)</h3>
+    <div class="form-group">
+      <label>PRODUCTOR / CLIENTE</label>
+      <input type="text" id="mTerceroProductor" class="form-input" placeholder="Ej: Finca San José" />
+    </div>
+    <div class="form-group">
+      <label>N° REMITO FISCO</label>
+      <input type="text" id="mTerceroRemito" class="form-input" placeholder="0001-00001234" />
+    </div>
+    <div class="form-group">
+      <label>EMPRESA TRANSPORTE</label>
+      <input type="text" id="mTerceroTransporte" class="form-input" placeholder="Transporte Don Pedro" />
+    </div>
+    <div class="form-group">
+      <label>VARIEDAD</label>
+      <input type="text" id="mTerceroVariedad" class="form-input" placeholder="Ej: Red Delicious" />
+    </div>
+    <div class="form-group">
+      <label>CANTIDAD BOLSONES / BINS</label>
+      <input type="number" id="mTerceroCantidad" class="form-input" placeholder="10" />
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+      <button id="btnCerrarTerceros" style="background:none; border:none; cursor:pointer; font-weight:700; color:var(--text-secondary);">CANCELAR</button>
+      <button class="btn-accion-card" id="btnGuardarTerceros">REGISTRAR TERCERO</button>
+    </div>
+  </div>
+</div>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div class="system-datetime" id="topDateTime">LUNES 20 DE JULIO DE 2026</div>
+      <div class="top-actions-container">
+        <button class="btn-action-top" id="btnManualContingencia">
+          📝 Manual Contingencia
+        </button>
+        <button class="btn-action-top" id="btnIngresoTerceros">
+          🏢 Ingreso Terceros
+        </button>
+        <button class="btn-sync-top" id="btnSincronizar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sincronizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-tab="en_viaje">
+          <span>🚚 En Viaje</span>
+          <span class="badge-count badge-orange" id="cantEnViaje">0</span>
+        </button>
+        <button class="btn-nav-lateral" data-tab="manual">
+          <span>📋 Planilla Manual</span>
+          <span class="badge-count" id="cantManuales">0</span>
+        </button>
+        <button class="btn-nav-lateral" data-tab="historial">
+          <span>📂 Historial Remitos</span>
+          <span class="badge-count" id="cantHistorial">0</span>
+        </button>
+        <button class="btn-nav-lateral" data-tab="resumen">
+          <span>📊 Resumen Variedad</span>
+        </button>
+      </div>
+
+      <div style="margin-top: auto; font-size: 10px; color: var(--text-secondary); font-weight: bold; text-align: center;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      
+      <!-- SOLAPA 1: EN VIAJE -->
+      <div id="vistaEnViaje">
+        <div style="margin-bottom:14px; font-weight:700; font-size:13px; color:var(--azul-francia);">CAMIONES DESPACHADOS EN CAMINO</div>
+        <div id="contenedorEnViaje"></div>
+      </div>
+
+      <!-- SOLAPA 2: PLANILLA MANUAL -->
+      <div id="vistaManual" style="display:none;">
+        <div style="margin-bottom:14px; font-weight:700; font-size:13px; color:var(--naranja-led);">INGRESOS MANUALES EN CONTINGENCIA</div>
+        <div id="contenedorManual"></div>
+      </div>
+
+      <!-- SOLAPA 3: HISTORIAL REMITOS -->
+      <div id="vistaHistorial" style="display:none;">
+        <div style="margin-bottom:14px; font-weight:700; font-size:13px; color:var(--azul-francia);">HISTORIAL GENERAL DE MATERIA PRIMA</div>
+        <div id="contenedorHistorial"></div>
+      </div>
+
+      <!-- SOLAPA 4: RESUMEN VARIEDAD -->
+      <div id="vistaResumen" style="display:none;">
+        <div style="margin-bottom:14px; font-weight:700; font-size:13px; color:var(--azul-francia);">CONSOLIDADO DE BOLSONES POR VARIEDAD</div>
+        <div id="contenedorResumen"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL MANUAL CONTINGENCIA -->
+  <div class="modal-overlay" id="modalContingencia">
+    <div class="modal-box">
+      <h3 style="margin:0 0 12px 0; font-size:13px; color:var(--azul-francia);">INGRESO MANUAL DE CONTINGENCIA</h3>
+      <div class="form-group"><label>N° REMITO FISCO</label><input type="text" id="mRemito" class="form-input" /></div>
+      <div class="form-group"><label>EMPRESA TRANSPORTE</label><input type="text" id="mTransporte" class="form-input" /></div>
+      <div class="form-group"><label>CANTIDAD BOLSONES</label><input type="number" id="mCantidad" class="form-input" /></div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+        <button id="btnCerrarContingencia" style="background:none; border:none; cursor:pointer; font-weight:700; color:var(--text-secondary);">CANCELAR</button>
+        <button class="btn-accion-card" id="btnGuardarContingencia">CREAR PLANILLA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE / PESAR / RECONCILIAR -->
+  <div class="modal-overlay" id="modalDetalle">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia);" id="lblTituloDetalle">DETALLE DE RECEPCIÓN</h3>
+        <button id="btnCerrarDetalle" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- PESAJE CABECERA -->
+        <div style="background:var(--input-fill); border-radius:12px; padding:12px; margin-bottom:12px; display:flex; gap:10px; align-items:center;">
+          <div class="form-group" style="margin:0; flex:1;"><label>BRUTO (KG)</label><input type="number" id="pBruto" class="form-input" /></div>
+          <div class="form-group" style="margin:0; flex:1;"><label>TARA (KG)</label><input type="number" id="pTara" class="form-input" /></div>
+          <button class="btn-accion-card" id="btnGuardarCabecera" style="margin-top:14px;">💾 PESAR</button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:700; color:var(--text-secondary);">UNIDADES EN PLANILLA:</span>
+          <button id="btnAñadirPendiente" style="background:none; border:none; color:var(--azul-francia); font-size:11px; font-weight:700; cursor:pointer;">➕ Añadir Pendiente</button>
+        </div>
+
+        <div id="listaUnidadesDetalle"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let bases = null;
+  let db = null;
+
+  if (isElectron) {
+    try {
+      bases = require('../bases.js');
+      db = bases.db;
+    } catch(e) { console.warn("No se conectó a bases.js:", e.message); }
+  }
+
+  let tabActiva = 'en_viaje';
+  let remitoActualDetalle = null;
+
+  const toastContenedor = document.getElementById('toastContenedor');
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${msj}</div>`;
+    toastContenedor.appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  // TABS SIDEBAR
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tabActiva = btn.dataset.tab;
+      document.getElementById('vistaEnViaje').style.display = tabActiva === 'en_viaje' ? 'block' : 'none';
+      document.getElementById('vistaManual').style.display = tabActiva === 'manual' ? 'block' : 'none';
+      document.getElementById('vistaHistorial').style.display = tabActiva === 'historial' ? 'block' : 'none';
+      document.getElementById('vistaResumen').style.display = tabActiva === 'resumen' ? 'block' : 'none';
+      cargarTodasLasSolapas();
+    });
+  });
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    if (typeof window.renderizar === 'function' && window.sesionActual) {
+      window.renderizar(window.sesionActual);
+    } else {
+      window.location.href = 'menu_empaque.html';
+    }
+  });
+
+  function cargarTodasLasSolapas() {
+    cargarSolapaEnViaje();
+    cargarSolapaManual();
+    cargarSolapaHistorial();
+    cargarSolapaResumen();
+  }
+
+  // SOLAPA 1: EN VIAJE
+  function cargarSolapaEnViaje() {
+    const cont = document.getElementById('contenedorEnViaje');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT remito, transporte, fecha_despacho, variedad, COUNT(*) as total_bolsones
+        FROM local_cosecha WHERE estado = 'DESPACHADO'
+        GROUP BY remito ORDER BY fecha_despacho DESC
+      `).all();
+
+      document.getElementById('cantEnViaje').textContent = res.length;
+
+      if (res.length === 0) {
+        cont.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); padding:20px 0;">No hay camiones reportados en camino.</div>';
+        return;
+      }
+
+      cont.innerHTML = res.map(v => `
+        <div class="card-item" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; font-size:13px;">REMITO N° ${v.remito}</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">TRANSPORTE: ${v.transporte || 'PROPIO'}</div>
+            <div style="margin-top:6px;"><span class="badge-mini badge-orange">${v.total_bolsones} BOLSONES EN CAMINO</span></div>
+          </div>
+          <button class="btn-accion-card" onclick="ingresarViajeMasivo('${v.remito}', '${v.transporte || 'PROPIO'}')">📥 INGRESAR</button>
+        </div>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  // INGESTA MASIVA DE CAMIÓN
+  window.ingresarViajeMasivo = function(remito, transporte) {
+    if (!db) return;
+    try {
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      const ciclo = (new Date().getFullYear() - 2024).toString();
+
+      db.transaction(() => {
+        const bolsones = db.prepare(`SELECT * FROM local_cosecha WHERE CAST(remito AS TEXT) = CAST(? AS TEXT) AND estado = 'DESPACHADO'`).all(remito);
+        
+        if (bolsones.length > 0) {
+          const recId = `REC-${Date.now()}`;
+          db.prepare(`
+            INSERT INTO local_recepcion (reg_local, fecha, remito, cantidad, tipo, transporte, materia_prima, productor, peso_bruto, tara_camion, peso_neto, ciclo, sincronizado)
+            VALUES (?, ?, ?, ?, 'BOLSON', ?, 'PROPIO', 'PROPIO', '0.0', '0.0', '0.0', ?, 0)
+          `).run(recId, fechaHoy, remito, bolsones.length.toString(), transporte, ciclo);
+
+          bolsones.forEach(b => {
+            db.prepare(`
+              INSERT INTO local_detalle_recepcion (
+                reg_local, bolson_n, nro_unidad, tipo, fecha, empleado, cuadro, fila, especie, variedad, cod_traza, kilos, cant, calidad_recepcion, ciclo, estado, materia_prima, remito, productor, estado_origen, reg_cosecha, sincronizado
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', 'GRANEL', ?, 'ACTIVO', 'PROPIO', ?, 'PROPIO', 'AUTO', ?, 0)
+            `).run(
+              `DET-${Date.now()}-${b.nro_unidad}`, b.bolson_n || `TEMP-${b.nro_unidad}`, b.nro_unidad.toString(), b.envase || 'BOLSON',
+              fechaHoy, b.empleado, b.parcela, b.fila ? b.fila.toString() : '0', b.especie, b.variedad, b.cod_traza,
+              b.kilos ? b.kilos.toString() : (b.peso ? b.peso.toString() : ''), ciclo, remito, b.reg_local
+            );
+
+            db.prepare(`UPDATE local_cosecha SET estado = 'RECEPCIONADO', sincronizado = 0 WHERE nro_unidad = ?`).run(b.nro_unidad);
+          });
+        }
+      })();
+
+      lanzarToast("✅ Viaje ingresado exitosamente a la planilla local");
+      cargarTodasLasSolapas();
+    } catch(e) { console.error(e); }
+  };
+
+  // SOLAPA 2: PLANILLA MANUAL
+  function cargarSolapaManual() {
+    const cont = document.getElementById('contenedorManual');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT r.remito, r.fecha, r.transporte, r.materia_prima, r.reg_local,
+          (SELECT COUNT(*) FROM local_detalle_recepcion dr WHERE CAST(dr.remito AS TEXT) = CAST(r.remito AS TEXT)) as total_bolsones,
+          (SELECT COUNT(*) FROM local_cosecha c WHERE CAST(c.remito AS TEXT) = CAST(r.remito AS TEXT)) as listo_en_cosecha
+        FROM local_recepcion r
+        WHERE EXISTS (
+          SELECT 1 FROM local_detalle_recepcion dr WHERE CAST(dr.remito AS TEXT) = CAST(r.remito AS TEXT) AND dr.estado_origen = 'MANUAL'
+        ) AND r.materia_prima = 'PROPIO'
+        ORDER BY r.fecha DESC
+      `).all();
+
+      document.getElementById('cantManuales').textContent = res.length;
+
+      if (res.length === 0) {
+        cont.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); padding:20px 0;">Sin registros manuales en contingencia.</div>';
+        return;
+      }
+
+      cont.innerHTML = res.map(m => `
+        <div class="card-item">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:700; font-size:13px;">REMITO MANUAL N° ${m.remito}</div>
+            <span class="badge-mini ${m.listo_en_cosecha > 0 ? 'badge-green' : 'badge-orange'}">${m.listo_en_cosecha > 0 ? 'COSECHA DETECTADA' : 'ESPERANDO SEÑAL'}</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">CANTIDAD: ${m.total_bolsones} BOLSONES | FECHA: ${m.fecha}</div>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn-accion-card" onclick="abrirModalDetalleRemito('${m.remito}')">⚖️ VER PLANILLA / PESAR</button>
+            ${m.listo_en_cosecha > 0 ? `<button class="btn-accion-card" style="background:#10B981;" onclick="reconciliarManual('${m.remito}')">🔗 ACOPLAR CON COSECHA</button>` : ''}
+          </div>
+        </div>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  // SOLAPA 3: HISTORIAL REMITOS
+  function cargarSolapaHistorial() {
+    const cont = document.getElementById('contenedorHistorial');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT r.remito, MAX(r.fecha) as fecha, r.transporte,
+          (SELECT COUNT(*) FROM local_cosecha c WHERE CAST(c.remito AS TEXT) = CAST(r.remito AS TEXT)) as cant_cosecha,
+          (SELECT COUNT(*) FROM local_detalle_recepcion dr WHERE CAST(dr.remito AS TEXT) = CAST(r.remito AS TEXT)) as cant_recepcion,
+          (SELECT COUNT(*) FROM local_detalle_recepcion dr WHERE CAST(dr.remito AS TEXT) = CAST(r.remito AS TEXT) AND (dr.kilos IS NULL OR dr.kilos = '')) as sin_pesar
+        FROM local_recepcion r GROUP BY r.remito ORDER BY fecha DESC
+      `).all();
+
+      document.getElementById('cantHistorial').textContent = res.length;
+
+      cont.innerHTML = res.map(r => `
+        <div class="card-item" onclick="abrirModalDetalleRemito('${r.remito}')" style="cursor:pointer;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:13px;">REMITO N° ${r.remito}</div>
+              <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">${r.fecha} · Transporte: ${r.transporte || '—'}</div>
+            </div>
+            <div>
+              <span class="badge-mini badge-blue">${r.cant_recepcion} UNID</span>
+              <span class="badge-mini ${r.sin_pesar > 0 ? 'badge-orange' : 'badge-green'}">${r.sin_pesar} PENDIENTES</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  // SOLAPA 4: RESUMEN VARIEDAD
+  function cargarSolapaResumen() {
+    const cont = document.getElementById('contenedorResumen');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT COALESCE(variedad, 'SIN VARIEDAD') as variedad, COUNT(*) as total_bolsones,
+          SUM(CASE WHEN kilos IS NOT NULL AND kilos != '' THEN CAST(kilos AS DOUBLE) ELSE 0.0 END) as total_kilos
+        FROM local_detalle_recepcion GROUP BY variedad ORDER BY total_bolsones DESC
+      `).all();
+
+      cont.innerHTML = res.map(i => `
+        <div class="card-item" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; font-size:13px; color:var(--azul-francia);">${i.variedad.toUpperCase()}</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">${i.total_bolsones} BOLSONES PROCESADOS</div>
+          </div>
+          <div style="font-weight:800; font-size:14px; color:var(--azul-francia);">${i.total_kilos || 0} KG</div>
+        </div>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  // MODAL DETALLE / PESAR
+  window.abrirModalDetalleRemito = function(remito) {
+    remitoActualDetalle = remito;
+    document.getElementById('lblTituloDetalle').textContent = `REMITO N° ${remito}`;
+    const modal = document.getElementById('modalDetalle');
+    modal.classList.add('show');
+    cargarPlanillaDetalle(remito);
+  };
+
+  document.getElementById('btnCerrarDetalle').addEventListener('click', () => {
+    document.getElementById('modalDetalle').classList.remove('show');
+  });
+
+
+  // ACA ES LO NUEVO: LÓGICA MODAL INGRESO TERCEROS
+const modalTerceros = document.getElementById('modalTerceros');
+
+document.getElementById('btnIngresoTerceros').addEventListener('click', () => {
+  modalTerceros.classList.add('show');
+});
+
+document.getElementById('btnCerrarTerceros').addEventListener('click', () => {
+  modalTerceros.classList.remove('show');
+});
+
+// ESTO LO MODIFIQUE: Asignación de Max(id)+1 para registros de Terceros
+document.getElementById('btnGuardarTerceros').addEventListener('click', () => {
+  const prod = document.getElementById('mTerceroProductor').value.trim().toUpperCase();
+  const rem = document.getElementById('mTerceroRemito').value.trim();
+  const trans = document.getElementById('mTerceroTransporte').value.trim().toUpperCase();
+  const varid = document.getElementById('mTerceroVariedad').value.trim().toUpperCase() || 'TERCEROS';
+  const cant = parseInt(document.getElementById('mTerceroCantidad').value || '0');
+
+  if (!prod || !rem || cant <= 0) {
+    return lanzarToast("Productor, Remito y Cantidad son obligatorios", "error");
+  }
+
+  const fecha = new Date().toISOString().split('T')[0];
+  const ciclo = (new Date().getFullYear() - 2024).toString();
+
+  if (db) {
+    try {
+      db.transaction(() => {
+        const maxRec = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 as nextId FROM local_recepcion`).get();
+        const nextRecId = maxRec ? maxRec.nextId : 1;
+
+        db.prepare(`
+          INSERT INTO local_recepcion (
+            id, reg_local, remito, transporte, materia_prima, productor, fecha, cantidad, peso_bruto, tara_camion, peso_neto, tipo, ciclo, sincronizado
+          ) VALUES (?, ?, ?, ?, 'TERCEROS', ?, ?, ?, '0.0', '0.0', '0.0', 'BOLSON', ?, 0)
+        `).run(nextRecId, `REC-TERC-${Date.now()}`, rem, trans, prod, fecha, cant.toString(), ciclo);
+
+        const maxDet = db.prepare(`SELECT COALESCE(MAX(id), 0) as lastId FROM local_detalle_recepcion`).get();
+        let nextDetId = maxDet ? maxDet.lastId : 0;
+
+        for (let i = 1; i <= cant; i++) {
+          nextDetId++;
+          db.prepare(`
+            INSERT INTO local_detalle_recepcion (
+              id, reg_local, remito, bolson_n, nro_unidad, cuadro, variedad, materia_prima, productor, estado, fecha, estado_origen, tipo, cant, empleado, calidad_recepcion, ciclo, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, 'TERCEROS', ?, 'TERCEROS', ?, 'ACTIVO', ?, 'MANUAL', 'BOLSON', '1', 'TERCERO', 'GRANEL', ?, 0)
+          `).run(
+            nextDetId,
+            `DET-TERC-${Date.now()}-${i}`,
+            rem,
+            `TERC-BOLS-${String(i).padStart(3, '0')}`,
+            `TERC-${i}-${Date.now()}`,
+            varid,
+            prod,
+            fecha,
+            ciclo
+          );
+        }
+      })();
+
+      lanzarToast("Ingreso de Terceros registrado con éxito");
+      modalTerceros.classList.remove('show');
+      
+      document.getElementById('mTerceroProductor').value = '';
+      document.getElementById('mTerceroRemito').value = '';
+      document.getElementById('mTerceroTransporte').value = '';
+      document.getElementById('mTerceroVariedad').value = '';
+      document.getElementById('mTerceroCantidad').value = '';
+
+      cargarTodasLasSolapas();
+    } catch(e) {
+      console.error(e);
+      lanzarToast("Error al guardar registro de terceros", "error");
+    }
+  }
+});
+
+  function cargarPlanillaDetalle(remito) {
+    const cont = document.getElementById('listaUnidadesDetalle');
+    if (!db) return;
+
+    try {
+      const rec = db.prepare(`SELECT * FROM local_recepcion WHERE remito = ?`).get(remito);
+      if (rec) {
+        document.getElementById('pBruto').value = rec.peso_bruto || '';
+        document.getElementById('pTara').value = rec.tara_camion || '';
+      }
+
+      const filas = db.prepare(`SELECT * FROM local_detalle_recepcion WHERE CAST(remito AS TEXT) = CAST(? AS TEXT)`).all(remito);
+
+      cont.innerHTML = filas.map(f => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
+          <div>
+            <div style="font-weight:700; font-size:11px;">BOLSÓN: ${f.bolson_n}</div>
+            <div style="font-size:10px; color:var(--text-secondary);">${f.variedad || 'S/V'} · Cuadro: ${f.cuadro || 'S/D'}</div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center;">
+            <input type="number" id="peso_${f.reg_local}" class="form-input" value="${f.kilos || ''}" style="width:70px; text-align:center; padding:4px;" placeholder="KG" />
+            <button class="btn-accion-card" style="padding:4px 8px;" onclick="guardarPesoBolson('${f.reg_local}')">💾</button>
+          </div>
+        </div>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  window.guardarPesoBolson = function(regLocal) {
+    const val = document.getElementById(`peso_${regLocal}`).value;
+    if (!db) return;
+    try {
+      db.prepare(`UPDATE local_detalle_recepcion SET kilos = ?, sincronizado = 0 WHERE reg_local = ?`).run(val, regLocal);
+      lanzarToast("Peso guardado");
+      cargarPlanillaDetalle(remitoActualDetalle);
+      cargarTodasLasSolapas();
+    } catch(e) { console.error(e); }
+  };
+
+  document.getElementById('btnGuardarCabecera').addEventListener('click', () => {
+    if (!remitoActualDetalle || !db) return;
+    const b = document.getElementById('pBruto').value || '0';
+    const t = document.getElementById('pTara').value || '0';
+    const neto = (parseFloat(b) - parseFloat(t)).toString();
+
+    db.prepare(`UPDATE local_recepcion SET peso_bruto = ?, tara_camion = ?, peso_neto = ?, sincronizado = 0 WHERE remito = ?`).run(b, t, neto, remitoActualDetalle);
+    lanzarToast("Pesaje de cabecera guardado");
+    cargarTodasLasSolapas();
+  });
+
+  // MODAL CONTINGENCIA
+  const modalCont = document.getElementById('modalContingencia');
+  document.getElementById('btnManualContingencia').addEventListener('click', () => modalCont.classList.add('show'));
+  document.getElementById('btnCerrarContingencia').addEventListener('click', () => modalCont.classList.remove('show'));
+
+  // ESTO LO MODIFIQUE: Asignación de Max(id)+1 para mantener coherencia en SQLite
+document.getElementById('btnGuardarContingencia').addEventListener('click', () => {
+  const rem = document.getElementById('mRemito').value.trim();
+  const trans = document.getElementById('mTransporte').value.trim().toUpperCase();
+  const cant = parseInt(document.getElementById('mCantidad').value || '0');
+
+  if (!rem || cant <= 0) return lanzarToast("Remito y Cantidad válidos obligatorios", "error");
+
+  const fecha = new Date().toISOString().split('T')[0];
+  const ciclo = (new Date().getFullYear() - 2024).toString();
+
+  if (db) {
+    try {
+      db.transaction(() => {
+        // Obtener Max(id)+1 para la cabecera
+        const maxRec = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 as nextId FROM local_recepcion`).get();
+        const nextRecId = maxRec ? maxRec.nextId : 1;
+
+        db.prepare(`
+          INSERT INTO local_recepcion (id, reg_local, remito, transporte, materia_prima, productor, fecha, cantidad, peso_bruto, tara_camion, peso_neto, tipo, ciclo, sincronizado)
+          VALUES (?, ?, ?, ?, 'PROPIO', 'PROPIO', ?, ?, '0.0', '0.0', '0.0', 'BOLSON', ?, 0)
+        `).run(nextRecId, `REC-MAN-${Date.now()}`, rem, trans, fecha, cant.toString(), ciclo);
+
+        // Obtener Max(id)+1 inicial para los detalles
+        const maxDet = db.prepare(`SELECT COALESCE(MAX(id), 0) as lastId FROM local_detalle_recepcion`).get();
+        let nextDetId = maxDet ? maxDet.lastId : 0;
+
+        for (let i = 1; i <= cant; i++) {
+          nextDetId++;
+          db.prepare(`
+            INSERT INTO local_detalle_recepcion (
+              id, reg_local, remito, bolson_n, nro_unidad, cuadro, variedad, materia_prima, productor, estado, fecha, estado_origen, tipo, cant, empleado, calidad_recepcion, ciclo, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, 'S/D', 'S/D', 'PROPIO', 'PROPIO', 'ACTIVO', ?, 'MANUAL', 'BOLSON', '1', 'POR DESIGNAR', 'GRANEL', ?, 0)
+          `).run(nextDetId, `DET-MAN-${Date.now()}-${i}`, rem, `TEMP-BOLS-${String(i).padStart(3, '0')}`, `MAN-${i}-${Date.now()}`, fecha, ciclo);
+        }
+      })();
+
+      lanzarToast("Planilla de contingencia creada");
+      modalCont.classList.remove('show');
+      cargarTodasLasSolapas();
+    } catch(e) { console.error(e); }
+  }
+});
+
+  // ESTO LO MODIFIQUE: Manejo de notificaciones de Sync con lanzarToast
+const btnSincronizar = document.getElementById('btnSincronizar');
+
+btnSincronizar.addEventListener('click', async () => {
+  btnSincronizar.classList.add('syncing');
+  btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+  
+  if (isElectron) {
+    try {
+      const { subirCambiosLocales } = require('../subir.js');
+      const { sincronizarTodo } = require('../sincronizacion.js');
+      await ejecutarSincronizacionCompleta();
+
+      lanzarToast('¡Sincronización bidireccional exitosa!', 'success');
+    } catch (err) {
+      console.error(err);
+      lanzarToast('Error de sincronización: ' + err.message, 'error');
+    } finally {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar`;
+      cargarTodasLasSolapas();
+    }
+  } else {
+    setTimeout(() => {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `Sincronizar`;
+      lanzarToast('Sincronización simulada en entorno de pruebas.', 'success');
+    }, 1000);
+  }
+});
+
+  // INICIO
+  cargarTodasLasSolapas();
+})();
+</script>
+
+
+</body>
+</html>

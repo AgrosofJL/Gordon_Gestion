@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Volumen de Masa</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --bg-light: #F8FAFC;
+    --card-color: #FFFFFF;
+    --input-fill: #F1F5F9;
+    --color-accent: #B45309;
+    --color-accent-dark: #7C3809;
+    --color-accent-soft: rgba(180, 83, 9, 0.10);
+    --azul-francia: #0055A5;
+    --verde-ok: #107C41;
+    --rojo-descarte: #DC2626;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --color-border: #E2E8F0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--bg-light); color: var(--text-primary); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 30px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+
+  .layout-main {
+    display: flex;
+    height: calc(100vh - 55px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    flex-shrink: 0;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+    margin-bottom: 16px;
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  /* ESTO LO MODIFIQUE: Feedback táctil activo con sombreado sutil */
+  .btn-volver:active, .btn-export-top:active, .btn-pdf-top:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important;
+    transform: scale(0.98);
+  }
+
+  /* MAIN CONTENT */
+  .main-content { flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; overflow-y: auto; gap: 16px; }
+
+  /* BARRA DE FILTROS Y ACCIONES */
+  .panel-filtros {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+
+  .form-group-inline { display: flex; align-items: center; gap: 10px; }
+  .form-group-inline label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+  .form-select { padding: 8px 12px; border-radius: var(--radius-md); border: 1.2px solid var(--color-border); font-size: 12px; font-weight: 600; outline: none; background: var(--input-fill); min-width: 220px; }
+
+  .contenedor-acciones { display: flex; gap: 8px; }
+
+  .btn-export-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .btn-export-top:hover { background: #C8E6C9; }
+
+  .btn-pdf-top {
+    background: #FFEBEE; color: #C62828; border: 1px solid rgba(198,40,40,0.3); border-radius: var(--radius-md);
+    padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease;
+  }
+  .btn-pdf-top:hover { background: #FFCDD2; }
+
+  /* GRID CARDS DE VOLUMEN DE MASA */
+  .grid-cards-volumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+  }
+
+  .card-volumen {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-volumen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: var(--color-border);
+  }
+
+  .card-volumen.cosecha::before { background: var(--color-accent); }
+  .card-volumen.produccion::before { background: var(--verde-ok); }
+  .card-volumen.descarte::before { background: var(--rojo-descarte); }
+  .card-volumen.total-produc::before { background: var(--azul-francia); }
+
+  .card-volumen .lbl { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-volumen .val { font-size: 22px; font-weight: 800; font-family: 'Montserrat', sans-serif; margin-top: 6px; color: var(--text-primary); }
+  .card-volumen .sub { font-size: 10.5px; font-weight: 700; margin-top: 4px; display: flex; justify-content: space-between; }
+
+  /* DASHBOARD DE GRÁFICOS Y DETALLE */
+  .split-dashboard {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 16px;
+  }
+
+  .panel-grafico {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .panel-tabla {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tabla-volumen {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .tabla-volumen th {
+    background: #F8FAFC;
+    color: var(--text-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tabla-volumen td {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tabla-volumen tbody tr:hover { background: #F1F5F9; }
+
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">VIERNES 24 DE JULIO DE 2026</div>
+  </div>
+
+  <div class="layout-main">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Menú Empaque
+      </button>
+
+      <div style="font-size:11px; font-weight:700; color:var(--color-accent-dark); text-transform:uppercase; margin-top:10px;">ANÁLISIS DE MASA</div>
+      <p style="font-size:11px; color:var(--text-secondary); margin-top:6px; line-height:1.4;">
+        Monitoreo comparativo de materia prima cosechada vs. rendimiento neto en planta.
+      </p>
+
+      <div style="margin-top:auto; font-size:10px; font-weight:bold; color:var(--text-secondary); text-align:center;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- FILTROS Y ACCIONES -->
+      <div class="panel-filtros">
+        <div class="form-group-inline">
+          <label>FILTRAR PRODUCTOR:</label>
+          <select id="selectProductor" class="form-select">
+            <option value="TODOS">TODOS LOS PRODUCTORES</option>
+          </select>
+        </div>
+
+        <div class="contenedor-acciones">
+          <button class="btn-export-top" id="btnExportExcel">📊 Exportar Excel</button>
+          <button class="btn-pdf-top" id="btnImprimirPDF">📄 Imprimir PDF Ejecutivo</button>
+        </div>
+      </div>
+
+      <!-- CARDS PRINCIPALES DE VOLUMEN DE MASA -->
+      <div class="grid-cards-volumen">
+        
+        <div class="card-volumen cosecha">
+          <span class="lbl">🍏 COSECHA (Bolsones Ingresados)</span>
+          <span class="val" id="valCosecha">0 KG</span>
+          <div class="sub" style="color:var(--color-accent);"><span id="lblCosechaBins">0 Bolsones</span><span>100% Entrada</span></div>
+        </div>
+
+        <div class="card-volumen produccion">
+          <span class="lbl">📦 PRODUCCIÓN (Empacado)</span>
+          <span class="val" id="valProduccion" style="color:var(--verde-ok);">0 KG</span>
+          <div class="sub" style="color:var(--verde-ok);"><span id="lblPctProduccion">0%</span><span>Apto Comercial</span></div>
+        </div>
+
+        <div class="card-volumen descarte">
+          <span class="lbl">🗑️ DESCARTE (Merma / Industria)</span>
+          <span class="val" id="valDescarte" style="color:var(--rojo-descarte);">0 KG</span>
+          <div class="sub" style="color:var(--rojo-descarte);"><span id="lblPctDescarte">0%</span><span>Merma Proceso</span></div>
+        </div>
+
+        <div class="card-volumen total-produc">
+          <span class="lbl">⚖️ TOTAL PRODUC. (Prod + Descarte)</span>
+          <span class="val" id="valTotalProduc" style="color:var(--azul-francia);">0 KG</span>
+          <div class="sub" style="color:var(--azul-francia);"><span id="lblDiferenciaMasa">Balance: 0 KG</span><span>Volumen Salida</span></div>
+        </div>
+
+      </div>
+
+      <!-- DASHBOARD CON GRÁFICO Y TABLA COMPARATIVA -->
+      <div class="split-dashboard">
+        
+        <div class="panel-grafico">
+          <span style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; margin-bottom:12px;">RENDIMIENTO GENERAL</span>
+          <div style="position:relative; width:100%; height:230px;">
+            <canvas id="chartVolumen"></canvas>
+          </div>
+        </div>
+
+        <div class="panel-tabla">
+          <span style="font-size:11px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">DESGLOSE COMPARATIVO POR PRODUCTOR</span>
+          <div style="overflow-y:auto; max-height:260px; margin-top:8px;">
+            <table class="tabla-volumen">
+              <thead>
+                <tr>
+                  <th>PRODUCTOR</th>
+                  <th style="text-align:right;">COSECHA (KG)</th>
+                  <th style="text-align:right;">PRODUCCIÓN (KG)</th>
+                  <th style="text-align:right;">DESCARTE (KG)</th>
+                  <th style="text-align:right;">TOTAL PRODUC. (KG)</th>
+                  <th style="text-align:center;">REND. %</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyProductores"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      db = require('../bases.js').db;
+    } catch(e) { console.warn("Modo simulación browser activo"); }
+  }
+
+  let chartInstance = null;
+  let datosConsolidados = [];
+
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    window.location.href = 'menu_empaque.html';
+  });
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${msj}</div>`;
+    document.getElementById('toastContenedor').appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  function CargarProductores() {
+    const sel = document.getElementById('selectProductor');
+    sel.innerHTML = '<option value="TODOS">TODOS LOS PRODUCTORES</option>';
+
+    let productores = [];
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT DISTINCT COALESCE(productor, materia_prima) as prod FROM local_detalle_recepcion WHERE prod IS NOT NULL AND prod != ''`).all();
+        productores = res.map(r => r.prod);
+      } catch(e) { console.error(e); }
+    } else {
+      productores = ["AGROFRUT S.A.", "FINCA DON PEDRO", "FRUTICOLA DEL VALLE"];
+    }
+
+    productores.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p.toUpperCase();
+      sel.appendChild(opt);
+    });
+  }
+
+  function CargarDatosVolumen() {
+    let filtroProd = document.getElementById('selectProductor').value;
+    datosConsolidados = [];
+
+    if (db) {
+      try {
+        // Cosecha (Recepcion) - Filtrado por estado ACTIVO
+        let queryCosecha = `SELECT COALESCE(productor, materia_prima) as prod, COUNT(*) as bins, SUM(CAST(kilos AS REAL)) as kg_cosecha FROM local_detalle_recepcion WHERE estado = 'ACTIVO' ${filtroProd !== 'TODOS' ? "AND COALESCE(productor, materia_prima) = '" + filtroProd + "'" : ""} GROUP BY prod`;
+        let resCosecha = db.prepare(queryCosecha).all();
+
+        // Produccion - Filtrado por estado ACTIVO
+        let queryProd = `SELECT productor as prod, SUM(CAST(peso_pallet AS REAL)) as kg_produccion FROM local_paletizado WHERE estado = 'ACTIVO' ${filtroProd !== 'TODOS' ? "AND productor = '" + filtroProd + "'" : ""} GROUP BY prod`;
+        let resProd = db.prepare(queryProd).all();
+
+        // Descarte
+        let queryDescarte = `SELECT productor as prod, SUM(CAST(kilos_descarte AS REAL)) as kg_descarte FROM local_volcado WHERE 1=1 ${filtroProd !== 'TODOS' ? "AND productor = '" + filtroProd + "'" : ""} GROUP BY prod`;
+        let resDescarte = [];
+        try { resDescarte = db.prepare(queryDescarte).all(); } catch(_) {}
+
+        let mapa = {};
+        resCosecha.forEach(c => {
+          let p = c.prod || 'GENERAL';
+          mapa[p] = { prod: p, bins: c.bins || 0, cosecha: c.kg_cosecha || 0, produccion: 0, descarte: 0 };
+        });
+
+        resProd.forEach(pr => {
+          let p = pr.prod || 'GENERAL';
+          if (!mapa[p]) mapa[p] = { prod: p, bins: 0, cosecha: 0, produccion: 0, descarte: 0 };
+          mapa[p].produccion = pr.kg_produccion || 0;
+        });
+
+        resDescarte.forEach(d => {
+          let p = d.prod || 'GENERAL';
+          if (!mapa[p]) mapa[p] = { prod: p, bins: 0, cosecha: 0, produccion: 0, descarte: 0 };
+          mapa[p].descarte = d.kg_descarte || 0;
+        });
+
+        datosConsolidados = Object.values(mapa);
+      } catch(e) { console.error(e); }
+    } else {
+      // Datos mock browser
+      datosConsolidados = [
+        { prod: 'AGROFRUT S.A.', bins: 120, cosecha: 45000, produccion: 36000, descarte: 7200 },
+        { prod: 'FINCA DON PEDRO', bins: 85, cosecha: 31000, produccion: 25000, descarte: 5500 },
+        { prod: 'FRUTICOLA DEL VALLE', bins: 200, cosecha: 78000, produccion: 64000, descarte: 12000 }
+      ];
+      if (filtroProd !== 'TODOS') {
+        datosConsolidados = datosConsolidados.filter(d => d.prod === filtroProd);
+      }
+    }
+
+    renderizarDashboard();
+  }
+
+  function renderizarDashboard() {
+    let totCosecha = 0, totBins = 0, totProduccion = 0, totDescarte = 0;
+
+    datosConsolidados.forEach(d => {
+      totCosecha += d.cosecha;
+      totBins += d.bins;
+      totProduccion += d.produccion;
+      totDescarte += d.descarte;
+    });
+
+    let totalProducido = totProduccion + totDescarte;
+    let pctProd = totCosecha > 0 ? ((totProduccion / totCosecha) * 100).toFixed(1) : 0;
+    let pctDesc = totCosecha > 0 ? ((totDescarte / totCosecha) * 100).toFixed(1) : 0;
+    let difMasa = totalProducido - totCosecha;
+
+    document.getElementById('valCosecha').textContent = `${totCosecha.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblCosechaBins').textContent = `${totBins} Bins`;
+
+    document.getElementById('valProduccion').textContent = `${totProduccion.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblPctProduccion').textContent = `${pctProd}% Rend.`;
+
+    document.getElementById('valDescarte').textContent = `${totDescarte.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblPctDescarte').textContent = `${pctDesc}% Merma`;
+
+    document.getElementById('valTotalProduc').textContent = `${totalProducido.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblDiferenciaMasa').textContent = `Diferencia: ${difMasa.toLocaleString('es-AR')} KG`;
+
+    // TABLA
+    const tbody = document.getElementById('tbodyProductores');
+    tbody.innerHTML = datosConsolidados.map(d => {
+      let subTotalProduc = d.produccion + d.descarte;
+      let rend = d.cosecha > 0 ? ((d.produccion / d.cosecha) * 100).toFixed(1) : 0;
+      return `
+        <tr>
+          <td>${d.prod}</td>
+          <td style="text-align:right;">${d.cosecha.toLocaleString('es-AR')}</td>
+          <td style="text-align:right; color:var(--verde-ok);">${d.produccion.toLocaleString('es-AR')}</td>
+          <td style="text-align:right; color:var(--rojo-descarte);">${d.descarte.toLocaleString('es-AR')}</td>
+          <td style="text-align:right; color:var(--azul-francia); font-weight:700;">${subTotalProduc.toLocaleString('es-AR')}</td>
+          <td style="text-align:center;"><span style="background:#E8F5E9; color:#107C41; padding:2px 6px; border-radius:4px;">${rend}%</span></td>
+        </tr>
+      `;
+    }).join('');
+
+    // GRÁFICO DOUGHNUT
+    const ctx = document.getElementById('chartVolumen').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Producción Apta', 'Descarte / Merma', 'Sobrante en Proceso'],
+        datasets: [{
+          data: [totProduccion, totDescarte, Math.max(0, totCosecha - totalProducido)],
+          backgroundColor: ['#107C41', '#DC2626', '#CBD5E1']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
+      }
+    });
+  }
+
+  document.getElementById('selectProductor').addEventListener('change', CargarDatosVolumen);
+
+  // EXPORTAR EXCEL
+  document.getElementById('btnExportExcel').addEventListener('click', () => {
+    let ws = XLSX.utils.json_to_sheet(datosConsolidados.map(d => ({
+      "Productor": d.prod,
+      "Bins Cosecha": d.bins,
+      "Cosecha (KG)": d.cosecha,
+      "Produccion (KG)": d.produccion,
+      "Descarte (KG)": d.descarte,
+      "Total Producido (KG)": d.produccion + d.descarte
+    })));
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "VolumenMasa");
+    XLSX.writeFile(wb, "Volumen_de_Masa_Empaque.xlsx");
+    lanzarToast("Excel exportado correctamente");
+  });
+
+  // ACA ES LO NUEVO: Generador de PDF Profesional e Imprimible A4 Horizontal
+  document.getElementById('btnImprimirPDF').addEventListener('click', () => {
+    let filtroProd = document.getElementById('selectProductor').value;
+    let fechaHoy = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    let horaHoy = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+    let totCosecha = 0, totBins = 0, totProduccion = 0, totDescarte = 0;
+    datosConsolidados.forEach(d => {
+      totCosecha += d.cosecha;
+      totBins += d.bins;
+      totProduccion += d.produccion;
+      totDescarte += d.descarte;
+    });
+
+    let totalProducido = totProduccion + totDescarte;
+    let pctProd = totCosecha > 0 ? ((totProduccion / totCosecha) * 100).toFixed(1) : '0.0';
+    let pctDesc = totCosecha > 0 ? ((totDescarte / totCosecha) * 100).toFixed(1) : '0.0';
+    let difMasa = totalProducido - totCosecha;
+
+    // Convertir el canvas del gráfico a imagen Base64 para el reporte impreso
+    let chartImageBase64 = '';
+    const canvas = document.getElementById('chartVolumen');
+    if (canvas) {
+      chartImageBase64 = canvas.toDataURL('image/png', 1.0);
+    }
+
+    const filasHTML = datosConsolidados.map(d => {
+      let subTotalProduc = d.produccion + d.descarte;
+      let rend = d.cosecha > 0 ? ((d.produccion / d.cosecha) * 100).toFixed(1) : '0.0';
+      return `
+        <tr>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; font-weight: bold; color: #0F172A;">${d.prod}</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 600; color: #B45309;">${d.cosecha.toLocaleString('es-AR')} kg</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 600; color: #107C41;">${d.produccion.toLocaleString('es-AR')} kg</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: 600; color: #DC2626;">${d.descarte.toLocaleString('es-AR')} kg</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; text-align: right; font-weight: bold; color: #0055A5;">${subTotalProduc.toLocaleString('es-AR')} kg</td>
+          <td style="padding: 7px 10px; border-bottom: 1px solid #E2E8F0; text-align: center;">
+            <span style="background: #E8F5E9; color: #107C41; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 10px;">${rend}%</span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <title>REPORTE_VOLUMEN_MASA_${filtroProd}</title>
+        <style>
+          @page { size: A4 landscape; margin: 10mm; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+          body { color: #0F172A; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+
+          .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0055A5 !important;
+            color: #FFFFFF !important;
+            padding: 14px 20px;
+            border-radius: 12px;
+          }
+          .pdf-title { font-size: 16px; font-weight: 800; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; }
+          .pdf-sub { font-size: 10px; color: #93C5FD; font-weight: bold; margin-top: 2px; }
+
+          .pdf-filter-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 8px 14px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #64748B;
+          }
+
+          /* GRID CARDS EN PDF */
+          .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+          }
+          .card-pdf {
+            background: #FFFFFF !important;
+            border: 1.2px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            position: relative;
+          }
+          .card-pdf.c-cosecha { border-top: 4px solid #B45309; }
+          .card-pdf.c-prod { border-top: 4px solid #107C41; }
+          .card-pdf.c-desc { border-top: 4px solid #DC2626; }
+          .card-pdf.c-total { border-top: 4px solid #0055A5; }
+
+          .card-pdf .lbl { font-size: 9px; font-weight: bold; color: #64748B; text-transform: uppercase; }
+          .card-pdf .val { font-size: 18px; font-weight: 800; color: #0F172A; margin-top: 4px; }
+          .card-pdf .sub { font-size: 9px; font-weight: bold; margin-top: 4px; display: flex; justify-content: space-between; }
+
+          /* LAYOUT DOS COLUMNAS PDF */
+          .split-pdf {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 12px;
+            margin-top: 12px;
+          }
+
+          .panel-pdf {
+            border: 1.2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            background: #FFFFFF !important;
+          }
+
+          .panel-pdf-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #0055A5;
+            text-transform: uppercase;
+            border-bottom: 1px solid #CBD5E1;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+          }
+
+          .table-pdf {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+          }
+          .table-pdf th {
+            background: #F1F5F9 !important;
+            color: #475569;
+            padding: 6px 8px;
+            text-align: left;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #CBD5E1;
+          }
+
+          .footer-pdf {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #E2E8F0;
+            padding-top: 8px;
+            font-size: 9px;
+            color: #94A3B8;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+
+        <!-- ENCABEZADO OFICIAL AGROSOFT -->
+        <div class="pdf-header">
+          <div>
+            <div class="pdf-title">INFORME EJECUTIVO · VOLUMEN DE MASA</div>
+            <div class="pdf-sub">GORDON GESTIÓN · CONTROL DE RENDIMIENTO Y BALANCE DE MATERIA PRIMA</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; font-weight: bold;">AGROSOFT J&L</div>
+            <div style="font-size: 9px; color: #93C5FD;">FECHA: ${fechaHoy} - ${horaHoy}</div>
+          </div>
+        </div>
+
+        <div class="pdf-filter-bar">
+          <span>FILTRO APLICADO: <b style="color: #0055A5;">${filtroProd.toUpperCase()}</b></span>
+          <span>ESTADO MUESTRA: <b style="color: #107C41;">REGISTROS ACTIVOS</b></span>
+        </div>
+
+        <!-- CARDS DE METRICAS PRINCIPALES -->
+        <div class="grid-cards">
+          <div class="card-pdf c-cosecha">
+            <div class="lbl">🍏 COSECHA (INGRESO)</div>
+            <div class="val">${totCosecha.toLocaleString('es-AR')} KG</div>
+            <div class="sub" style="color: #B45309;"><span>${totBins} Bins</span><span>100% Entrada</span></div>
+          </div>
+          <div class="card-pdf c-prod">
+            <div class="lbl">📦 PRODUCCIÓN (EMPACADO)</div>
+            <div class="val" style="color: #107C41;">${totProduccion.toLocaleString('es-AR')} KG</div>
+            <div class="sub" style="color: #107C41;"><span>${pctProd}% Rend.</span><span>Apto Comercial</span></div>
+          </div>
+          <div class="card-pdf c-desc">
+            <div class="lbl">🗑️ DESCARTE / MERMA</div>
+            <div class="val" style="color: #DC2626;">${totDescarte.toLocaleString('es-AR')} KG</div>
+            <div class="sub" style="color: #DC2626;"><span>${pctDesc}% Merma</span><span>Proceso/Industria</span></div>
+          </div>
+          <div class="card-pdf c-total">
+            <div class="lbl">⚖️ TOTAL PRODUCIDO</div>
+            <div class="val" style="color: #0055A5;">${totalProducido.toLocaleString('es-AR')} KG</div>
+            <div class="sub" style="color: #0055A5;"><span>Balance: ${difMasa.toLocaleString('es-AR')} KG</span><span>Salida Real</span></div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD SPLIT -->
+        <div class="split-pdf">
+          
+          <div class="panel-pdf" style="text-align: center;">
+            <div class="panel-pdf-title">PROPORCIÓN DE PROCESAMIENTO</div>
+            <div style="margin-top: 10px; height: 180px; display: flex; align-items: center; justify-content: center;">
+              <img src="${chartImageBase64}" style="max-height: 170px; max-width: 100%; object-fit: contain;" />
+            </div>
+          </div>
+
+          <div class="panel-pdf">
+            <div class="panel-pdf-title">RENDIMIENTO Y BALANCE POR PRODUCTOR</div>
+            <table class="table-pdf">
+              <thead>
+                <tr>
+                  <th>Productor</th>
+                  <th style="text-align: right;">Cosecha</th>
+                  <th style="text-align: right;">Producción</th>
+                  <th style="text-align: right;">Descarte</th>
+                  <th style="text-align: right;">Total Produc.</th>
+                  <th style="text-align: center;">Rend %</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasHTML}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <div class="footer-pdf">
+          <span>SISTEMA DE GESTIÓN OPERATIVA AGROSOFT J&L</span>
+          <span>FIRMA / RESPONSABLE DE PLANTA: ___________________________</span>
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() { window.print(); }, 400);
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+    win.document.close();
+  });
+
+  CargarProductores();
+  CargarDatosVolumen();
+})();
+</script>
+</body>
+</html>

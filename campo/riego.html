@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Riego</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3;
+    --color-riego: #1E6091;
+    --color-riego-dark: #123A57;
+    --color-riego-soft: rgba(30, 96, 145, 0.10);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-riego); background-clip: content-box; }
+
+  .top-system-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid var(--color-border); height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-riego { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  .sidebar {
+    width: 190px; background: #FFFFFF; border-right: 1px solid var(--color-border);
+    display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0;
+  }
+  .sidebar-header { margin-bottom: 30px; }
+
+  .btn-volver {
+    display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D;
+    padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; color: #F57F17;
+    cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-nav-lateral:active, .card-item:active, .renglon-card:active,
+  .btn-accion:active, .btn-global-add:active, .btn-lista-add:active, .modal-btn:active,
+  .tabla-interna-fila tbody tr:active, .btn-opcion-menu:active, .btn-sync-top:active,
+  .btn-excel:active, .chip-preset:active, .informe-card:active, .card-dia-agrupado:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 16px; font-weight: 700; margin-top: 25px; color: var(--color-riego-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+  .btn-nav-lateral {
+    display: flex; align-items: center; gap: 12px; background: transparent; border: 1px solid transparent;
+    padding: 12px 14px; border-radius: var(--radius-md); cursor: pointer; text-align: left; font-family: inherit;
+    font-size: 12px; font-weight: 700; color: var(--color-text-secondary); transition: all 0.2s ease; letter-spacing: 0.8px;
+  }
+  .btn-nav-lateral:hover { background: var(--color-riego-soft); color: var(--color-riego-dark); }
+  .btn-nav-lateral.active { background: var(--color-riego-soft); color: var(--color-riego-dark); border-color: var(--color-riego); box-shadow: 0 4px 12px rgba(30, 96, 145, 0.08); }
+
+  .main-content { flex-grow: 1; padding: 40px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .ruta-navegacion { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; flex-shrink: 0; }
+  .ruta-step { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+  .step-inicio { background: #E3F2FD; color: #0D47A1; }
+  .step-nivel1 { background: #E1F0FB; color: #0D4E7A; }
+  .step-nivel2 { background: #FFF3E0; color: #E65100; }
+  .ruta-step.clickable { cursor: pointer; }
+  .ruta-step.clickable:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .ruta-separator { color: var(--color-text-secondary); font-weight: bold; font-size: 12px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; gap: 12px; }
+  .seccion-titulo { font-size: 28px; font-weight: 700; margin: 0; color: var(--color-riego-dark); position: relative; padding-left: 15px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 7px; bottom: 7px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-riego), var(--color-riego-dark)); }
+
+  .btn-global-add {
+    background: var(--color-riego); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 12px rgba(30, 96, 145, 0.2); transition: all 0.2s ease; letter-spacing: 0.5px;
+  }
+  .btn-global-add:hover { background: var(--color-riego-dark); transform: translateY(-1px); }
+  .btn-global-add.cancel-mode { background: #78909C; }
+  .btn-global-add.cancel-mode:hover { background: #546E7A; }
+
+  .btn-excel {
+    background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease;
+  }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+
+  .btn-sync-top {
+    background: #E3F0FA; color: #123A57; border: 1px solid rgba(18,58,87,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.02); white-space: nowrap;
+  }
+  .btn-sync-top:hover { background: #CFE4F5; color: #0B2438; transform: translateY(-1px); }
+  .btn-sync-top.syncing { animation: pulseSync 1.5s infinite ease-in-out; pointer-events: none; opacity: 0.7; }
+  @keyframes pulseSync { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  .grid-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; overflow-y: auto; flex-grow: 1; padding-top: 4px; }
+
+  .card-item {
+    background: linear-gradient(180deg, #FFFFFF, #FCFDFC); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    padding: 22px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-align: left; position: relative; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    display: flex; flex-direction: column; justify-content: space-between; min-height: 170px;
+  }
+  .card-item:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(30, 96, 145, 0.12); border-color: var(--color-riego); }
+  .card-item::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow 0.2s ease; pointer-events: none; }
+  .card-item:hover::after { box-shadow: inset 0 0 0 1.5px var(--color-riego); }
+
+  .card-item-header { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 14px; gap: 12px; }
+  .card-item-header h4 { margin: 0; font-size: 18px; font-weight: 700; color: var(--color-text); }
+
+  .card-icon-wrapper {
+    display: flex; align-items: center; justify-content: center; background: #F0F4F1;
+    border: 1px solid var(--color-border); padding: 8px; border-radius: var(--radius-md); color: var(--color-accent); flex-shrink: 0;
+  }
+  .card-info-box { display: flex; flex-direction: column; gap: 6px; background: #F9FAF9; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.03); }
+  .card-info-line { display: flex; justify-content: space-between; font-size: 12px; gap: 10px; }
+  .card-info-line span { color: var(--color-text-secondary); }
+  .card-info-line strong { color: var(--color-text); font-weight: 600; text-align: right; }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); white-space: nowrap; }
+  .badge-estado.activo { background: #E8F5E9; color: #2E7D32; border-color: rgba(46, 125, 50, 0.3); }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .renglon-card:hover { border-color: var(--color-riego); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .renglon-data-container { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; flex-grow: 1; }
+  .renglon-info-block { display: flex; flex-direction: column; }
+  .renglon-info-block span.label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .renglon-info-block span.value { font-size: 13px; font-weight: 600; color: var(--color-text); }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 10px; background: #F0F2F0; border-bottom: 1px solid var(--color-border); }
+  .tabla-interna-fila td { padding: 12px 10px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 13px; }
+  .tabla-interna-fila tr:last-child td { border-bottom: none; }
+  .tabla-interna-fila.wrapper { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: #FFFFFF; }
+
+  .acciones-wrapper { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+  .btn-accion {
+    border: 1px solid var(--color-border); background: #FFFFFF; cursor: pointer; padding: 6px; border-radius: var(--radius-md);
+    display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--color-text-secondary);
+  }
+  .btn-accion:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-color: var(--color-text-secondary); }
+  .btn-accion.edit:hover { background: #FFFDE7; border-color: #FFF176; color: #F57F17; }
+  .btn-accion.delete:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 540px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 20px; font-weight: 700; color: var(--color-riego-dark); margin: 0; }
+  .modal-subtitle { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-riego); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-riego-soft); }
+  .modal-input:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-riego); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-riego-dark); }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+
+  .seccion-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
+
+  .consola-card { background: rgba(255,255,255,0.85); border: 1px solid var(--color-border); border-radius: 22px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.02); }
+  .consola-card-titulo { font-size: 11px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+
+  .total-mm-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: 10px; border-top: 1px dashed var(--color-border); }
+  .total-mm-label { font-size: 9px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .total-mm-value { font-size: 16px; font-weight: 900; color: var(--color-riego); }
+
+  .grid-riego-compacto { grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)) !important; gap: 10px !important; }
+  .riego-card-mini { padding: 12px !important; border-radius: var(--radius-md) !important; }
+  .riego-card-mini .card-item-header { margin-bottom: 8px; gap: 6px; }
+  .riego-card-mini .card-item-header h4 { font-size: 12px; line-height: 1.2; }
+  .riego-card-mini .card-icon-wrapper { padding: 5px; }
+  .riego-card-mini .card-info-box { gap: 3px; padding: 6px 8px; }
+  .riego-card-mini .card-info-line { font-size: 10px; gap: 6px; }
+  .riego-card-mini .modal-row-grid { gap: 6px; }
+  .riego-card-mini .modal-group label { font-size: 9px; letter-spacing: 0.3px; }
+  .riego-card-mini .modal-input { padding: 6px 8px; font-size: 12px; }
+  .riego-card-mini .total-mm-row { padding-top: 6px; margin-top: 8px; }
+  .riego-card-mini .total-mm-value { font-size: 13px; }
+  .riego-card-mini .badge-estado { font-size: 9px; padding: 3px 7px; }
+
+  .masivo-cuadros-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px;
+    max-height: 290px; overflow-y: auto; padding: 8px; border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); background: #FAFBFA;
+  }
+  .cuadro-pick { display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 10px; padding: 8px 10px; cursor: pointer; transition: all 0.15s ease; }
+  .cuadro-pick:hover { border-color: var(--color-riego); }
+  .cuadro-pick.sel { border-color: var(--color-riego); background: var(--color-riego-soft); box-shadow: inset 0 0 0 1px var(--color-riego); }
+  .cuadro-pick input { accent-color: var(--color-riego); pointer-events: none; flex-shrink: 0; }
+  .cuadro-pick-nombre { font-size: 11px; font-weight: 700; color: var(--color-text); line-height: 1.2; }
+  .cuadro-pick-sub { font-size: 9px; color: var(--color-text-secondary); text-transform: uppercase; margin-top: 2px; }
+
+  .filtro-fechas-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .filtro-fechas-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip-preset { background: var(--color-riego-soft); color: var(--color-riego-dark); border: 1px solid transparent; border-radius: 20px; padding: 7px 14px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .chip-preset:hover { background: var(--color-riego); color: #fff; transform: translateY(-1px); }
+  .filtro-fechas-inputs { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+  .filtro-fechas-inputs .modal-group { min-width: 140px; }
+  .filtro-fechas-inputs .modal-input { padding: 8px 12px; }
+
+  .sparkbar-track { width: 100%; height: 6px; background: #ECEFF1; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  .sparkbar-fill { height: 100%; background: var(--color-riego); border-radius: 4px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 22px; }
+  .kpi-tile { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+  .kpi-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .kpi-value { font-size: 20px; font-weight: 900; color: var(--color-text); line-height: 1.1; }
+  .kpi-label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px; }
+
+  .chart-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+  .chart-card h4 { margin: 0 0 12px 0; font-size: 12px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .chart-tooltip { position: fixed; pointer-events: none; background: #1A211C; color: #FFFFFF; padding: 7px 11px; border-radius: 8px; font-size: 11px; line-height: 1.4; box-shadow: 0 8px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(4px); transition: opacity 0.12s ease; z-index: 3000; white-space: nowrap; }
+  .chart-tooltip.show { opacity: 1; }
+
+  .oc-split-container { display: grid; grid-template-columns: 300px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+  .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .oc-master-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+  .oc-mes-nav { display: flex; align-items: center; gap: 6px; }
+  .btn-mes-nav { background: var(--color-riego-soft); border: 1px solid transparent; color: var(--color-riego-dark); width: 26px; height: 26px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+  .btn-mes-nav:hover { background: var(--color-riego); color: #FFFFFF; }
+  .oc-mes-label { font-size: 11px; font-weight: 800; color: var(--color-riego-dark); text-transform: uppercase; letter-spacing: 0.4px; min-width: 78px; text-align: center; }
+
+  .oc-card-item { background: #F7FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-riego); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-riego); background: var(--color-riego-soft); box-shadow: 0 2px 6px rgba(30, 96, 145, 0.12); }
+
+  .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-riego-dark); }
+  .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; }
+  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
+  .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
+
+  .tabla-oc-items { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .tabla-oc-items th { background: var(--color-riego-dark); color: #FFFFFF; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 9px 10px; text-align: left; }
+  .tabla-oc-items td { padding: 9px 10px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--color-border); }
+  .tabla-oc-items tr:last-child td { border-bottom: none; }
+
+  .modal-box-ancho { background: #FFFFFF; border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 760px; max-height: 88vh; overflow-y: auto; border: 1px solid var(--color-border); box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: apareceModalRiego 0.18s ease; }
+  @keyframes apareceModalRiego { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  .historial-fecha-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.02); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+  .historial-fecha-card:hover { border-color: var(--color-riego); box-shadow: 0 6px 16px rgba(30, 96, 145, 0.08); }
+  .historial-fecha-card.open { border-color: var(--color-riego); }
+  .historial-fecha-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; gap: 12px; }
+  .historial-fecha-header svg:first-child { color: var(--color-riego); flex-shrink: 0; }
+  .historial-fecha-titulo { font-size: 14px; font-weight: 800; color: var(--color-text); }
+  .historial-fecha-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+  .historial-chevron { color: var(--color-text-secondary); transition: transform 0.2s ease; }
+  .historial-fecha-card.open .historial-chevron { transform: rotate(180deg); color: var(--color-riego); }
+  .historial-fecha-body { padding: 0 16px 16px; border-top: 1px solid var(--color-border); background: #FAFBFA; padding-top: 14px; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+  <div class="chart-tooltip" id="chartTooltip"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      operario en turno... <span class="highlight" id="lblOperario">SUPERVISOR DE RIEGO</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:24px;">
+      <div class="system-datetime" id="topDateTime">—</div>
+      <button class="btn-sync-top" id="btnSincronizarTodo">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="iconSync"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar Todo
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-riego">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Riego</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-seccion="regar">REGAR</button>
+        <button class="btn-nav-lateral" data-seccion="historial">HISTORIAL</button>
+        <button class="btn-nav-lateral" data-seccion="informes">INFORMES</button>
+        <button class="btn-nav-lateral" data-seccion="estadisticas">ESTADÍSTICAS</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="ruta-navegacion" id="rutaNavegacion"></div>
+
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Cargando...</h1>
+        <div id="headerAccion" style="display:flex; gap:10px;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalNuevoRiego">
+    <div class="modal-box-ancho">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h3 class="modal-title">💧 Nueva Planilla de Riego</h3>
+          <div class="modal-subtitle">Elegí zona/parcela o turno, cargá horas y lámina, y guardá el bloque completo</div>
+        </div>
+        <button id="btnCerrarModalRiego" style="background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--color-text-secondary);">&times;</button>
+      </div>
+      <div id="cuerpoModalRiego" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalRiegoMasivo">
+    <div class="modal-box-ancho" style="max-width:700px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h3 class="modal-title">📋 Carga Masiva de Riego</h3>
+          <div class="modal-subtitle">Definí fecha, horas y comentario, marcá los cuadros o seleccioná por turno</div>
+        </div>
+        <button id="btnCerrarModalMasivo" style="background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--color-text-secondary);">&times;</button>
+      </div>
+      <div id="cuerpoModalMasivo" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+  }
+
+  let operarioName = 'Supervisor de Riego';
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { }
+  }
+
+  function q(sql, ...args) {
+    if (!db) return [];
+    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
+  }
+  function qGet(sql, ...args) {
+    if (!db) return null;
+    try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function sumarDiasStr(str, n) {
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + n);
+    return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+  }
+  function primerDiaMesStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-01'; }
+  function formatFechaLarga(iso) {
+    try {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      return dt.toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
+    } catch (e) { return iso; }
+  }
+  function formatFechaCorta(iso) {
+    try { const [y, m, d] = String(iso).split('-').map(Number); return pad2(d) + '/' + pad2(m); } catch (e) { return iso; }
+  }
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toFixed(2); }
+  function supTalCual(v) {
+    const num = parseFloat(v);
+    if (isNaN(num)) return '0';
+    return String(Math.round(num * 1000000) / 1000000);
+  }
+
+  function extraerCuadroBase(nombre) {
+    const s = String(nombre == null ? '' : nombre).trim();
+    if (!s) return '—';
+    return s.substring(0, 10).trim();
+  }
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function escapeAttr(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+  let seccionActual = 'regar';
+
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const rutaNavegacion = document.getElementById('rutaNavegacion');
+  const btnVolver = document.getElementById('btnVolver');
+  const headerAccion = document.getElementById('headerAccion');
+  const btnSincronizarTodo = document.getElementById('btnSincronizarTodo');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  const modalNuevoRiego = document.getElementById('modalNuevoRiego');
+  const btnCerrarModalRiego = document.getElementById('btnCerrarModalRiego');
+  const modalRiegoMasivo = document.getElementById('modalRiegoMasivo');
+  const btnCerrarModalMasivo = document.getElementById('btnCerrarModalMasivo');
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = `
+      <div style="font-size:18px; display:flex; align-items:center;">${icono}</div>
+      <div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">${mensaje}</div>
+    `;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => {
+      tarjeta.classList.remove('show');
+      setTimeout(() => tarjeta.remove(), 350);
+    }, 4000);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = 'Guardar';
+    modalBtnSave.style.background = 'var(--color-riego)';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+  window.closeMiniModal = closeMiniModal;
+
+  function botonExcelHTML(onclickCall, titulo) {
+    return `
+      <button class="btn-excel" onclick="${onclickCall}" title="${titulo || 'Exportar a Excel'}">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        EXCEL
+      </button>
+    `;
+  }
+
+  btnVolver.addEventListener('click', () => { window.location.href = 'menu_campo.html'; });
+
+  btnSincronizarTodo.addEventListener('click', async () => {
+    btnSincronizarTodo.classList.add('syncing');
+    btnSincronizarTodo.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { ejecutarSincronizacionCompleta } = require('../sincronizacion.js');
+        await ejecutarSincronizacionCompleta();
+        lanzarNotificacionFlotante('¡Sincronización bidireccional exitosa con Hosting de Agrosoft J&L!', 'success');
+      } catch (err) {
+        console.error(err);
+        lanzarNotificacionFlotante('Error de sincronización: ' + err.message, 'error');
+      } finally {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Todo`;
+        cargarMaestrosRiego();
+        cargarSeccion();
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = `Sincronizar Todo`;
+        lanzarNotificacionFlotante('Sincronización simulada en entorno de pruebas.', 'warning');
+      }, 1000);
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => irASeccion(btn.dataset.seccion));
+  });
+  function irASeccion(key) {
+    seccionActual = key;
+    document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.toggle('active', b.dataset.seccion === key));
+    cargarSeccion();
+  }
+
+  function cargarSeccion() {
+    headerAccion.innerHTML = '';
+    if (seccionActual === 'regar') renderRegar();
+    else if (seccionActual === 'historial') renderHistorial();
+    else if (seccionActual === 'informes') renderInformes();
+    else if (seccionActual === 'estadisticas') renderEstadisticas();
+  }
+
+  function actualizarRuta(pasos) {
+    rutaNavegacion.innerHTML = pasos.map((paso, idx) => {
+      let colorClass = 'step-inicio';
+      if (idx === 1) colorClass = 'step-nivel1';
+      if (idx === 2) colorClass = 'step-nivel2';
+      const clickableClass = paso.accion ? 'clickable' : '';
+      const onClickAttr = paso.accion ? `onclick="${paso.accion}"` : '';
+      const stepHtml = `<span class="ruta-step ${colorClass} ${clickableClass}" ${onClickAttr}>${paso.texto}</span>`;
+      return idx === pasos.length - 1 ? stepHtml : `${stepHtml} <span class="ruta-separator">/</span> `;
+    }).join('');
+  }
+
+  let marcosMaestro = [];
+  let zonasUnicas = [];
+  let turnosUnicos = [];
+  let cuadrosMaestro = [];
+
+  function cargarMaestrosRiego() {
+    marcosMaestro = q('SELECT * FROM local_p_marcos_plantacion');
+    const inventario = q("SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO'");
+    zonasUnicas = Array.from(new Set(marcosMaestro.map(m => String(m.nombre_zona || '').trim()).filter(z => z))).sort();
+    turnosUnicos = Array.from(new Set(inventario.map(i => parseInt(i.turno_riego) || 0).filter(t => t > 0))).sort((a, b) => a - b);
+    cuadrosMaestro = q("SELECT * FROM local_p_cuadros WHERE COALESCE(TRIM(nombre),'') <> '' ORDER BY nombre");
+    cargarResumenCascada();
+    indiceCascadaRiego = null;
+  }
+
+  let resumenCascadaCuadros = {};
+
+  function cargarResumenCascada() {
+    resumenCascadaCuadros = {};
+    q(`
+      SELECT m.cod_parcela as cod_parcela,
+             COUNT(DISTINCT m.cod_marco) as marcos,
+             COUNT(DISTINCT m.cod_marco || '|' || COALESCE(i.cuadro,'') || '|' || COALESCE(i.variedad,'')) as grupos,
+             COALESCE(SUM(i.sup), 0) as sup
+      FROM local_p_marcos_plantacion m
+      JOIN local_p_inventario_plantacion i ON i.cod_marco = m.cod_marco AND i.estado = 'ACTIVO'
+      GROUP BY m.cod_parcela
+    `).forEach(f => { resumenCascadaCuadros[String(f.cod_parcela)] = f; });
+  }
+
+  function buscarCuadroMaestro(nombreCuadro) {
+    const clean = String(nombreCuadro || '').trim().toUpperCase();
+    return cuadrosMaestro.find(c => String(c.nombre || '').trim().toUpperCase() === clean) || null;
+  }
+  function marcosDeParcela(codParcela) {
+    return marcosMaestro.filter(m => String(m.cod_parcela) === String(codParcela));
+  }
+  function inventarioActivoDeMarcos(codigosMarco) {
+    if (!codigosMarco || codigosMarco.length === 0) return [];
+    const placeholders = codigosMarco.map(() => '?').join(',');
+    return q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
+  }
+
+  let indiceCascadaRiego = null;
+  function obtenerIndiceCascada() {
+    if (!indiceCascadaRiego) indiceCascadaRiego = construirIndiceCascadaRiego();
+    return indiceCascadaRiego;
+  }
+
+  /* ESTO LO MODIFIQUE: Colapso por sesión y consolidación exacta de horas y mm */
+  function colapsarRegistrosRiego(registros, dimExtraFn) {
+    const idx = obtenerIndiceCascada();
+    const mapa = {};
+    registros.forEach(r => {
+      const casc = resolverCascadaRiego(idx, r);
+      const cuadro = extraerCuadroBase(r.parcela);
+      const variedadCargada = String(r.variedad || '').trim();
+      const variedad = (variedadCargada && variedadCargada !== '-') ? variedadCargada : casc.variedad;
+      const horas = parseFloat(r.horas) || 0;
+      const lamina = parseFloat(r.lamina) || 0;
+      const totalMm = parseFloat(r.total_mm) || (lamina * horas);
+      const comentario = String(r.comentario == null ? '' : r.comentario).trim();
+      const dim = dimExtraFn ? String(dimExtraFn(r) || '—').trim() || '—' : '';
+      const periodo = r.periodo || String(r.fecha || '').replace(/-/g, '').substring(0, 6);
+
+      const clave = [
+        r.fecha, cuadro.toUpperCase(), variedad.toUpperCase(), comentario.toUpperCase(), dim.toUpperCase(),
+        String(r.tipo_riego || '').trim().toUpperCase(),
+        String(r.usuario || '').trim().toUpperCase()
+      ].join('||');
+
+      if (!mapa[clave]) {
+        mapa[clave] = {
+          fecha: r.fecha, periodo: periodo, cuadro: cuadro, variedad: variedad, dim: dim,
+          cultivo: r.cultivo || '—', usuario: r.usuario || '—', tipo_riego: r.tipo_riego || '—',
+          turno: casc.turno, comentario: comentario,
+          horasSum: 0, totalMmSum: 0, laminaSum: 0, sup: 0, registros: []
+        };
+      }
+      mapa[clave].horasSum += horas;
+      mapa[clave].totalMmSum += totalMm;
+      mapa[clave].laminaSum += lamina;
+      mapa[clave].sup += parseFloat(r.sup_riego) || 0;
+      mapa[clave].registros.push(r);
+    });
+
+    return Object.values(mapa).map(f => {
+      const cant = f.registros.length || 1;
+      const riegosCalculados = cant / 4;
+      const horasCalculadas = f.horasSum / 4;
+      const mmCalculados = f.totalMmSum / 4;
+      const laminaPromedio = f.laminaSum / cant;
+
+      return Object.assign(f, {
+        horasSum: f.horasSum,
+        totalMmSum: f.totalMmSum,
+        riegos: riegosCalculados,
+        horas: horasCalculadas,
+        lamina: laminaPromedio,
+        mm: mmCalculados,
+        mmHa: f.sup > 0 ? mmCalculados / f.sup : 0
+      });
+    });
+  }
+
+  let diaSeleccionadoRegar = null;
+  let mesRegarBase = hoyStr().substring(0, 7);
+
+  let modalidad = 'MANUAL';
+  let zonaSeleccionada = null;
+  let parcelaSeleccionada = null;
+  let turnoSeleccionado = null;
+  let parcelasFiltradas = [];
+  let tablaFilasBulk = [];
+  let comentarioGlobalTexto = '';
+  let horasGlobalesTexto = '';
+  let fechaRiegoTexto = hoyStr();
+
+  function limitesMes(mesStr) {
+    const [y, m] = mesStr.split('-').map(Number);
+    const ultimoDia = new Date(y, m, 0).getDate();
+    return { desde: `${y}-${pad2(m)}-01`, hasta: `${y}-${pad2(m)}-${pad2(ultimoDia)}` };
+  }
+  function etiquetaMes(mesStr) {
+    const [y, m] = mesStr.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
+  }
+  function mesSumar(mesStr, delta) {
+    let [y, m] = mesStr.split('-').map(Number);
+    m += delta;
+    while (m > 12) { m -= 12; y++; }
+    while (m < 1) { m += 12; y--; }
+    return `${y}-${pad2(m)}`;
+  }
+
+  function renderRegar() {
+    seccionTitulo.textContent = 'Riego · Días del Mes';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Regar' }]);
+
+    headerAccion.innerHTML = `
+      <button class="btn-sync-top" id="btnCargaMasivaRiego" title="Cargar riego a varios cuadros a la vez">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        CARGAR MASIVO
+      </button>
+      <button class="btn-global-add" id="btnNuevoRiegoForm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        + REGAR
+      </button>
+    `;
+    document.getElementById('btnNuevoRiegoForm').addEventListener('click', () => window.abrirModalNuevoRiego());
+    document.getElementById('btnCargaMasivaRiego').addEventListener('click', () => window.abrirModalRiegoMasivo());
+
+    renderSplitRegar();
+  }
+
+  function renderSplitRegar() {
+    const { desde, hasta } = limitesMes(mesRegarBase);
+    const filasMes = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ?', desde, hasta);
+    const filasPorFecha = {};
+    filasMes.forEach(r => {
+      const f = r.fecha || 'Sin Fecha';
+      if (!filasPorFecha[f]) filasPorFecha[f] = [];
+      filasPorFecha[f].push(r);
+    });
+    const resumenDias = Object.keys(filasPorFecha).sort((a, b) => b.localeCompare(a)).map(fecha => {
+      const registros = filasPorFecha[fecha];
+      const grupos = compilarGruposDelDia(registros);
+      const rh = calcularHorasRegadas(registros);
+      return {
+        fecha: fecha,
+        cantidad_cuadros: grupos.length,
+        total_mm: grupos.reduce((a, g) => a + g.mm, 0),
+        horas: rh.horas,
+        regadas: rh.regadas
+      };
+    });
+
+    if (resumenDias.length > 0 && !resumenDias.some(d => d.fecha === diaSeleccionadoRegar)) {
+      diaSeleccionadoRegar = resumenDias[0].fecha;
+    }
+    if (resumenDias.length === 0) diaSeleccionadoRegar = null;
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div class="oc-master-panel-header">
+            <div style="font-size:11px; font-weight:800; color:var(--color-riego-dark);">DÍAS CON RIEGO</div>
+            <div class="oc-mes-nav">
+              <button class="btn-mes-nav" id="btnMesAnteriorRegar" title="Mes anterior">‹</button>
+              <span class="oc-mes-label">${etiquetaMes(mesRegarBase)}</span>
+              <button class="btn-mes-nav" id="btnMesSiguienteRegar" title="Mes siguiente">›</button>
+            </div>
+          </div>
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;">
+            ${resumenDias.length === 0 ? '<div class="vista-vacia">Sin riegos registrados este mes.<br><br>Presioná <strong>+ REGAR</strong> para cargar una planilla.</div>' : ''}
+            ${resumenDias.map(d => `
+              <div class="oc-card-item ${diaSeleccionadoRegar === d.fecha ? 'active' : ''}" data-fecha-sel="${d.fecha}">
+                <div class="oc-card-num">${formatFechaLarga(d.fecha)}</div>
+                <div class="oc-card-prov">${d.cantidad_cuadros} cuadro(s) · ${n1(d.horas)} hs · ${d.regadas} regada(s)</div>
+                <div class="oc-card-date"><span>Lámina aplicada</span><strong style="color:var(--color-riego);">${n1(d.total_mm)} mm</strong></div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleDiaRiego">
+          ${renderDetalleDiaRiegoHTML(diaSeleccionadoRegar)}
+        </div>
+      </div>
+    `;
+
+    document.querySelectorAll('[data-fecha-sel]').forEach(el => {
+      el.addEventListener('click', () => { diaSeleccionadoRegar = el.dataset.fechaSel; renderSplitRegar(); });
+    });
+    document.getElementById('btnMesAnteriorRegar').addEventListener('click', () => { mesRegarBase = mesSumar(mesRegarBase, -1); diaSeleccionadoRegar = null; renderSplitRegar(); });
+    document.getElementById('btnMesSiguienteRegar').addEventListener('click', () => { mesRegarBase = mesSumar(mesRegarBase, 1); diaSeleccionadoRegar = null; renderSplitRegar(); });
+  }
+
+  let gruposDiaRiego = [];
+
+  function calcularHorasRegadas(registros) {
+    const bloques = {};
+    registros.forEach(r => {
+      const h = parseFloat(r.horas) || 0;
+      const clave = [
+        n1(h),
+        String(r.comentario == null ? '' : r.comentario).trim().toUpperCase(),
+        String(r.tipo_riego || '').trim().toUpperCase()
+      ].join('||');
+      bloques[clave] = h;
+    });
+    const valores = Object.values(bloques);
+    return { horas: valores.reduce((a, b) => a + b, 0), regadas: valores.length };
+  }
+
+  function compilarGruposDelDia(registros) {
+    const mapa = {};
+    colapsarRegistrosRiego(registros).forEach(f => {
+      const clave = (f.fecha + '||' + f.cuadro + '||' + f.variedad + '||' + f.comentario).toUpperCase();
+      if (!mapa[clave]) {
+        mapa[clave] = {
+          fecha: f.fecha, periodo: f.periodo, cuadro: f.cuadro, variedad: f.variedad, comentario: f.comentario,
+          horasSum: 0, totalMmSum: 0, cantRegistros: 0, sup: 0, laminas: [], registros: []
+        };
+      }
+      const g = mapa[clave];
+      g.horasSum += f.horasSum;
+      g.totalMmSum += f.totalMmSum;
+      g.cantRegistros += f.registros.length;
+      g.sup = Math.max(g.sup, f.sup);
+      if (f.lamina > 0) g.laminas.push(f.lamina);
+      g.registros.push(...f.registros);
+    });
+
+    return Object.values(mapa).map(g => {
+      const cant = g.cantRegistros || 1;
+      const riegos = cant / 4;
+      const horas = g.horasSum / 4;
+      const mm = g.totalMmSum / 4;
+      return {
+        fecha: g.fecha, periodo: g.periodo, cuadro: g.cuadro, variedad: g.variedad, comentario: g.comentario,
+        registros: g.registros, cantRegistros: cant,
+        riegos: riegos,
+        horas: horas,
+        mm: mm,
+        sup: g.sup,
+        lamina: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
+        mmHa: g.sup > 0 ? mm / g.sup : 0
+      };
+    });
+  }
+
+  function renderDetalleDiaRiegoHTML(fecha) {
+    gruposDiaRiego = [];
+    if (!fecha) return '<div class="vista-vacia">Seleccioná un día del mes para ver el detalle.</div>';
+
+    const riegosDelDia = q('SELECT * FROM local_r_campo_riego WHERE fecha = ? ORDER BY id DESC', fecha);
+    if (riegosDelDia.length === 0) return '<div class="vista-vacia">No hay registros para este día.</div>';
+
+    gruposDiaRiego = compilarGruposDelDia(riegosDelDia);
+
+    return `
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>FECHA</th>
+              <th>PARCELA</th>
+              <th style="text-align:right;">HORA</th>
+              <th style="text-align:center;">RIEGOS</th>
+              <th style="text-align:right;">MM</th>
+              <th>COMENTARIO</th>
+              <th style="text-align:right;">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${gruposDiaRiego.map((g, i) => `
+              <tr>
+                <td>${escapeHtml(formatFechaCorta(g.fecha))}</td>
+                <td><b>${escapeHtml(g.cuadro)}</b></td>
+                <td style="text-align:right;">${n1(g.horas)}</td>
+                <td style="text-align:center;">${n1(g.riegos)}</td>
+                <td style="text-align:right; font-weight:800; color:var(--color-riego-dark);">${n1(g.mm)} mm</td>
+                <td>${escapeHtml(g.comentario || '—')}</td>
+                <td style="text-align:right;">
+                  <div class="acciones-wrapper" style="justify-content:flex-end;">
+                    <button class="btn-accion edit" onclick="window.modalEditarGrupoRiego(${i})" title="Editar los ${g.registros.length} registro(s) del grupo">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </button>
+                    <button class="btn-accion delete" onclick="window.modalEliminarGrupoRiego(${i})" title="Eliminar los ${g.registros.length} registro(s) del grupo">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  window.modalEditarGrupoRiego = function(idx) {
+    const g = gruposDiaRiego[idx];
+    if (!g) return lanzarNotificacionFlotante('No se encontró el grupo.', 'error');
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Horas</label><input type="number" id="editGrupoHoras" class="modal-input" step="0.1" min="0" value="${n1(g.horas)}" /></div>
+        <div class="modal-group"><label>Lámina</label><input type="number" id="editGrupoLamina" class="modal-input" step="0.1" min="0" value="${n1(g.lamina)}" /></div>
+      </div>
+      <div class="modal-group"><label>Comentario</label><input type="text" id="editGrupoComentario" class="modal-input" value="${escapeHtml(g.registros[0].comentario || '')}" /></div>
+      <p style="font-size:12px; color:var(--color-text-secondary); margin:4px 0 0;">Se aplica a los <strong>${g.registros.length}</strong> registro(s) del grupo.</p>
+    `;
+    openMiniModal('Editar Riego Agrupado', `${g.cuadro} · ${g.variedad}`, fields, () => {
+      const nh = parseFloat(document.getElementById('editGrupoHoras').value);
+      const nl = parseFloat(document.getElementById('editGrupoLamina').value);
+      const nc = document.getElementById('editGrupoComentario').value;
+      if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+      try {
+        const txn = db.transaction(() => {
+          g.registros.forEach(r => {
+            const nuevoTotal = nl * nh;
+            db.prepare('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?')
+              .run(nh, nl, nuevoTotal, nc, r.id, r.reg_local);
+          });
+        });
+        txn();
+        lanzarNotificacionFlotante(`${g.registros.length} registro(s) actualizado(s).`, 'success');
+        closeMiniModal();
+        renderSplitRegar();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.modalEliminarGrupoRiego = function(idx) {
+    const g = gruposDiaRiego[idx];
+    if (!g) return lanzarNotificacionFlotante('No se encontró el grupo.', 'error');
+    const fields = `<p style="font-size:14px; color:var(--color-text-secondary);">¿Eliminar los <strong>${g.registros.length}</strong> registro(s) de <strong>${escapeHtml(g.cuadro)} · ${escapeHtml(g.variedad)}</strong>? Esta acción no se puede deshacer.</p>`;
+    openMiniModal('Eliminar Riego Agrupado', 'Confirmar eliminación', fields, () => {
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+      try {
+        const txn = db.transaction(() => {
+          g.registros.forEach(r => {
+            db.prepare('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?').run(r.id, r.reg_local);
+          });
+        });
+        txn();
+        lanzarNotificacionFlotante(`${g.registros.length} registro(s) eliminado(s).`, 'success');
+        closeMiniModal();
+        renderSplitRegar();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  function resetFormularioRiegoState() {
+    modalidad = 'MANUAL'; zonaSeleccionada = null; parcelaSeleccionada = null; turnoSeleccionado = null;
+    parcelasFiltradas = []; tablaFilasBulk = []; comentarioGlobalTexto = ''; horasGlobalesTexto = '';
+    fechaRiegoTexto = hoyStr();
+  }
+
+  window.abrirModalNuevoRiego = function(fechaOpcional) {
+    resetFormularioRiegoState();
+    if (fechaOpcional) fechaRiegoTexto = fechaOpcional;
+    modalNuevoRiego.classList.add('show');
+    renderFormularioNuevoRiego();
+  };
+  window.cerrarModalNuevoRiego = function() {
+    modalNuevoRiego.classList.remove('show');
+    resetFormularioRiegoState();
+  };
+  btnCerrarModalRiego.addEventListener('click', window.cerrarModalNuevoRiego);
+
+  function renderFormularioNuevoRiego() {
+    const cuerpo = document.getElementById('cuerpoModalRiego');
+    if (!cuerpo) return;
+
+    cuerpo.innerHTML = `
+      <div class="consola-card">
+        <div class="consola-card-titulo">Comentario Operativo Global (se impacta en todo el bloque)</div>
+        <input type="text" id="comentarioGlobalInput" class="modal-input" placeholder="Ej: Riego general post-lluvia, verificar compuertas..." value="${escapeHtml(comentarioGlobalTexto)}" />
+
+        <div class="modal-row-grid" style="margin-top:14px;">
+          <div class="modal-group">
+            <label>Fecha de Riego</label>
+            <input type="date" id="fechaRiegoInput" class="modal-input" value="${fechaRiegoTexto}" />
+          </div>
+          <div class="modal-group">
+            <label>Modalidad</label>
+            <select id="selectorModalidad" class="modal-select">
+              <option value="MANUAL" ${modalidad === 'MANUAL' ? 'selected' : ''}>💧 MANUAL (VALLE)</option>
+              <option value="AUTOMATIZADO" ${modalidad === 'AUTOMATIZADO' ? 'selected' : ''}>⚡ AUTOMATIZADO</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-row-grid" style="margin-top:12px;">
+          <div class="modal-group">
+            <label style="color:var(--color-riego);">⏱️ Horas Globales (aplica a todo el bloque)</label>
+            <input type="number" id="horasGlobalesInput" class="modal-input" min="0" step="0.1" placeholder="0.0" value="${escapeHtml(horasGlobalesTexto)}" />
+          </div>
+          <div class="modal-group" id="selectoresFilaContainer" style="justify-content:flex-end;">
+            ${construirSelectoresFilaHTML()}
+          </div>
+        </div>
+      </div>
+
+      <div id="gridFilasRiegoContainer">${construirGrillaFilasHTML()}</div>
+
+      <div style="margin-top:18px;">
+        <button class="btn-global-add" id="btnGuardarRiego" style="width:100%; justify-content:center; height:44px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          GUARDAR PLANILLA
+        </button>
+      </div>
+    `;
+
+    document.getElementById('btnGuardarRiego').addEventListener('click', procesarGuardadoMasivoRiego);
+    document.getElementById('comentarioGlobalInput').addEventListener('input', e => { comentarioGlobalTexto = e.target.value; });
+    document.getElementById('fechaRiegoInput').addEventListener('input', e => { fechaRiegoTexto = e.target.value; });
+
+    document.getElementById('selectorModalidad').addEventListener('change', e => {
+      modalidad = e.target.value;
+      zonaSeleccionada = null; parcelaSeleccionada = null; turnoSeleccionado = null; parcelasFiltradas = [];
+      tablaFilasBulk = [];
+      document.getElementById('selectoresFilaContainer').innerHTML = construirSelectoresFilaHTML();
+      wireSelectoresFila();
+      document.getElementById('gridFilasRiegoContainer').innerHTML = construirGrillaFilasHTML();
+    });
+
+    wireSelectoresFila();
+    wireGrillaFilas();
+  }
+
+  function construirSelectoresFilaHTML() {
+    if (modalidad === 'MANUAL') {
+      return `
+        <div class="modal-row-grid" style="width:100%;">
+          <div class="modal-group">
+            <label>Zona</label>
+            <select id="zonaSelect" class="modal-select">
+              <option value="">-- Zona --</option>
+              ${zonasUnicas.map(z => `<option value="${escapeHtml(z)}" ${z === zonaSeleccionada ? 'selected' : ''}>${escapeHtml(z)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="modal-group">
+            <label>Parcela / Cuadro</label>
+            <select id="parcelaSelect" class="modal-select" ${parcelasFiltradas.length ? '' : 'disabled'}>
+              <option value="">${parcelasFiltradas.length ? '-- Parcela --' : 'Esperando zona...'}</option>
+              ${parcelasFiltradas.map(p => `<option value="${escapeHtml(p)}" ${p === parcelaSeleccionada ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="modal-group" style="width:100%;">
+        <label>Turno de Hidratación</label>
+        <select id="turnoSelect" class="modal-select">
+          <option value="">-- Seleccionar Turno --</option>
+          ${turnosUnicos.map(t => `<option value="${t}" ${t === turnoSeleccionado ? 'selected' : ''}>Turno N° ${t} Activo</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+
+  function wireSelectoresFila() {
+    if (modalidad === 'MANUAL') {
+      const zonaSel = document.getElementById('zonaSelect');
+      if (zonaSel) zonaSel.addEventListener('change', e => {
+        procesarCambioZonaManual(e.target.value);
+        document.getElementById('selectoresFilaContainer').innerHTML = construirSelectoresFilaHTML();
+        wireSelectoresFila();
+        document.getElementById('gridFilasRiegoContainer').innerHTML = construirGrillaFilasHTML();
+        wireGrillaFilas();
+      });
+      const parcSel = document.getElementById('parcelaSelect');
+      if (parcSel) parcSel.addEventListener('change', e => {
+        parcelaSeleccionada = e.target.value || null;
+        if (parcelaSeleccionada) compilarGrillaCuadrosBulk(parcelaSeleccionada, 'PARCELA'); else tablaFilasBulk = [];
+        document.getElementById('gridFilasRiegoContainer').innerHTML = construirGrillaFilasHTML();
+        wireGrillaFilas();
+      });
+    } else {
+      const turnoSel = document.getElementById('turnoSelect');
+      if (turnoSel) turnoSel.addEventListener('change', e => {
+        turnoSeleccionado = e.target.value ? parseInt(e.target.value) : null;
+        if (turnoSeleccionado) compilarGrillaCuadrosBulk(String(turnoSeleccionado), 'TURNO'); else tablaFilasBulk = [];
+        document.getElementById('gridFilasRiegoContainer').innerHTML = construirGrillaFilasHTML();
+        wireGrillaFilas();
+      });
+    }
+  }
+
+  function procesarCambioZonaManual(zona) {
+    if (!zona) { zonaSeleccionada = null; parcelaSeleccionada = null; parcelasFiltradas = []; tablaFilasBulk = []; return; }
+    const filtradas = marcosMaestro
+      .filter(m => String(m.nombre_zona || '').trim().toLowerCase() === zona.trim().toLowerCase())
+      .map(m => String(m.nombre_parcela || '').trim());
+    zonaSeleccionada = zona;
+    parcelaSeleccionada = null;
+    parcelasFiltradas = Array.from(new Set(filtradas)).sort();
+    tablaFilasBulk = [];
+  }
+
+  function compilarGrillaCuadrosBulk(valorFiltro, criterio) {
+    let inventarioFiltrado = [];
+    if (criterio === 'PARCELA') {
+      const codigosMarco = marcosMaestro
+        .filter(m => String(m.nombre_parcela || '').trim().toLowerCase() === valorFiltro.trim().toLowerCase())
+        .map(m => m.cod_marco);
+      if (codigosMarco.length > 0) {
+        const placeholders = codigosMarco.map(() => '?').join(',');
+        inventarioFiltrado = q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
+      }
+    } else {
+      const turnoNum = parseInt(valorFiltro) || 0;
+      inventarioFiltrado = q("SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND turno_riego = ?", turnoNum);
+    }
+
+    const mapaAgrupado = {};
+    inventarioFiltrado.forEach(inv => {
+      if (!inv.cuadro) return;
+      const cuadroClean = String(inv.cuadro).trim();
+      const hashKey = cuadroClean.toUpperCase();
+      if (!mapaAgrupado[hashKey]) {
+        const marcoRef = marcosMaestro.find(m => String(m.cod_marco) === String(inv.cod_marco)) || {};
+        const laminaSugerida = parseFloat(marcoRef.lamina_riego) || 4.0;
+        mapaAgrupado[hashKey] = {
+          cuadro: cuadroClean,
+          valvula: inv.v_riego || marcoRef.valvula_riego || 'N/A',
+          variedad: inv.variedad || '-',
+          zonaCultivo: inv.zona || 'Frutales',
+          supAcumulada: 0,
+          laminaSugerida: laminaSugerida,
+          horas: horasGlobalesTexto || '',
+          lamina: String(laminaSugerida),
+          turno: marcoRef.turno == null ? (inv.turno_riego == null ? null : inv.turno_riego) : marcoRef.turno,
+          totalMm: 0
+        };
+      }
+      mapaAgrupado[hashKey].supAcumulada += parseFloat(inv.sup) || 0;
+    });
+
+    tablaFilasBulk = Object.values(mapaAgrupado);
+    recalcularTodosLosMilimetrosPuro();
+  }
+
+  function recalcularTodosLosMilimetrosPuro() {
+    tablaFilasBulk.forEach(fila => {
+      fila.totalMm = (parseFloat(fila.lamina) || 0) * (parseFloat(fila.horas) || 0);
+    });
+  }
+
+  function construirGrillaFilasHTML() {
+    if (tablaFilasBulk.length === 0) {
+      return `<div class="vista-vacia">Seleccioná los parámetros de arriba para desplegar los cuadros a regar.</div>`;
+    }
+    return `<div class="grid-datos grid-riego-compacto" style="overflow-y:visible;">${tablaFilasBulk.map((fila, idx) => riegoCardHTML(fila, idx)).join('')}</div>`;
+  }
+
+  function riegoCardHTML(fila, idx) {
+    return `
+      <div class="card-item riego-card riego-card-mini">
+        <div class="card-item-header">
+          <div style="display:flex; align-items:center; gap:7px; min-width:0;">
+            <div class="card-icon-wrapper" style="color:var(--color-riego); background:var(--color-riego-soft);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
+            </div>
+            <h4>${escapeHtml(fila.cuadro)}</h4>
+          </div>
+          <span class="badge-estado activo" style="background:var(--color-riego-soft); color:var(--color-riego-dark); border-color:rgba(30,96,145,0.2);">${supTalCual(fila.supAcumulada)} ha</span>
+        </div>
+        <div class="card-info-box" style="margin-bottom:8px;">
+          <div class="card-info-line"><span>Válvula:</span><strong>${escapeHtml(fila.valvula)}</strong></div>
+          <div class="card-info-line"><span>Variedad:</span><strong>${escapeHtml(fila.variedad)}</strong></div>
+          <div class="card-info-line"><span>Sup:</span><strong>${supTalCual(fila.supAcumulada)} ha</strong></div>
+        </div>
+        <div class="modal-row-grid">
+          <div class="modal-group">
+            <label>Horas</label>
+            <input type="number" id="filaHoras_${idx}" class="modal-input" min="0" step="0.1" value="${escapeHtml(fila.horas)}" />
+          </div>
+          <div class="modal-group">
+            <label>Lámina</label>
+            <input type="number" id="filaLamina_${idx}" class="modal-input" min="0" step="0.1" value="${escapeHtml(fila.lamina)}" />
+          </div>
+        </div>
+        <div class="total-mm-row">
+          <span class="total-mm-label">Total Aplicado</span>
+          <span class="total-mm-value" id="filaTotalMm_${idx}">${n1(fila.totalMm)} mm</span>
+        </div>
+        <div class="total-mm-row" style="border-top:none; padding-top:0; margin-top:2px;">
+          <span class="total-mm-label">MM x HA</span>
+          <span class="total-mm-label" id="filaMmHa_${idx}" style="color:var(--color-riego); font-size:11px;">${n2(fila.supAcumulada > 0 ? fila.totalMm / fila.supAcumulada : 0)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function wireGrillaFilas() {
+    tablaFilasBulk.forEach((fila, idx) => {
+      const hIn = document.getElementById('filaHoras_' + idx);
+      const lIn = document.getElementById('filaLamina_' + idx);
+      if (hIn) hIn.addEventListener('input', e => { fila.horas = e.target.value; recomputeRowDOM(idx); });
+      if (lIn) lIn.addEventListener('input', e => { fila.lamina = e.target.value; recomputeRowDOM(idx); });
+    });
+    const horasGlobalesInput = document.getElementById('horasGlobalesInput');
+    if (horasGlobalesInput) horasGlobalesInput.addEventListener('input', e => {
+      horasGlobalesTexto = e.target.value;
+      inyectarValoresGlobalesAlBloqueDOM(e.target.value);
+    });
+  }
+
+  function recomputeRowDOM(idx) {
+    const fila = tablaFilasBulk[idx];
+    fila.totalMm = (parseFloat(fila.lamina) || 0) * (parseFloat(fila.horas) || 0);
+    const sup = fila.supAcumulada || 0;
+    const span = document.getElementById('filaTotalMm_' + idx);
+    if (span) span.textContent = n1(fila.totalMm) + ' mm';
+    const spanHa = document.getElementById('filaMmHa_' + idx);
+    if (spanHa) spanHa.textContent = n2(sup > 0 ? fila.totalMm / sup : 0);
+  }
+
+  function inyectarValoresGlobalesAlBloqueDOM(valor) {
+    tablaFilasBulk.forEach((fila, idx) => {
+      fila.horas = valor;
+      const hIn = document.getElementById('filaHoras_' + idx);
+      if (hIn) hIn.value = valor;
+      recomputeRowDOM(idx);
+    });
+  }
+
+  function insertarBloqueRiego(filas, fecha, comentario, modalidadTxt, turno) {
+    const periodoCalculado = parseInt(fecha.replace(/-/g, '').substring(0, 6)) || parseInt(hoyStr().replace(/-/g, '').substring(0, 6));
+    let procesados = 0;
+
+    let nextId = (qGet('SELECT MAX(id) as maxId FROM local_r_campo_riego') || {}).maxId || 0;
+    nextId += 1;
+    let localCounter = 1;
+
+    const txn = db.transaction(() => {
+      filas.forEach(fila => {
+        const hrsInput = parseFloat(fila.horas) || 0;
+        const lamInput = parseFloat(fila.lamina) || 0;
+        const totalMmInput = lamInput * hrsInput;
+        const regLocalUnico = `LOCAL-${localCounter}-${Date.now()}${localCounter}`;
+        const variedadLimpia = String(fila.variedad || '').trim().toUpperCase();
+
+        const varRow = qGet('SELECT especie FROM local_p_variedades WHERE TRIM(UPPER(variedad)) = ? LIMIT 1', variedadLimpia);
+        let cultivoMapeado = 'Frutales';
+        if (varRow) cultivoMapeado = varRow.especie || 'CEBOLLA';
+
+        db.prepare(`
+          INSERT INTO local_r_campo_riego
+            (id, reg_local, fecha, parcela, valvula, cultivo, variedad, sup_riego, horas, lamina, total_mm, usuario, periodo, operacion, comentario, tipo_riego, centro_costo, unidad_negocio, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `).run(
+          nextId, regLocalUnico, fecha, fila.cuadro, fila.valvula, cultivoMapeado, fila.variedad,
+          fila.supAcumulada, hrsInput, lamInput, totalMmInput, operarioName, periodoCalculado,
+          modalidadTxt === 'AUTOMATIZADO' ? turno : (fila.turno == null ? null : fila.turno),
+          String(comentario || '').trim() === '' ? 'Inyección agrupada.' : comentario,
+          modalidadTxt, cultivoMapeado, cultivoMapeado
+        );
+
+        nextId++; localCounter++; procesados++;
+      });
+    });
+    txn();
+    return procesados;
+  }
+
+  function procesarGuardadoMasivoRiego() {
+    if (tablaFilasBulk.length === 0) {
+      return lanzarNotificacionFlotante('No hay datos en la grilla para guardar.', 'warning');
+    }
+    const filasValidas = tablaFilasBulk.filter(f => (parseFloat(f.horas) || 0) > 0);
+    if (filasValidas.length === 0) {
+      return lanzarNotificacionFlotante('Ingresá al menos una hora de riego mayor a 0.', 'warning');
+    }
+    if (!db) { return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error'); }
+
+    const fecha = fechaRiegoTexto || hoyStr();
+    let procesados = 0;
+
+    try {
+      procesados = insertarBloqueRiego(filasValidas, fecha, comentarioGlobalTexto, modalidad, turnoSeleccionado);
+    } catch (e) {
+      console.error(e);
+      return lanzarNotificacionFlotante('Error crítico al guardar el volcado de riego: ' + e.message, 'error');
+    }
+
+    lanzarNotificacionFlotante(`Planilla guardada: ${procesados} cuadro(s) regado(s) correctamente.`, 'success');
+    window.cerrarModalNuevoRiego();
+
+    diaSeleccionadoRegar = fecha;
+    mesRegarBase = fecha.substring(0, 7);
+    renderSplitRegar();
+  }
+
+  let masivoFecha = hoyStr();
+  let masivoHoras = '';
+  let masivoComentario = '';
+  let masivoBusqueda = '';
+  let masivoSeleccion = new Set();
+  let masivoModalidad = 'MANUAL';
+  let masivoTurnoSeleccionado = null;
+
+  function resetFormularioMasivoState() {
+    masivoFecha = hoyStr(); masivoHoras = ''; masivoComentario = ''; masivoBusqueda = '';
+    masivoSeleccion = new Set();
+    masivoModalidad = 'MANUAL';
+    masivoTurnoSeleccionado = null;
+  }
+
+  window.abrirModalRiegoMasivo = function(fechaOpcional) {
+    resetFormularioMasivoState();
+    if (fechaOpcional) masivoFecha = fechaOpcional;
+    if (cuadrosMaestro.length === 0) cargarMaestrosRiego();
+    modalRiegoMasivo.classList.add('show');
+    renderFormularioMasivo();
+  };
+  window.cerrarModalRiegoMasivo = function() {
+    modalRiegoMasivo.classList.remove('show');
+    resetFormularioMasivoState();
+  };
+  btnCerrarModalMasivo.addEventListener('click', window.cerrarModalRiegoMasivo);
+
+  function obtenerNombresCuadrosPorTurno(turnoNum) {
+    if (!turnoNum) return [];
+    const num = parseInt(turnoNum);
+    const codsMarcoInv = q("SELECT DISTINCT cod_marco FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND turno_riego = ?", num).map(i => i.cod_marco);
+    const marcosMatching = marcosMaestro.filter(m => codsMarcoInv.includes(m.cod_marco) || parseInt(m.turno) === num);
+    const codsParcela = new Set(marcosMatching.map(m => String(m.cod_parcela)));
+
+    return cuadrosMaestro
+      .filter(c => codsParcela.has(String(c.cod_parcela)))
+      .map(c => String(c.nombre || '').trim());
+  }
+
+  function cuadrosFiltradosMasivo() {
+    let lista = cuadrosMaestro;
+
+    if (masivoModalidad === 'AUTOMATIZADO' && masivoTurnoSeleccionado) {
+      const nombresEnTurno = obtenerNombresCuadrosPorTurno(masivoTurnoSeleccionado);
+      lista = lista.filter(c => nombresEnTurno.includes(String(c.nombre || '').trim()));
+    }
+
+    const filtro = masivoBusqueda.trim().toLowerCase();
+    if (!filtro) return lista;
+    return lista.filter(c =>
+      String(c.nombre || '').toLowerCase().includes(filtro) ||
+      String(c.sector || '').toLowerCase().includes(filtro)
+    );
+  }
+
+  function construirListaCuadrosMasivoHTML() {
+    const lista = cuadrosFiltradosMasivo();
+    if (lista.length === 0) return '<div class="vista-vacia" style="grid-column:1/-1;">No hay cuadros que coincidan con los filtros seleccionados.</div>';
+    return lista.map(c => {
+      const nombre = String(c.nombre || '').trim();
+      const sel = masivoSeleccion.has(nombre);
+      const casc = resumenCascadaCuadros[String(c.cod_parcela)];
+      const detalle = casc
+        ? `${supTalCual(casc.sup)} ha · ${casc.marcos} marco(s) · ${casc.grupos} reg.`
+        : 'Sin inventario activo';
+      return `
+        <div class="cuadro-pick ${sel ? 'sel' : ''}" data-cuadro="${escapeHtml(nombre)}">
+          <input type="checkbox" ${sel ? 'checked' : ''} />
+          <div style="min-width:0;">
+            <div class="cuadro-pick-nombre">${escapeHtml(nombre)}</div>
+            <div class="cuadro-pick-sub">${escapeHtml(c.sector || 'Sin sector')} · ${detalle}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function actualizarContadorMasivo() {
+    const cont = document.getElementById('masivoContador');
+    if (cont) cont.textContent = masivoSeleccion.size;
+  }
+
+  function renderFormularioMasivo() {
+    const cuerpo = document.getElementById('cuerpoModalMasivo');
+    if (!cuerpo) return;
+
+    cuerpo.innerHTML = `
+      <div class="consola-card" style="margin-bottom:14px;">
+        <div class="modal-row-grid">
+          <div class="modal-group">
+            <label>Fecha de Riego</label>
+            <input type="date" id="masivoFechaInput" class="modal-input" value="${masivoFecha}" />
+          </div>
+          <div class="modal-group">
+            <label style="color:var(--color-riego);">⏱️ Horas (aplica a todos los cuadros)</label>
+            <input type="number" id="masivoHorasInput" class="modal-input" min="0" step="0.1" placeholder="0.0" value="${escapeHtml(masivoHoras)}" />
+          </div>
+        </div>
+
+        <div class="modal-row-grid" style="margin-top:12px;">
+          <div class="modal-group">
+            <label>Modalidad de Carga</label>
+            <select id="masivoModalidadSelect" class="modal-select">
+              <option value="MANUAL" ${masivoModalidad === 'MANUAL' ? 'selected' : ''}>💧 MANUAL (Por Cuadros)</option>
+              <option value="AUTOMATIZADO" ${masivoModalidad === 'AUTOMATIZADO' ? 'selected' : ''}>⚡ AUTOMATIZADO (Por Turno)</option>
+            </select>
+          </div>
+          <div class="modal-group" id="masivoTurnoContainer" style="${masivoModalidad === 'AUTOMATIZADO' ? '' : 'display:none;'}">
+            <label style="color:var(--color-riego);">Turno de Hidratación / Riego</label>
+            <select id="masivoTurnoSelect" class="modal-select">
+              <option value="">-- Seleccionar Turno --</option>
+              ${turnosUnicos.map(t => `<option value="${t}" ${t === masivoTurnoSeleccionado ? 'selected' : ''}>Turno N° ${t} Activo</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-group" style="margin-top:12px;">
+          <label>Comentario</label>
+          <input type="text" id="masivoComentarioInput" class="modal-input" placeholder="Ej: Riego general de turno completo..." value="${escapeHtml(masivoComentario)}" />
+        </div>
+      </div>
+
+      <div class="consola-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <div class="consola-card-titulo" style="margin:0;">Cuadros · <span id="masivoContador">${masivoSeleccion.size}</span> seleccionado(s)</div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="chip-preset" id="btnMasivoTodos">Seleccionar todos</button>
+            <button type="button" class="chip-preset" id="btnMasivoNinguno">Limpiar</button>
+          </div>
+        </div>
+        <input type="text" id="masivoBuscarInput" class="modal-input" placeholder="Buscar cuadro o sector..." value="${escapeHtml(masivoBusqueda)}" style="margin-bottom:10px;" />
+        <div class="masivo-cuadros-grid" id="masivoCuadrosGrid">${construirListaCuadrosMasivoHTML()}</div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button class="btn-global-add" id="btnGuardarMasivo" style="width:100%; justify-content:center; height:44px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          GUARDAR RIEGO MASIVO
+        </button>
+      </div>
+    `;
+
+    document.getElementById('masivoFechaInput').addEventListener('input', e => { masivoFecha = e.target.value; });
+    document.getElementById('masivoHorasInput').addEventListener('input', e => { masivoHoras = e.target.value; });
+    document.getElementById('masivoComentarioInput').addEventListener('input', e => { masivoComentario = e.target.value; });
+    document.getElementById('masivoBuscarInput').addEventListener('input', e => {
+      masivoBusqueda = e.target.value;
+      document.getElementById('masivoCuadrosGrid').innerHTML = construirListaCuadrosMasivoHTML();
+    });
+
+    document.getElementById('masivoModalidadSelect').addEventListener('change', e => {
+      masivoModalidad = e.target.value;
+      masivoTurnoSeleccionado = null;
+      masivoSeleccion.clear();
+      const turnoCont = document.getElementById('masivoTurnoContainer');
+      if (masivoModalidad === 'AUTOMATIZADO') {
+        if (turnoCont) turnoCont.style.display = 'flex';
+      } else {
+        if (turnoCont) turnoCont.style.display = 'none';
+      }
+      document.getElementById('masivoCuadrosGrid').innerHTML = construirListaCuadrosMasivoHTML();
+      actualizarContadorMasivo();
+    });
+
+    const turnoSel = document.getElementById('masivoTurnoSelect');
+    if (turnoSel) {
+      turnoSel.addEventListener('change', e => {
+        masivoTurnoSeleccionado = e.target.value ? parseInt(e.target.value) : null;
+        masivoSeleccion.clear();
+        if (masivoTurnoSeleccionado) {
+          const cuadrosTurno = obtenerNombresCuadrosPorTurno(masivoTurnoSeleccionado);
+          cuadrosTurno.forEach(n => masivoSeleccion.add(n));
+        }
+        document.getElementById('masivoCuadrosGrid').innerHTML = construirListaCuadrosMasivoHTML();
+        actualizarContadorMasivo();
+      });
+    }
+
+    document.getElementById('btnMasivoTodos').addEventListener('click', () => {
+      cuadrosFiltradosMasivo().forEach(c => masivoSeleccion.add(String(c.nombre || '').trim()));
+      document.getElementById('masivoCuadrosGrid').innerHTML = construirListaCuadrosMasivoHTML();
+      actualizarContadorMasivo();
+    });
+    document.getElementById('btnMasivoNinguno').addEventListener('click', () => {
+      masivoSeleccion.clear();
+      document.getElementById('masivoCuadrosGrid').innerHTML = construirListaCuadrosMasivoHTML();
+      actualizarContadorMasivo();
+    });
+
+    document.getElementById('masivoCuadrosGrid').addEventListener('click', e => {
+      const item = e.target.closest('[data-cuadro]');
+      if (!item) return;
+      const nombre = item.dataset.cuadro;
+      const chk = item.querySelector('input');
+      if (masivoSeleccion.has(nombre)) { masivoSeleccion.delete(nombre); item.classList.remove('sel'); if (chk) chk.checked = false; }
+      else { masivoSeleccion.add(nombre); item.classList.add('sel'); if (chk) chk.checked = true; }
+      actualizarContadorMasivo();
+    });
+
+    document.getElementById('btnGuardarMasivo').addEventListener('click', procesarGuardadoRiegoMasivo);
+  }
+
+  function compilarFilasCascadaDesdeCuadro(nombreCuadro, horas) {
+    const cu = buscarCuadroMaestro(nombreCuadro);
+    const clean = String(nombreCuadro || '').trim();
+    const hrs = parseFloat(horas) || 0;
+
+    const filaFallback = () => {
+      const sup = parseFloat((cu || {}).sup) || 0;
+      return [{
+        cuadro: clean, codMarco: null, valvula: 'N/A', variedad: '-', supAcumulada: sup,
+        horas: String(hrs), lamina: '4', totalMm: 4 * hrs, turno: null, sinInventario: true
+      }];
+    };
+
+    if (!cu) return filaFallback();
+
+    const marcos = marcosDeParcela(cu.cod_parcela);
+    const inventario = inventarioActivoDeMarcos(marcos.map(m => m.cod_marco));
+    if (inventario.length === 0) return filaFallback();
+
+    const mapa = {};
+    inventario.forEach(inv => {
+      const marcoRef = marcos.find(m => String(m.cod_marco) === String(inv.cod_marco)) || {};
+      const cuadroInv = String(inv.cuadro || '').trim() || String(marcoRef.cuadro || '').trim() || clean;
+      const variedad = String(inv.variedad || '').trim() || '-';
+      const clave = [inv.cod_marco, cuadroInv.toUpperCase(), variedad.toUpperCase()].join('||');
+      if (!mapa[clave]) {
+        mapa[clave] = {
+          cuadro: cuadroInv,
+          codMarco: inv.cod_marco,
+          valvula: inv.v_riego || marcoRef.valvula_riego || 'N/A',
+          variedad: variedad,
+          supAcumulada: 0,
+          horas: String(hrs),
+          lamina: String(parseFloat(marcoRef.lamina_riego) || 4.0),
+          turno: marcoRef.turno == null ? (inv.turno_riego == null ? null : inv.turno_riego) : marcoRef.turno,
+          totalMm: 0
+        };
+      }
+      mapa[clave].supAcumulada += parseFloat(inv.sup) || 0;
+    });
+
+    const filas = Object.values(mapa);
+    filas.forEach(f => { f.totalMm = (parseFloat(f.lamina) || 0) * hrs; });
+    return filas;
+  }
+
+  function procesarGuardadoRiegoMasivo() {
+    const horas = parseFloat(masivoHoras) || 0;
+    if (masivoSeleccion.size === 0) return lanzarNotificacionFlotante('Seleccioná al menos un cuadro.', 'warning');
+    if (horas <= 0) return lanzarNotificacionFlotante('Ingresá las horas de riego (mayor a 0).', 'warning');
+    if (!masivoFecha) return lanzarNotificacionFlotante('Seleccioná la fecha de riego.', 'warning');
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+    const fecha = masivoFecha;
+    const seleccionados = Array.from(masivoSeleccion);
+    const filas = [];
+    const sinInventario = [];
+    seleccionados.forEach(nombre => {
+      const filasCuadro = compilarFilasCascadaDesdeCuadro(nombre, horas);
+      if (filasCuadro.length === 1 && filasCuadro[0].sinInventario) sinInventario.push(nombre);
+      filas.push(...filasCuadro);
+    });
+    let procesados = 0;
+
+    try {
+      procesados = insertarBloqueRiego(filas, fecha, masivoComentario, masivoModalidad, masivoTurnoSeleccionado);
+    } catch (e) {
+      console.error(e);
+      return lanzarNotificacionFlotante('Error crítico al guardar la carga masiva: ' + e.message, 'error');
+    }
+
+    lanzarNotificacionFlotante(`Carga masiva guardada: ${seleccionados.length} cuadro(s) · ${procesados} registro(s) de riego.`, 'success');
+    if (sinInventario.length > 0) {
+      lanzarNotificacionFlotante(`Sin inventario ACTIVO (se cargó la superficie del cuadro): ${sinInventario.join(', ')}`, 'warning');
+    }
+    window.cerrarModalRiegoMasivo();
+
+    diaSeleccionadoRegar = fecha;
+    mesRegarBase = fecha.substring(0, 7);
+    if (seccionActual === 'regar') renderSplitRegar(); else cargarSeccion();
+  }
+
+  let histDesde = sumarDiasStr(hoyStr(), -7);
+  let histHasta = hoyStr();
+  let fechasDesplegadas = {};
+  let historialScrollTop = 0;
+
+  function renderHistorial() {
+    seccionTitulo.textContent = 'Historial de Riego';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Historial' }]);
+    headerAccion.innerHTML = botonExcelHTML("window.exportarHistorialExcel()", 'Exportar historial a Excel');
+
+    const rows = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha DESC, id DESC', histDesde, histHasta);
+    const agrupado = {};
+    rows.forEach(r => {
+      const f = r.fecha || 'Sin Fecha';
+      if (!agrupado[f]) agrupado[f] = [];
+      agrupado[f].push(r);
+    });
+    const fechas = Object.keys(agrupado).sort((a, b) => b.localeCompare(a));
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll" id="historialScrollRoot">
+        ${construirFiltroFechasHTML('hist', histDesde, histHasta)}
+        ${fechas.length === 0
+          ? '<div class="vista-vacia">No hay riegos registrados en el rango seleccionado.</div>'
+          : fechas.map(fecha => historialFechaCardHTML(fecha, agrupado[fecha])).join('')}
+      </div>
+    `;
+    wireFiltroFechas('hist');
+
+    const scrollRoot = document.getElementById('historialScrollRoot');
+    if (scrollRoot) scrollRoot.scrollTop = historialScrollTop;
+
+    document.querySelectorAll('.historial-fecha-header').forEach(h => {
+      h.addEventListener('click', () => {
+        const card = h.closest('.historial-fecha-card');
+        const fecha = card.dataset.fecha;
+        const root = document.getElementById('historialScrollRoot');
+        historialScrollTop = root ? root.scrollTop : 0;
+        fechasDesplegadas[fecha] = !fechasDesplegadas[fecha];
+        renderHistorial();
+      });
+    });
+  }
+
+  function historialFechaCardHTML(fecha, registros) {
+    const totalMm = compilarGruposDelDia(registros).reduce((a, g) => a + g.mm, 0);
+    const resumenHoras = calcularHorasRegadas(registros);
+    const isOpen = !!fechasDesplegadas[fecha];
+    const tituloFecha = fecha === hoyStr() ? 'HOY · ' + formatFechaLarga(fecha) : formatFechaLarga(fecha);
+
+    return `
+      <div class="historial-fecha-card ${isOpen ? 'open' : ''}" data-fecha="${escapeHtml(fecha)}">
+        <div class="historial-fecha-header">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <div class="historial-fecha-titulo">${escapeHtml(tituloFecha)}</div>
+              <div class="historial-fecha-sub">${registros.length} registro(s) · ${n1(resumenHoras.horas)} hs · ${resumenHoras.regadas} regada(s)</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="badge-estado activo">${n1(totalMm)} mm</span>
+            <svg class="historial-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+        </div>
+        ${isOpen ? `<div class="historial-fecha-body">${registros.map(r => historialRegistroCardHTML(r)).join('')}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function historialRegistroCardHTML(r) {
+    const mmRegistro = (parseFloat(r.lamina) || 0) * (parseFloat(r.horas) || 0);
+    const supRegistro = parseFloat(r.sup_riego) || 0;
+    return `
+      <div class="renglon-card">
+        <div class="renglon-data-container">
+          <div class="renglon-info-block"><span class="label">Cuadro</span><span class="value">${escapeHtml(r.parcela)}</span></div>
+          <div class="renglon-info-block"><span class="label">Válvula</span><span class="value">${escapeHtml(r.valvula || '—')}</span></div>
+          <div class="renglon-info-block"><span class="label">Variedad</span><span class="value">${escapeHtml(r.variedad || '—')}</span></div>
+          <div class="renglon-info-block"><span class="label">Sup</span><span class="value">${supTalCual(supRegistro)} ha</span></div>
+          <div class="renglon-info-block"><span class="label">Horas</span><span class="value">${n1(r.horas)}</span></div>
+          <div class="renglon-info-block"><span class="label">Lámina</span><span class="value">${n1(r.lamina)}</span></div>
+          <div class="renglon-info-block"><span class="label">Total</span><span class="value" style="color:var(--color-riego); font-weight:800;">${n1(mmRegistro)} mm</span></div>
+          <div class="renglon-info-block"><span class="label">MM x HA</span><span class="value">${n2(supRegistro > 0 ? mmRegistro / supRegistro : 0)}</span></div>
+          <div class="renglon-info-block"><span class="label">Estado</span><span class="badge-estado activo">ACTIVO</span></div>
+        </div>
+        <div class="acciones-wrapper">
+          <button class="btn-accion edit" onclick="window.modalEditarRiego(${r.id}, '${escapeAttr(r.reg_local)}')" title="Editar">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="btn-accion delete" onclick="window.modalEliminarRiego(${r.id}, '${escapeAttr(r.reg_local)}')" title="Eliminar">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  window.modalEditarRiego = function(id, regLocal) {
+    const row = qGet('SELECT * FROM local_r_campo_riego WHERE id = ? AND reg_local = ?', id, regLocal);
+    if (!row) return lanzarNotificacionFlotante('No se encontró el registro.', 'error');
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Horas</label><input type="number" id="editRiegoHoras" class="modal-input" step="0.1" min="0" value="${n1(row.horas)}" /></div>
+        <div class="modal-group"><label>Lámina</label><input type="number" id="editRiegoLamina" class="modal-input" step="0.1" min="0" value="${n1(row.lamina)}" /></div>
+      </div>
+      <div class="modal-group"><label>Comentario</label><input type="text" id="editRiegoComentario" class="modal-input" value="${escapeHtml(row.comentario || '')}" /></div>
+    `;
+    openMiniModal('Editar Registro de Riego', `Cuadro ${row.parcela} · ${row.fecha}`, fields, () => {
+      const nh = parseFloat(document.getElementById('editRiegoHoras').value);
+      const nl = parseFloat(document.getElementById('editRiegoLamina').value);
+      const nc = document.getElementById('editRiegoComentario').value;
+      if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
+      const nuevoTotal = nl * nh;
+      try {
+        qRun('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?', nh, nl, nuevoTotal, nc, id, regLocal);
+        lanzarNotificacionFlotante('Registro actualizado.', 'success');
+        closeMiniModal(); 
+        if (seccionActual === 'regar') renderRegar(); else renderHistorial();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  window.modalEliminarRiego = function(id, regLocal) {
+    const fields = `<p style="font-size:14px; color:var(--color-text-secondary);">¿Eliminar este registro de riego? Esta acción no se puede deshacer.</p>`;
+    openMiniModal('Eliminar Registro', 'Confirmar eliminación', fields, () => {
+      try {
+        qRun('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?', id, regLocal);
+        lanzarNotificacionFlotante('Registro eliminado.', 'success');
+        closeMiniModal(); 
+        if (seccionActual === 'regar') renderRegar(); else renderHistorial();
+      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
+    });
+  };
+
+  const REPORTES_RIEGO = [
+    { key: 'cuadro', titulo: 'Por Cuadro / Parcela', desc: 'Totales de riego consolidados por cuadro físico regado.', etiqueta: f => f.cuadro, icono: 'cuadro' },
+    { key: 'cultivo', titulo: 'Por Cultivo y Variedad', desc: 'Consumo hídrico agrupado por cultivo y variedad.', etiqueta: f => `${f.cultivo} · ${f.variedad}`, icono: 'cultivo' },
+    { key: 'valvula', titulo: 'Por Válvula de Riego', desc: 'Horas y milímetros aplicados por válvula operada.', etiqueta: f => f.dim, dim: r => r.valvula, icono: 'valvula' },
+    { key: 'operario', titulo: 'Por Operario', desc: 'Actividad de riego registrada por cada operario.', etiqueta: f => f.usuario, icono: 'operario' },
+    { key: 'modalidad', titulo: 'Manual vs Automatizado', desc: 'Comparativo entre modalidades de riego aplicadas.', etiqueta: f => f.tipo_riego, icono: 'modalidad' }
+  ];
+
+  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO:
+     Consolidación en informes por sesión de riego para no multiplicar horas ni milímetros al desmenuzar por subsectores */
+  function agregarInformeRiego(registros, rep) {
+    if (rep.key === 'cuadro') {
+      // Consolidación única por sesión en cada cuadro
+      const mapaSesiones = {};
+      registros.forEach(r => {
+        const cuadro = extraerCuadroBase(r.parcela);
+        const fecha = String(r.fecha || '').trim();
+        const comentario = String(r.comentario == null ? '' : r.comentario).trim();
+        const horas = parseFloat(r.horas) || 0;
+        const lamina = parseFloat(r.lamina) || 0;
+        const sup = parseFloat(r.sup_riego) || 0;
+        const claveSesion = [fecha, cuadro.toUpperCase(), comentario.toUpperCase(), n1(horas), n1(lamina)].join('||');
+
+        if (!mapaSesiones[claveSesion]) {
+          mapaSesiones[claveSesion] = {
+            cuadro: cuadro,
+            horas: horas,
+            lamina: lamina,
+            mm: lamina * horas,
+            supTotal: 0
+          };
+        }
+        mapaSesiones[claveSesion].supTotal += sup;
+      });
+
+      const mapaCuadros = {};
+      Object.values(mapaSesiones).forEach(s => {
+        if (!mapaCuadros[s.cuadro]) {
+          mapaCuadros[s.cuadro] = {
+            etiqueta: s.cuadro,
+            riegos: 0,
+            horas: 0,
+            mm: 0,
+            sup: s.supTotal,
+            laminas: []
+          };
+        }
+        const c = mapaCuadros[s.cuadro];
+        c.riegos += 1;
+        c.horas += s.horas;
+        c.mm += s.mm;
+        c.sup = Math.max(c.sup, s.supTotal);
+        if (s.lamina > 0) c.laminas.push(s.lamina);
+      });
+
+      return Object.values(mapaCuadros).map(g => ({
+        etiqueta: g.etiqueta,
+        riegos: g.riegos,
+        horas: g.horas,
+        mm: g.mm,
+        sup: g.sup,
+        lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
+        mmHa: g.sup > 0 ? g.mm / g.sup : 0
+      })).sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es', { numeric: true, sensitivity: 'base' }));
+    }
+
+    const colapsados = colapsarRegistrosRiego(registros, rep.dim);
+    const mapa = {};
+    colapsados.forEach(f => {
+      const etiqueta = String(rep.etiqueta(f) || '').trim() || '—';
+      if (!mapa[etiqueta]) mapa[etiqueta] = { etiqueta: etiqueta, riegos: 0, horasSum: 0, mm: 0, sup: 0, laminas: [] };
+      const g = mapa[etiqueta];
+      g.riegos += f.riegos;
+      g.horasSum += f.horas;
+      g.mm += f.mm;
+      g.sup += f.sup;
+      if (f.lamina > 0) g.laminas.push(f.lamina);
+    });
+
+    return Object.values(mapa).map(g => ({
+      etiqueta: g.etiqueta,
+      riegos: g.riegos,
+      horas: g.horasSum,
+      mm: g.mm,
+      sup: g.sup,
+      lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
+      mmHa: g.sup > 0 ? g.mm / g.sup : 0
+    })).sort((a, b) => b.mm - a.mm);
+  }
+
+  const ICONOS_INFORME = {
+    cuadro: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    cultivo: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 21 3c-1 4-1.5 6-3.1 11.2A7 7 0 0 1 11 20z"/><path d="M9 13h4"/>',
+    valvula: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+    operario: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+    modalidad: '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'
+  };
+
+  let informeActivo = null;
+  let infDesde = sumarDiasStr(hoyStr(), -30);
+  let infHasta = hoyStr();
+  let ultimoInformeFilas = [];
+  let ultimoInformeRep = null;
+
+  function renderInformes() {
+    if (!informeActivo) {
+      seccionTitulo.textContent = 'Informes de Riego';
+      actualizarRuta([{ texto: 'Inicio' }, { texto: 'Informes' }]);
+      headerAccion.innerHTML = '';
+      contenedorDinamico.innerHTML = `
+        <div class="grid-datos">
+          ${REPORTES_RIEGO.map(r => `
+            <div class="card-item" onclick="window.abrirInforme('${r.key}')">
+              <div class="card-item-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div class="card-icon-wrapper" style="color:var(--color-riego); background:var(--color-riego-soft);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONOS_INFORME[r.icono] || ICONOS_INFORME.cuadro}</svg>
+                  </div>
+                  <h4>${r.titulo}</h4>
+                </div>
+              </div>
+              <p class="informe-card-desc">${r.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      return;
+    }
+
+    const rep = REPORTES_RIEGO.find(r => r.key === informeActivo);
+    seccionTitulo.textContent = rep.titulo;
+    actualizarRuta([{ texto: 'Informes', accion: 'window.cerrarInforme()' }, { texto: rep.titulo }]);
+    headerAccion.innerHTML = botonExcelHTML(`window.exportarInformeExcel('${rep.key}')`, 'Exportar informe a Excel');
+
+    const filas = agregarInformeRiego(
+      q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ?', infDesde, infHasta),
+      rep
+    );
+
+    ultimoInformeFilas = filas;
+    ultimoInformeRep = rep;
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll">
+        ${construirFiltroFechasHTML('inf', infDesde, infHasta)}
+        ${tablaInformeHTML(filas, rep)}
+      </div>
+    `;
+    wireFiltroFechas('inf');
+  }
+
+  function tablaInformeHTML(filas, rep) {
+    if (filas.length === 0) return '<div class="vista-vacia">Sin datos en el rango seleccionado.</div>';
+    const maxMm = Math.max(...filas.map(f => parseFloat(f.mm) || 0), 0.0001);
+    return `
+      <div class="tabla-interna-fila wrapper">
+        <table class="tabla-interna-fila">
+          <thead>
+            <tr>
+              <th>${rep.titulo.toUpperCase()}</th>
+              <th style="text-align:center;">RIEGOS</th>
+              <th style="text-align:center;">HORAS</th>
+              <th style="text-align:center;">LÁMINA PROM.</th>
+              <th style="text-align:center;">SUP (HA)</th>
+              <th style="text-align:center;">MM X HA</th>
+              <th>TOTAL MM</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filas.map(f => {
+              const pct = Math.max(4, Math.round((parseFloat(f.mm) || 0) / maxMm * 100));
+              return `
+                <tr>
+                  <td><strong>${escapeHtml(f.etiqueta || '—')}</strong></td>
+                  <td style="text-align:center;">${n1(f.riegos)}</td>
+                  <td style="text-align:center;">${n1(f.horas)}</td>
+                  <td style="text-align:center;">${n2(f.lamina_prom)}</td>
+                  <td style="text-align:center;">${n2(f.sup)}</td>
+                  <td style="text-align:center;">${n2(f.mmHa)}</td>
+                  <td>
+                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--color-riego-dark);"><span>${n1(f.mm)} mm</span></div>
+                    <div class="sparkbar-track"><div class="sparkbar-fill" style="width:${pct}%;"></div></div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  window.abrirInforme = function(key) { informeActivo = key; renderInformes(); };
+  window.cerrarInforme = function() { informeActivo = null; renderInformes(); };
+
+  let statsDesde = sumarDiasStr(hoyStr(), -14);
+  let statsHasta = hoyStr();
+  let ultimoStatsKpi = null;
+  let ultimoStatsSerie = [];
+  let ultimoStatsCultivo = [];
+
+  function renderEstadisticas() {
+    seccionTitulo.textContent = 'Estadísticas de Riego';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Estadísticas' }]);
+    headerAccion.innerHTML = botonExcelHTML('window.exportarEstadisticasExcel()', 'Exportar estadísticas a Excel');
+
+    const filasRango = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY parcela ASC ', statsDesde, statsHasta);
+    const colapsadosRango = colapsarRegistrosRiego(filasRango);
+
+    const porFecha = {};
+    filasRango.forEach(r => {
+      const f = r.fecha || 'Sin Fecha';
+      if (!porFecha[f]) porFecha[f] = { registros: [], mm: 0, riegos: 0 };
+      porFecha[f].registros.push(r);
+    });
+    colapsadosRango.forEach(f => {
+      const dia = porFecha[f.fecha || 'Sin Fecha'];
+      if (!dia) return;
+      dia.mm += f.mm;
+      dia.riegos += f.riegos;
+    });
+
+    let totalHoras = 0, totalRegadas = 0;
+    Object.keys(porFecha).forEach(fecha => {
+      const rh = calcularHorasRegadas(porFecha[fecha].registros);
+      porFecha[fecha].horas = rh.horas;
+      totalHoras += rh.horas;
+      totalRegadas += rh.regadas;
+    });
+
+    const kpi = {
+      riegos: colapsadosRango.reduce((a, f) => a + f.riegos, 0),
+      horas: totalHoras,
+      regadas: totalRegadas,
+      mm: colapsadosRango.reduce((a, f) => a + f.mm, 0),
+      sup: colapsadosRango.reduce((a, f) => a + f.sup, 0),
+      prom: 0
+    };
+    kpi.prom = colapsadosRango.length ? kpi.mm / colapsadosRango.length : 0;
+    kpi.mmHa = kpi.sup > 0 ? kpi.mm / kpi.sup : 0;
+
+    const serieDiaria = Object.keys(porFecha).sort().map(fecha => ({
+      fecha: fecha, mm: porFecha[fecha].mm, horas: porFecha[fecha].horas, riegos: porFecha[fecha].riegos
+    }));
+
+    const mapaCultivo = {};
+    colapsadosRango.forEach(f => {
+      const cultivo = String(f.cultivo || '').trim() || 'Sin Cultivo';
+      if (!mapaCultivo[cultivo]) mapaCultivo[cultivo] = { cultivo: cultivo, horas: 0, mm: 0 };
+      mapaCultivo[cultivo].horas += f.horas;
+      mapaCultivo[cultivo].mm += f.mm;
+    });
+    const porCultivo = Object.values(mapaCultivo).sort((a, b) => b.horas - a.horas).slice(0, 8);
+
+    ultimoStatsKpi = kpi; ultimoStatsSerie = serieDiaria; ultimoStatsCultivo = porCultivo;
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll">
+        ${construirFiltroFechasHTML('stats', statsDesde, statsHasta)}
+
+        <div class="kpi-grid">
+          ${kpiTileHTML('riegos', 'Riegos Registrados', n1(kpi.riegos), 'var(--color-riego)', 'var(--color-riego-soft)')}
+          ${kpiTileHTML('horas', `Horas de Riego · ${kpi.regadas || 0} regada(s)`, n1(kpi.horas) + ' hs', '#E65100', 'rgba(230,81,0,0.1)')}
+          ${kpiTileHTML('mm', 'MM Acumulados', n1(kpi.mm) + ' mm', 'var(--color-accent)', 'var(--color-accent-soft)')}
+          ${kpiTileHTML('sup', 'Sup. Regada', n2(kpi.sup) + ' ha', '#6A1B9A', 'rgba(106,27,154,0.08)')}
+          ${kpiTileHTML('prom', 'MM x HA', n2(kpi.mmHa) + ' mm/ha', '#00838F', 'rgba(0,131,143,0.08)')}
+        </div>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div class="chart-card" style="flex:1; min-width:320px;">
+            <h4>Milímetros Aplicados por Día</h4>
+            <div class="chart-svg-holder">${renderBarChartSVG(serieDiaria, { labelKey: 'fecha', valueKey: 'mm', color: '#1E6091', formatLabel: formatFechaCorta, formatValue: v => n1(v) + ' mm' })}</div>
+          </div>
+          <div class="chart-card" style="flex:1; min-width:320px;">
+            <h4>Horas de Riego por Cultivo</h4>
+            <div class="chart-svg-holder">${renderBarChartSVG(porCultivo, { labelKey: 'cultivo', valueKey: 'horas', color: '#1E6B4C', formatValue: v => n1(v) + ' hs' })}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">${tablaSerieDiariaHTML(serieDiaria)}</div>
+      </div>
+    `;
+    wireFiltroFechas('stats');
+  }
+
+  function kpiTileHTML(key, label, value, colorVar, colorSoftVar) {
+    const iconos = {
+      riegos: '<path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/>',
+      horas: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+      mm: '<path d="M16 3H8a2 2 0 0 0-2 2v14l6-3 6 3V5a2 2 0 0 0-2-2z"/>',
+      sup: '<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>',
+      prom: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'
+    };
+    return `
+      <div class="kpi-tile">
+        <div class="kpi-icon" style="color:${colorVar}; background:${colorSoftVar};">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconos[key] || iconos.riegos}</svg>
+        </div>
+        <div>
+          <div class="kpi-value">${value}</div>
+          <div class="kpi-label">${label}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function tablaSerieDiariaHTML(serie) {
+    if (serie.length === 0) return '<div class="vista-vacia">Sin datos en el rango seleccionado.</div>';
+    const maxMm = Math.max(...serie.map(s => parseFloat(s.mm) || 0), 0.0001);
+    return `
+      <div class="tabla-interna-fila wrapper">
+        <table class="tabla-interna-fila">
+          <thead>
+            <tr><th>FECHA</th><th style="text-align:center;">RIEGOS</th><th style="text-align:center;">HORAS</th><th>MM TOTALES</th></tr>
+          </thead>
+          <tbody>
+            ${serie.slice().reverse().map(s => {
+              const pct = Math.max(4, Math.round((parseFloat(s.mm) || 0) / maxMm * 100));
+              return `
+                <tr>
+                  <td><strong>${escapeHtml(formatFechaCorta(s.fecha))}</strong> <span style="color:var(--color-text-secondary); font-weight:400;">${escapeHtml(s.fecha)}</span></td>
+                  <td style="text-align:center;">${n1(s.riegos)}</td>
+                  <td style="text-align:center;">${n1(s.horas)}</td>
+                  <td>
+                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--color-riego-dark);"><span>${n1(s.mm)} mm</span></div>
+                    <div class="sparkbar-track"><div class="sparkbar-fill" style="width:${pct}%;"></div></div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function calcularNiceMax(v) {
+    if (v <= 0) return 1;
+    const exp = Math.floor(Math.log10(v));
+    const base = Math.pow(10, exp);
+    const norm = v / base;
+    let niceNorm;
+    if (norm <= 1) niceNorm = 1; else if (norm <= 2) niceNorm = 2; else if (norm <= 5) niceNorm = 5; else niceNorm = 10;
+    return niceNorm * base;
+  }
+  function formatearNumeroCorto(v) {
+    if (v >= 1000) return (v / 1000).toFixed(1) + 'k';
+    return String(Math.round(v * 10) / 10);
+  }
+  function pathBarraRedondeada(x, y, w, h, r) {
+    if (h <= 0.5) { const baseline = y + h; return `M${x},${baseline} L${x + w},${baseline} Z`; }
+    r = Math.min(r, w / 2, h);
+    return `M${x},${y + h} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} L${x + w},${y + h} Z`;
+  }
+
+  function renderBarChartSVG(rows, opts) {
+    if (!rows || rows.length === 0) return '<div class="vista-vacia" style="padding:30px 0;">Sin datos en el rango seleccionado.</div>';
+    const W = 620, H = 210, padL = 40, padR = 10, padT = 14, padB = 30;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const values = rows.map(r => Number(r[opts.valueKey]) || 0);
+    const niceMax = calcularNiceMax(Math.max(...values, 0.0001));
+    const n = rows.length;
+    const slot = plotW / n;
+    const barW = Math.min(24, Math.max(6, slot - 6));
+
+    let grid = '';
+    for (let s = 0; s <= 3; s++) {
+      const gy = padT + plotH - (plotH * s / 3);
+      const gv = niceMax * s / 3;
+      grid += `<line x1="${padL}" y1="${gy}" x2="${W - padR}" y2="${gy}" stroke="#E1E0D9" stroke-width="1"/>`;
+      grid += `<text x="${padL - 8}" y="${gy + 3}" font-size="9" fill="#898781" text-anchor="end">${formatearNumeroCorto(gv)}</text>`;
+    }
+
+    let bars = '', labels = '';
+    const showEvery = n <= 10 ? 1 : Math.ceil(n / 10);
+    rows.forEach((r, i) => {
+      const val = Number(r[opts.valueKey]) || 0;
+      const x = padL + i * slot + (slot - barW) / 2;
+      const h = plotH * (val / niceMax);
+      const y = padT + (plotH - h);
+      const path = pathBarraRedondeada(x, y, barW, h, 4);
+      const labelRaw = opts.formatLabel ? opts.formatLabel(r[opts.labelKey]) : String(r[opts.labelKey] == null ? '—' : r[opts.labelKey]);
+      const valorTexto = opts.formatValue ? opts.formatValue(val) : String(val);
+      const tooltipHtml = `<strong>${escapeHtml(labelRaw)}</strong><br>${escapeHtml(valorTexto)}`;
+      const tooltipAttr = escapeAttr(tooltipHtml);
+      bars += `<path d="${path}" fill="${opts.color}" rx="4" onmousemove="window.moverTooltipChart(event, '${tooltipAttr}')" onmouseenter="window.moverTooltipChart(event, '${tooltipAttr}')" onmouseleave="window.ocultarTooltipChart()"></path>`;
+      if (i % showEvery === 0) {
+        const lblShort = labelRaw.length > 9 ? labelRaw.slice(0, 8) + '…' : labelRaw;
+        labels += `<text x="${x + barW / 2}" y="${H - 10}" font-size="9" fill="#556358" text-anchor="middle">${escapeHtml(lblShort)}</text>`;
+      }
+    });
+
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:200px;">${grid}${bars}${labels}</svg>`;
+  }
+
+  window.moverTooltipChart = function(evt, htmlTexto) {
+    const tt = document.getElementById('chartTooltip');
+    tt.innerHTML = htmlTexto;
+    tt.style.left = (evt.clientX + 16) + 'px';
+    tt.style.top = (evt.clientY + 12) + 'px';
+    tt.classList.add('show');
+  };
+  window.ocultarTooltipChart = function() {
+    document.getElementById('chartTooltip').classList.remove('show');
+  };
+
+  function construirFiltroFechasHTML(prefix, desde, hasta) {
+    return `
+      <div class="filtro-fechas-card">
+        <div class="filtro-fechas-chips">
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',7)">Últimos 7 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',30)">Últimos 30 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',90)">Últimos 90 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}','mes')">Este mes</button>
+        </div>
+        <div class="filtro-fechas-inputs">
+          <div class="modal-group"><label>Desde</label><input type="date" id="${prefix}Desde" class="modal-input" value="${desde}" /></div>
+          <div class="modal-group"><label>Hasta</label><input type="date" id="${prefix}Hasta" class="modal-input" value="${hasta}" /></div>
+          <button type="button" class="btn-sync-top" id="${prefix}BtnAplicar">Aplicar Rango</button>
+        </div>
+      </div>
+    `;
+  }
+  function wireFiltroFechas(prefix) {
+    const btn = document.getElementById(prefix + 'BtnAplicar');
+    if (btn) btn.addEventListener('click', () => window.aplicarFiltroFechas(prefix));
+  }
+  function setFechasEstado(prefix, d, h) {
+    if (prefix === 'hist') { histDesde = d; histHasta = h; }
+    else if (prefix === 'inf') { infDesde = d; infHasta = h; }
+    else if (prefix === 'stats') { statsDesde = d; statsHasta = h; }
+  }
+  function rerenderSeccionActual() {
+    if (seccionActual === 'historial') renderHistorial();
+    else if (seccionActual === 'informes') renderInformes();
+    else if (seccionActual === 'estadisticas') renderEstadisticas();
+  }
+  window.aplicarPresetFechas = function(prefix, dias) {
+    const hasta = hoyStr();
+    const desde = dias === 'mes' ? primerDiaMesStr() : sumarDiasStr(hoyStr(), -dias);
+    setFechasEstado(prefix, desde, hasta);
+    rerenderSeccionActual();
+  };
+  window.aplicarFiltroFechas = function(prefix) {
+    const dEl = document.getElementById(prefix + 'Desde');
+    const hEl = document.getElementById(prefix + 'Hasta');
+    if (!dEl || !hEl) return;
+    const d = dEl.value, h = hEl.value;
+    if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
+    if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+    setFechasEstado(prefix, d, h);
+    rerenderSeccionActual();
+  };
+
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os');
+    const pathMod = require('path');
+    const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+
+  function generarGraficoPNGEnCanvas(datos, titulo, labelKey, valueKey, colorHex) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 750;
+    canvas.height = 380;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#123A57';
+    ctx.font = 'bold 18px Roboto, sans-serif';
+    ctx.fillText(titulo, 40, 38);
+
+    if (!datos || datos.length === 0) return canvas.toDataURL('image/png');
+
+    const maxVal = Math.max(...datos.map(d => Number(d[valueKey]) || 0), 1);
+    const paddingLeft = 55, paddingBottom = 55, paddingTop = 65, paddingRight = 35;
+    const chartWidth = canvas.width - paddingLeft - paddingRight;
+    const chartHeight = canvas.height - paddingTop - paddingBottom;
+    const gap = chartWidth / datos.length;
+    const barWidth = Math.min(42, Math.max(12, gap * 0.55));
+
+    ctx.strokeStyle = '#E2E8F0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = paddingTop + chartHeight - (chartHeight * (i / 4));
+      const val = (maxVal * (i / 4)).toFixed(1);
+      ctx.beginPath(); ctx.moveTo(paddingLeft, y); ctx.lineTo(canvas.width - paddingRight, y); ctx.stroke();
+      ctx.fillStyle = '#718096'; ctx.font = '11px Roboto, sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(val, paddingLeft - 8, y + 4);
+    }
+
+    datos.forEach((item, idx) => {
+      const x = paddingLeft + (idx * gap) + (gap - barWidth) / 2;
+      const val = Number(item[valueKey]) || 0;
+      const h = (val / maxVal) * chartHeight;
+      const y = paddingTop + chartHeight - h;
+
+      ctx.fillStyle = colorHex || '#1E6091';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, barWidth, h, [5, 5, 0, 0]);
+      else ctx.rect(x, y, barWidth, h);
+      ctx.fill();
+
+      ctx.fillStyle = '#1A211C';
+      ctx.font = 'bold 11px Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(val.toFixed(1), x + barWidth / 2, Math.max(paddingTop + 12, y - 6));
+
+      ctx.fillStyle = '#4A5568';
+      ctx.font = '10px Roboto, sans-serif';
+      const lbl = String(item[labelKey] || '');
+      ctx.fillText(lbl.length > 12 ? lbl.slice(0, 10) + '..' : lbl, x + barWidth / 2, paddingTop + chartHeight + 18);
+    });
+
+    return canvas.toDataURL('image/png');
+  }
+
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(sanitizarNombreHoja(nombre));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6091' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 24;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  async function agregarPestanaGraficosEnExcel(wb, colapsados) {
+    const wsGraf = wb.addWorksheet('Gráficos y Resumen');
+
+    const resumenParcela = {};
+    colapsados.forEach(f => {
+      const p = f.cuadro;
+      if (!resumenParcela[p]) resumenParcela[p] = { parcela: p, horas: 0, mm: 0 };
+      resumenParcela[p].horas += f.horas;
+      resumenParcela[p].mm += f.mm;
+    });
+    const listaParcelas = Object.values(resumenParcela).sort((a, b) => b.mm - a.mm);
+
+    wsGraf.columns = [
+      { header: 'PARCELA', key: 'parcela', width: 22 },
+      { header: 'HORAS TOTALES', key: 'horas', width: 18 },
+      { header: 'TOTAL MM', key: 'mm', width: 18 }
+    ];
+
+    const hRow = wsGraf.getRow(1);
+    hRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF104630' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    hRow.height = 24;
+
+    listaParcelas.forEach(p => {
+      wsGraf.addRow({
+        parcela: p.parcela,
+        horas: Number(n1(p.horas)),
+        mm: Number(n1(p.mm))
+      });
+    });
+
+    const chartPng1 = generarGraficoPNGEnCanvas(listaParcelas, 'Total Milímetros Aplicados por Parcela', 'parcela', 'mm', '#1E6091');
+    const imageId1 = wb.addImage({ base64: chartPng1, extension: 'png' });
+    wsGraf.addImage(imageId1, {
+      tl: { col: 4, row: 1 },
+      ext: { width: 620, height: 310 }
+    });
+
+    const chartPng2 = generarGraficoPNGEnCanvas(listaParcelas, 'Total Horas de Riego por Parcela', 'parcela', 'horas', '#1E6B4C');
+    const imageId2 = wb.addImage({ base64: chartPng2, extension: 'png' });
+    wsGraf.addImage(imageId2, {
+      tl: { col: 4, row: 18 },
+      ext: { width: 620, height: 310 }
+    });
+  }
+
+  function construirIndiceCascadaRiego() {
+    const marcos = q('SELECT * FROM local_p_marcos_plantacion');
+    const cuadros = q('SELECT * FROM local_p_cuadros');
+    const inventario = q("SELECT cod_marco, cuadro, variedad FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO'");
+
+    const marcoPorCodigo = {}, marcosPorCodParcela = {}, marcosPorNombreCuadro = {};
+    const cuadroPorCodParcela = {}, parcelaPorNombre = {};
+    const variedadesPorCodMarco = {}, variedadesPorCuadroInv = {}, codMarcosPorCuadroInv = {};
+
+    const pushUnico = (obj, clave, valor) => {
+      if (!clave) return;
+      if (!obj[clave]) obj[clave] = [];
+      if (!obj[clave].includes(valor)) obj[clave].push(valor);
+    };
+
+    marcos.forEach(m => {
+      marcoPorCodigo[String(m.cod_marco)] = m;
+      pushUnico(marcosPorCodParcela, String(m.cod_parcela), m.cod_marco);
+      pushUnico(marcosPorNombreCuadro, String(m.cuadro || '').trim().toUpperCase(), m.cod_marco);
+    });
+    cuadros.forEach(c => {
+      cuadroPorCodParcela[String(c.cod_parcela)] = c;
+      const k = String(c.nombre || '').trim().toUpperCase();
+      if (k) parcelaPorNombre[k] = c;
+    });
+    inventario.forEach(i => {
+      const cuadroKey = String(i.cuadro || '').trim().toUpperCase();
+      const variedad = String(i.variedad || '').trim();
+      pushUnico(codMarcosPorCuadroInv, cuadroKey, i.cod_marco);
+      if (variedad && variedad !== '-') {
+        pushUnico(variedadesPorCodMarco, String(i.cod_marco), variedad);
+        pushUnico(variedadesPorCuadroInv, cuadroKey, variedad);
+      }
+    });
+
+    return {
+      marcoPorCodigo, marcosPorCodParcela, marcosPorNombreCuadro,
+      cuadroPorCodParcela, parcelaPorNombre,
+      variedadesPorCodMarco, variedadesPorCuadroInv, codMarcosPorCuadroInv
+    };
+  }
+
+  function resolverCascadaRiego(idx, registro) {
+    const clave = String(registro.parcela || '').trim().toUpperCase();
+    let codMarcos = [];
+    let variedades = [];
+
+    if (idx.codMarcosPorCuadroInv[clave]) {
+      codMarcos = idx.codMarcosPorCuadroInv[clave];
+      variedades = (idx.variedadesPorCuadroInv[clave] || []).slice();
+    } else if (idx.parcelaPorNombre[clave]) {
+      codMarcos = idx.marcosPorCodParcela[String(idx.parcelaPorNombre[clave].cod_parcela)] || [];
+    } else if (idx.marcosPorNombreCuadro[clave]) {
+      codMarcos = idx.marcosPorNombreCuadro[clave];
+    }
+
+    if (variedades.length === 0) {
+      codMarcos.forEach(cm => (idx.variedadesPorCodMarco[String(cm)] || []).forEach(v => {
+        if (!variedades.includes(v)) variedades.push(v);
+      }));
+    }
+
+    const marcoRef = codMarcos.length ? (idx.marcoPorCodigo[String(codMarcos[0])] || {}) : {};
+    const cuadroMadre = marcoRef.cod_parcela != null
+      ? (idx.cuadroPorCodParcela[String(marcoRef.cod_parcela)] || {})
+      : (idx.parcelaPorNombre[clave] || {});
+
+    return {
+      codMarco: codMarcos.length ? codMarcos.join(' / ') : '—',
+      marco: marcoRef.cuadro || '—',
+      parcelaMarco: marcoRef.nombre_parcela || '—',
+      zona: marcoRef.nombre_zona || '—',
+      turno: marcoRef.turno == null ? '' : marcoRef.turno,
+      cuadroMadre: cuadroMadre.nombre || '—',
+      sector: cuadroMadre.sector || '—',
+      variedad: variedades.length ? variedades.join(' / ') : (String(registro.variedad || '').trim() || '—')
+    };
+  }
+
+  function sanitizarNombreHoja(nombre) {
+    if (!nombre) return 'Hoja1';
+    return String(nombre)
+      .replace(/[*?:\\\/\[\]]/g, '-')
+      .trim()
+      .slice(0, 31);
+  }
+
+  window.exportarHistorialExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, id ASC', histDesde, histHasta);
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay registros para exportar en el rango.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Riego';
+
+      const colapsados = colapsarRegistrosRiego(filas)
+        .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') || a.cuadro.localeCompare(b.cuadro));
+
+      crearHojaEstilizada(wb, 'Riego', [
+        { header: 'periodo', key: 'periodo', width: 14 },
+        { header: 'Fecha', key: 'fecha', width: 16 },
+        { header: 'parcela', key: 'parcela', width: 22 },
+        { header: 'Lámina (mm/h)', key: 'lamina', width: 18 },
+        { header: 'Horas', key: 'horas', width: 12 },
+        { header: 'Total (mm)', key: 'total_mm', width: 16 }
+      ], colapsados.map(f => ({
+        periodo: Number(f.periodo),
+        fecha: f.fecha,
+        parcela: f.cuadro,
+        lamina: Number(n1(f.lamina)),
+        horas: Number(n1(f.horas)),
+        total_mm: Number(n1(f.mm))
+      })));
+
+      await agregarPestanaGraficosEnExcel(wb, colapsados);
+
+      const nombre = `Exportacion_Riego_${histDesde}_a_${histHasta}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  };
+
+  window.exportarInformeExcel = async function(key) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filasRango = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, id ASC', infDesde, infHasta);
+    if (filasRango.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Riego';
+
+      let filasExcelDetalladas = [];
+
+      if (key === 'cuadro') {
+        // Consolidación de sesiones fecha por fecha para cada cuadro
+        const mapaFechaCuadro = {};
+        filasRango.forEach(r => {
+          const fecha = String(r.fecha || '').trim();
+          const cuadro = extraerCuadroBase(r.parcela);
+          const periodo = r.periodo || fecha.replace(/-/g, '').substring(0, 6);
+          const comentario = String(r.comentario == null ? '' : r.comentario).trim();
+          const horas = parseFloat(r.horas) || 0;
+          const lamina = parseFloat(r.lamina) || 0;
+          const sup = parseFloat(r.sup_riego) || 0;
+
+          // Clave única por cada día y sesión de riego del cuadro
+          const claveSesion = [fecha, cuadro.toUpperCase(), comentario.toUpperCase(), n1(horas), n1(lamina)].join('||');
+
+          if (!mapaFechaCuadro[claveSesion]) {
+            mapaFechaCuadro[claveSesion] = {
+              periodo: Number(periodo),
+              fecha: fecha,
+              parcela: cuadro,
+              lamina: lamina,
+              horas: horas,
+              total_mm: lamina * horas,
+              sup: 0,
+              comentario: comentario
+            };
+          }
+          mapaFechaCuadro[claveSesion].sup += sup;
+        });
+
+        // Orden cronológico y por nombre de cuadro
+        filasExcelDetalladas = Object.values(mapaFechaCuadro).sort((a, b) => 
+          a.fecha.localeCompare(b.fecha) || a.parcela.localeCompare(b.parcela, 'es', { numeric: true })
+        // ESTO LO MODIFIQUE
+        ).map(f => ({
+          periodo: f.periodo,
+          fecha: f.fecha,
+          parcela: f.parcela,
+          lamina: Number(n1(f.lamina)),
+          horas: Number(n1(f.horas)),
+          total_mm: Number(n1(f.total_mm)),
+          sup: Number(n2(f.sup)),
+          comentario: f.comentario || '—'
+        }));
+
+        // Hoja 1: Detalle fecha por fecha
+        // ESTO LO MODIFIQUE
+        crearHojaEstilizada(wb, 'Riego Detallado', [
+          { header: 'periodo', key: 'periodo', width: 14 },
+          { header: 'Fecha', key: 'fecha', width: 16 },
+          { header: 'parcela', key: 'parcela', width: 22 },
+          { header: 'Lámina (mm/h)', key: 'lamina', width: 18 },
+          { header: 'Horas', key: 'horas', width: 12 },
+          { header: 'Total (mm)', key: 'total_mm', width: 16 },
+          { header: 'Sup (ha)', key: 'sup', width: 14 },
+          { header: 'Comentario', key: 'comentario', width: 26 }
+        ], filasExcelDetalladas);
+
+      } else {
+        // Para otros conceptos (operario, cultivo, etc.) colapsa manteniendo fecha por fecha
+        const colapsados = colapsarRegistrosRiego(filasRango)
+          .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') || a.cuadro.localeCompare(b.cuadro));
+
+        crearHojaEstilizada(wb, 'Riego Detallado', [
+          { header: 'periodo', key: 'periodo', width: 14 },
+          { header: 'Fecha', key: 'fecha', width: 16 },
+          { header: 'parcela', key: 'parcela', width: 22 },
+          { header: 'Lámina (mm/h)', key: 'lamina', width: 18 },
+          { header: 'Horas', key: 'horas', width: 12 },
+          { header: 'Total (mm)', key: 'total_mm', width: 16 }
+        ], colapsados.map(f => ({
+          periodo: Number(f.periodo),
+          fecha: f.fecha,
+          parcela: f.cuadro,
+          lamina: Number(n1(f.lamina)),
+          horas: Number(n1(f.horas)),
+          total_mm: Number(n1(f.mm))
+        })));
+      }
+
+      // Hoja 2: Gráficos y resumen acumulado del período
+      const colapsadosBase = colapsarRegistrosRiego(filasRango);
+      await agregarPestanaGraficosEnExcel(wb, colapsadosBase);
+
+      const nombre = `Informe_Riego_${key}_${infDesde}_a_${infHasta}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel generado fecha por fecha: ${nombre}!`, 'success');
+    } catch (err) { 
+      console.error(err); 
+      lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); 
+    }
+};
+
+window.exportarEstadisticasExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Riego';
+
+      const filasRango = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, parcela ASC', statsDesde, statsHasta);
+      const colapsados = colapsarRegistrosRiego(filasRango);
+
+      crearHojaEstilizada(wb, 'Riego', [
+        { header: 'periodo', key: 'periodo', width: 14 },
+        { header: 'Fecha', key: 'fecha', width: 16 },
+        { header: 'parcela', key: 'parcela', width: 22 },
+        { header: 'Lámina (mm/h)', key: 'lamina', width: 18 },
+        { header: 'Horas', key: 'horas', width: 12 },
+        { header: 'Total (mm)', key: 'total_mm', width: 16 }
+      ], colapsados.map(f => ({
+        periodo: Number(f.periodo),
+        fecha: f.fecha,
+        parcela: f.cuadro,
+        lamina: Number(n1(f.lamina)),
+        horas: Number(n1(f.horas)),
+        total_mm: Number(n1(f.mm))
+      })));
+
+      await agregarPestanaGraficosEnExcel(wb, colapsados);
+
+      const nombre = `Estadisticas_Riego_${statsDesde}_a_${statsHasta}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+};
+
+  document.getElementById('topDateTime').textContent = new Date()
+    .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+    .toUpperCase();
+  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+
+  cargarMaestrosRiego();
+  cargarSeccion();
+})();
+</script>
+</body>
+</html>

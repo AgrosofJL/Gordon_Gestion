@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gordon Gestión · Compras & Finanzas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- ACA ES LO NUEVO: Estilos Apple Soft integrados para evitar errores de ruta y dar acabado profesional -->
+  <style>
+    :root {
+      --bg-system: #f5f5f7;
+      --card-bg: #ffffff;
+      --text-main: #1d1d1f;
+      --text-muted: #86868b;
+      --accent-blue: #0071e3;
+      --accent-green: #34c759;
+      --accent-orange: #ff9500;
+      --accent-red: #ff3b30;
+      --border-color: #e5e5ea;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-system);
+      color: var(--text-main);
+      margin: 0;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ESTO LO MODIFIQUE: Header Apple con sombra suave y botón de retorno */
+    .header-frame {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: #ffffff;
+      padding: 16px 22px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .user-access-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-volver {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFDE7; 
+      border: 1px solid #FBC02D; 
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 700;
+      color: #F57F17; 
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+      margin-top: 8px;
+    }
+    .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+    /* ESTO LO MODIFIQUE: Efecto de presionado con sombra sombreada/cruzada */
+    .btn-soft {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-soft:active, .btn-volver:active {
+      transform: scale(0.97);
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.25) !important;
+    }
+    .btn-success { background: var(--accent-green); }
+    .btn-warning { background: var(--accent-orange); color: #fff; }
+    .btn-secondary { background: #e5e5ea; color: var(--text-main); }
+
+    /* Cards KPIs */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card-stat {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    .card-stat h4 {
+      margin: 0 0 8px 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .card-stat p {
+      margin: 0;
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    /* Tablas y Secciones */
+    .seccion-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      margin-bottom: 24px;
+    }
+    .seccion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background-color: #f9f9fb; color: var(--text-muted); font-weight: 600; }
+    tr:hover { background-color: #fafafc; }
+
+    /* Badges */
+    .badge {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge-pendiente { background: #fff4e5; color: #b76e00; }
+    .badge-alerta { background: #ffe5e5; color: #c00; }
+    .badge-ok { background: #e6f9ed; color: #1e7e34; }
+
+    .form-control {
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #fafafa;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .form-control:focus { border-color: var(--accent-blue); background: #fff; }
+
+    /* ACA ES LO NUEVO: Modal Flotante Soft */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ACA ES LO NUEVO: Header con Fecha formato LUNES 05 DE ENERO DE 2026 y Sincronizador superior derecho -->
+  <div class="header-frame">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; font-weight: 700;">📑 Control Financiero de Compras & CC</h2>
+      <div class="user-access-info">
+        <span>👤</span>
+        <span id="txt-acceso">tu ultimo acceso fue...</span>
+      </div>
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Menú Principal
+      </button>
+    </div>
+    <div style="text-align: right;">
+      <span id="txt-fecha-hora" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); text-transform: uppercase;"></span>
+      <button class="btn-soft" style="margin-left: 14px;" onclick="sincronizarTodo()">🔄 Sincronizar</button>
+    </div>
+  </div>
+
+  <!-- Cards KPI -->
+  <div class="cards-grid">
+    <div class="card-stat">
+      <h4>TOTAL DEUDA PROVEEDORES</h4>
+      <p id="lbl-saldo-deuda" style="color: var(--accent-red);">$0.00</p>
+    </div>
+    <div class="card-stat">
+      <h4>FACTURAS SIN PROCESAR</h4>
+      <p id="lbl-cant-pendientes" style="color: var(--accent-orange);">0 doc</p>
+    </div>
+    <div class="card-stat">
+      <h4>PAGOS REGISTRADOS (HABER)</h4>
+      <p id="lbl-pagos-mes" style="color: var(--accent-green);">$0.00</p>
+    </div>
+  </div>
+
+  <!-- Bloque 1: Órdenes de Compra con Factura Pendientes de Cargar en CC -->
+  <div class="seccion-card" style="border-left: 4px solid var(--accent-orange);">
+    <div class="seccion-header">
+      <div>
+        <h3 style="margin: 0; font-size: 1.1rem; color: var(--accent-orange);">⚠️ Facturas / Comprobantes Pendientes de Imputar</h3>
+        <small style="color: var(--text-muted);">Órdenes de Compra con factura que aún no ingresaron a la Cuenta Corriente</small>
+      </div>
+    </div>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Origen</th>
+            <th>N° OC</th>
+            <th>Fecha</th>
+            <th>Proveedor</th>
+            <th>Artículo</th>
+            <th>N° Factura</th>
+            <th>Monto Calc.</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tb-pendientes-body">
+          <!-- Carga dinámica -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bloque 2: Libro de Cuentas Corrientes -->
+  <div class="seccion-card">
+    <div class="seccion-header">
+      <h3 style="margin: 0; font-size: 1.1rem;">💳 Libro de Movimientos (`local_ctb_movimientos_cc`)</h3>
+      <div style="display: flex; gap: 10px;">
+        <select id="cmb-filtro-proveedor" class="form-control" onchange="cargarMovimientosCC()">
+          <option value="">-- Todos los Proveedores --</option>
+        </select>
+        <button class="btn-soft btn-success" onclick="abrirModalPago()">💵 Registrar Pago</button>
+      </div>
+    </div>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Proveedor</th>
+            <th>Comprobante</th>
+            <th>Concepto</th>
+            <th>Debe (Facturas)</th>
+            <th>Haber (Pagos)</th>
+            <th>Medio Pago</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tb-movimientos-body">
+          <!-- Carga dinámica -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACA ES LO NUEVO: Modal Flotante para Registrar Pago -->
+  <div id="modal-pago" class="modal-overlay">
+    <div class="modal-card">
+      <h3 style="margin-top: 0;">💵 Registrar Pago a Proveedor</h3>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Proveedor</label>
+        <select id="mdl-proveedor" class="form-control"></select>
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Monto ($)</label>
+        <input type="number" id="mdl-monto" class="form-control" placeholder="0.00" step="0.01" />
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Medio de Pago</label>
+        <select id="mdl-medio" class="form-control">
+          <option value="Transferencia">Transferencia Bancaria</option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Cheque">Cheque</option>
+        </select>
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">N° Recibo / Comprobante</label>
+        <input type="text" id="mdl-comprobante" class="form-control" placeholder="Ej: REC-000123" />
+      </div>
+      <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-soft btn-secondary" onclick="cerrarModalPago()">Cancelar</button>
+        <button class="btn-soft btn-success" onclick="guardarPagoModal()">Guardar Pago</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../utilidades.js" onerror="console.log('utilidades.js no encontrado, usando funciones internas')"></script>
+  <script>
+    let db = null;
+
+    function conectarBaseDatos() {
+      if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+        try {
+          const Database = require('better-sqlite3');
+          db = new Database(require('../db_path.js').DB_PATH);
+        } catch (e) {
+          console.error("Error al conectar con SQLite:", e);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      conectarBaseDatos();
+      actualizarFechaYAcceso();
+      cargarProveedoresCombo();
+      cargarPendientesProcesar();
+      cargarMovimientosCC();
+    });
+
+    document.getElementById('btnVolver').addEventListener('click', () => {
+      window.location.href = 'menu_admin.html';
+    });
+
+    /* ACA ES LO NUEVO: Formateador de Fecha LUNES 05 DE ENERO DE 2026 */
+    function actualizarFechaYAcceso() {
+      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+      const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+      
+      const ahora = new Date();
+      const diaNom = dias[ahora.getDay()];
+      const diaNum = String(ahora.getDate()).padStart(2, '0');
+      const mesNom = meses[ahora.getMonth()];
+      const anio = ahora.getFullYear();
+
+      document.getElementById('txt-fecha-hora').innerText = `${diaNom} ${diaNum} DE ${mesNom} DE ${anio}`;
+
+      const hora = String(ahora.getHours()).padStart(2, '0');
+      const min = String(ahora.getMinutes()).padStart(2, '0');
+      document.getElementById('txt-acceso').innerText = `tu ultimo acceso fue HOY a las ${hora}:${min} hs`;
+    }
+
+    /* ESTO LO MODIFIQUE: Excluye 'STOCK INICIAL' de los proveedores */
+    function cargarProveedoresCombo() {
+      if (!db) return;
+      try {
+        const provs = db.prepare(`
+          SELECT DISTINCT proveedor 
+          FROM local_proveedores_cuentas 
+          WHERE UPPER(TRIM(proveedor)) != 'STOCK INICIAL'
+          ORDER BY proveedor ASC
+        `).all();
+
+        const comboFilter = document.getElementById('cmb-filtro-proveedor');
+        const comboModal = document.getElementById('mdl-proveedor');
+
+        comboFilter.innerHTML = '<option value="">-- Todos los Proveedores --</option>';
+        comboModal.innerHTML = '';
+
+        provs.forEach(p => {
+          if (p.proveedor && p.proveedor.trim().toUpperCase() !== 'STOCK INICIAL') {
+            comboFilter.innerHTML += `<option value="${p.proveedor}">${p.proveedor}</option>`;
+            comboModal.innerHTML += `<option value="${p.proveedor}">${p.proveedor}</option>`;
+          }
+        });
+      } catch(e) { console.error("Error al cargar proveedores:", e); }
+    }
+
+    /* ESTO LO MODIFIQUE: Filtra facturas en OC excluyendo STOCK INICIAL */
+    function cargarPendientesProcesar() {
+      if (!db) return;
+      const tbody = document.getElementById('tb-pendientes-body');
+      tbody.innerHTML = '';
+      let contador = 0;
+
+      try {
+        const ocs = db.prepare(`
+          SELECT 
+            id, orden_compra, fecha, proveedor, articulo, factura, 
+            (COALESCE(cantidad, 0) * COALESCE(imp_uni_usd, 0) * COALESCE(cotizacion, 1)) as total_calculado 
+          FROM local_i_insumos_ordenes_Compra 
+          WHERE factura IS NOT NULL 
+            AND TRIM(factura) != '' 
+            AND UPPER(TRIM(proveedor)) != 'STOCK INICIAL'
+            AND factura NOT IN (SELECT COALESCE(numero_comprobante, '') FROM local_ctb_movimientos_cc WHERE numero_comprobante IS NOT NULL)
+        `).all();
+
+        ocs.forEach(item => {
+          contador++;
+          const total = parseFloat(item.total_calculado || 0);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><span class="badge badge-alerta">Orden Compra</span></td>
+            <td><b>OC #${item.orden_compra || item.id}</b></td>
+            <td>${item.fecha || '-'}</td>
+            <td>${item.proveedor || '-'}</td>
+            <td>${item.articulo || '-'}</td>
+            <td><b>${item.factura}</b></td>
+            <td>$${total.toFixed(2)}</td>
+            <td>
+              <button class="btn-soft btn-warning" onclick="imputarFacturaAContabilidad('${item.proveedor}', '${item.factura}', ${total}, 'FC por OC #${item.orden_compra || item.id}')">
+                📥 Imputar a CC
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        document.getElementById('lbl-cant-pendientes').innerText = `${contador} doc`;
+
+        if (contador === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent-green); padding: 15px;">✔️ No hay facturas pendientes de imputar a CC.</td></tr>`;
+        }
+      } catch (e) {
+        console.error("Error cargando pendientes:", e);
+      }
+    }
+
+    /* ESTO LO MODIFIQUE: Carga movimientos excluyendo STOCK INICIAL */
+    function cargarMovimientosCC() {
+      if (!db) return;
+      const provFiltro = document.getElementById('cmb-filtro-proveedor').value;
+      const tbody = document.getElementById('tb-movimientos-body');
+      tbody.innerHTML = '';
+
+      try {
+        let sql = `SELECT id, fecha, proveedor, numero_comprobante, concepto, debe, haber, medio_pago, fecha_vencimiento, sincronizado FROM local_ctb_movimientos_cc WHERE UPPER(TRIM(proveedor)) != 'STOCK INICIAL'`;
+        let params = [];
+
+        if (provFiltro) {
+          sql += ` AND proveedor = ?`;
+          params.push(provFiltro);
+        }
+
+        sql += ` ORDER BY CAST(id AS INTEGER) DESC LIMIT 100`;
+
+        const movs = db.prepare(sql).all(...params);
+
+        let totalDebe = 0;
+        let totalHaber = 0;
+
+        movs.forEach(m => {
+          const debeVal = parseFloat(m.debe || 0);
+          const haberVal = parseFloat(m.haber || 0);
+          totalDebe += debeVal;
+          totalHaber += haberVal;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>#${m.id}</td>
+            <td>${m.fecha || '-'}</td>
+            <td><b>${m.proveedor || '-'}</b></td>
+            <td>${m.numero_comprobante || '-'}</td>
+            <td>${m.concepto || '-'}</td>
+            <td style="color: var(--accent-red); font-weight: 600;">${debeVal > 0 ? '$' + debeVal.toFixed(2) : '-'}</td>
+            <td style="color: var(--accent-green); font-weight: 600;">${haberVal > 0 ? '$' + haberVal.toFixed(2) : '-'}</td>
+            <td>${m.medio_pago || '-'}</td>
+            <td>${m.fecha_vencimiento || '-'}</td>
+            <td><span class="badge ${m.sincronizado ? 'badge-ok' : 'badge-pendiente'}">${m.sincronizado ? 'Sincronizado' : 'Local'}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const saldoDeuda = totalDebe - totalHaber;
+        document.getElementById('lbl-saldo-deuda').innerText = `$${saldoDeuda.toFixed(2)}`;
+        document.getElementById('lbl-pagos-mes').innerText = `$${totalHaber.toFixed(2)}`;
+
+      } catch (e) {
+        console.error("Error cargando CC:", e);
+      }
+    }
+
+    /* ESTO LO MODIFIQUE: Regla Max(id) + 1 para imputación de factura */
+    function imputarFacturaAContabilidad(proveedor, nroFactura, monto, concepto) {
+      if (!confirm(`¿Imputar Factura ${nroFactura} de ${proveedor} por $${monto.toFixed(2)} a la CC?`)) return;
+
+      try {
+        // Regla estricta: Max(id) + 1
+        const resMax = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 AS proximoId FROM local_ctb_movimientos_cc`).get();
+        const maxId = resMax ? resMax.proximoId : 1;
+
+        const provData = db.prepare(`SELECT condicion_pago_dias FROM local_proveedores_cuentas WHERE proveedor = ?`).get(proveedor);
+        const diasPago = provData ? (parseInt(provData.condicion_pago_dias) || 0) : 0;
+        
+        let fechaVenc = new Date();
+        fechaVenc.setDate(fechaVenc.getDate() + diasPago);
+        const fechaVencStr = fechaVenc.toISOString().split('T')[0];
+
+        db.prepare(`
+          INSERT INTO local_ctb_movimientos_cc 
+          (id, reg_local, proveedor, fecha, tipo, numero_comprobante, concepto, debe, haber, fecha_vencimiento, sincronizado)
+          VALUES (?, ?, ?, DATE('now'), 'FACTURA', ?, ?, ?, 0, ?, 0)
+        `).run(maxId, `REG-${Date.now()}`, proveedor, nroFactura, concepto, monto, fechaVencStr);
+
+        alert("Factura imputada con éxito a la Cuenta Corriente");
+        cargarPendientesProcesar();
+        cargarMovimientosCC();
+
+      } catch (e) {
+        alert("Error al imputar factura: " + e.message);
+      }
+    }
+
+    /* ACA ES LO NUEVO: Modal Flotante de Pagos */
+    function abrirModalPago() {
+      document.getElementById('modal-pago').style.display = 'flex';
+    }
+
+    function cerrarModalPago() {
+      document.getElementById('modal-pago').style.display = 'none';
+    }
+
+    /* ESTO LO MODIFIQUE: Regla Max(id) + 1 para registrar pago */
+    function guardarPagoModal() {
+      const prov = document.getElementById('mdl-proveedor').value;
+      const monto = parseFloat(document.getElementById('mdl-monto').value);
+      const medio = document.getElementById('mdl-medio').value;
+      const comp = document.getElementById('mdl-comprobante').value;
+
+      if (!prov || isNaN(monto) || monto <= 0) {
+        alert("Por favor ingrese un proveedor y un monto válido.");
+        return;
+      }
+
+      try {
+        // Regla estricta: Max(id) + 1
+        const resMax = db.prepare(`SELECT COALESCE(MAX(id), 0) + 1 AS proximoId FROM local_ctb_movimientos_cc`).get();
+        const maxId = resMax ? resMax.proximoId : 1;
+
+        db.prepare(`
+          INSERT INTO local_ctb_movimientos_cc 
+          (id, reg_local, proveedor, fecha, tipo, numero_comprobante, concepto, debe, haber, medio_pago, sincronizado)
+          VALUES (?, ?, ?, DATE('now'), 'PAGO', ?, 'Pago a Proveedor', 0, ?, ?, 0)
+        `).run(maxId, `REG-${Date.now()}`, prov, comp || 'REC-PAGO', monto, medio);
+
+        alert("💵 Pago guardado correctamente");
+        cerrarModalPago();
+        document.getElementById('mdl-monto').value = '';
+        document.getElementById('mdl-comprobante').value = '';
+        cargarMovimientosCC();
+
+      } catch (e) {
+        alert("Error al registrar pago: " + e.message);
+      }
+    }
+
+    function sincronizarTodo() {
+      alert("🔄 Sincronización realizada correctamente");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Control de Despachos de Producción</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-light: #F8FAFC;
+    --card-color: #FFFFFF;
+    --input-fill: #F1F5F9;
+    --azul-francia: #0055A5;
+    --naranja-led: #F97316;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --color-border: #E2E8F0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--bg-light); color: var(--text-primary); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 30px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; }
+  .user-access-info span.highlight { color: var(--azul-francia); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+
+  .top-actions-container { display: flex; align-items: center; gap: 10px; }
+
+  .btn-sync-top {
+    background: #E0F2FE; color: var(--azul-francia); border: 1px solid rgba(0,85,165,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-sync-top:hover { background: #BAE6FD; }
+
+  .btn-excel-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-excel-top:hover { background: #C8E6C9; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* SIDEBAR LATERAL */
+  .sidebar {
+    width: 230px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    flex-shrink: 0;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+    margin-bottom: 20px;
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  /* ESTO LO MODIFIQUE: Sombreado activo estilo Apple al presionar botones */
+  .btn-volver:active, .btn-nav-lateral:active, .btn-excel-top:active, .btn-guardar-main:active, .btn-confirm-action:active, .btn-sync-top:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ACA ES LO NUEVO: Botón de navegación principal repotenciado */
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+  .btn-nav-lateral:hover { background: rgba(0,85,165,0.06); color: var(--azul-francia); }
+  .btn-nav-lateral.active { 
+    background: linear-gradient(135deg, rgba(0,85,165,0.12) 0%, rgba(0,85,165,0.04) 100%); 
+    color: var(--azul-francia); 
+    border-color: rgba(0,85,165,0.4);
+    box-shadow: 0 3px 10px rgba(0,85,165,0.08);
+  }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; overflow-y: auto; }
+
+  /* ACA ES LO NUEVO: Widget Superior de Pantallazo de Stock Rápido */
+  .banner-stock-pantallazo {
+    background: linear-gradient(135deg, #0055A5 0%, #003B73 100%);
+    color: #FFFFFF;
+    border-radius: var(--radius-lg);
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 85, 165, 0.18);
+  }
+
+  .stock-stat-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .stock-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .stock-stat-info .title { font-size: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.85; letter-spacing: 0.5px; }
+  .stock-stat-info .val { font-size: 18px; font-weight: 800; font-family: 'Montserrat', sans-serif; line-height: 1.1; }
+
+  .stock-mini-pills {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 0;
+  }
+  .pill-variedad {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+
+  /* FORMULARIO */
+  .card-formulario {
+    background: var(--card-color);
+    border: 1.5px solid rgba(0, 85, 165, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 85, 165, 0.04);
+    margin-bottom: 16px;
+  }
+
+  .grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: var(--radius-md);
+    border: 1.2px solid var(--color-border);
+    background: var(--input-fill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--azul-francia); background: #FFFFFF; }
+  .form-input[readonly] { color: var(--azul-francia); font-weight: 700; }
+
+  /* PANEL DE DOS COLUMNAS DE PALLETS */
+  .split-pallets-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .box-pallets {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    max-height: 440px;
+  }
+
+  .box-pallets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .box-pallets-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+  }
+
+  /* ITEM PALLET */
+  .item-card {
+    background: var(--card-color);
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .item-card:hover { border-color: var(--azul-francia); background: rgba(0,85,165,0.02); }
+  .item-card.cargado { border-color: var(--naranja-led); background: rgba(249,115,22,0.04); }
+
+  .badge-mini {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-block;
+  }
+  .badge-blue { background: rgba(0, 85, 165, 0.1); color: var(--azul-francia); }
+  .badge-orange { background: rgba(249, 115, 22, 0.1); color: var(--naranja-led); }
+  .badge-count { background: var(--naranja-led); color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 12px; }
+
+  .btn-adjuntar {
+    background: #F1F5F9;
+    color: var(--azul-francia);
+    border: 1px solid rgba(0, 85, 165, 0.3);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .btn-adjuntar:hover { background: #E2E8F0; }
+
+  .btn-guardar-main {
+    background: var(--azul-francia);
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 85, 165, 0.25);
+    transition: all 0.2s ease;
+  }
+  .btn-guardar-main:hover { background: #00407D; }
+
+  /* LAYOUT MASTER-DETAIL */
+  .split-master-detail {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 16px;
+    height: calc(100vh - 145px);
+  }
+
+  .panel-lista-remitos {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .panel-detalle-remito {
+    background: #FFFFFF;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .remito-item-card {
+    background: var(--card-color);
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .remito-item-card:hover { border-color: var(--azul-francia); background: rgba(0,85,165,0.02); }
+  .remito-item-card.active { border-color: var(--azul-francia); background: rgba(0,85,165,0.08); box-shadow: 0 2px 8px rgba(0,85,165,0.12); }
+
+  /* GRILLA DE FOTOS DE EVIDENCIA EN EDICIÓN */
+  .grid-fotos-visor {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .card-foto-box {
+    border: 1.2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    background: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* ESTO LO MODIFIQUE: Miniatura con efecto hover interactivo para abrir foto */
+  .card-foto-box img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #E2E8F0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-foto-box img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .btn-accion-pdf {
+    background: #F8FAFC;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-primary);
+  }
+  .btn-accion-pdf:hover { border-color: var(--azul-francia); color: var(--azul-francia); }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid var(--azul-francia); color: var(--azul-francia); }
+  .toast-card.error { border-left: 4px solid #EF4444; color: #EF4444; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--card-color); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 420px; border: 1.5px solid rgba(0,85,165,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+
+  /* ACA ES LO NUEVO: Modal visor ampliado de imagen */
+  .modal-foto-box {
+    max-width: 680px !important;
+    padding: 16px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .modal-foto-img {
+    max-width: 100%;
+    max-height: 72vh;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    object-fit: contain;
+    background: #F1F5F9;
+  }
+
+  .grid-evidencias-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .btn-evidencia-item {
+    background: #F8FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px;
+    font-size: 11px; font-weight: 700; color: var(--text-primary); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s ease;
+  }
+  .btn-evidencia-item:hover { border-color: var(--azul-francia); background: rgba(0,85,165,0.05); color: var(--azul-francia); }
+  .btn-evidencia-item.cargado { border-color: #107C41; background: #E8F5E9; color: #107C41; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+  <input type="file" id="inputArchivoOculto" style="display:none;" accept="image/*,.pdf" />
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div class="system-datetime" id="topDateTime">LUNES 20 DE JULIO DE 2026</div>
+      <div class="top-actions-container">
+        <button class="btn-excel-top" id="btnExportarExcelGlobal" title="Exportar Todo a Excel">
+          📊 Exportar Excel
+        </button>
+        <button class="btn-sync-top" id="btnSincronizar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sincronizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-tab="cargar" id="btnTabCargar">
+          <span>📋 Cargar Despacho</span>
+          <span class="badge-count" id="badgeStockSide">0</span>
+        </button>
+        <button class="btn-nav-lateral" data-tab="historial">
+          <span>📂 Historial General</span>
+        </button>
+        <button class="btn-nav-lateral" data-tab="archivero">
+          <span>🏢 Archivero Clientes</span>
+        </button>
+      </div>
+
+      <div style="margin-top: auto; font-size: 10px; color: var(--text-secondary); font-weight: bold; text-align: center;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- VISTA 1: CARGAR DESPACHO -->
+      <div id="vistaCargar">
+        
+        <!-- ACA ES LO NUEVO: BANNER DE PANTALLAZO DE STOCK EN VIVO -->
+        <div class="banner-stock-pantallazo">
+          <div style="display:flex; gap:24px; align-items:center;">
+            <div class="stock-stat-box">
+              <div class="stock-stat-icon">📦</div>
+              <div class="stock-stat-info">
+                <div class="title">Stock Activo en Cámara</div>
+                <div class="val" id="bannerTotalPallets">0 PALLETS</div>
+              </div>
+            </div>
+            <div class="stock-stat-box" style="border-left: 1px solid rgba(255,255,255,0.2); padding-left:24px;">
+              <div class="stock-stat-icon">⚖️</div>
+              <div class="stock-stat-info">
+                <div class="title">Kilos Disponibles</div>
+                <div class="val" id="bannerTotalKilos">0 KG</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+            <span style="font-size:9.5px; font-weight:700; text-transform:uppercase; opacity:0.8;">Variedades en Stock</span>
+            <div class="stock-mini-pills" id="bannerPillsVariedades">
+              <span class="pill-variedad">Cargando...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-formulario">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-family:'Montserrat'; font-size:11px; font-weight:700; color:var(--azul-francia);" id="lblTituloForm">NUEVA ORDEN DE DESPACHO</span>
+            <button id="btnCancelarEdicion" style="display:none; background:none; border:none; color:#EF4444; font-size:10px; font-weight:700; cursor:pointer;">CANCELAR EDICIÓN</button>
+          </div>
+
+          <div class="grid-form">
+            <div class="form-group">
+              <label>REMITO N°</label>
+              <input type="text" id="cRemito" class="form-input" readonly />
+            </div>
+            <div class="form-group">
+              <label>CLIENTE</label>
+              <select id="cCliente" class="form-input">
+                <option value="">SELECCIONE CLIENTE</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>PATENTE TRUCK</label>
+              <input type="text" id="cPatente" class="form-input" placeholder="Ej: AB123CD" />
+            </div>
+            <div class="form-group">
+              <label>TERMÓGRAFO GENERAL</label>
+              <input type="text" id="cTermografoGeneral" class="form-input" placeholder="Ej: TERMO-9921" />
+            </div>
+            <div class="form-group">
+              <label>PROVINCIA</label>
+              <input type="text" id="cProvincia" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>LOCALIDAD</label>
+              <input type="text" id="cLocalidad" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>GUÍA / CAT</label>
+              <input type="text" id="cGuia" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>TRANSPORTE</label>
+              <input type="text" id="cTransporte" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>CHOFER</label>
+              <input type="text" id="cChofer" class="form-input" />
+            </div>
+            <!-- ACA ES LO NUEVO: Campo DNI Chofer -->
+            <div class="form-group">
+              <label>DNI CHOFER</label>
+              <input type="text" id="cDniChofer" class="form-input" placeholder="Ej: 35123456" />
+            </div>
+          </div>
+
+          <!-- BOTÓN ADJUNTAR EVIDENCIAS CON MODAL -->
+          <button class="btn-adjuntar" id="btnAbrirModalEvidencias">
+            📁 ADJUNTAR EVIDENCIAS (FOTOS / REMITO / BALANZA)
+            <span id="lblCantEvidencias" style="font-weight:bold; color:var(--naranja-led); margin-left:4px;">(0)</span>
+          </button>
+        </div>
+
+        <!-- SECCIÓN DE DOS COLUMNAS DE PALLETS -->
+        <div class="split-pallets-container">
+          
+          <!-- COLUMNA IZQUIERDA: PALLETS ACTIVOS EN STOCK -->
+          <div class="box-pallets">
+            <div class="box-pallets-header">
+              <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">PALLETS ACTIVOS EN STOCK</span>
+              <input type="text" id="buscarPalletActivo" class="form-input" placeholder="Filtrar por N° o Variedad..." style="width:160px; padding:4px 8px; font-size:10px;" />
+            </div>
+            <div class="box-pallets-list" id="listaPalletsActivos"></div>
+          </div>
+
+          <!-- COLUMNA DERECHA: PALLETS A DESPACHAR CON BOTÓN DE GUARDAR ARRIBA -->
+          <div class="box-pallets">
+            <div class="box-pallets-header">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:11px; font-weight:700; color:var(--naranja-led);">EN ESTE REMITO</span>
+                <span class="badge-count" id="cantPalletsCargados">0</span>
+              </div>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <button class="btn-guardar-main" id="btnGuardarDespacho">
+                  💾 CONFIRMAR DESPACHO
+                </button>
+                <button class="btn-excel-top" id="btnEscanearQR" style="padding: 6px 10px; font-size: 11px;">
+                  📷 QR
+                </button>
+              </div>
+            </div>
+            <div class="box-pallets-list" id="listaPalletsCargados"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- VISTA 2: HISTORIAL GENERAL EN FORMATO MASTER-DETAIL -->
+      <div id="vistaHistorial" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <input type="text" id="inputBuscarHistorial" class="form-input" placeholder="Filtrar por remito o cliente..." style="max-width: 320px;" />
+          <button class="btn-excel-top" id="btnExcelHistorial">
+            📊 Exportar Historial
+          </button>
+        </div>
+
+        <div class="split-master-detail">
+          <div class="panel-lista-remitos" id="listaHistorialRemitos"></div>
+          <div class="panel-detalle-remito" id="detalleHistorialRemito">
+            <div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:50px 0;">
+              👈 Seleccione un remito de la lista para ver el detalle de carga y editar evidencias.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA 3: ARCHIVERO CLIENTES EN FORMATO MASTER-DETAIL -->
+      <div id="vistaArchivero" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:700; color:var(--azul-francia);">CONSULTA POR CLIENTE DESTINATARIO</span>
+          <button class="btn-excel-top" id="btnExcelArchivero">
+            📊 Exportar por Clientes
+          </button>
+        </div>
+
+        <div class="split-master-detail">
+          <div class="panel-lista-remitos" id="listaArchiveroClientes"></div>
+          <div class="panel-detalle-remito" id="detalleArchiveroRemito">
+            <div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:50px 0;">
+              👈 Seleccione un cliente o remito para visualizar su manifiesto completo.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MINI MODAL SELECCIÓN DE EVIDENCIAS -->
+  <div class="modal-overlay" id="modalEvidencias">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--color-border); padding-bottom:8px;">
+        <h3 style="margin:0; font-size:13px; color:var(--azul-francia); font-family:'Montserrat';">ADJUNTAR EVIDENCIAS DEL DESPACHO</h3>
+        <button id="btnCerrarEvidencias" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary);">❌</button>
+      </div>
+
+      <div class="grid-evidencias-modal">
+        <button class="btn-evidencia-item" id="btnEv_precinto" onclick="seleccionarEvidencia('url_precinto')">
+          🔒 Foto Precinto
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_precinto">Sin adjuntar</span>
+        </button>
+        <button class="btn-evidencia-item" id="btnEv_patente" onclick="seleccionarEvidencia('url_patente')">
+          🚛 Foto Patente
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_patente">Sin adjuntar</span>
+        </button>
+        <button class="btn-evidencia-item" id="btnEv_camioncarga" onclick="seleccionarEvidencia('url_camioncarga')">
+          📦 Foto Camión Carga
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_camioncarga">Sin adjuntar</span>
+        </button>
+        <button class="btn-evidencia-item" id="btnEv_dtv" onclick="seleccionarEvidencia('url_dtv')">
+          📄 Adjuntar DTV
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_dtv">Sin adjuntar</span>
+        </button>
+        <button class="btn-evidencia-item" id="btnEv_romaneo" onclick="seleccionarEvidencia('url_romaneo')">
+          📋 Romaneo
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_romaneo">Sin adjuntar</span>
+        </button>
+        <button class="btn-evidencia-item" id="btnEv_peso" onclick="seleccionarEvidencia('url_peso')">
+          ⚖️ Peso Balanza
+          <span style="font-size:9px; font-weight:normal;" id="lblEv_peso">Sin adjuntar</span>
+        </button>
+      </div>
+
+      <div style="margin-top:16px; text-align:right;">
+        <button id="btnListoEvidencias" style="background:var(--azul-francia); color:white; border:none; padding:8px 16px; border-radius:var(--radius-md); font-weight:700; font-size:11px; cursor:pointer;">
+          GUARDAR Y CONTINUAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACA ES LO NUEVO: MODAL LIGHTBOX PARA VISUALIZAR FOTOS AMPLIADAS -->
+  <div class="modal-overlay" id="modalVisorFoto">
+    <div class="modal-box modal-foto-box">
+      <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:12px; font-weight:800; color:var(--azul-francia);" id="lblTituloFotoModal">📷 VISTA DE EVIDENCIA</span>
+        <button id="btnCerrarVisorFoto" style="background:none; border:none; font-weight:700; cursor:pointer; color:var(--text-secondary); font-size:16px;">✕</button>
+      </div>
+      <img id="imgFotoModalAmpliada" class="modal-foto-img" src="" alt="Foto Evidencia Ampliada" />
+      <div style="margin-top:12px; width:100%; display:flex; justify-content:flex-end;">
+        <button id="btnCerrarVisorFotoFoot" style="background:var(--azul-francia); color:white; border:none; padding:8px 16px; border-radius:var(--radius-md); font-weight:700; font-size:11px; cursor:pointer;">
+          CERRAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN -->
+  <div class="modal-overlay" id="modalConfirmacion">
+    <div class="modal-box" style="max-width:380px;">
+      <div style="font-size:13px; font-weight:700; color:var(--azul-francia); font-family:'Montserrat';" id="lblTituloConfirmacion">CONFIRMACIÓN</div>
+      <div style="font-size:12px; color:var(--text-primary); margin-top:10px; line-height:1.4;" id="lblMensajeConfirmacion">¿Está seguro de realizar esta acción?</div>
+      <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:8px;">
+        <button id="btnCancelarConfirmacion" style="background:#F1F5F9; border:1px solid var(--color-border); color:var(--text-secondary); border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer;">
+          CANCELAR
+        </button>
+        <button id="btnAceptarConfirmacion" class="btn-confirm-action" style="background:#EF4444; border:none; color:white; border-radius:var(--radius-md); padding:8px 16px; font-size:11px; font-weight:700; cursor:pointer; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);">
+          ACEPTAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let bases = null;
+  let db = null;
+  let fs = null;
+  let pathModule = null;
+
+  if (isElectron) {
+    try {
+      bases = require('../bases.js');
+      db = bases.db;
+      fs = require('fs');
+      pathModule = require('path');
+    } catch(e) { console.warn("No se conectó a módulos locales de Node:", e.message); }
+  }
+
+  // ESTADO GLOBAL
+  let tabActiva = 'cargar';
+  let palletsSeleccionados = [];
+  let palletsActivosStock = [];
+  let remitoEdicion = null;
+  let remitoSeleccionadoActual = null;
+
+  let evidenciasDict = { url_precinto: '', url_patente: '', url_camioncarga: '', url_dtv: '', url_romaneo: '', url_peso: '' };
+  let campoEvidenciaPendiente = null;
+
+  const toastContenedor = document.getElementById('toastContenedor');
+  
+  // FECHA SUPERIOR
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${msj}</div>`;
+    toastContenedor.appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  let accionConfirmarPendiente = null;
+  function solicitarConfirmacion(titulo, mensaje, onAceptar, esModalDestructivo = true) {
+    document.getElementById('lblTituloConfirmacion').textContent = titulo;
+    document.getElementById('lblMensajeConfirmacion').textContent = mensaje;
+    const btnAceptar = document.getElementById('btnAceptarConfirmacion');
+    if (esModalDestructivo) {
+      btnAceptar.style.background = "#EF4444";
+      btnAceptar.style.boxShadow = "0 2px 6px rgba(239, 68, 68, 0.25)";
+    } else {
+      btnAceptar.style.background = "var(--azul-francia)";
+      btnAceptar.style.boxShadow = "0 2px 6px rgba(0, 85, 165, 0.25)";
+    }
+    accionConfirmarPendiente = onAceptar;
+    document.getElementById('modalConfirmacion').classList.add('show');
+  }
+
+  document.getElementById('btnCancelarConfirmacion').addEventListener('click', () => {
+    document.getElementById('modalConfirmacion').classList.remove('show');
+    accionConfirmarPendiente = null;
+  });
+
+  document.getElementById('btnAceptarConfirmacion').addEventListener('click', () => {
+    document.getElementById('modalConfirmacion').classList.remove('show');
+    if (typeof accionConfirmarPendiente === 'function') {
+      accionConfirmarPendiente();
+    }
+    accionConfirmarPendiente = null;
+  });
+
+  /* ESTO LO MODIFIQUE: Resolución limpia de rutas de imágenes locales para despachos_media */
+  function formatImgPath(url) {
+    if (!url) return null;
+    if (url.startsWith('http') || url.startsWith('data:image')) return url;
+    let rutaAbsoluta = url;
+    if (isElectron && pathModule) {
+      if (!url.includes(':\\') && !url.includes(':/') && !url.startsWith('/')) {
+        rutaAbsoluta = pathModule.join(process.cwd(), 'despachos_media', url);
+      }
+    }
+    const rutaLimpia = rutaAbsoluta.replace(/\\/g, '/');
+    return `file:///${rutaLimpia}`;
+  }
+
+  /* ACA ES LO NUEVO: Modal Lightbox para ampliar las fotos de evidencia */
+  const modalVisorFoto = document.getElementById('modalVisorFoto');
+  const imgFotoModalAmpliada = document.getElementById('imgFotoModalAmpliada');
+  const lblTituloFotoModal = document.getElementById('lblTituloFotoModal');
+
+  window.abrirModalVisorFoto = function(src, titulo) {
+    if (!src) return;
+    imgFotoModalAmpliada.src = src;
+    lblTituloFotoModal.textContent = titulo ? `📷 ${titulo.toUpperCase()}` : '📷 VISTA DE EVIDENCIA';
+    modalVisorFoto.classList.add('show');
+  };
+
+  document.getElementById('btnCerrarVisorFoto').addEventListener('click', () => modalVisorFoto.classList.remove('show'));
+  document.getElementById('btnCerrarVisorFotoFoot').addEventListener('click', () => modalVisorFoto.classList.remove('show'));
+
+  // CAMBIO DE PESTAÑAS
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tabActiva = btn.dataset.tab;
+      document.getElementById('vistaCargar').style.display = tabActiva === 'cargar' ? 'block' : 'none';
+      document.getElementById('vistaHistorial').style.display = tabActiva === 'historial' ? 'block' : 'none';
+      document.getElementById('vistaArchivero').style.display = tabActiva === 'archivero' ? 'block' : 'none';
+      if (tabActiva === 'historial') cargarHistorial();
+      if (tabActiva === 'archivero') cargarArchivero();
+    });
+  });
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    if (typeof window.renderizar === 'function' && window.sesionActual) {
+      window.renderizar(window.sesionActual);
+    } else {
+      window.location.href = 'menu_empaque.html';
+    }
+  });
+
+  function inicializarFormulario() {
+    const cCliente = document.getElementById('cCliente');
+    cCliente.innerHTML = '<option value="">SELECCIONE CLIENTE</option>';
+    if (db) {
+      try {
+        const clientes = db.prepare(`SELECT cliente FROM local_p_clientes ORDER BY cliente ASC`).all();
+        clientes.forEach(c => {
+          if (c.cliente) {
+            const opt = document.createElement('option');
+            opt.value = c.cliente;
+            opt.textContent = c.cliente.toUpperCase();
+            cCliente.appendChild(opt);
+          }
+        });
+      } catch(e) { console.error(e); }
+    }
+    calcularSiguienteRemito();
+    cargarPalletsActivosStock();
+  }
+
+  // ACA ES LO NUEVO: Carga e Integración del Pantallazo de Stock
+  function cargarPalletsActivosStock() {
+    if (!db) return;
+    try {
+      palletsActivosStock = db.prepare(`SELECT * FROM local_paletizado WHERE UPPER(estado) = 'ACTIVO' ORDER BY id DESC`).all();
+      
+      let totalKg = 0;
+      let desgloseVar = {};
+
+      palletsActivosStock.forEach(p => {
+        let kg = parseFloat(p.peso_pallet || p.peso || p.cant_unidades || 0);
+        totalKg += kg;
+        let v = (p.variedad || 'VARIOS').toUpperCase();
+        desgloseVar[v] = (desgloseVar[v] || 0) + 1;
+      });
+
+      document.getElementById('bannerTotalPallets').textContent = `${palletsActivosStock.length} PALLETS`;
+      document.getElementById('bannerTotalKilos').textContent = `${totalKg.toLocaleString('es-AR')} KG`;
+      document.getElementById('badgeStockSide').textContent = palletsActivosStock.length;
+
+      const pillsCont = document.getElementById('bannerPillsVariedades');
+      const keys = Object.keys(desgloseVar);
+      if (keys.length === 0) {
+        pillsCont.innerHTML = `<span class="pill-variedad">Sin Pallets</span>`;
+      } else {
+        pillsCont.innerHTML = keys.slice(0, 4).map(v => `<span class="pill-variedad">${v}: ${desgloseVar[v]}</span>`).join('');
+      }
+
+      renderizarPalletsActivosStock();
+    } catch(e) { console.error(e); }
+  }
+
+  function renderizarPalletsActivosStock() {
+    const cont = document.getElementById('listaPalletsActivos');
+    const filtro = document.getElementById('buscarPalletActivo').value.toLowerCase().trim();
+
+    const filtrados = palletsActivosStock.filter(p => {
+      if (palletsSeleccionados.some(sel => sel.nro_pallet === p.nro_pallet)) return false; 
+      const nro = (p.nro_pallet || '').toLowerCase();
+      const varNom = (p.variedad || '').toLowerCase();
+      return nro.includes(filtro) || varNom.includes(filtro);
+    });
+
+    if (filtrados.length === 0) {
+      cont.innerHTML = '<div style="font-size:11px; color:var(--text-secondary); text-align:center; padding:20px 0;">No hay pallets disponibles.</div>';
+      return;
+    }
+
+    cont.innerHTML = filtrados.map(p => `
+      <div class="item-card" onclick="seleccionarPalletActivo('${p.nro_pallet}')">
+        <div>
+          <div style="font-weight:700; font-size:11px;">${p.nro_pallet || 'PALLET ID ' + p.id}</div>
+          <div style="font-size:10px; color:var(--text-secondary);">${p.especie || ''} ${p.variedad || 'S/V'} · ${p.peso_pallet || p.peso || p.cant_unidades || 0} KG</div>
+        </div>
+        <button style="background:none; border:none; color:var(--azul-francia); font-weight:700; font-size:14px;">➕</button>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('buscarPalletActivo').addEventListener('input', renderizarPalletsActivosStock);
+
+  /* ESTO LO MODIFIQUE: Extracción completa de metadatos del pallet activo seleccionado */
+  window.seleccionarPalletActivo = function(nroPallet) {
+    if (palletsSeleccionados.some(p => p.nro_pallet === nroPallet)) return lanzarToast("El pallet ya está en el remito actual", "error");
+    const pal = palletsActivosStock.find(p => p.nro_pallet === nroPallet);
+    if (!pal) return;
+
+    palletsSeleccionados.push({
+      nro_pallet: pal.nro_pallet,
+      variedad: pal.variedad || 'S/V',
+      calibre: pal.calibre || pal.p_calibre || 'S/C',
+      categoria: pal.categoria || pal.p_categoria || 'S/C',
+      nro_lote: pal.nro_lote || pal.lote || 'S/L',
+      productor: pal.productor || '',
+      especie: pal.especie || '',
+      embalaje: pal.embalaje || '',
+      color: pal.color || '',
+      calidad: pal.calidad || '',
+      cant_unidades: pal.cant_unidades || '0',
+      kg_pallet: (pal.peso_pallet || pal.peso || pal.kg_pallet || '0').toString(),
+      termografo: pal.termografo || pal.termorafo || ''
+    });
+    renderizarPalletsActivosStock();
+    renderizarPalletsCargados();
+  };
+
+  function calcularSiguienteRemito() {
+    if (remitoEdicion) return;
+    let maxSecuencia = 0;
+    const anioActual = new Date().getFullYear().toString();
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT remito FROM local_despachos_produccion`).all();
+        res.forEach(row => {
+          const remStr = row.remito ? row.remito.toString() : '';
+          if (remStr.startsWith(anioActual) && remStr.length > 4) {
+            const sec = parseInt(remStr.substring(4));
+            if (!isNaN(sec) && sec > maxSecuencia) maxSecuencia = sec;
+          } else {
+            const num = parseInt(remStr);
+            if (!isNaN(num) && num > maxSecuencia) maxSecuencia = num;
+          }
+        });
+      } catch(e) { console.error(e); }
+    }
+    document.getElementById('cRemito').value = `${anioActual}${String(maxSecuencia + 1).padStart(4, '0')}`;
+  }
+
+  /* ESTO LO MODIFIQUE: Extracción completa de atributos al escanear QR */
+  document.getElementById('btnEscanearQR').addEventListener('click', () => {
+    let input = prompt("Ingrese o escanee el N° de Pallet / QR:");
+    if (!input) return;
+    let clean = input.trim().toUpperCase().replace(/[^0-9]/g, '');
+    let qrNormalizado = clean ? `PALLET - ${clean.padStart(7, '0')}` : input.trim().toUpperCase();
+
+    if (palletsSeleccionados.some(p => p.nro_pallet === qrNormalizado)) return lanzarToast("El Pallet ya está ingresado", "error");
+
+    if (db) {
+      try {
+        const res = db.prepare(`SELECT * FROM local_paletizado WHERE nro_pallet = ?`).get(qrNormalizado);
+        if (!res) return lanzarToast("Pallet no encontrado en stock local", "error");
+        if ((res.estado || '').toUpperCase() !== 'ACTIVO') return lanzarToast(`🚫 PALLET BLOQUEADO: [${res.estado}]`, "error");
+
+        palletsSeleccionados.push({
+          nro_pallet: res.nro_pallet,
+          variedad: res.variedad || 'S/V',
+          calibre: res.calibre || res.p_calibre || 'S/C',
+          categoria: res.categoria || res.p_categoria || 'S/C',
+          nro_lote: res.nro_lote || res.lote || 'S/L',
+          productor: res.productor || '',
+          especie: res.especie || '',
+          embalaje: res.embalaje || '',
+          color: res.color || '',
+          calidad: res.calidad || '',
+          cant_unidades: res.cant_unidades || '0',
+          kg_pallet: (res.peso_pallet || res.peso || res.kg_pallet || '0').toString(),
+          termografo: res.termografo || res.termorafo || ''
+        });
+        renderizarPalletsActivosStock();
+        renderizarPalletsCargados();
+        lanzarToast("Pallet agregado correctamente");
+      } catch(e) { console.error(e); }
+    }
+  });
+
+  function renderizarPalletsCargados() {
+    const cont = document.getElementById('listaPalletsCargados');
+    document.getElementById('cantPalletsCargados').textContent = palletsSeleccionados.length;
+    if (palletsSeleccionados.length === 0) {
+      cont.innerHTML = '<div style="font-size:11px; color:var(--text-secondary); text-align:center; padding:20px 0;">Seleccione pallets del panel izquierdo o escanee.</div>';
+      return;
+    }
+    cont.innerHTML = palletsSeleccionados.map((p, idx) => `
+      <div class="item-card cargado">
+        <div>
+          <div style="font-weight:700; font-size:11px;">${p.nro_pallet}</div>
+          <div style="font-size:10px; color:var(--text-secondary);">${p.variedad} · ${p.kg_pallet} KG</div>
+        </div>
+        <button onclick="quitarPallet(${idx})" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;">❌</button>
+      </div>
+    `).join('');
+  }
+
+  window.quitarPallet = function(idx) {
+    palletsSeleccionados.splice(idx, 1);
+    renderizarPalletsActivosStock();
+    renderizarPalletsCargados();
+  };
+
+  const modalEvidencias = document.getElementById('modalEvidencias');
+  const inputArchivoOculto = document.getElementById('inputArchivoOculto');
+
+  document.getElementById('btnAbrirModalEvidencias').addEventListener('click', () => modalEvidencias.classList.add('show'));
+  document.getElementById('btnCerrarEvidencias').addEventListener('click', () => modalEvidencias.classList.remove('show'));
+  document.getElementById('btnListoEvidencias').addEventListener('click', () => modalEvidencias.classList.remove('show'));
+
+  window.seleccionarEvidencia = function(campoKey) {
+    campoEvidenciaPendiente = campoKey;
+    inputArchivoOculto.click();
+  };
+
+  inputArchivoOculto.addEventListener('change', (e) => {
+    if (e.target.files.length > 0 && campoEvidenciaPendiente) {
+      const pathFile = e.target.files[0].path || e.target.files[0].name;
+
+      if (remitoSeleccionadoActual && tabActiva !== 'cargar') {
+        cambiarEvidenciaRemitoExistente(remitoSeleccionadoActual, campoEvidenciaPendiente, pathFile);
+      } else {
+        evidenciasDict[campoEvidenciaPendiente] = pathFile;
+        const btn = document.getElementById(`btnEv_${campoEvidenciaPendiente.replace('url_', '')}`);
+        const lbl = document.getElementById(`lblEv_${campoEvidenciaPendiente.replace('url_', '')}`);
+        if (btn && lbl) { btn.classList.add('cargado'); lbl.textContent = '✅ Cargado'; }
+        const totalCargados = Object.values(evidenciasDict).filter(v => v !== '').length;
+        document.getElementById('lblCantEvidencias').textContent = `(${totalCargados})`;
+        lanzarToast("Evidencia vinculada correctamente");
+      }
+    }
+  });
+
+  /* ESTO LO MODIFIQUE: Se agrego el dni_chofer al INSERT y la actualización formal de estado a INACTIVO con cliente en local_paletizado */
+  document.getElementById('btnGuardarDespacho').addEventListener('click', () => {
+    const remito = document.getElementById('cRemito').value.trim();
+    const cliente = document.getElementById('cCliente').value;
+    const patente = document.getElementById('cPatente').value.trim().toUpperCase();
+    const termografoGen = document.getElementById('cTermografoGeneral').value.trim().toUpperCase();
+    const dniChofer = document.getElementById('cDniChofer').value.trim();
+
+    if (!remito) return lanzarToast("Remito obligatorio", "error");
+    if (!cliente) return lanzarToast("Seleccione un cliente", "error");
+    if (palletsSeleccionados.length === 0) return lanzarToast("Seleccione al menos un pallet", "error");
+
+    const fecha = new Date().toISOString().split('T')[0];
+    const ciclo = (new Date().getFullYear() - 2024).toString();
+
+    if (db) {
+      try {
+        db.transaction(() => {
+          if (remitoEdicion) {
+            db.prepare(`
+              UPDATE local_paletizado SET estado = 'ACTIVO', cliente = NULL, id_despacho = NULL, sincronizado = 0 
+              WHERE nro_pallet IN (SELECT nro_pallet FROM local_despachos_produccion WHERE remito = ?)
+            `).run(remitoEdicion);
+            db.prepare(`DELETE FROM local_despachos_produccion WHERE remito = ?`).run(remitoEdicion);
+          }
+
+          palletsSeleccionados.forEach(p => {
+            const regId = `REG-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+            db.prepare(`
+              INSERT INTO local_despachos_produccion (
+                reg_local, nro_pallet, remito, id_despacho, fecha_despacho, cliente, patentes, transporte, chofer, dni_chofer,
+                provincia, localidad, guia, variedad, calibre, categoria, nro_lote, productor, especie, embalaje, color, calidad, cant_unidades, kg_pallet, termografo,
+                url_precinto, url_patente, url_camioncarga, url_dtv, url_romaneo, url_peso, ciclo, sincronizado
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+            `).run(
+              regId, p.nro_pallet, remito, regId, fecha, cliente, patente,
+              document.getElementById('cTransporte').value.trim(),
+              document.getElementById('cChofer').value.trim(),
+              dniChofer,
+              document.getElementById('cProvincia').value.trim(),
+              document.getElementById('cLocalidad').value.trim(),
+              document.getElementById('cGuia').value.trim(),
+              p.variedad || 'S/V', p.calibre || 'S/C', p.categoria || 'S/C', p.nro_lote || 'S/L', p.productor || '', p.especie || '', p.embalaje || '', p.color || '', p.calidad || '', p.cant_unidades || '0', p.kg_pallet || '0', p.termografo || termografoGen,
+              evidenciasDict.url_precinto, evidenciasDict.url_patente, evidenciasDict.url_camioncarga,
+              evidenciasDict.url_dtv, evidenciasDict.url_romaneo, evidenciasDict.url_peso,
+              ciclo
+            );
+
+            // Al despachar: se marca INACTIVO con el cliente y el id_despacho asignado
+            db.prepare(`
+              UPDATE local_paletizado SET estado = 'INACTIVO', cliente = ?, id_despacho = ?, sincronizado = 0 
+              WHERE nro_pallet = ?
+            `).run(cliente, regId, p.nro_pallet);
+          });
+        })();
+
+        lanzarToast("✅ Despacho guardado correctamente");
+        limpiarFormulario();
+      } catch(e) { console.error(e); lanzarToast("Error al guardar despacho", "error"); }
+    }
+  });
+
+  function limpiarFormulario() {
+    remitoEdicion = null;
+    palletsSeleccionados = [];
+    evidenciasDict = { url_precinto: '', url_patente: '', url_camioncarga: '', url_dtv: '', url_romaneo: '', url_peso: '' };
+    document.getElementById('lblCantEvidencias').textContent = "(0)";
+    ['precinto', 'patente', 'camioncarga', 'dtv', 'romaneo', 'peso'].forEach(k => {
+      const btn = document.getElementById(`btnEv_${k}`);
+      const lbl = document.getElementById(`lblEv_${k}`);
+      if (btn && lbl) { btn.classList.remove('cargado'); lbl.textContent = 'Sin adjuntar'; }
+    });
+    document.getElementById('lblTituloForm').textContent = "NUEVA ORDEN DE DESPACHO";
+    document.getElementById('cCliente').value = "";
+    document.getElementById('cPatente').value = "";
+    document.getElementById('cTermografoGeneral').value = "";
+    document.getElementById('cProvincia').value = "";
+    document.getElementById('cLocalidad').value = "";
+    document.getElementById('cGuia').value = "";
+    document.getElementById('cTransporte').value = "";
+    document.getElementById('cChofer').value = "";
+    document.getElementById('cDniChofer').value = "";
+    cargarPalletsActivosStock();
+    renderizarPalletsCargados();
+    calcularSiguienteRemito();
+  }
+
+  function cargarHistorial() {
+    const listaCont = document.getElementById('listaHistorialRemitos');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT fecha_despacho, remito, cliente, patentes, transporte, COUNT(nro_pallet) as total_pallets, SUM(CAST(kg_pallet AS DOUBLE)) as total_kg
+        FROM local_despachos_produccion GROUP BY remito ORDER BY fecha_despacho DESC, remito DESC
+      `).all();
+
+      if (res.length === 0) {
+        listaCont.innerHTML = '<div style="font-size:11px; text-align:center; color:var(--text-secondary); padding:20px 0;">Sin remitos registrados.</div>';
+        return;
+      }
+
+      listaCont.innerHTML = res.map(d => `
+        <div class="remito-item-card ${remitoSeleccionadoActual === d.remito ? 'active' : ''}" onclick="seleccionarRemitoHistorial('${d.remito}')">
+          <div style="font-weight:700; font-size:12px; color:var(--azul-francia);">REMITO N° ${d.remito}</div>
+          <div style="font-size:10px; font-weight:700; color:var(--text-primary); margin-top:2px;">${d.cliente || 'SIN CLIENTE'}</div>
+          <div style="font-size:9.5px; color:var(--text-secondary); margin-top:4px; display:flex; justify-content:space-between;">
+            <span>📅 ${d.fecha_despacho}</span>
+            <span class="badge-mini badge-orange">${d.total_pallets} PALLETS</span>
+          </div>
+        </div>
+      `).join('');
+
+      if (!remitoSeleccionadoActual && res.length > 0) {
+        seleccionarRemitoHistorial(res[0].remito);
+      }
+    } catch(e) { console.error(e); }
+  }
+
+  window.seleccionarRemitoHistorial = function(remitoNum) {
+    remitoSeleccionadoActual = remitoNum;
+    document.querySelectorAll('.remito-item-card').forEach(c => c.classList.remove('active'));
+    cargarHistorial();
+    renderizarDetalleRemitoPanel(remitoNum, 'detalleHistorialRemito');
+  };
+
+  // ESTO LO MODIFIQUE: Se incluye visor de foto interactivo en la grilla de evidencias
+  function renderizarDetalleRemitoPanel(remitoNum, targetPanelId) {
+    const detailPanel = document.getElementById(targetPanelId);
+    if (!db || !detailPanel) return;
+
+    try {
+      const filas = db.prepare(`SELECT * FROM local_despachos_produccion WHERE remito = ?`).all(remitoNum);
+      if (!filas || filas.length === 0) {
+        detailPanel.innerHTML = '<div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:30px;">Remito no disponible.</div>';
+        return;
+      }
+
+      const d = filas[0];
+      let totalKg = 0;
+      filas.forEach(p => totalKg += parseFloat(p.kg_pallet || 0));
+
+      const fotos = [
+        { label: '🔒 Precinto', key: 'url_precinto', url: d.url_precinto },
+        { label: '🚛 Patente', key: 'url_patente', url: d.url_patente },
+        { label: '📦 Carga', key: 'url_camioncarga', url: d.url_camioncarga },
+        { label: '📄 DTV-e', key: 'url_dtv', url: d.url_dtv },
+        { label: '📋 Romaneo', key: 'url_romaneo', url: d.url_romaneo },
+        { label: '⚖️ Balanza', key: 'url_peso', url: d.url_peso }
+      ];
+
+      detailPanel.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid var(--color-border); padding-bottom:10px;">
+          <div>
+            <span style="font-size:14px; font-weight:800; color:var(--azul-francia);">ORDEN DE MANIFIESTO # ${d.remito}</span>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;"><b>FECHA:</b> ${d.fecha_despacho} | <b>KILOS TOTALES:</b> <b style="color:var(--azul-francia);">${totalKg.toLocaleString('es-AR')} KG</b></div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-accion-pdf" onclick="imprimirRemito('${d.remito}')">📄 Remito</button>
+            <button class="btn-accion-pdf" onclick="imprimirManifiesto('${d.remito}')">📋 Manifiesto</button>
+            <button onclick="eliminarRemito('${d.remito}')" style="background:#FEE2E2; border:1px solid #EF4444; color:#B91C1C; padding:6px 12px; border-radius:8px; font-weight:700; font-size:11px; cursor:pointer;">🗑️ Eliminar</button>
+          </div>
+        </div>
+
+        <div style="background:#F8FAFC; padding:12px; border-radius:12px; border:1.2px solid var(--color-border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:var(--azul-francia);">EDITAR DATOS DE CLIENTE Y LOGÍSTICA</span>
+            <button onclick="guardarCambiosCabeceraRemito('${d.remito}')" style="background:var(--azul-francia); color:white; border:none; padding:5px 12px; border-radius:6px; font-size:10px; font-weight:700; cursor:pointer;">
+              💾 GUARDAR CAMBIOS
+            </button>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;">
+            <div class="form-group">
+              <label>CLIENTE</label>
+              <input type="text" id="det_cliente" class="form-input" value="${d.cliente || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>TRANSPORTE</label>
+              <input type="text" id="det_transporte" class="form-input" value="${d.transporte || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>CHOFER</label>
+              <input type="text" id="det_chofer" class="form-input" value="${d.chofer || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <!-- ACA ES LO NUEVO: Campo DNI Chofer editable -->
+            <div class="form-group">
+              <label>DNI CHOFER</label>
+              <input type="text" id="det_dni_chofer" class="form-input" value="${d.dni_chofer || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>PATENTE TRUCK</label>
+              <input type="text" id="det_patente" class="form-input" value="${d.patentes || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>GUÍA SENASA / CAT</label>
+              <input type="text" id="det_guia" class="form-input" value="${d.guia || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>N° TERMÓGRAFO</label>
+              <input type="text" id="det_termografo" class="form-input" value="${d.termografo || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>PROVINCIA</label>
+              <input type="text" id="det_provincia" class="form-input" value="${d.provincia || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+            <div class="form-group">
+              <label>LOCALIDAD DESTINO</label>
+              <input type="text" id="det_localidad" class="form-input" value="${d.localidad || ''}" style="padding:5px 8px; font-size:11px;" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--azul-francia); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span>PALLETS EN ESTA CARGA (${filas.length})</span>
+            <span style="font-size:10px; color:var(--text-secondary);">Haga clic en ❌ para quitar del remito y devolver a Stock ACTIVO</span>
+          </div>
+          <div style="max-height:320px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-right:4px;">
+            ${filas.map(p => `
+              <div class="item-card cargado" style="padding:8px 12px;">
+                <div>
+                  <span style="font-weight:700; font-size:11px;">${p.nro_pallet}</span>
+                  <span style="font-size:10px; color:var(--text-secondary); margin-left:8px;">${p.variedad || 'S/V'} · ${p.calibre || 'S/C'} · <b>${p.kg_pallet} KG</b></span>
+                </div>
+                <button onclick="desasignarPalletRemito('${d.remito}', '${p.nro_pallet}')" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;" title="Quitar de este remito">❌</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px; font-weight:700; color:var(--azul-francia); margin-bottom:8px;">EVIDENCIAS FOTOGRÁFICAS VINCULADAS</div>
+          <div class="grid-fotos-visor">
+            ${fotos.map(f => {
+              const src = formatImgPath(f.url);
+              return `
+                <div class="card-foto-box">
+                  <span style="font-size:10px; font-weight:700;">${f.label}</span>
+                  ${src 
+                    ? `<img src="${src}" onclick="abrirModalVisorFoto('${src}', '${f.label}')" title="Clic para ampliar" />`
+                    : `<div style="width:100%; height:100px; background:#E2E8F0; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#64748B; font-weight:700;">Sin adjuntar</div>`
+                  }
+                  <button class="btn-accion-pdf" style="width:100%; justify-content:center; font-size:10px; padding:4px;" onclick="seleccionarEvidenciaParaRemito('${d.remito}', '${f.key}')">
+                    📷 ${src ? 'Cambiar' : 'Adjuntar'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    } catch(e) { console.error(e); }
+  }
+
+  // ESTO LO MODIFIQUE: Se muestra el DNI Chofer en la primera vista del Manifiesto Completo
+  window.imprimirManifiesto = function(remitoNum) {
+    if (!db) {
+      if (typeof lanzarToast === 'function') lanzarToast("Base de datos no inicializada", "error");
+      return;
+    }
+
+    try {
+      function convertirImagenABase64(ruta) {
+        if (!ruta || typeof ruta !== 'string' || ruta.trim().length === 0) return null;
+        if (ruta.startsWith('data:image') || ruta.startsWith('http://') || ruta.startsWith('https://')) {
+          return ruta;
+        }
+
+        let rutaFinal = ruta.trim();
+
+        if (isElectron && fs && pathModule) {
+          if (!pathModule.isAbsolute(rutaFinal) && !rutaFinal.includes(':\\') && !rutaFinal.includes(':/')) {
+            if (rutaFinal.startsWith('despachos_media/') || rutaFinal.startsWith('despachos_media\\')) {
+              rutaFinal = pathModule.join(process.cwd(), rutaFinal);
+            } else {
+              rutaFinal = pathModule.join(process.cwd(), 'despachos_media', rutaFinal);
+            }
+          }
+
+          if (fs.existsSync(rutaFinal)) {
+            try {
+              const ext = pathModule.extname(rutaFinal).replace('.', '').toLowerCase() || 'jpeg';
+              const bitmap = fs.readFileSync(rutaFinal);
+              return `data:image/${ext === 'jpg' ? 'jpeg' : ext};base64,${bitmap.toString('base64')}`;
+            } catch (err) {
+              console.warn("⚠️ Error leyendo imagen desde disco:", rutaFinal, err.message);
+            }
+          } else {
+            console.warn("⚠️ Imagen no encontrada en la ruta:", rutaFinal);
+          }
+        }
+        return null;
+      }
+
+      const res = db.prepare(`SELECT * FROM local_despachos_produccion WHERE remito = ?`).all(remitoNum);
+
+      if (!res || res.length === 0) {
+        if (typeof lanzarToast === 'function') lanzarToast("No se encontraron registros para este remito", "error");
+        return;
+      }
+
+      const d = res[0];
+      let totalKg = 0;
+      res.forEach(p => {
+        totalKg += parseFloat(p.kg_pallet || 0) || 0;
+      });
+
+      const mapaUnidadesPallet = {};
+      const termografosDetectados = [];
+
+      const listaPalletsIds = res
+        .map(p => (p.nro_pallet || '').toString().trim())
+        .filter(id => id.length > 0);
+
+      res.forEach(p => {
+        const tCod = (p.termografo || '').toString().toUpperCase().trim();
+        if (tCod && !termografosDetectados.includes(tCod)) {
+          termografosDetectados.push(tCod);
+        }
+      });
+
+      if (listaPalletsIds.length > 0) {
+        const placeholders = listaPalletsIds.map(() => '?').join(',');
+        try {
+          const datosPaletizado = db.prepare(`
+            SELECT nro_pallet, cant_unidades 
+            FROM local_paletizado 
+            WHERE nro_pallet IN (${placeholders})
+          `).all(...listaPalletsIds);
+
+          datosPaletizado.forEach(row => {
+            const key = (row.nro_pallet || '').toString();
+            mapaUnidadesPallet[key] = parseFloat(row.cant_unidades || 0) || 0;
+          });
+        } catch (errPallet) {
+          console.warn("⚠️ No se pudo consultar local_paletizado:", errPallet.message);
+        }
+      }
+
+      const agrpVariedad = {};
+      const agrpCalibre = {};
+      const agrpCategoria = {};
+
+      res.forEach(p => {
+        const currentNroPallet = (p.nro_pallet || '').toString();
+        const varNom = (p.variedad || 'S/V').toString().toUpperCase();
+        const calNom = (p.calibre || p.p_calibre || 'S/C').toString().toUpperCase();
+        const catNom = (p.categoria || p.p_categoria || 'S/C').toString().toUpperCase();
+
+        const kg = parseFloat(p.kg_pallet || 0) || 0;
+        const und = mapaUnidadesPallet[currentNroPallet] || 0;
+
+        if (!agrpVariedad[varNom]) agrpVariedad[varNom] = { kg: 0, und: 0, pallets: 0 };
+        agrpVariedad[varNom].kg += kg;
+        agrpVariedad[varNom].und += und;
+        agrpVariedad[varNom].pallets += 1;
+
+        if (!agrpCalibre[calNom]) agrpCalibre[calNom] = { kg: 0, und: 0, pallets: 0 };
+        agrpCalibre[calNom].kg += kg;
+        agrpCalibre[calNom].und += und;
+        agrpCalibre[calNom].pallets += 1;
+
+        if (!agrpCategoria[catNom]) agrpCategoria[catNom] = { kg: 0, und: 0, pallets: 0 };
+        agrpCategoria[catNom].kg += kg;
+        agrpCategoria[catNom].und += und;
+        agrpCategoria[catNom].pallets += 1;
+      });
+
+      const htmlTermografos = termografosDetectados.length === 0
+        ? `<span style="font-size:11px; font-weight:bold; color:#0F172A;">NINGUNO</span>`
+        : termografosDetectados.map((t, idx) => `
+            <a href="https://cloud.tzonedigital.com/Share?id=${encodeURIComponent(t)}" target="_blank" style="color:#0055A5; font-size:11px; font-weight:bold; text-decoration:underline;">${t}</a>
+            ${idx < termografosDetectados.length - 1 ? ' <span style="color:#0F172A; font-weight:bold;">/</span> ' : ''}
+          `).join('');
+
+      const filasTablaFormal = res.map(p => {
+        const nroPallet = (p.nro_pallet || '').toString().toUpperCase();
+        const variedad = (p.variedad || 'S/V').toString().toUpperCase();
+        const calibre = (p.calibre || p.p_calibre || '-').toString().toUpperCase();
+        const categoria = (p.categoria || p.p_categoria || '-').toString().toUpperCase();
+        const bultos = mapaUnidadesPallet[nroPallet] || 0;
+        const peso = parseFloat(p.kg_pallet || 0) || 0;
+        const termografo = (p.termografo || '').toString().trim();
+
+        const htmlTermoPallet = termografo !== '' 
+          ? `<br/><a href="https://cloud.tzonedigital.com/Share?id=${encodeURIComponent(termografo)}" target="_blank" style="font-size:8px; color:#0055A5; text-decoration:underline; font-weight:bold;">TERM: ${termografo}</a>`
+          : '';
+
+        return `
+          <tr>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; font-weight:600; text-align:left;">
+              ${nroPallet}${htmlTermoPallet}
+            </td>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; text-align:left;">${variedad}</td>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; text-align:center;">${calibre}</td>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; text-align:center;">${categoria}</td>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; text-align:center;">${bultos.toFixed(0)}</td>
+            <td style="padding:4px 6px; border:1px solid #0F172A; font-size:10px; text-align:right; font-weight:bold; color:#0055A5;">${Math.round(peso).toLocaleString('es-AR')} kg</td>
+          </tr>
+        `;
+      }).join('');
+
+      function generarCardGrandeResumenHTML(titulo, cabeceraCol, datosMap) {
+        const filas = Object.keys(datosMap).map(key => {
+          const item = datosMap[key];
+          return `
+            <div style="display:flex; justify-content:space-between; padding:3px 0; font-size:11px; border-bottom:1px solid #F1F5F9;">
+              <div style="flex:3; font-weight:bold; color:#0F172A;">${key}</div>
+              <div style="flex:2; text-align:right;">${item.kg.toFixed(1)} KG</div>
+              <div style="flex:2; text-align:right;">${item.und.toFixed(0)} UN</div>
+              <div style="flex:2; text-align:right; font-weight:bold;">${item.pallets}</div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div style="width:100%; margin-bottom:14px; padding:12px; background:#F8FAFC !important; border-radius:12px; border:1.2px solid #E2E8F0;">
+            <div style="font-size:11px; font-weight:bold; color:#0055A5; margin-bottom:6px;">${titulo}</div>
+            <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:bold; color:#64748B; border-bottom:1px solid #CBD5E1; padding-bottom:4px;">
+              <div style="flex:3;">${cabeceraCol}</div>
+              <div style="flex:2; text-align:right;">KILOS</div>
+              <div style="flex:2; text-align:right;">UNIDADES</div>
+              <div style="flex:2; text-align:right;">PALLETS</div>
+            </div>
+            <div style="margin-top:4px;">${filas}</div>
+          </div>
+        `;
+      }
+
+      const listaEvidenciasGrid = [
+        { titulo: "FOTO PRECINTO", url: d.url_precinto, base64: convertirImagenABase64(d.url_precinto) },
+        { titulo: "FOTO PATENTES", url: d.url_patente, base64: convertirImagenABase64(d.url_patente) },
+        { titulo: "FOTO EVIDENCIA", url: d.url_evidencia, base64: convertirImagenABase64(d.url_evidencia) },
+        { titulo: "FOTO PESO", url: d.url_peso, base64: convertirImagenABase64(d.url_peso) },
+        { titulo: "FOTO ROMANEO", url: d.url_romaneo, base64: convertirImagenABase64(d.url_romaneo) },
+        { titulo: "FOTO DEL CAMIÓN (CARGA)", url: d.url_camioncarga, base64: convertirImagenABase64(d.url_camioncarga) }
+      ];
+
+      let htmlHojasEvidencias = '';
+      for (let i = 0; i < listaEvidenciasGrid.length; i += 2) {
+        const chunk = listaEvidenciasGrid.slice(i, i + 2);
+        const nroHoja = Math.floor(i / 2) + 1;
+
+        const cardsChunk = chunk.map(ev => {
+          const tieneImagen = ev.base64 !== null;
+          return `
+            <div style="width:100%; height:290px; margin-bottom:16px; padding:12px; background:#F8FAFC !important; border-radius:14px; border:1.5px solid ${tieneImagen ? '#F97316' : '#CBD5E1'}; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+              <div style="font-size:12px; font-weight:bold; color:#0F172A;">${ev.titulo}</div>
+              <div style="flex-grow:1; margin:8px 0; display:flex; align-items:center; justify-content:center; background:${tieneImagen ? '#FFFFFF' : '#E2E8F0'} !important; border-radius:8px; overflow:hidden;">
+                ${tieneImagen 
+                  ? `<img src="${ev.base64}" style="max-width:100%; max-height:220px; object-fit:contain;" />`
+                  : `<div style="text-align:center; color:#E11D48; font-weight:bold; font-size:11px;">[ALERTA] REQUERIDO PENDIENTE<br/><span style="font-weight:normal; font-size:9px; color:#475569;">Sin archivo o no encontrado en disco</span></div>`
+                }
+              </div>
+              <div style="font-size:8.5px; color:#94A3B8; word-break:break-all;">${ev.url || 'Sin ruta registrada'}</div>
+            </div>
+          `;
+        }).join('');
+
+        htmlHojasEvidencias += `
+          <div class="page-break">
+            <div style="background:#F97316 !important; padding:12px; border-radius:10px; color:#FFF; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; -webkit-print-color-adjust: exact;">
+              <span style="font-size:11px; font-weight:bold;">AGROSOFT J&L - CONTROL DE EVIDENCIAS FOTOGRÁFICAS (HOJA ${nroHoja})</span>
+              <span style="font-size:10px; font-weight:bold;">REMITO: ${remitoNum}</span>
+            </div>
+            <div style="font-size:12px; font-weight:bold; color:#0F172A;">REGISTRO DE CONDICIÓN FÍSICA Y EMBARQUE DE MATERIA PRIMA</div>
+            <div style="font-size:9px; color:#64748B; margin-bottom:14px;">Imágenes de control interno de almacenamiento y despacho. Destino Supabase Storage.</div>
+            ${cardsChunk}
+          </div>
+        `;
+      }
+
+      const base64Dtv = convertirImagenABase64(d.url_dtv);
+      const tieneDtv = base64Dtv !== null;
+
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <title>MANIFIESTO_COMPLETO_${remitoNum}</title>
+          <style>
+            @page { size: A4 portrait; margin: 10mm; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A; margin: 0; padding: 0; background: #FFF; }
+            .page-break { page-break-before: always; }
+            .header-blue { background: #0055A5 !important; color: #FFFFFF !important; padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+            .box-card { background: #FFFFFF !important; border: 1.2px solid #E2E8F0; border-radius: 12px; padding: 10px 14px; margin-top: 8px; }
+            .row-info { display: flex; justify-content: space-between; padding: 3px 0; font-size: 10px; }
+            .lbl-static { color: #64748B; font-weight: bold; font-size: 9px; }
+            .val-static { color: #0F172A; font-weight: bold; font-size: 10.5px; }
+            .table-remito { width: 100%; border-collapse: collapse; margin-top: 6px; }
+            .table-remito th { background: #0F172A !important; color: #FFFFFF !important; font-size: 9px; padding: 5px; text-transform: uppercase; border: 1px solid #0F172A; }
+            .sig-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+            .sig-box { width: 110px; height: 50px; border: 1px solid #CBD5E1; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 4px; }
+          </style>
+        </head>
+        <body>
+
+          <!-- PÁGINA 1: Calco Estricto del Remito Formal -->
+          <div>
+            <div class="header-blue">
+              <div>
+                <div style="font-size:13px; font-weight:bold;">GORDON STERN DIEGO SEBASTIAN GARY</div>
+                <div style="font-size:9px; font-weight:bold; color:#93C5FD;">MANIFIESTO COMPLETO DE DESPACHO</div>
+                <div style="font-size:8px; color:#93C5FD;">N° de Empaque: R-3325-a-H / CHOELE CHOEL-R.N. - ARGENTINA</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px; font-weight:bold;">REMITO N°: ${remitoNum}</div>
+                <div style="font-size:8px; color:#FFFFFF;">Sistema de Reportes Diseñados por Agrosoft J&L</div>
+                <div style="font-size:10px; font-weight:bold;">Fecha Despacho: ${d.fecha_despacho || '-'}</div>
+              </div>
+            </div>
+
+            <div class="box-card">
+              <div class="row-info"><span class="lbl-static">CLIENTE</span><span class="val-static">${(d.cliente || 'S/C').toString().toUpperCase()}</span></div>
+              <hr style="border:none; border-top:1px solid #F1F5F9; margin:2px 0;" />
+              <div class="row-info"><span class="lbl-static">TRANSPORTE</span><span class="val-static">${(d.transporte || '-').toString().toUpperCase()}</span></div>
+              <hr style="border:none; border-top:1px solid #F1F5F9; margin:2px 0;" />
+              <!-- ACA ES LO NUEVO: CHOFER Y DNI EN MANIFIESTO -->
+              <div class="row-info"><span class="lbl-static">CHOFER</span><span class="val-static">${(d.chofer || '-').toString().toUpperCase()} ${d.dni_chofer ? '· DNI: ' + d.dni_chofer : ''}</span></div>
+              <hr style="border:none; border-top:1px solid #F1F5F9; margin:2px 0;" />
+              <div class="row-info"><span class="lbl-static">PATENTE</span><span class="val-static">${(d.patentes || d.patente || '-').toString().toUpperCase()}</span></div>
+              <hr style="border:none; border-top:1px solid #F1F5F9; margin:2px 0;" />
+              <div class="row-info">
+                <span class="lbl-static">TERMÓGRAFOS ASIGNADOS</span>
+                <div>${htmlTermografos}</div>
+              </div>
+            </div>
+
+            <div style="font-size:9px; font-weight:bold; color:#64748B; margin-top:10px;">DETALLE DE DESPACHO (COMPOSICIÓN DE LA CARGA)</div>
+
+            <table class="table-remito">
+              <thead>
+                <tr>
+                  <th style="text-align:left;">N° Pallet</th>
+                  <th style="text-align:left;">Variedad / Detalle</th>
+                  <th>Calibre</th>
+                  <th>Categoría</th>
+                  <th>Bultos</th>
+                  <th style="text-align:right;">Peso Neto</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasTablaFormal}
+              </tbody>
+            </table>
+
+            <div class="sig-container">
+              <div style="background:#F1F5F9 !important; border:1px solid #CBD5E1; border-radius:10px; padding:8px 12px; width:45%;">
+                <div style="font-size:9px; font-weight:bold; color:#0F172A;">RESUMEN DE BÁSCULA</div>
+                <div style="font-size:9px; margin-top:2px;">VOLUMEN TOTAL: ${res.length} PALLETS</div>
+                <div style="font-size:10px; font-weight:bold; color:#0055A5;">PESO EMBARCADO: ${totalKg.toFixed(1)} KG</div>
+              </div>
+              <div style="display:flex; gap:12px;">
+                <div class="sig-box"><span class="lbl-static">Firma Despachador</span></div>
+                <div class="sig-box"><span class="lbl-static">Conformidad Chofer</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PÁGINA 2: Resumen Analítico de Composición de Carga -->
+          <div class="page-break">
+            <div class="header-blue">
+              <span style="font-size:11px; font-weight:bold;">AGROSOFT J&L - RESUMEN DE COMPOSICIÓN DE CARGA</span>
+              <span style="font-size:10px; font-weight:bold;">REMITO: ${remitoNum}</span>
+            </div>
+
+            <div style="margin-top:12px; font-size:13px; font-weight:bold; color:#0F172A;">CONSOLIDADO GENERAL DE EMBARQUE</div>
+            <div style="font-size:9px; color:#64748B; margin-bottom:14px;">Métricas analíticas de distribución físicas basadas en unidades validadas de paletizado.</div>
+
+            ${generarCardGrandeResumenHTML("RESUMEN POR VARIEDAD", "VARIEDAD", agrpVariedad)}
+            ${generarCardGrandeResumenHTML("RESUMEN POR CALIBRE", "CALIBRE", agrpCalibre)}
+            ${generarCardGrandeResumenHTML("RESUMEN POR CATEGORÍA", "CATEGORÍA", agrpCategoria)}
+          </div>
+
+          <!-- PÁGINAS DE EVIDENCIAS FOTOGRÁFICAS -->
+          ${htmlHojasEvidencias}
+
+          <!-- PÁGINA FINAL: Control Aduanero y DTV-e -->
+          <div class="page-break">
+            <div class="header-blue">
+              <span style="font-size:11px; font-weight:bold;">AGROSOFT J&L - CONTROL ADUANERO & FITOSANITARIO</span>
+              <span style="font-size:10px; font-weight:bold;">REMITO: ${remitoNum}</span>
+            </div>
+
+            <div style="margin-top:14px; font-size:13px; font-weight:bold; color:#0F172A;">DOCUMENTO DE TRÁNSITO VEGETAL ELECTRÓNICO (DTV-e)</div>
+            <div style="font-size:9px; color:#64748B; margin-bottom:12px;">Anexo obligatorio para fiscalización de origen y sanidad de la mercadería transportada.</div>
+
+            <div style="width:100%; height:620px; background:#F8FAFC !important; border-radius:16px; border:2px solid ${tieneDtv ? '#0055A5' : '#CBD5E1'}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px;">
+              ${tieneDtv
+                ? `<img src="${base64Dtv}" style="max-width:100%; max-height:580px; object-fit:contain; border-radius:12px;" />`
+                : `
+                  <div style="font-size:32px; font-weight:bold; color:#CBD5E1;">[DOC]</div>
+                  <div style="font-size:13px; font-weight:bold; color:#E11D48; margin-top:12px;">[ALERTA]: PENDIENTE DE DIGITALIZACIÓN</div>
+                  <div style="font-size:10px; color:#475569; text-align:center; margin-top:6px; max-width:380px;">
+                    No se ha de capturar el documento obligatorio. El operador debe escanear el DTV-e para completar el legajo oficial.
+                  </div>
+                `
+              }
+            </div>
+          </div>
+
+          <script>
+            window.onload = function() {
+              setTimeout(function() { window.print(); }, 500);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      win.document.close();
+
+    } catch (e) {
+      console.error("❌ Error al generar Manifiesto Completo:", e);
+      if (typeof lanzarToast === 'function') lanzarToast("Error al generar Manifiesto", "error");
+    }
+  };
+
+  // ESTO LO MODIFIQUE: Se agrego det_dni_chofer al UPDATE de cabecera del remito
+  window.guardarCambiosCabeceraRemito = function(remitoNum) {
+    if (!db) return;
+    try {
+      const cli = document.getElementById('det_cliente').value.trim();
+      const transp = document.getElementById('det_transporte').value.trim();
+      const chof = document.getElementById('det_chofer').value.trim();
+      const dniChof = document.getElementById('det_dni_chofer').value.trim();
+      const pat = document.getElementById('det_patente').value.trim().toUpperCase();
+      const guia = document.getElementById('det_guia').value.trim();
+      const termo = document.getElementById('det_termografo').value.trim().toUpperCase();
+      const prov = document.getElementById('det_provincia').value.trim();
+      const loc = document.getElementById('det_localidad').value.trim();
+
+      db.prepare(`
+        UPDATE local_despachos_produccion 
+        SET cliente = ?, transporte = ?, chofer = ?, dni_chofer = ?, patentes = ?, guia = ?, termografo = ?, provincia = ?, localidad = ?, sincronizado = 0 
+        WHERE remito = ?
+      `).run(cli, transp, chof, dniChof, pat, guia, termo, prov, loc, remitoNum);
+
+      db.prepare(`
+        UPDATE local_paletizado 
+        SET cliente = ?, sincronizado = 0 
+        WHERE nro_pallet IN (SELECT nro_pallet FROM local_despachos_produccion WHERE remito = ?)
+      `).run(cli, remitoNum);
+
+      lanzarToast("✅ Cabecera del remito actualizada");
+      cargarHistorial();
+      cargarArchivero();
+    } catch(e) { console.error(e); lanzarToast("Error al guardar cambios de cabecera", "error"); }
+  };
+
+  /* ESTO LO MODIFIQUE: Al desasignar o quitar un pallet de un remito, se elimina de despachos y pasa a estado ACTIVO en local_paletizado */
+  window.desasignarPalletRemito = function(remitoNum, nroPallet) {
+    solicitarConfirmacion(
+      "QUITAR PALLET DEL REMITO",
+      `¿Quitar el pallet ${nroPallet} del remito N° ${remitoNum}? Volverá a estar ACTIVO en Stock.`,
+      () => {
+        if (db) {
+          try {
+            db.transaction(() => {
+              db.prepare(`DELETE FROM local_despachos_produccion WHERE remito = ? AND nro_pallet = ?`).run(remitoNum, nroPallet);
+              db.prepare(`UPDATE local_paletizado SET estado = 'ACTIVO', cliente = NULL, id_despacho = NULL, sincronizado = 0 WHERE nro_pallet = ?`).run(nroPallet);
+            })();
+
+            lanzarToast(`Pallet ${nroPallet} devuelto a Stock ACTIVO`);
+            cargarHistorial();
+            cargarArchivero();
+            cargarPalletsActivosStock();
+          } catch(e) { console.error(e); lanzarToast("Error al quitar pallet", "error"); }
+        }
+      },
+      true
+    );
+  };
+
+  /* ESTO LO MODIFIQUE: Eliminación completa de remito reponiendo pallets a estado ACTIVO */
+  window.eliminarRemito = function(remitoNum) {
+    solicitarConfirmacion(
+      "ELIMINAR REMITO COMPLETO",
+      `¿Está seguro de eliminar el remito N° ${remitoNum}? Todos los pallets regresarán a estado ACTIVO en Stock.`,
+      () => {
+        if (db) {
+          try {
+            db.transaction(() => {
+              db.prepare(`
+                UPDATE local_paletizado SET estado = 'ACTIVO', cliente = NULL, id_despacho = NULL, sincronizado = 0 
+                WHERE nro_pallet IN (SELECT nro_pallet FROM local_despachos_produccion WHERE remito = ?)
+              `).run(remitoNum);
+              db.prepare(`DELETE FROM local_despachos_produccion WHERE remito = ?`).run(remitoNum);
+            })();
+
+            lanzarToast(`Remito N° ${remitoNum} eliminado. Pallets restituidos a Stock ACTIVO.`);
+            remitoSeleccionadoActual = null;
+            document.getElementById('detalleHistorialRemito').innerHTML = '<div style="font-size:12px; color:var(--text-secondary); text-align:center; padding:50px 0;">👈 Seleccione un remito de la lista para ver el detalle.</div>';
+            cargarHistorial();
+            cargarArchivero();
+            cargarPalletsActivosStock();
+          } catch(e) { console.error(e); lanzarToast("Error al eliminar remito", "error"); }
+        }
+      },
+      true
+    );
+  };
+
+  window.seleccionarEvidenciaParaRemito = function(remitoNum, campoKey) {
+    remitoSeleccionadoActual = remitoNum;
+    campoEvidenciaPendiente = campoKey;
+    inputArchivoOculto.click();
+  };
+
+  function cambiarEvidenciaRemitoExistente(remitoNum, campoKey, nuevaRuta) {
+    if (!db) return;
+    try {
+      db.prepare(`UPDATE local_despachos_produccion SET ${campoKey} = ?, sincronizado = 0 WHERE remito = ?`).run(nuevaRuta, remitoNum);
+      lanzarToast("Evidencia actualizada correctamente");
+      renderizarDetalleRemitoPanel(remitoNum, tabActiva === 'historial' ? 'detalleHistorialRemito' : 'detalleArchiveroRemito');
+    } catch(e) { console.error(e); lanzarToast("Error al actualizar evidencia", "error"); }
+  }
+
+  function cargarArchivero() {
+    const listaCont = document.getElementById('listaArchiveroClientes');
+    if (!db) return;
+    try {
+      const res = db.prepare(`
+        SELECT cliente, remito, fecha_despacho, COUNT(nro_pallet) as total_pallets 
+        FROM local_despachos_produccion GROUP BY remito ORDER BY cliente ASC, fecha_despacho DESC
+      `).all();
+
+      let porCliente = {};
+      res.forEach(d => {
+        let cli = d.cliente || 'SIN CLIENTE';
+        if (!porCliente[cli]) porCliente[cli] = [];
+        porCliente[cli].push(d);
+      });
+
+      listaCont.innerHTML = Object.keys(porCliente).map(cli => `
+        <div style="margin-bottom:12px;">
+          <div style="font-weight:700; color:var(--azul-francia); font-size:12px; padding:4px 0; border-bottom:1px solid var(--color-border);">${cli} (${porCliente[cli].length})</div>
+          ${porCliente[cli].map(r => `
+            <div class="remito-item-card ${remitoSeleccionadoActual === r.remito ? 'active' : ''}" style="margin-top:6px;" onclick="seleccionarRemitoArchivero('${r.remito}')">
+              <div style="font-weight:700; font-size:11px;">REMITO N° ${r.remito}</div>
+              <div style="font-size:9.5px; color:var(--text-secondary); display:flex; justify-content:space-between; margin-top:2px;">
+                <span>📅 ${r.fecha_despacho}</span>
+                <span class="badge-mini badge-blue">${r.total_pallets} PALLETS</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+
+    } catch(e) { console.error(e); }
+  }
+
+  window.seleccionarRemitoArchivero = function(remitoNum) {
+    remitoSeleccionadoActual = remitoNum;
+    renderizarDetalleRemitoPanel(remitoNum, 'detalleArchiveroRemito');
+  };
+
+  // ESTO LO MODIFIQUE: Se visualiza el Chofer con su DNI en el Remito imprimible
+  window.imprimirRemito = function(remitoNum) {
+    if (!db) return;
+    try {
+      const filas = db.prepare(`SELECT * FROM local_despachos_produccion WHERE remito = ?`).all(remitoNum);
+      if (filas.length === 0) return;
+      const primerReg = filas[0];
+
+      const nroRemitoRaw = primerReg.remito ? primerReg.remito.toString() : "0";
+      const nroRemitoFormateado = "R - 0001 - " + nroRemitoRaw.padStart(8, '0');
+
+      let dia = '00', mes = '00', anio = '0000';
+      try {
+        if (primerReg.fecha_despacho) {
+          let partes = primerReg.fecha_despacho.toString().split(/[-/ ]/);
+          if (partes.length >= 3) {
+            if (partes[0].length === 4) { anio = partes[0]; mes = partes[1]; dia = partes[2]; } 
+            else { dia = partes[0].padStart(2, '0'); mes = partes[1].padStart(2, '0'); anio = partes[2]; }
+          }
+        }
+      } catch (_) {}
+
+      const bultosPorDefecto = 49;
+      let totalKilos = 0;
+      let totalBultos = 0;
+
+      const filasDePallets = [];
+      filas.forEach((p, index) => {
+        let kg = parseFloat(p.kg_pallet || 0);
+        totalKilos += kg;
+        totalBultos += bultosPorDefecto;
+
+        filasDePallets.push({
+          id: p.nro_pallet || '',
+          variedad: (p.variedad || "CAMPERO").toUpperCase(),
+          calibre: p.calibre || "80-100",
+          categoria: p.categoria || "CAT-1 EXPO",
+          bultos: bultosPorDefecto.toString(),
+          peso: `${Math.round(kg)} kg`
+        });
+      });
+
+      for (let i = filas.length; i < 33; i++) {
+        filasDePallets.push({ id: '', variedad: '', calibre: '', categoria: '', bultos: '', peso: '' });
+      }
+
+      const tbodyHtml = filasDePallets.map(f => `
+        <tr>
+          <td style="text-align: center;">${f.id}</td>
+          <td>${f.variedad}</td>
+          <td style="text-align: center;">${f.calibre}</td>
+          <td style="text-align: center;">${f.categoria}</td>
+          <td style="text-align: center;">${f.bultos}</td>
+          <td style="text-align: right; color: ${f.peso ? '#2563eb' : 'inherit'}; font-weight: ${f.peso ? 'bold' : 'normal'};">${f.peso}</td>
+        </tr>
+      `).join('');
+
+      const copias = ["ORIGINAL", "DUPLICADO", "TRIPLICADO"];
+      const paginasHtml = copias.map(tipoCopia => `
+        <div class="page">
+          <div class="header-row">
+            <div>
+              <div class="company-title">GORDON STERN DIEGO SEBASTIAN GARY</div>
+              <div class="empaque-no">Número de empaque: R-3325-a-H</div>
+              <div class="location">CHOELE CHOEL - RIO NEGRO - ARGENTINA</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="letra-box">R</div>
+              <div class="no-valido">Doc. No Válido<br>Como Factura</div>
+            </div>
+            <div class="remito-meta">
+              <div class="copia-badge">${tipoCopia}</div>
+              <div class="remito-title">REMITO</div>
+              <div class="remito-num">${nroRemitoFormateado}</div>
+              <table class="date-table">
+                <tr><th>Día</th><th>Mes</th><th>Año</th></tr>
+                <tr><td>${dia}</td><td>${mes}</td><td>${anio}</td></tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="cards-row">
+            <div class="card">
+              <div class="card-label">Sres. / Destinatario</div>
+              <div class="card-main">${(primerReg.cliente || 'SIN CLIENTE').toString().toUpperCase()}</div>
+              <div class="card-sub">Destino: ${primerReg.localidad || '-'}, ${primerReg.provincia || '-'}</div>
+            </div>
+            <div class="card">
+              <div class="card-sub">Chofer: ${primerReg.chofer || '-'} ${primerReg.dni_chofer ? '(DNI: ' + primerReg.dni_chofer + ')' : ''}</div>
+              <div class="card-sub" style="color: #2563eb; font-weight: bold;">Patentes: ${primerReg.patentes || 'AE733QT'}</div>
+              <div class="card-sub">Empresa: ${primerReg.transporte || '-'}</div>
+            </div>
+          </div>
+
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 23%;">Nº Pallet</th>
+                <th style="width: 20%;">Variedad / Detalle</th>
+                <th style="width: 13%;">Calibre</th>
+                <th style="width: 15%;">Categoría</th>
+                <th style="width: 10%;">Bultos</th>
+                <th style="width: 19%;">Peso Neto</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tbodyHtml}
+              <tr class="total-row">
+                <td colspan="4" style="text-align: right; font-weight: bold;">TOTAL CONSOLIDADO:</td>
+                <td style="text-align: center; font-weight: bold;">${totalBultos}</td>
+                <td style="text-align: right; font-weight: bold; color: #2563eb;">${Math.round(totalKilos)} kg</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="firmas-row">
+            <div class="firma-block"><div class="linea-firma"></div><div class="firma-label">Despachado</div></div>
+            <div class="firma-block"><div class="linea-firma"></div><div class="firma-label">Conformidad Chofer</div></div>
+            <div class="firma-block"><div class="linea-firma"></div><div class="firma-label">Recibido Destino</div></div>
+          </div>
+
+          <div class="footer">AgroSoft J&L - Gestión de Operaciones</div>
+        </div>
+      `).join('');
+
+      let win = window.open('', '_blank');
+      win.document.write(`
+        <html>
+        <head>
+          <title>Remito ${remitoNum}</title>
+          <style>
+            @page { size: A4; margin: 0; }
+            * { box-sizing: border-box; font-family: sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { margin: 0; padding: 0; background: #e2e8f0; }
+            .page { width: 210mm; height: 297mm; padding: 20px 25px; margin: 10px auto; background: white; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; }
+            @media print { body { background: transparent; } .page { margin: 0; shadow: none; height: 100vh; } }
+            .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+            .company-title { font-size: 13px; font-weight: bold; color: #0f172a; }
+            .empaque-no { font-size: 9.5px; font-weight: bold; color: #2563eb; margin-top: 2px; }
+            .location { font-size: 9px; color: #64748b; margin-top: 1px; }
+            .letra-box { border: 2px solid #0f172a; padding: 2px 10px; font-size: 18px; font-weight: bold; display: inline-block; }
+            .no-valido { font-size: 6px; color: #475569; text-align: center; margin-top: 2px; }
+            .remito-meta { text-align: right; }
+            .copia-badge { background: #cbd5e1; padding: 2px 8px; font-size: 9px; font-weight: bold; display: inline-block; border-radius: 4px; }
+            .remito-title { font-size: 15px; font-weight: bold; color: #1e3a8a; margin-top: 2px; }
+            .remito-num { font-size: 12px; font-weight: bold; color: #1e3a8a; }
+            .date-table { border-collapse: collapse; margin-left: auto; margin-top: 4px; }
+            .date-table th, .date-table td { border: 1px solid #94a3b8; text-align: center; padding: 1px 4px; }
+            .date-table th { background: #e2e8f0; font-size: 7px; color: #0f172a; }
+            .date-table td { font-size: 9px; font-weight: bold; }
+            .cards-row { display: flex; gap: 10px; margin-top: 10px; }
+            .card { flex: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; height: 58px; display: flex; flex-direction: column; justify-content: space-between; }
+            .card-label { font-size: 8px; color: #475569; }
+            .card-main { font-size: 10px; font-weight: bold; }
+            .card-sub { font-size: 8.5px; }
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            .items-table th { background: #0f172a; color: white; font-size: 8px; padding: 4px; border: 1px solid #0f172a; }
+            .items-table td { border: 1px solid rgba(15, 23, 42, 0.15); font-size: 8px; height: 16px; padding: 1px 4px; }
+            .total-row td { background: #f1f5f9; height: 20px; font-size: 9px; }
+            .firmas-row { display: flex; justify-content: space-between; margin-top: 15px; padding: 0 10px; }
+            .firma-block { text-align: center; width: 140px; }
+            .linea-firma { border-top: 1px solid black; margin-bottom: 4px; }
+            .firma-label { font-size: 9px; font-weight: bold; color: #1e3a8a; }
+            .footer { text-align: center; font-size: 8px; color: #64748b; margin-top: 5px; }
+          </style>
+        </head>
+        <body>
+          ${paginasHtml}
+          <script>window.onload = function() { window.print(); };<\/script>
+        </body>
+        </html>
+      `);
+      win.document.close();
+    } catch(e) { console.error(e); }
+  };
+
+  // BOTÓN SINCRONIZACIÓN
+  const btnSincronizar = document.getElementById('btnSincronizar');
+  btnSincronizar.addEventListener('click', async () => {
+    btnSincronizar.disabled = true;
+    btnSincronizar.innerHTML = `Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { ejecutarSincronizacionCompleta } = require('../sincronizacion.js');
+        await ejecutarSincronizacionCompleta();
+
+        lanzarToast('¡Sincronización completa e imágenes descargadas!', 'success');
+        if (tabActiva === 'historial') cargarHistorial();
+        if (tabActiva === 'archivero') cargarArchivero();
+      } catch (err) { 
+        console.error(err); 
+        lanzarToast('Error: ' + err.message, 'error'); 
+      } finally { 
+        btnSincronizar.disabled = false;
+        btnSincronizar.innerHTML = `Sincronizar`; 
+      }
+    } else {
+      setTimeout(() => { 
+        btnSincronizar.disabled = false;
+        btnSincronizar.innerHTML = `Sincronizar`; 
+        lanzarToast('Sincronización simulada.', 'success'); 
+      }, 1000);
+    }
+  });
+
+  // INICIO
+  inicializarFormulario();
+})();
+</script>
+</body>
+</html>

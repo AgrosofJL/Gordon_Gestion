@@ -1,0 +1,15 @@
+{
+  "name": "Gordon Gestión",
+  "short_name": "Gordon",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F6F4",
+  "theme_color": "#1E6B4C",
+  "icons": [
+    {
+      "src": "../logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

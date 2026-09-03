@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Control de Stock</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F5F4F1;
+    --color-surface: #FFFFFF;
+    --color-text: #211C16;
+    --color-text-secondary: #6B6255;
+    --color-border: #E0DCD4;
+    --color-ins: #B45309;
+    --color-ins-dark: #7C3809;
+    --color-ins-soft: rgba(180, 83, 9, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-blue: #0071E3;
+    --color-blue-soft: #EBF3FA;
+    --color-amber: #F57F17;
+    --color-amber-soft: #FFF8E1;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DAD4C8; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-ins); background-clip: content-box; }
+
+  /* Barra Superior */
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 32px; border-bottom: 1px solid var(--color-border); height: 55px; flex-shrink: 0; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Layout principal */
+  .layout-ins { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+  .sidebar { width: 190px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: 100%; justify-content: center; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .subrubro-chip:active, .tab-btn:active, .btn-action:active, .fila-articulo:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important; transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 15px; font-weight: 800; margin-top: 22px; color: var(--color-ins-dark); letter-spacing: 0.5px; text-transform: uppercase; padding-left: 4px; }
+  .sidebar-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; padding-left: 4px; line-height: 1.5; }
+
+  .main-content { flex-grow: 1; padding: 24px 32px; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Cabecera de vista */
+  .header-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo-wrap { position: relative; padding-left: 15px; }
+  .seccion-titulo-wrap::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-ins), var(--color-ins-dark)); }
+  .seccion-titulo { font-size: 24px; font-weight: 800; margin: 0; color: var(--color-ins-dark); line-height: 1.15; }
+  .seccion-subtitulo { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-top: 3px; }
+
+  .btn-action { border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-exportar { background: var(--color-ins); color: #FFFFFF; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25); }
+  .btn-exportar:hover { background: var(--color-ins-dark); transform: translateY(-1px); }
+
+  /* Tira de KPIs */
+  .kpi-strip { display: flex; gap: 12px; margin-bottom: 16px; flex-shrink: 0; flex-wrap: wrap; }
+  .kpi-card { flex: 1; min-width: 150px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s ease; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+  .kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .kpi-icon.tono-ambar { background: var(--color-ins-soft); color: var(--color-ins-dark); }
+  .kpi-icon.tono-verde { background: var(--color-ok-soft); color: var(--color-ok); }
+  .kpi-icon.tono-rojo { background: var(--color-warn-soft); color: var(--color-warn); }
+  .kpi-icon.tono-amarillo { background: var(--color-amber-soft); color: var(--color-amber); }
+  .kpi-valor { font-size: 19px; font-weight: 900; color: var(--color-text); line-height: 1.1; }
+  .kpi-label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+  /* Buscador */
+  .search-input { width: 100%; padding: 11px 14px 11px 38px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6255' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'></circle><line x1='21' y1='21' x2='16.65' y2='16.65'></line></svg>") no-repeat 12px center / 16px 16px; font-family: inherit; font-size: 13px; margin-bottom: 14px; flex-shrink: 0; transition: all 0.15s ease; }
+  .search-input:focus { outline: none; border-color: var(--color-ins); box-shadow: 0 0 0 3px var(--color-ins-soft); background-color: #FFFFFF; }
+
+  /* Solapas */
+  .tabs-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-shrink: 0; border-bottom: 1px solid var(--color-border); }
+  .tab-btn { display: flex; align-items: center; justify-content: center; gap: 7px; flex: 1; text-align: center; padding: 11px; background: transparent; border: none; border-bottom: 3px solid transparent; font-size: 11.5px; font-weight: 800; cursor: pointer; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; transition: all 0.2s ease; margin-bottom: -1px; }
+  .tab-btn:hover { color: var(--color-ins-dark); }
+  .tab-btn.active-0 { color: var(--color-ins-dark); border-bottom-color: var(--color-ins); }
+  .tab-btn.active-1 { color: var(--color-warn); border-bottom-color: var(--color-warn); }
+
+  /* Chips de Sub-Rubros */
+  .subrubros-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 6px; flex-shrink: 0; }
+  .subrubro-chip { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
+  .subrubro-chip:hover { border-color: var(--color-ins); color: var(--color-ins-dark); }
+  .subrubro-chip.active { background: var(--color-ins); border-color: var(--color-ins); color: #FFFFFF; box-shadow: 0 3px 8px rgba(180, 83, 9, 0.25); }
+
+  /* Tabla Estructural */
+  .tabla-container { flex-grow: 1; overflow-y: auto; background: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: 0 4px 14px rgba(0,0,0,0.03); }
+  .tabla-stock { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tabla-stock th { position: sticky; top: 0; background: #FAF9F7; padding: 12px 16px; font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--color-border); text-align: left; z-index: 1; }
+  .tabla-stock td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+  .tabla-stock tr:last-child td { border-bottom: none; }
+  .tabla-stock tr.fila-articulo { cursor: pointer; transition: background 0.15s ease; }
+  .tabla-stock tr.fila-articulo:hover { background: #FFFDE7; }
+
+  .art-codigo { font-weight: 800; color: var(--color-text); font-size: 13px; letter-spacing: 0.2px; }
+  .art-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; font-style: italic; }
+  .badge-subrubro-sm { font-size: 9.5px; font-weight: 800; padding: 4px 9px; border-radius: 7px; text-transform: uppercase; background: var(--color-ins-soft); color: var(--color-ins-dark); display: inline-block; white-space: nowrap; letter-spacing: 0.3px; }
+
+  .col-num { text-align: center; font-weight: 700; font-size: 12.5px; }
+  .num-ing { color: var(--color-text); }
+  .num-sal { color: var(--color-ins); }
+  .num-dev { color: var(--color-blue); }
+  .num-baja { color: var(--color-warn); }
+  .num-neto { font-weight: 900; font-size: 13.5px; text-align: right; }
+  .num-neto.positivo { color: var(--color-ok); }
+  .num-neto.cero { color: var(--color-text-secondary); }
+
+  .vista-vacia { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 50px 20px; color: var(--color-text-secondary); }
+  .vista-vacia svg { opacity: 0.35; }
+  .vista-vacia span { font-size: 13px; font-weight: 500; }
+
+  /* Tarjetas de Vencimientos */
+  .cards-container { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 2px; padding-bottom: 4px; }
+  .card-vencimiento { background: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); border-left-width: 5px; padding: 15px 18px; display: flex; flex-direction: column; gap: 9px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s ease; }
+  .card-vencimiento:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.06); transform: translateY(-1px); }
+  .card-vencimiento.sev-vencido { border-left-color: var(--color-warn); }
+  .card-vencimiento.sev-hoy { border-left-color: var(--color-amber); }
+  .card-vencimiento.sev-proximo { border-left-color: #F9A825; }
+
+  .badge-estado { padding: 5px 10px; border-radius: 7px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; letter-spacing: 0.3px; text-transform: uppercase; }
+  .badge-activo { background: var(--color-ok-soft); color: var(--color-ok); font-size: 9px; }
+
+  .card-articulo-nombre { font-weight: 800; font-size: 14.5px; color: var(--color-text); }
+  .card-articulo-desc { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; font-style: italic; }
+
+  .card-divider { border: none; border-top: 1px dashed var(--color-border); margin: 2px 0; }
+
+  .meta-tags { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text); font-weight: 600; }
+  .meta-item svg { color: var(--color-ins); flex-shrink: 0; }
+  .meta-item .meta-label { color: var(--color-text-secondary); font-weight: 500; }
+
+  /* Modal Pro */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 520px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 19px; font-weight: 800; color: var(--color-ins-dark); margin: 0; }
+  .modal-subtitle { font-size: 12.5px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 16px; max-height: 65vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 8px; }
+  .modal-group label { font-size: 11px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-ok); color: #FFFFFF; }
+  .modal-btn.save:hover { background: #1B5E20; }
+
+  .export-formato-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .export-opcion-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 10px; border-radius: var(--radius-md); border: 1.5px solid var(--color-border); background: var(--color-bg); cursor: pointer; transition: all 0.15s ease; text-align: center; }
+  .export-opcion-card:hover { border-color: var(--color-ins); }
+  .export-opcion-card span { font-size: 12px; font-weight: 800; color: var(--color-text); }
+  .export-opcion-card.sel-excel { border-color: #107C41; background: rgba(16, 124, 65, 0.08); }
+  .export-opcion-card.sel-excel svg { color: #107C41; }
+  .export-opcion-card.sel-pdf { border-color: #B91C1C; background: rgba(185, 28, 28, 0.08); }
+  .export-opcion-card.sel-pdf svg { color: #B91C1C; }
+
+  .export-tipo-card { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border-radius: var(--radius-md); border: 1.5px solid var(--color-border); background: var(--color-bg); cursor: pointer; transition: all 0.15s ease; }
+  .export-tipo-card:hover { border-color: var(--color-ins); }
+  .export-tipo-card + .export-tipo-card { margin-top: 8px; }
+  .export-tipo-card svg { flex-shrink: 0; margin-top: 1px; }
+  .export-tipo-card .titulo { font-size: 12px; font-weight: 800; color: var(--color-text); }
+  .export-tipo-card .desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.4; }
+  .export-tipo-card.sel-auditoria { border-color: var(--color-ins); background: var(--color-ins-soft); }
+  .export-tipo-card.sel-auditoria svg { color: var(--color-ins-dark); }
+  .export-tipo-card.sel-total { border-color: var(--color-blue); background: var(--color-blue-soft); }
+  .export-tipo-card.sel-total svg { color: var(--color-blue); }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu último acceso fue...
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-ins">
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver
+      </button>
+      <div class="sidebar-titulo">Insumos</div>
+      <div class="sidebar-sub">Control de stock físico y alertas de vencimiento de lotes.</div>
+    </div>
+
+    <div class="main-content">
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Control de Stock Físico</h1>
+          <div class="seccion-subtitulo">Vista consolidada de existencias y lotes por vencer</div>
+        </div>
+        <button class="btn-action btn-exportar" id="btnExportar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Exportar
+        </button>
+      </div>
+
+      <div class="kpi-strip" id="kpiStrip"></div>
+
+      <input type="text" id="searchController" class="search-input" placeholder="Escriba artículo, sub rubro o descripción..." />
+
+      <!-- SOLAPAS -->
+      <div class="tabs-bar">
+        <button class="tab-btn active-0" id="tabStockGen">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          Stock General
+        </button>
+        <button class="tab-btn" id="tabVencimientos">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Vencimientos (0)
+        </button>
+      </div>
+
+      <div id="vistaDinamica" style="display:flex; flex-direction:column; flex-grow:1; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const path = require('path');
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error better-sqlite3:', e); }
+  }
+
+  function q(sql, ...args) {
+    if (!db) return [];
+    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
+  }
+
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+  // ACA ES LO NUEVO: Normalizador multi-variante para Agroquímicos
+  const RUBROS_AGROQUIMICOS = ['AGROQUÍMICO', 'AGROQUÍMICOS', 'AGROQUIMICO', 'AGROQUIMICOS'];
+  function esRubroAgroquimico(rubro, subRubro) {
+    const r = String(rubro || '').trim().toUpperCase();
+    const sr = String(subRubro || '').trim().toUpperCase();
+    return RUBROS_AGROQUIMICOS.includes(r) || RUBROS_AGROQUIMICOS.includes(sr);
+  }
+
+  // ===== Toasts y mini modal =====
+  const toastContenedor = document.getElementById('toastContenedor');
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = `
+      <div style="font-size:18px; display:flex; align-items:center;">${icono}</div>
+      <div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">${mensaje}</div>
+    `;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 4000);
+  }
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, saveLabel) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = saveLabel || 'Guardar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  const ICONS = {
+    layers: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+    box: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
+    alertTriangle: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    clock: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    calendar: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+    mapPin: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+    package: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
+    building: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"></rect><line x1="9" y1="7" x2="9" y2="7.01"></line><line x1="15" y1="7" x2="15" y2="7.01"></line><line x1="9" y1="11" x2="9" y2="11.01"></line><line x1="15" y1="11" x2="15" y2="11.01"></line><line x1="9" y1="15" x2="9" y2="15.01"></line><line x1="15" y1="15" x2="15" y2="15.01"></line></svg>',
+    alertTriangleSm: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    clockSm: '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    checkCircle: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    inbox: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>'
+  };
+
+  // Consulta con lógica diferenciada: agroquímicos leen salidas solo de 'movimientos'
+  // (porque el consumo real se registra luego desde Aplicaciones vía 'detalle', que aquí se ignora
+  // para no descontar dos veces); el resto de los rubros lee salidas de 'detalle'.
+  // Devoluciones y bajas se leen siempre de 'movimientos', para todos los rubros por igual.
+const SQL_CONSOLIDADA = `
+    SELECT
+      ing.articulo,
+      ing.reg_local as reg_insumo_reg,
+      IFNULL(cat.rubro, 'SIN RUBRO') as rubro,
+      IFNULL(cat.sub_rubro, 'SIN SUBRUBRO') as subrubro,
+      IFNULL(cat.descripcion, 'Sin especificar.') as descripcion,
+      IFNULL(cat.descripcion1, 'Sin desc. secundaria.') as descripcion1,
+      IFNULL(cat.habilitado, 'SI') as habilitado,
+      IFNULL(ing.cantidad, 0) as stock_inicial,
+      CASE
+        WHEN UPPER(TRIM(IFNULL(ing.proveedor,''))) = 'STOCK INICIAL' THEN 'INICIAL'
+        ELSE 'COMPRA'
+      END as origen,
+      CASE
+        WHEN UPPER(IFNULL(cat.rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+          OR UPPER(IFNULL(cat.sub_rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+        THEN IFNULL(mov_totales.total_salidas, 0)
+        ELSE IFNULL(det_totales.total_salidas, 0)
+      END as salidas,
+      IFNULL(mov_totales.total_devoluciones, 0) as devoluciones,
+      IFNULL(mov_totales.total_bajas, 0) as bajas,
+      (
+        IFNULL(ing.cantidad, 0)
+        - (CASE
+            WHEN UPPER(IFNULL(cat.rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+              OR UPPER(IFNULL(cat.sub_rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+            THEN IFNULL(mov_totales.total_salidas, 0)
+            ELSE IFNULL(det_totales.total_salidas, 0)
+          END)
+        + IFNULL(mov_totales.total_devoluciones, 0)
+        - IFNULL(mov_totales.total_bajas, 0)
+      ) as stock_neto,
+      IFNULL(ing.fec_venc, '') as fec_venc,
+      IFNULL(ing.desposito, 'GENERAL') as desposito,
+      IFNULL(ing.proveedor, 'S/D') as proveedor,
+      IFNULL(ing.cantidad, 0) as cantidad_lote
+    FROM local_i_insumosingresos ing
+    LEFT JOIN local_i_insumos_catalogo cat ON ing.articulo = cat.articulo
+    LEFT JOIN (
+      SELECT
+        reg_ing,
+        SUM(CASE WHEN UPPER(estado) = 'DESPACHADO' AND cantidad < 0 THEN ABS(cantidad) ELSE 0 END) as total_salidas,
+        SUM(CASE WHEN UPPER(estado) = 'DEVOLUCION' THEN cantidad ELSE 0 END) as total_devoluciones,
+        SUM(CASE WHEN UPPER(estado) = 'BAJA' THEN ABS(cantidad) ELSE 0 END) as total_bajas
+      FROM local_i_insumos_movimientos
+      GROUP BY reg_ing
+    ) mov_totales ON ing.reg_local = mov_totales.reg_ing
+    LEFT JOIN (
+      SELECT
+        reg_ingr,
+        SUM(CASE WHEN cantidad < 0 THEN ABS(cantidad) ELSE 0 END) as total_salidas
+      FROM local_i_insumos_detalle
+      GROUP BY reg_ingr
+    ) det_totales ON ing.reg_local = det_totales.reg_ingr
+    WHERE ing.articulo IS NOT NULL AND ing.articulo != ''
+  `;
+  // Variables de Estado
+  let _solapaActiva = 0; // 0 = Stock General, 1 = Vencimientos
+  let _datosStock = [];
+  let _datosVencimiento = [];
+  let _subRubrosList = ['TODOS'];
+  let _subRubroSeleccionado = 'TODOS';
+  let _queryBusqueda = '';
+
+  function parsearFecha(stringFecha) {
+    if (!stringFecha) return null;
+    try {
+      if (stringFecha.includes('-')) {
+        const [y, m, d] = stringFecha.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      } else if (stringFecha.includes('/')) {
+        const [d, m, y] = stringFecha.split('/').map(Number);
+        return new Date(y, m - 1, d);
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  // ACA ES LO NUEVO: Replicación exacta de la lógica _cargarDatosConsolidados() de Flutter
+  function cargarDatosConsolidados() {
+    const resultado = q(SQL_CONSOLIDADA);
+
+    const tempVencimientosProcesados = [];
+    const stockGeneralAgrupado = {};
+    const subRubroSet = new Set(['TODOS']);
+
+    const hoy = new Date();
+    const hoyMedianoche = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+
+    resultado.forEach(row => {
+      const articulo = row.articulo || '';
+      const stockNeto = parseFloat(row.stock_neto) || 0;
+
+      if (row.subrubro) subRubroSet.add(String(row.subrubro).toUpperCase());
+
+      // Si no queda stock real remanente en este lote, se descarta del análisis
+      if (stockNeto <= 0) return;
+
+      const stringFecha = String(row.fec_venc || '').trim();
+      let esVencidoOPorVencer = false;
+      let diasRestantesCalculados = 9999;
+
+      if (stringFecha) {
+        const fechaParsed = parsearFecha(stringFecha);
+        if (fechaParsed) {
+          const vencMedianoche = new Date(fechaParsed.getFullYear(), fechaParsed.getMonth(), fechaParsed.getDate());
+          diasRestantesCalculados = Math.round((vencMedianoche - hoyMedianoche) / (1000 * 60 * 60 * 24));
+
+          // Vence en 30 días o menos (o ya está vencido)
+          if (diasRestantesCalculados <= 30) {
+            esVencidoOPorVencer = true;
+          }
+        }
+      }
+
+      if (esVencidoOPorVencer) {
+        // ESTO LO MODIFIQUE: Se le inyecta el estado 'ACTIVO' siempre como en Flutter
+        tempVencimientosProcesados.push({
+          ...row,
+          dias_restantes: diasRestantesCalculados,
+          cantidad: stockNeto,
+          estado: 'ACTIVO'
+        });
+      } else {
+        // Consolida lote sano para Stock General
+        if (!stockGeneralAgrupado[articulo]) {
+          stockGeneralAgrupado[articulo] = {
+            articulo: articulo,
+            rubro: row.rubro,
+            subrubro: row.subrubro,
+            descripcion: row.descripcion,
+            descripcion1: row.descripcion1,
+            habilitado: row.habilitado,
+            stock_inicial: 0.0,
+            ingresos: 0.0,
+            salidas: 0.0,
+            devoluciones: 0.0,
+            bajas: 0.0,
+            stock_neto: 0.0
+          };
+        }
+
+        // Separa por origen: 'STOCK INICIAL' en proveedor va a stock_inicial, el resto son compras/ingresos
+        if (row.origen === 'INICIAL') {
+          stockGeneralAgrupado[articulo].stock_inicial += parseFloat(row.stock_inicial) || 0;
+        } else {
+          stockGeneralAgrupado[articulo].ingresos += parseFloat(row.stock_inicial) || 0;
+        }
+        stockGeneralAgrupado[articulo].salidas += parseFloat(row.salidas) || 0;
+        stockGeneralAgrupado[articulo].devoluciones += parseFloat(row.devoluciones) || 0;
+        stockGeneralAgrupado[articulo].bajas += parseFloat(row.bajas) || 0;
+        stockGeneralAgrupado[articulo].stock_neto += stockNeto;
+      }
+    });
+
+    _datosStock = Object.values(stockGeneralAgrupado);
+    _datosVencimiento = tempVencimientosProcesados.sort((a, b) => a.dias_restantes - b.dias_restantes);
+    _subRubrosList = Array.from(subRubroSet).sort();
+
+    document.getElementById('tabVencimientos').innerHTML = `${ICONS.calendar}Vencimientos (${_datosVencimiento.length})`;
+    renderKPIs();
+  }
+
+  function renderKPIs() {
+    const kpiStrip = document.getElementById('kpiStrip');
+    const totalArticulos = _datosStock.length;
+    const totalUnidades = _datosStock.reduce((acc, it) => acc + (parseFloat(it.stock_neto) || 0), 0);
+    const totalVencidos = _datosVencimiento.filter(v => v.dias_restantes < 0).length;
+    const totalPorVencer = _datosVencimiento.filter(v => v.dias_restantes >= 0).length;
+
+    kpiStrip.innerHTML = `
+      <div class="kpi-card">
+        <div class="kpi-icon tono-ambar">${ICONS.box}</div>
+        <div>
+          <div class="kpi-valor">${totalArticulos}</div>
+          <div class="kpi-label">Artículos en stock</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon tono-verde">${ICONS.layers}</div>
+        <div>
+          <div class="kpi-valor">${n1(totalUnidades)}</div>
+          <div class="kpi-label">Unidades totales</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon tono-rojo">${ICONS.alertTriangle}</div>
+        <div>
+          <div class="kpi-valor">${totalVencidos}</div>
+          <div class="kpi-label">Lotes vencidos</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon tono-amarillo">${ICONS.clock}</div>
+        <div>
+          <div class="kpi-valor">${totalPorVencer}</div>
+          <div class="kpi-label">Por vencer (30 días)</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderUI() {
+    const vistaDinamica = document.getElementById('vistaDinamica');
+    const qStr = _queryBusqueda.toLowerCase();
+
+    const tabGen = document.getElementById('tabStockGen');
+    const tabVenc = document.getElementById('tabVencimientos');
+    tabGen.className = `tab-btn ${_solapaActiva === 0 ? 'active-0' : ''}`;
+    tabVenc.className = `tab-btn ${_solapaActiva === 1 ? 'active-1' : ''}`;
+
+    if (_solapaActiva === 0) {
+      const itemsFiltrados = _datosStock.filter(item => {
+        const qMatch = !qStr || item.articulo.toLowerCase().includes(qStr) ||
+                               item.subrubro.toLowerCase().includes(qStr) ||
+                               item.descripcion.toLowerCase().includes(qStr);
+        const subMatch = _subRubroSeleccionado === 'TODOS' || String(item.subrubro).toUpperCase() === _subRubroSeleccionado;
+        return qMatch && subMatch;
+      });
+
+      vistaDinamica.innerHTML = `
+        <div class="subrubros-bar">
+          ${_subRubrosList.map(sr => `
+            <div class="subrubro-chip ${_subRubroSeleccionado === sr ? 'active' : ''}" onclick="window.setSubRubro('${escapeHtml(sr)}')">
+              ${escapeHtml(sr)}
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="tabla-container">
+          <table class="tabla-stock">
+            <thead>
+              <tr>
+                <th style="width:16%;">Insumo</th>
+                <th style="width:12%;">Rubro</th>
+                <th style="width:12%;">Sub Rubro</th>
+                <th style="width:22%;">Descripción</th>
+                <th style="text-align:center;">Stock Inicial</th>
+                <th style="text-align:center;">Ingresos</th>
+                <th style="text-align:center;">Salidas</th>
+                <th style="text-align:center;">Devoluciones</th>
+                <th style="text-align:center;">Bajas</th>
+                <th style="text-align:right;">Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsFiltrados.length === 0 ? `<tr><td colspan="10"><div class="vista-vacia">${ICONS.inbox}<span>No se encontraron registros de insumos sanos.</span></div></td></tr>` : ''}
+              ${itemsFiltrados.map(item => `
+                <tr class="fila-articulo">
+                  <td><div class="art-codigo">${escapeHtml(item.articulo).toUpperCase()}</div></td>
+                  <td><span class="badge-subrubro-sm">${escapeHtml(item.rubro).toUpperCase()}</span></td>
+                  <td><span class="badge-subrubro-sm">${escapeHtml(item.subrubro).toUpperCase()}</span></td>
+                  <td><div class="art-desc">${escapeHtml(item.descripcion)} · ${escapeHtml(item.descripcion1)}</div></td>
+                  <td class="col-num num-ing">${n1(item.stock_inicial)}</td>
+                  <td class="col-num num-ing">${n1(item.ingresos)}</td>
+                  <td class="col-num num-sal">${n1(item.salidas)}</td>
+                  <td class="col-num num-dev">${n1(item.devoluciones)}</td>
+                  <td class="col-num num-baja">${n1(item.bajas)}</td>
+                  <td class="num-neto ${item.stock_neto > 0 ? 'positivo' : 'cero'}">
+                    ${n1(item.stock_neto)}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else {
+      const vencFiltrados = _datosVencimiento.filter(v => {
+        return !qStr || v.articulo.toLowerCase().includes(qStr) ||
+               v.desposito.toLowerCase().includes(qStr) ||
+               v.descripcion.toLowerCase().includes(qStr);
+      });
+
+      vistaDinamica.innerHTML = `
+        <div class="cards-container">
+          ${vencFiltrados.length === 0 ? `<div class="vista-vacia">${ICONS.inbox}<span>Sin alertas críticas de vencimiento (0 - 30 días).</span></div>` : ''}
+          ${vencFiltrados.map(vItem => {
+            const dias = vItem.dias_restantes;
+            let sevClass, iconEstado, textoEstado;
+
+            if (dias < 0) {
+              sevClass = 'sev-vencido';
+              iconEstado = ICONS.alertTriangleSm;
+              textoEstado = `Lote vencido hace ${Math.abs(dias)} días`;
+            } else if (dias === 0) {
+              sevClass = 'sev-hoy';
+              iconEstado = ICONS.alertTriangleSm;
+              textoEstado = '¡Vence hoy!';
+            } else {
+              sevClass = 'sev-proximo';
+              iconEstado = ICONS.clockSm;
+              textoEstado = `Vence en ${dias} días`;
+            }
+
+            const badgeBg = dias < 0 ? 'var(--color-warn-soft)' : (dias === 0 ? 'var(--color-amber)' : 'var(--color-amber-soft)');
+            const badgeColor = dias < 0 ? 'var(--color-warn)' : (dias === 0 ? '#FFFFFF' : 'var(--color-ins-dark)');
+
+            return `
+              <div class="card-vencimiento ${sevClass}">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <div class="badge-estado" style="background:${badgeBg}; color:${badgeColor};">
+                    ${iconEstado} ${textoEstado}
+                  </div>
+                  <!-- ESTO LO MODIFIQUE: Muestra el estado activo fijo como en Flutter -->
+                  <div class="badge-estado badge-activo">
+                    ${ICONS.checkCircle} ESTADO: ${escapeHtml(vItem.estado || 'ACTIVO')}
+                  </div>
+                </div>
+
+                <div class="card-articulo-nombre">${escapeHtml(vItem.articulo).toUpperCase()}</div>
+                <div class="card-articulo-desc">${escapeHtml(vItem.descripcion)} · ${escapeHtml(vItem.descripcion1)}</div>
+
+                <hr class="card-divider" />
+
+                <div class="meta-tags">
+                  <div class="meta-item">${ICONS.calendar} <span class="meta-label">Venc:</span> ${escapeHtml(vItem.fec_venc)}</div>
+                  <div class="meta-item">${ICONS.mapPin} <span class="meta-label">Dep:</span> ${escapeHtml(vItem.desposito)}</div>
+                  <div class="meta-item">${ICONS.package} <span class="meta-label">Stock remanente:</span> ${n1(vItem.cantidad)} U</div>
+                  <div class="meta-item">${ICONS.building} <span class="meta-label">Prov:</span> ${escapeHtml(vItem.proveedor)}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+  }
+
+  window.setSubRubro = function(sr) {
+    _subRubroSeleccionado = sr;
+    renderUI();
+  };
+
+  // =========================================================================
+  // Exportación de Stock
+  // =========================================================================
+  function obtenerArticulosParaExport(tipoReporte) {
+    const mapa = {};
+    function acumular(item) {
+      const key = item.articulo;
+      if (!mapa[key]) {
+        mapa[key] = {
+          articulo: item.articulo,
+          rubro: item.rubro,
+          subrubro: item.subrubro,
+          descripcion: item.descripcion,
+          descripcion1: item.descripcion1,
+          habilitado: item.habilitado,
+          stock_inicial: 0, ingresos: 0, salidas: 0, devoluciones: 0, bajas: 0, stock_neto: 0
+        };
+      }
+      // Items de _datosStock ya vienen separados (stock_inicial/ingresos); items de
+      // _datosVencimiento son filas crudas por lote y traen 'origen' para separarlos acá.
+      if (item.origen) {
+        if (item.origen === 'INICIAL') mapa[key].stock_inicial += parseFloat(item.stock_inicial) || 0;
+        else mapa[key].ingresos += parseFloat(item.stock_inicial) || 0;
+      } else {
+        mapa[key].stock_inicial += parseFloat(item.stock_inicial) || 0;
+        mapa[key].ingresos += parseFloat(item.ingresos) || 0;
+      }
+      mapa[key].salidas += parseFloat(item.salidas) || 0;
+      mapa[key].devoluciones += parseFloat(item.devoluciones) || 0;
+      mapa[key].bajas += parseFloat(item.bajas) || 0;
+      mapa[key].stock_neto += parseFloat(item.stock_neto) || 0;
+    }
+    _datosStock.forEach(acumular);
+    _datosVencimiento.forEach(acumular);
+
+    let lista = Object.values(mapa);
+    if (tipoReporte === 'AUDITORIA') {
+      lista = lista.filter(it => {
+        if (!esRubroAgroquimico(it.rubro, it.subrubro)) return true;
+        return String(it.habilitado || 'SI').toUpperCase() === 'SI';
+      });
+    }
+    return lista.sort((a, b) => String(a.articulo).localeCompare(String(b.articulo)));
+  }
+
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB45309' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  async function exportarStockExcel(tipoReporte) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerArticulosParaExport(tipoReporte);
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay artículos para exportar con este criterio.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Insumos';
+      const nombreHoja = tipoReporte === 'AUDITORIA' ? 'Informe de Auditoria' : 'Control Interno de Stock';
+      crearHojaEstilizada(wb, nombreHoja, [
+        { header: 'ARTÍCULO', key: 'articulo', width: 20 },
+        { header: 'RUBRO', key: 'rubro', width: 18 },
+        { header: 'SUB-RUBRO', key: 'subrubro', width: 18 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', width: 30 },
+        { header: 'HABILITADO', key: 'habilitado', width: 12 },
+        { header: 'STOCK INICIAL', key: 'stockInicial', width: 14 },
+        { header: 'INGRESOS', key: 'ingresos', width: 14 },
+        { header: 'SALIDAS', key: 'salidas', width: 12 },
+        { header: 'DEV', key: 'devoluciones', width: 12 },
+        { header: 'BAJAS', key: 'bajas', width: 12 },
+        { header: 'STOCK NETO', key: 'stock', width: 14 }
+      ], filas.map(a => ({
+        articulo: a.articulo, rubro: a.rubro, subrubro: a.subrubro,
+        descripcion: `${a.descripcion || ''} ${a.descripcion1 || ''}`.trim(),
+        habilitado: String(a.habilitado || 'SI').toUpperCase(),
+        stockInicial: Number(n1(a.stock_inicial)), ingresos: Number(n1(a.ingresos)), salidas: Number(n1(a.salidas)),
+        devoluciones: Number(n1(a.devoluciones)), bajas: Number(n1(a.bajas)), stock: Number(n1(a.stock_neto))
+      })));
+      const sufijo = tipoReporte === 'AUDITORIA' ? 'Auditoria' : 'Total';
+      const nombre = `Stock_${sufijo}_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  }
+
+  function exportarStockPdf(tipoReporte) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerArticulosParaExport(tipoReporte);
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay artículos para exportar con este criterio.', 'warning');
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs'); const pathMod = require('path'); const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margen = 15;
+      const ALTO_HEADER = 46;
+
+      const fechaEmision = new Date().toLocaleString('es-AR');
+      const folio = 'STK-' + hoyStr().replace(/-/g, '') + '-' + Date.now().toString().slice(-5);
+      const tituloReporte = tipoReporte === 'AUDITORIA' ? 'INFORME DE AUDITORÍA DE STOCK' : 'CONTROL INTERNO TOTAL DE STOCK';
+      const stockTotalFilas = filas.reduce((acc, a) => acc + (parseFloat(a.stock_neto) || 0), 0);
+
+      let logoBase64 = null;
+      try { logoBase64 = fs.readFileSync(pathMod.join(__dirname, '../logo.png')).toString('base64'); }
+      catch (e) { console.error('No se pudo cargar logo.png:', e.message); }
+
+      function dibujarEncabezado() {
+        doc.setFillColor(180, 83, 9);
+        doc.rect(0, 0, pageW, 2.6, 'F');
+
+        doc.setFillColor(250, 248, 244);
+        doc.rect(0, 2.6, pageW, ALTO_HEADER - 2.6, 'F');
+
+        const topY = 9;
+        if (logoBase64) {
+          try { doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, topY, 20, 20); } catch (e) {}
+        }
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(33, 28, 22);
+        doc.text('GORDON GESTIÓN', margen + 25, topY + 6.5);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(124, 56, 9);
+        doc.text('AGROSOFT J&L · Plataforma Operativa de Control de Insumos', margen + 25, topY + 12);
+        doc.setFontSize(8); doc.setTextColor(107, 98, 85);
+        doc.text('Módulo de Insumos · Control de Stock Físico', margen + 25, topY + 16.8);
+
+        const boxW = 70, boxH = 24, boxX = pageW - margen - boxW, boxY = topY - 1;
+        doc.setDrawColor(224, 220, 212); doc.setLineWidth(0.3);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(180, 83, 9);
+        doc.text(tituloReporte, boxX + boxW / 2, boxY + 6.5, { align: 'center' });
+
+        doc.setDrawColor(230, 226, 218); doc.setLineWidth(0.15);
+        doc.line(boxX + 4, boxY + 9, boxX + boxW - 4, boxY + 9);
+
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.3); doc.setTextColor(107, 98, 85);
+        doc.text(`Folio: ${folio}`, boxX + 4, boxY + 13.5);
+        doc.text(`Emitido: ${fechaEmision}`, boxX + 4, boxY + 17.7);
+        doc.text(`Artículos incluidos: ${filas.length}`, boxX + 4, boxY + 21.9);
+
+        doc.setDrawColor(180, 83, 9); doc.setLineWidth(0.6);
+        doc.line(margen, ALTO_HEADER - 1, pageW - margen, ALTO_HEADER - 1);
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(180, 83, 9);
+        doc.text('DETALLE DE EXISTENCIAS Y MOVIMIENTOS', margen, ALTO_HEADER + 4.5);
+      }
+
+      autoTable(doc, {
+        startY: ALTO_HEADER + 8,
+        margin: { left: margen, right: margen, top: ALTO_HEADER + 8, bottom: 22 },
+        head: [['Artículo', 'Rubro / Sub-Rubro', 'Descripción', 'Habilitado', 'STOCK INICIAL', 'INGRESOS', 'SAL', 'DEV', 'BAJAS', 'Stock Neto']],
+        body: filas.map(a => [
+          a.articulo,
+          `${a.rubro || ''}\n${a.subrubro || ''}`,
+          `${a.descripcion || ''} ${a.descripcion1 || ''}`.trim(),
+          String(a.habilitado || 'SI').toUpperCase(),
+          n1(a.stock_inicial), n1(a.ingresos), n1(a.salidas), n1(a.devoluciones), n1(a.bajas), n1(a.stock_neto)
+        ]),
+        headStyles: { fillColor: [180, 83, 9], textColor: 255, fontSize: 8, halign: 'center' },
+        styles: { fontSize: 8, cellPadding: 2.6, lineColor: [230, 226, 218], lineWidth: 0.15 },
+        alternateRowStyles: { fillColor: [250, 248, 244] },
+        columnStyles: {
+          4: { halign: 'center' }, 5: { halign: 'center' }, 6: { halign: 'center' }, 7: { halign: 'center' },
+          8: { halign: 'right', fontStyle: 'bold', textColor: [46, 125, 50] }
+        },
+        theme: 'grid',
+        didDrawPage: dibujarEncabezado
+      });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setDrawColor(224, 220, 212); doc.setLineWidth(0.2);
+        doc.line(margen, pageH - 14, pageW - margen, pageH - 14);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.3); doc.setTextColor(150, 150, 150);
+        doc.text(`Documento generado automáticamente por Gordon Gestión · Folio ${folio}`, margen, pageH - 9);
+        doc.text(`Página ${i} de ${totalPaginas}`, pageW - margen, pageH - 9, { align: 'right' });
+      }
+
+      doc.setPage(totalPaginas);
+      const finalY = (doc.lastAutoTable && doc.lastAutoTable.finalY) || (ALTO_HEADER + 8);
+      if (pageH - finalY > 42) {
+        let y = finalY + 10;
+        doc.setDrawColor(180, 83, 9); doc.setLineWidth(0.3);
+        doc.line(pageW - margen - 80, y - 5, pageW - margen, y - 5);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(180, 83, 9);
+        doc.text(`STOCK NETO TOTAL: ${n1(stockTotalFilas)}`, pageW - margen, y, { align: 'right' });
+
+        y += 22;
+        doc.setDrawColor(107, 98, 85); doc.setLineWidth(0.25);
+        doc.line(margen + 15, y, margen + 75, y);
+        doc.line(pageW - margen - 75, y, pageW - margen - 15, y);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 82, 70);
+        doc.text('Firma Operario Pañol', margen + 45, y + 5, { align: 'center' });
+        doc.text('Firma Responsable Finca', pageW - margen - 45, y + 5, { align: 'center' });
+      }
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const sufijo = tipoReporte === 'AUDITORIA' ? 'Auditoria' : 'Total';
+      const nombre = `Stock_${sufijo}_${hoyStr()}.pdf`;
+      fs.writeFileSync(pathMod.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  }
+
+  window.abrirModalExportar = function() {
+    let formato = 'EXCEL';
+    let tipo = 'TOTAL';
+
+    function render() {
+      const fields = `
+        <div class="modal-group">
+          <label>Formato de archivo</label>
+          <div class="export-formato-grid">
+            <div class="export-opcion-card ${formato === 'EXCEL' ? 'sel-excel' : ''}" onclick="window._setFormatoExport('EXCEL')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>EXCEL (.xlsx)</span>
+            </div>
+            <div class="export-opcion-card ${formato === 'PDF' ? 'sel-pdf' : ''}" onclick="window._setFormatoExport('PDF')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>PDF</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-group">
+          <label>Tipo de exportación</label>
+          <div class="export-tipo-card ${tipo === 'AUDITORIA' ? 'sel-auditoria' : ''}" onclick="window._setTipoExport('AUDITORIA')">
+            ${ICONS.checkCircle}
+            <div>
+              <div class="titulo">Informe de Auditoría</div>
+              <div class="desc">Agroquímicos: solo artículos habilitados (Habilitado = Sí). El resto de los insumos se incluye completo.</div>
+            </div>
+          </div>
+          <div class="export-tipo-card ${tipo === 'TOTAL' ? 'sel-total' : ''}" onclick="window._setTipoExport('TOTAL')">
+            ${ICONS.box}
+            <div>
+              <div class="titulo">Control Interno Total</div>
+              <div class="desc">Incluye el universo completo de artículos en stock, sin restricciones.</div>
+            </div>
+          </div>
+        </div>
+      `;
+      openMiniModal('Exportación de Stock', 'Elegí el formato y el criterio del reporte', fields, () => {
+        closeMiniModal();
+        if (formato === 'EXCEL') exportarStockExcel(tipo); else exportarStockPdf(tipo);
+      }, 'Generar');
+    }
+
+    window._setFormatoExport = function(f) { formato = f; render(); };
+    window._setTipoExport = function(t) { tipo = t; render(); };
+
+    render();
+  };
+
+  // Listeners
+  document.getElementById('searchController').addEventListener('input', e => {
+    _queryBusqueda = e.target.value;
+    renderUI();
+  });
+
+  document.getElementById('tabStockGen').addEventListener('click', () => {
+    _solapaActiva = 0;
+    renderUI();
+  });
+
+  document.getElementById('tabVencimientos').addEventListener('click', () => {
+    _solapaActiva = 1;
+    renderUI();
+  });
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    window.history.back();
+  });
+
+  document.getElementById('btnExportar').addEventListener('click', () => {
+    window.abrirModalExportar();
+  });
+
+  // Inicialización
+  const fechaHoy = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('topDateTime').textContent = fechaHoy;
+
+  cargarDatosConsolidados();
+  renderUI();
+})();
+</script>
+</body>
+</html>

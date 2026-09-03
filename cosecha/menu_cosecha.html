@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Resumen de Rendimientos de Cosecha</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
+<!-- ACA ES LO NUEVO: Integración del SDK Oficial de Google Maps JS API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA374dJeJJ-IBirYrb_uTqRH9yrUK2VUaE"></script>
+
+<style>
+  /* ESTO LO MODIFIQUE: Tema visual ultra profesional con acentos vivos y contraste elevado */
+  :root {
+    --bg-light: #F1F5F9;
+    --card-color: #FFFFFF;
+    --input-fill: #F8FAFC;
+    --azul-francia: #0055A5;
+    --azul-dark: #00366B;
+    --azul-soft: rgba(0, 85, 165, 0.08);
+    --naranja-led: #F97316;
+    --verde-exito: #10B981;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --color-border: #CBD5E1;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--bg-light); color: var(--text-primary); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 20px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--azul-francia); }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 30px;
+    border-bottom: 1px solid var(--color-border);
+    height: 58px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--azul-francia); font-weight: 800; }
+  .system-datetime { font-size: 11px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .top-actions-container { display: flex; align-items: center; gap: 10px; }
+
+  .btn-sync-top {
+    background: #E0F2FE; color: var(--azul-francia); border: 1px solid rgba(0,85,165,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,85,165,0.06);
+  }
+  .btn-sync-top:hover { background: #BAE6FD; transform: translateY(-1px); }
+
+  .btn-excel-top {
+    background: #DCFCE7; color: #14532D; border: 1px solid rgba(20,83,45,0.25); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(20,83,45,0.06);
+  }
+  .btn-excel-top:hover { background: #BBF7D0; transform: translateY(-1px); }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 58px);
+    overflow: hidden;
+  }
+
+  /* SIDEBAR LATERAL */
+  .sidebar {
+    width: 230px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    flex-shrink: 0;
+  }
+
+  /* ESTO LO MODIFIQUE: Sombreado de respuesta táctil amarillo en botón Volver */
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+    margin-bottom: 20px;
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-nav-lateral:active, .btn-excel-top:active, .btn-sync-top:active, .metrobus-node:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important;
+    transform: scale(0.96);
+  }
+
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+  .btn-nav-lateral:hover { background: var(--azul-soft); color: var(--azul-francia); }
+  .btn-nav-lateral.active { background: var(--azul-soft); color: var(--azul-francia); border-color: rgba(0,85,165,0.3); font-weight: 800; box-shadow: 0 3px 8px rgba(0,85,165,0.06); }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 22px 28px; display: flex; flex-direction: column; overflow-y: auto; }
+
+  /* PANEL DE METROBÚS */
+  .metrobus-card {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    color: #FFFFFF;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  }
+  .metrobus-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .metrobus-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #38BDF8;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .metrobus-track-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 10px 4px 16px 4px;
+  }
+  .metrobus-station {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-width: 110px;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .metrobus-station:hover { transform: translateY(-3px); }
+  
+  .metrobus-node {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #1E293B;
+    border: 3px solid #38BDF8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #FFFFFF;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    transition: all 0.2s ease;
+    z-index: 2;
+  }
+  .metrobus-node.completed { border-color: #10B981; background: #064E3B; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); color: #34D399; }
+  .metrobus-node.in-progress { border-color: #F97316; background: #7C2D12; box-shadow: 0 0 12px rgba(249, 115, 22, 0.4); color: #FDBA74; }
+  
+  .metrobus-connector {
+    position: absolute;
+    top: 19px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background: #334155;
+    z-index: 1;
+  }
+  .metrobus-station:last-child .metrobus-connector { display: none; }
+
+  .metrobus-label { font-size: 11px; font-weight: 700; color: #E2E8F0; text-align: center; white-space: nowrap; }
+  .metrobus-sub { font-size: 9px; font-weight: 600; color: #94A3B8; text-transform: uppercase; }
+
+  /* FILTROS Y CONTROLES */
+  .card-formulario {
+    background: var(--card-color);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    margin-bottom: 18px;
+  }
+
+  .grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 10px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--color-border);
+    background: var(--input-fill);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  .form-input:focus { border-color: var(--azul-francia); background: #FFFFFF; box-shadow: 0 0 0 3px var(--azul-soft); }
+
+  /* TARJETAS KPI */
+  .kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    background: var(--card-color);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 5px; height: 100%;
+    background: var(--azul-francia);
+  }
+  .kpi-card.orange::before { background: var(--naranja-led); }
+  .kpi-card.green::before { background: var(--verde-exito); }
+
+  .kpi-title { font-size: 10px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 24px; font-weight: 900; color: var(--azul-francia); margin-top: 6px; letter-spacing: -0.5px; }
+  .kpi-value.orange { color: var(--naranja-led); }
+  .kpi-value.green { color: var(--verde-exito); }
+
+  /* TABLAS DE RESULTADOS */
+  .archivero-card {
+    background: #FFFFFF;
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    margin-bottom: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    overflow-x: auto;
+  }
+
+  table.tabla-cosecha {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.tabla-cosecha th {
+    background: #0F172A;
+    color: #FFFFFF;
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table.tabla-cosecha td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+  }
+  table.tabla-cosecha tr:hover { background-color: var(--azul-soft); }
+  .num-col { text-align: right; }
+
+  .badge-mini {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .badge-green { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+
+  /* MODALES FLOTANTES */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 3000; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 540px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--color-border); max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 18px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px 0; }
+  .modal-subtitle { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 16px; }
+  .progress-bar-bg { width: 100%; height: 10px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin: 8px 0 16px 0; }
+  .progress-bar-fill { height: 100%; background: var(--azul-francia); border-radius: 10px; transition: width 0.4s ease; }
+
+  /* TOAST NOTIFICACIONES */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid var(--verde-exito); color: var(--text-primary); }
+  .toast-card.error { border-left: 5px solid #EF4444; color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight">HOY</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div class="system-datetime" id="topDateTime">LUNES 20 DE JULIO DE 2026</div>
+      <div class="top-actions-container">
+        <button class="btn-excel-top" id="btnExportarExcelGlobal" title="Exportar Vista Actual a Excel">
+          📊 Exportar Excel
+        </button>
+        <!-- Botón de Sincronización arriba a la derecha -->
+        <button class="btn-sync-top" id="btnSincronizar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sincronizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+
+      <!-- BOTONERA LATERAL DE REPORTES DE COSECHA -->
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-tab="parcelas">
+          🌱 Por Parcela
+        </button>
+        <button class="btn-nav-lateral" data-tab="variedad">
+          🍎 Por Variedad
+        </button>
+        <button class="btn-nav-lateral" data-tab="personal">
+          👥 Por Personal
+        </button>
+        <button class="btn-nav-lateral" data-tab="campo">
+          📦 Bolsones en Campo
+        </button>
+      </div>
+
+      <div style="margin-top: auto; font-size: 10px; color: var(--text-secondary); font-weight: 800; text-align: center; letter-spacing: 0.5px;">AGROSOFT J&L</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- PANEL VISUAL TIPO METROBÚS DE PARCELAS / CUADROS -->
+      <div class="metrobus-card">
+        <div class="metrobus-header">
+          <div class="metrobus-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Ruta de Cosecha · Avance por Cuadro
+          </div>
+          <span style="font-size:10px; font-weight:700; color:#94A3B8;">TOCÁ CUALQUIER ESTACIÓN PARA VER ESTIMACIÓN Y AVANCE</span>
+        </div>
+        <div class="metrobus-track-container" id="metrobusTrack">
+          <!-- Se genera dinámicamente -->
+        </div>
+      </div>
+
+      <!-- CARD FILTROS DE FECHA Y BÚSQUEDA -->
+      <div class="card-formulario">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-family:'Montserrat'; font-size:12px; font-weight:800; color:var(--azul-francia); letter-spacing:0.5px;" id="lblTituloModulo">RESUMEN DE RENDIMIENTOS DE COSECHA</span>
+        </div>
+
+        <div class="grid-form">
+          <div class="form-group">
+            <label>FECHA DESDE</label>
+            <input type="date" id="fFechaDesde" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>FECHA HASTA</label>
+            <input type="date" id="fFechaHasta" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>BUSCAR / FILTRAR</label>
+            <input type="text" id="fTextoFiltro" class="form-input" placeholder="Ej: Parcela, Variedad o Empleado..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- CARDS KPI DE MÉTRICAS RÁPIDAS -->
+      <div class="kpi-container">
+        <div class="kpi-card green">
+          <div class="kpi-title">KILOS TOTALES COSECHADOS</div>
+          <div class="kpi-value green" id="kpiKilos">0.0 KG</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-title">TOTAL BOLSONES</div>
+          <div class="kpi-value orange" id="kpiEnvases">0 BOLSONES</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">PROMEDIO / RENDIMIENTO</div>
+          <div class="kpi-value" id="kpiPromedio">0.0</div>
+        </div>
+      </div>
+
+      <!-- VISTA 1: RESUMEN POR PARCELA -->
+      <div id="vistaParcelas" class="archivero-card">
+        <table class="tabla-cosecha">
+          <thead>
+            <tr>
+              <th>PARCELA</th>
+              <th>SECTOR</th>
+              <th class="num-col">SUPERFICIE (HA)</th>
+              <th class="num-col">TOTAL BOLSONES</th>
+              <th class="num-col">KILOS TOTALES</th>
+              <th class="num-col">RENDIMIENTO (KG/HA)</th>
+              <th style="text-align:center;">ESTADO</th>
+            </tr>
+          </thead>
+          <tbody id="bodyParcelas"></tbody>
+        </table>
+      </div>
+
+      <!-- VISTA 2: RESUMEN POR VARIEDAD -->
+      <div id="vistaVariedad" class="archivero-card" style="display:none;">
+        <table class="tabla-cosecha">
+          <thead>
+            <tr>
+              <th>ESPECIE</th>
+              <th>VARIEDAD</th>
+              <th class="num-col">INGRESOS</th>
+              <th class="num-col">TOTAL BOLSONES</th>
+              <th class="num-col">KILOS TOTALES</th>
+              <th class="num-col">PROM. KG / INGRESO</th>
+              <th style="text-align:center;">ESTADO</th>
+            </tr>
+          </thead>
+          <tbody id="bodyVariedad"></tbody>
+        </table>
+      </div>
+
+      <!-- VISTA 3: RESUMEN POR PERSONAL -->
+      <div id="vistaPersonal" class="archivero-card" style="display:none;">
+        <table class="tabla-cosecha">
+          <thead>
+            <tr>
+              <th>LEGAJO</th>
+              <th>TRABAJADOR</th>
+              <th>LABOR / SECTOR</th>
+              <th class="num-col">FICHAS / REGISTROS</th>
+              <th class="num-col">TOTAL BOLSONES</th>
+              <th class="num-col">KILOS TOTALES</th>
+              <th class="num-col">PROM. KG / FICHA</th>
+              <th style="text-align:center;">ESTADO</th>
+            </tr>
+          </thead>
+          <tbody id="bodyPersonal"></tbody>
+        </table>
+      </div>
+
+      <!-- ACA ES LO NUEVO: VISTA 4 CON GOOGLE MAPS SATELITAL HÍBRIDO -->
+      <div id="vistaCampo" class="archivero-card" style="display:none;">
+        <div style="display:grid; grid-template-columns: 1fr 300px; gap: 16px; margin-bottom: 18px;">
+          <!-- Contenedor Mapa Google Maps Satelital -->
+          <div id="mapaCampoContainer" style="height: 360px; border-radius: var(--radius-lg); border: 1.5px solid var(--color-border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div id="mapaCampo" style="width: 100%; height: 100%;"></div>
+          </div>
+          
+          <!-- Tarjetas de métricas -->
+          <div style="display: flex; flex-direction: column; gap: 12px; background: var(--bg-light); padding: 18px; border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
+            <span style="font-size:11px; font-weight:800; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">MÉTRICAS PISO EN CAMPO</span>
+            <div style="background:#FFF; padding:12px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border);">
+              <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">TOTAL BOLSONES</div>
+              <div style="font-size:20px; font-weight:900; color:var(--naranja-led);" id="lblCampoTotalBolsones">0 BOLSONES</div>
+            </div>
+            <div style="background:#FFF; padding:12px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border);">
+              <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">KILOS ESTIMADOS EN PISO</div>
+              <div style="font-size:20px; font-weight:900; color:var(--verde-exito);" id="lblCampoTotalKilos">0 KG</div>
+            </div>
+            <div style="background:#FFF; padding:12px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border);">
+              <div style="font-size:10px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">UBICACIONES GPS REGISTRADAS</div>
+              <div style="font-size:18px; font-weight:800; color:var(--azul-francia);" id="lblCampoTotalGps">0 PUNTOS</div>
+            </div>
+          </div>
+        </div>
+
+        <table class="tabla-cosecha">
+          <thead>
+            <tr>
+              <th>BOLSÓN N°</th>
+              <th>PARCELA</th>
+              <th>VARIEDAD</th>
+              <th>FILA</th>
+              <th>COSECHADOR</th>
+              <th>FECHA / HORA</th>
+              <th class="num-col">KG EST. PISO</th>
+              <th style="text-align:center;">GPS MAPA</th>
+              <th style="text-align:center;">ESTADO</th>
+            </tr>
+          </thead>
+          <tbody id="bodyCampo"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de detalle de estimación al tocar estación del metrobús -->
+  <div class="modal-overlay" id="modalMetrobus">
+    <div class="modal-box">
+      <h3 class="modal-title" id="mMetrobusCuadro">Cuadro # --</h3>
+      <div class="modal-subtitle" id="mMetrobusVariedad">Variedad: --</div>
+
+      <div style="font-size:11px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">Avance de Cosecha Cosechado vs. Estimación</div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="mMetrobusBarra" style="width:0%;"></div>
+      </div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#F8FAFC; padding:14px; border-radius:12px; border:1px solid var(--color-border); margin-bottom:18px;">
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Superficie</span><div style="font-size:14px; font-weight:800;" id="mMetrobusSup">0 Ha</div></div>
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Kg Prom / Fila</span><div style="font-size:14px; font-weight:800;" id="mMetrobusKgProm">0 KG</div></div>
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Cant. Pilas</span><div style="font-size:14px; font-weight:800;" id="mMetrobusPilas">0</div></div>
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Mtrs Surco</span><div style="font-size:14px; font-weight:800;" id="mMetrobusSurco">0 m</div></div>
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">Real Cosechado</span><div style="font-size:14px; font-weight:900; color:var(--verde-exito);" id="mMetrobusReal">0 KG</div></div>
+        <div><span style="font-size:10px; color:var(--text-secondary); text-transform:uppercase; font-weight:700;">% Cumplimiento</span><div style="font-size:14px; font-weight:900; color:var(--azul-francia);" id="mMetrobusPct">0%</div></div>
+      </div>
+
+      <button onclick="document.getElementById('modalMetrobus').classList.remove('show')" style="width:100%; padding:12px; border-radius:12px; background:var(--azul-francia); color:#FFF; font-weight:800; border:none; cursor:pointer;">
+        ENTENDIDO / CERRAR
+      </button>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let bases = null;
+  let db = null;
+
+  if (isElectron) {
+    try {
+      bases = require('../bases.js');
+      db = bases.db;
+    } catch(e) { console.warn("No se conectó a bases.js:", e.message); }
+  }
+
+  let tabActiva = 'parcelas';
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  // FECHA SUPERIOR DINÁMICA
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  function lanzarToast(msj, tipo = 'success') {
+    const card = document.createElement('div');
+    card.className = `toast-card ${tipo}`;
+    card.innerHTML = `<div>${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:800;">${msj}</div>`;
+    toastContenedor.appendChild(card);
+    setTimeout(() => card.classList.add('show'), 10);
+    setTimeout(() => { card.classList.remove('show'); setTimeout(() => card.remove(), 300); }, 3500);
+  }
+
+  // EXPORTADOR A EXCEL/CSV
+  function exportarMatrizAExcel(datosMatriz, nombreArchivo) {
+    if (!datosMatriz || datosMatriz.length === 0) {
+      return lanzarToast("No hay datos para exportar", "error");
+    }
+    try {
+      const cabeceras = Object.keys(datosMatriz[0]);
+      let lineas = [cabeceras.join(";")];
+
+      datosMatriz.forEach(row => {
+        let fila = cabeceras.map(c => `"${row[c] !== undefined && row[c] !== null ? row[c] : ''}"`);
+        lineas.push(fila.join(";"));
+      });
+
+      const contenidoCSV = "\ufeff" + lineas.join("\n");
+      const blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${nombreArchivo}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      lanzarToast("📊 Archivo generado con éxito");
+    } catch(e) {
+      console.error(e);
+      lanzarToast("Error al exportar", "error");
+    }
+  }
+
+  // CAMBIO DE SOLAPAS LATERALES
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tabActiva = btn.dataset.tab;
+
+      document.getElementById('vistaParcelas').style.display = tabActiva === 'parcelas' ? 'block' : 'none';
+      document.getElementById('vistaVariedad').style.display = tabActiva === 'variedad' ? 'block' : 'none';
+      document.getElementById('vistaPersonal').style.display = tabActiva === 'personal' ? 'block' : 'none';
+      document.getElementById('vistaCampo').style.display = tabActiva === 'campo' ? 'block' : 'none';
+
+      cargarReporteActivo();
+    });
+  });
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    window.location.href = '../menu_central.html';
+  });
+
+  /* ESTO LO MODIFIQUE: Generador dinámico de Metrobús. Si la tabla local no tiene datos, NO MUESTRA NADA */
+  let mapaEstimaciones = {};
+
+  function cargarPanelMetrobus() {
+    const track = document.getElementById('metrobusTrack');
+    let listaCuadros = [];
+
+    if (db) {
+      try {
+        const estRows = db.prepare(`
+          SELECT 
+            COALESCE(e.cuadro, 'C-1') AS cuadro,
+            COALESCE(e.variedad, 'S/V') AS variedad,
+            COALESCE(e.sup, 1.0) AS sup,
+            COALESCE(e.kg_prom, 0) AS kg_prom,
+            COALESCE(e.cant_pila, 0) AS cant_pila,
+            COALESCE(e.mtrs_surco, 0) AS mtrs_surco,
+            COALESCE(SUM(c.cantidad * CAST(COALESCE(emb.peso_uni, 1) AS REAL)), 0) AS kilos_reales
+          FROM local_cosecha_estimacion e
+          INNER JOIN local_cosecha c ON (LOWER(TRIM(e.cuadro)) = LOWER(TRIM(c.parcela)) AND UPPER(COALESCE(c.estado,'ACTIVO'))='ACTIVO')
+          LEFT JOIN local_p_embalaje emb ON LOWER(TRIM(c.envase)) = LOWER(TRIM(emb.nombre_embalaje))
+          GROUP BY e.cuadro, e.variedad, e.sup, e.kg_prom, e.cant_pila, e.mtrs_surco
+        `).all();
+
+        if (estRows.length > 0) {
+          listaCuadros = estRows;
+        }
+      } catch (err) { console.warn("Tabla local_cosecha_estimacion local opcional:", err.message); }
+    }
+
+    if (listaCuadros.length === 0) {
+      track.innerHTML = `<div style="width:100%; text-align:center; padding:15px; color:#94A3B8; font-size:12px; font-weight:700;">⚠️ No hay registros de cosechas activas cargados en la base local.</div>`;
+      mapaEstimaciones = {};
+      return;
+    }
+
+    mapaEstimaciones = {};
+    track.innerHTML = listaCuadros.map((item, idx) => {
+      const idKey = `C_${idx}`;
+      mapaEstimaciones[idKey] = item;
+
+      const kgEstimados = (item.kg_prom * item.cant_pila) || (item.sup * 2000);
+      const pct = kgEstimados > 0 ? Math.min(100, Math.round((item.kilos_reales / kgEstimados) * 100)) : 0;
+
+      let claseEstado = '';
+      if (pct >= 90) claseEstado = 'completed';
+      else if (pct > 0) claseEstado = 'in-progress';
+
+      return `
+        <div class="metrobus-station" onclick="window.abrirModalMetrobus('${idKey}')">
+          <div class="metrobus-connector"></div>
+          <div class="metrobus-node ${claseEstado}">
+            ${pct}%
+          </div>
+          <div class="metrobus-label">${escapeHtml(item.cuadro)}</div>
+          <div class="metrobus-sub">${escapeHtml(item.variedad)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.abrirModalMetrobus = function(key) {
+    const data = mapaEstimaciones[key];
+    if (!data) return;
+
+    const kgEstimados = (data.kg_prom * data.cant_pila) || (data.sup * 2000);
+    const pct = kgEstimados > 0 ? Math.round((data.kilos_reales / kgEstimados) * 100) : 0;
+
+    document.getElementById('mMetrobusCuadro').textContent = data.cuadro;
+    document.getElementById('mMetrobusVariedad').textContent = `Variedad: ${data.variedad}`;
+    document.getElementById('mMetrobusBarra').style.width = `${Math.min(100, pct)}%`;
+    document.getElementById('mMetrobusSup').textContent = `${data.sup} Ha`;
+    document.getElementById('mMetrobusKgProm').textContent = `${data.kg_prom} KG`;
+    document.getElementById('mMetrobusPilas').textContent = data.cant_pila;
+    document.getElementById('mMetrobusSurco').textContent = `${data.mtrs_surco} m`;
+    document.getElementById('mMetrobusReal').textContent = `${data.kilos_reales.toLocaleString('es-AR')} KG`;
+    document.getElementById('mMetrobusPct').textContent = `${pct}%`;
+
+    document.getElementById('modalMetrobus').classList.add('show');
+  };
+
+  /* ACA ES LO NUEVO: Instancia e inicialización del Mapa Satelital Híbrido con Google Maps JS API */
+  let mapInstance = null;
+  let arrayMarcadoresGoogle = [];
+
+  function inicializarOActualizarMapaGoogle(puntosGps) {
+    if (typeof google === 'undefined' || !google.maps) {
+      console.warn("Google Maps no está disponible.");
+      return;
+    }
+
+    const mapaElem = document.getElementById('mapaCampo');
+
+    // Inicializar mapa de Google por primera vez
+    if (!mapInstance) {
+      mapInstance = new google.maps.Map(mapaElem, {
+        center: { lat: -38.9512, lng: -67.9912 },
+        zoom: 14,
+        mapTypeId: google.maps.MapTypeId.HYBRID, // Satelital con calles y etiquetas
+        fullscreenControl: false,
+        streetViewControl: false,
+        mapTypeControl: true
+      });
+    }
+
+    // Limpiar marcadores viejos
+    arrayMarcadoresGoogle.forEach(m => m.setMap(null));
+    arrayMarcadoresGoogle = [];
+
+    const bounds = new google.maps.LatLngBounds();
+    const infoWindow = new google.maps.InfoWindow();
+
+    puntosGps.forEach(p => {
+      if (p.lat && p.lng && !isNaN(p.lat) && !isNaN(p.lng)) {
+        const pos = { lat: p.lat, lng: p.lng };
+        bounds.extend(pos);
+
+        const marker = new google.maps.Marker({
+          position: pos,
+          map: mapInstance,
+          title: `Bolsón #${p.bolson_n}`,
+          animation: google.maps.Animation.DROP
+        });
+
+        const contenidoPopup = `
+          <div style="font-family:'Roboto', sans-serif; font-size:12px; line-height:1.5; color:#0F172A; padding:4px;">
+            <strong style="color:#0055A5; font-size:13px;">Bolsón #${escapeHtml(p.bolson_n)}</strong><br/>
+            <b>Parcela:</b> ${escapeHtml(p.parcela)}<br/>
+            <b>Variedad:</b> ${escapeHtml(p.variedad)}<br/>
+            <b>Cosechador:</b> ${escapeHtml(p.empleado)}<br/>
+            <b>Fecha:</b> ${escapeHtml(p.fecha)}<br/>
+            <span style="color:#10B981; font-weight:800; font-size:13px;">Kg Est: ${p.kg_est.toLocaleString('es-AR')} KG</span>
+          </div>
+        `;
+
+        marker.addListener('click', () => {
+          infoWindow.setContent(contenidoPopup);
+          infoWindow.open(mapInstance, marker);
+        });
+
+        arrayMarcadoresGoogle.push(marker);
+      }
+    });
+
+    if (puntosGps.length > 0 && !bounds.isEmpty()) {
+      mapInstance.fitBounds(bounds);
+    }
+  }
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  // CONSULTAS SQL FILTRADAS
+  function cargarReporteActivo() {
+    const fDesde = document.getElementById('fFechaDesde').value || null;
+    const fHasta = document.getElementById('fFechaHasta').value || null;
+    const fTexto = document.getElementById('fTextoFiltro').value.toLowerCase().trim();
+
+    cargarPanelMetrobus();
+
+    if (tabActiva === 'parcelas') cargarReporteParcelas(fDesde, fHasta, fTexto);
+    if (tabActiva === 'variedad') cargarReporteVariedad(fDesde, fHasta, fTexto);
+    if (tabActiva === 'personal') cargarReportePersonal(fDesde, fHasta, fTexto);
+    if (tabActiva === 'campo') cargarReporteCampo(fDesde, fHasta, fTexto);
+  }
+
+  // 1. POR PARCELA
+  function cargarReporteParcelas(desde, hasta, filtro) {
+    let datos = [];
+    if (db) {
+      try {
+        datos = db.prepare(`
+          SELECT 
+            c.parcela AS id_parcela,
+            COALESCE(sq.nombre, c.parcela) AS nombre_parcela,
+            COALESCE(sq.sector, 'GENERAL') AS sector,
+            COALESCE(sq.sup, 1.0) AS superficie_ha,
+            COUNT(c.nro_unidad) AS total_registros,
+            SUM(COALESCE(c.cantidad, 0)) AS total_bolsones,
+            SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) AS kilos_totales,
+            ROUND(SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) / NULLIF(COALESCE(sq.sup, 1.0), 0), 2) AS rendimiento_kg_ha
+          FROM local_cosecha c
+          LEFT JOIN local_p_cuadros sq ON (c.parcela = sq.nombre OR c.parcela = sq.cod_parcela)
+          LEFT JOIN local_p_embalaje e ON LOWER(TRIM(c.envase)) = LOWER(TRIM(e.nombre_embalaje))
+          WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'
+            AND (? IS NULL OR c.fecha >= ?)
+            AND (? IS NULL OR c.fecha <= ?)
+          GROUP BY c.parcela, sq.nombre, sq.sector, sq.sup
+          ORDER BY kilos_totales DESC
+        `).all(desde, desde, hasta, hasta);
+      } catch(e) { console.error(e); }
+    }
+
+    const filtrados = datos.filter(d => (d.nombre_parcela || '').toLowerCase().includes(filtro) || (d.sector || '').toLowerCase().includes(filtro));
+    const tbody = document.getElementById('bodyParcelas');
+    
+    let kTot = 0, eTot = 0;
+    tbody.innerHTML = filtrados.map(d => {
+      kTot += d.kilos_totales;
+      eTot += d.total_bolsones;
+      return `
+        <tr>
+          <td><b>${d.nombre_parcela}</b></td>
+          <td>${d.sector}</td>
+          <td class="num-col">${d.superficie_ha} Ha</td>
+          <td class="num-col">${d.total_bolsones}</td>
+          <td class="num-col"><b>${d.kilos_totales.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG</b></td>
+          <td class="num-col" style="color:var(--azul-francia);"><b>${d.rendimiento_kg_ha.toLocaleString('es-AR')} KG/HA</b></td>
+          <td style="text-align:center;"><span class="badge-mini badge-green">ACTIVO</span></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="7" style="text-align:center; padding:20px; font-weight:700; color:var(--text-secondary);">No hay datos de cosecha disponibles en la base local.</td></tr>';
+
+    document.getElementById('kpiKilos').innerText = `${kTot.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG`;
+    document.getElementById('kpiEnvases').innerText = `${eTot} BOLSONES`;
+    document.getElementById('kpiPromedio').innerText = `${(filtrados.length ? kTot / filtrados.length : 0).toLocaleString('es-AR', {maximumFractionDigits: 1})} KG/LOTE`;
+  }
+
+  // 2. POR VARIEDAD
+  function cargarReporteVariedad(desde, hasta, filtro) {
+    let datos = [];
+    if (db) {
+      try {
+        datos = db.prepare(`
+          SELECT 
+            COALESCE(c.especie, 'FRUTALES') AS especie,
+            COALESCE(c.variedad, 'S/V') AS variedad,
+            COUNT(c.nro_unidad) AS total_ingresos,
+            SUM(COALESCE(c.cantidad, 0)) AS total_bolsones,
+            SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) AS kilos_totales,
+            ROUND(SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) / NULLIF(COUNT(c.nro_unidad), 0), 2) AS prom_kg_ingreso
+          FROM local_cosecha c
+          LEFT JOIN local_p_embalaje e ON LOWER(TRIM(c.envase)) = LOWER(TRIM(e.nombre_embalaje))
+          WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'
+            AND (? IS NULL OR c.fecha >= ?)
+            AND (? IS NULL OR c.fecha <= ?)
+          GROUP BY c.especie, c.variedad
+          ORDER BY kilos_totales DESC
+        `).all(desde, desde, hasta, hasta);
+      } catch(e) { console.error(e); }
+    }
+
+    const filtrados = datos.filter(d => (d.especie || '').toLowerCase().includes(filtro) || (d.variedad || '').toLowerCase().includes(filtro));
+    const tbody = document.getElementById('bodyVariedad');
+    
+    let kTot = 0, eTot = 0;
+    tbody.innerHTML = filtrados.map(d => {
+      kTot += d.kilos_totales;
+      eTot += d.total_bolsones;
+      return `
+        <tr>
+          <td><b>${d.especie}</b></td>
+          <td>${d.variedad}</td>
+          <td class="num-col">${d.total_ingresos}</td>
+          <td class="num-col">${d.total_bolsones}</td>
+          <td class="num-col"><b>${d.kilos_totales.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG</b></td>
+          <td class="num-col">${d.prom_kg_ingreso.toLocaleString('es-AR')} KG/ING</td>
+          <td style="text-align:center;"><span class="badge-mini badge-green">ACTIVO</span></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="7" style="text-align:center; padding:20px; font-weight:700; color:var(--text-secondary);">No hay datos de variedades disponibles en la base local.</td></tr>';
+
+    document.getElementById('kpiKilos').innerText = `${kTot.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG`;
+    document.getElementById('kpiEnvases').innerText = `${eTot} BOLSONES`;
+    document.getElementById('kpiPromedio').innerText = `${(filtrados.length ? kTot / filtrados.length : 0).toLocaleString('es-AR', {maximumFractionDigits: 1})} KG/VARIEDAD`;
+  }
+
+  // 3. POR PERSONAL
+  function cargarReportePersonal(desde, hasta, filtro) {
+    let datos = [];
+    if (db) {
+      try {
+        datos = db.prepare(`
+          SELECT 
+            COALESCE(p.legajo, c.empleado) AS legajo,
+            COALESCE(p.nombre_completo, TRIM(IFNULL(p.apellido, '') || ' ' || IFNULL(p.nombre, '')), c.empleado, 'SIN ASIGNAR') AS nombre_trabajador,
+            COALESCE(p.labor, 'Cosechador') AS labor,
+            COUNT(c.nro_unidad) AS total_fichas,
+            SUM(COALESCE(c.cantidad, 0)) AS total_bolsones,
+            SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) AS kilos_totales,
+            ROUND(SUM(COALESCE(c.cantidad, 0) * CAST(COALESCE(e.peso_uni, 1) AS REAL)) / NULLIF(COUNT(c.nro_unidad), 0), 2) AS prom_kg_ficha
+          FROM local_cosecha c
+          LEFT JOIN local_p_nomina_personal p ON (c.empleado = p.legajo OR c.empleado = p.nombre_completo)
+          LEFT JOIN local_p_embalaje e ON LOWER(TRIM(c.envase)) = LOWER(TRIM(e.nombre_embalaje))
+          WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'
+            AND (? IS NULL OR c.fecha >= ?)
+            AND (? IS NULL OR c.fecha <= ?)
+          GROUP BY c.empleado, p.legajo, p.nombre_completo, p.labor
+          ORDER BY kilos_totales DESC
+        `).all(desde, desde, hasta, hasta);
+      } catch(e) { console.error(e); }
+    }
+
+    const filtrados = datos.filter(d => (d.nombre_trabajador || '').toLowerCase().includes(filtro) || (d.legajo || '').toLowerCase().includes(filtro));
+    const tbody = document.getElementById('bodyPersonal');
+    
+    let kTot = 0, eTot = 0;
+    tbody.innerHTML = filtrados.map(d => {
+      kTot += d.kilos_totales;
+      eTot += d.total_bolsones;
+      return `
+        <tr>
+          <td><code>#${d.legajo}</code></td>
+          <td><b>${d.nombre_trabajador}</b></td>
+          <td>${d.labor}</td>
+          <td class="num-col">${d.total_fichas}</td>
+          <td class="num-col">${d.total_bolsones}</td>
+          <td class="num-col"><b>${d.kilos_totales.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG</b></td>
+          <td class="num-col" style="color:var(--naranja-led);"><b>${d.prom_kg_ficha.toLocaleString('es-AR')} KG/FICHA</b></td>
+          <td style="text-align:center;"><span class="badge-mini badge-green">ACTIVO</span></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="8" style="text-align:center; padding:20px; font-weight:700; color:var(--text-secondary);">No hay datos de personal disponibles en la base local.</td></tr>';
+
+    document.getElementById('kpiKilos').innerText = `${kTot.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG`;
+    document.getElementById('kpiEnvases').innerText = `${eTot} BOLSONES`;
+    document.getElementById('kpiPromedio').innerText = `${(filtrados.length ? kTot / filtrados.length : 0).toLocaleString('es-AR', {maximumFractionDigits: 1})} KG/PERSONA`;
+  }
+
+  // 4. VISTA DE BOLSONES EN CAMPO CON MAPA GOOGLE MAPS GPS
+  function cargarReporteCampo(desde, hasta, filtro) {
+    let datos = [];
+    if (db) {
+      try {
+        datos = db.prepare(`
+          SELECT 
+            c.nro_unidad,
+            COALESCE(c.bolson_n, c.nro_unidad) AS bolson_n,
+            c.parcela,
+            COALESCE(c.variedad, 'S/V') AS variedad,
+            COALESCE(c.fila, 0) AS fila,
+            COALESCE(p.nombre_completo, TRIM(IFNULL(p.apellido, '') || ' ' || IFNULL(p.nombre, '')), c.empleado, 'SIN ASIGNAR') AS empleado,
+            c.fecha,
+            c.ubicacion,
+            COALESCE(c.cantidad, 1) AS cantidad,
+            COALESCE(dr.kg_est_bolson, COALESCE(dr.kg_estimado, 600)) AS kg_est_bolson
+          FROM local_cosecha c
+          LEFT JOIN local_p_nomina_personal p ON (c.empleado = p.legajo OR c.empleado = p.nombre_completo)
+          LEFT JOIN local_detalle_recepcion dr ON (
+            LOWER(TRIM(c.parcela)) = LOWER(TRIM(dr.parcela)) OR 
+            LOWER(TRIM(c.variedad)) = LOWER(TRIM(dr.variedad))
+          )
+          WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'
+            AND (? IS NULL OR c.fecha >= ?)
+            AND (? IS NULL OR c.fecha <= ?)
+          ORDER BY c.fecha DESC
+        `).all(desde, desde, hasta, hasta);
+      } catch(e) {
+        try {
+          datos = db.prepare(`
+            SELECT 
+              c.nro_unidad,
+              COALESCE(c.bolson_n, c.nro_unidad) AS bolson_n,
+              c.parcela,
+              COALESCE(c.variedad, 'S/V') AS variedad,
+              COALESCE(c.fila, 0) AS fila,
+              c.empleado,
+              c.fecha,
+              c.ubicacion,
+              COALESCE(c.cantidad, 1) AS cantidad,
+              600 AS kg_est_bolson
+            FROM local_cosecha c
+            WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'
+              AND (? IS NULL OR c.fecha >= ?)
+              AND (? IS NULL OR c.fecha <= ?)
+            ORDER BY c.fecha DESC
+          `).all(desde, desde, hasta, hasta);
+        } catch(err2) { console.error(err2); }
+      }
+    }
+
+    const filtrados = datos.filter(d => 
+      (d.parcela || '').toLowerCase().includes(filtro) || 
+      (d.variedad || '').toLowerCase().includes(filtro) ||
+      (d.empleado || '').toLowerCase().includes(filtro) ||
+      (String(d.bolson_n) || '').toLowerCase().includes(filtro)
+    );
+
+    const tbody = document.getElementById('bodyCampo');
+    let totalBolsones = 0;
+    let totalKilosPiso = 0;
+    let puntosGps = [];
+
+    tbody.innerHTML = filtrados.map(d => {
+      const kgTot = d.cantidad * d.kg_est_bolson;
+      totalBolsones += d.cantidad;
+      totalKilosPiso += kgTot;
+
+      let coordsBadge = `<span style="color:#94A3B8; font-size:10px; font-weight:700;">SIN GPS</span>`;
+      if (d.ubicacion && d.ubicacion.includes(',')) {
+        const partes = d.ubicacion.split(',');
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          puntosGps.push({
+            lat, lng,
+            bolson_n: d.bolson_n,
+            parcela: d.parcela,
+            variedad: d.variedad,
+            empleado: d.empleado,
+            fecha: d.fecha || '-',
+            kg_est: kgTot
+          });
+          coordsBadge = `<span class="badge-mini" style="background:#E0F2FE; color:#0055A5;">📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</span>`;
+        }
+      }
+
+      return `
+        <tr>
+          <td><b>#${d.bolson_n}</b></td>
+          <td><b>${d.parcela}</b></td>
+          <td>${d.variedad}</td>
+          <td>Fila ${d.fila}</td>
+          <td>${d.empleado}</td>
+          <td>${d.fecha ? d.fecha : '-'}</td>
+          <td class="num-col" style="color:var(--verde-exito);"><b>${kgTot.toLocaleString('es-AR')} KG</b></td>
+          <td style="text-align:center;">${coordsBadge}</td>
+          <td style="text-align:center;"><span class="badge-mini badge-green">ACTIVO</span></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="9" style="text-align:center; padding:20px; font-weight:700; color:var(--text-secondary);">No hay bolsones activos pendientes en campo en la base local.</td></tr>';
+
+    document.getElementById('lblCampoTotalBolsones').innerText = `${totalBolsones} BOLSONES`;
+    document.getElementById('lblCampoTotalKilos').innerText = `${totalKilosPiso.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblCampoTotalGps').innerText = `${puntosGps.length} PUNTOS`;
+
+    document.getElementById('kpiKilos').innerText = `${totalKilosPiso.toLocaleString('es-AR', {minimumFractionDigits: 1})} KG`;
+    document.getElementById('kpiEnvases').innerText = `${totalBolsones} BOLSONES`;
+    document.getElementById('kpiPromedio').innerText = `${(filtrados.length ? totalKilosPiso / filtrados.length : 0).toLocaleString('es-AR', {maximumFractionDigits: 1})} KG/BOLSÓN`;
+
+    inicializarOActualizarMapaGoogle(puntosGps);
+  }
+
+  // EVENTOS DE FILTRADO
+  document.getElementById('fFechaDesde').addEventListener('change', cargarReporteActivo);
+  document.getElementById('fFechaHasta').addEventListener('change', cargarReporteActivo);
+  document.getElementById('fTextoFiltro').addEventListener('input', cargarReporteActivo);
+
+  // EXPORTAR A EXCEL SOLAPA ACTIVA
+  document.getElementById('btnExportarExcelGlobal').addEventListener('click', () => {
+    if (!db) return;
+    try {
+      if (tabActiva === 'parcelas') {
+        const datos = db.prepare(`SELECT c.parcela, SUM(c.cantidad) as bolsones, c.fecha FROM local_cosecha c WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO' GROUP BY c.parcela`).all();
+        exportarMatrizAExcel(datos, 'Reporte_Cosecha_Por_Parcela');
+      } else if (tabActiva === 'variedad') {
+        const datos = db.prepare(`SELECT c.especie, c.variedad, SUM(c.cantidad) as bolsones FROM local_cosecha c WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO' GROUP BY c.especie, c.variedad`).all();
+        exportarMatrizAExcel(datos, 'Reporte_Cosecha_Por_Variedad');
+      } else if (tabActiva === 'personal') {
+        const datos = db.prepare(`SELECT c.empleado, SUM(c.cantidad) as bolsones FROM local_cosecha c WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO' GROUP BY c.empleado`).all();
+        exportarMatrizAExcel(datos, 'Reporte_Cosecha_Por_Personal');
+      } else {
+        const datos = db.prepare(`SELECT c.bolson_n, c.parcela, c.variedad, c.empleado, c.fecha, c.ubicacion FROM local_cosecha c WHERE UPPER(COALESCE(c.estado, 'ACTIVO')) = 'ACTIVO'`).all();
+        exportarMatrizAExcel(datos, 'Reporte_Bolsones_En_Campo');
+      }
+    } catch(e) { console.error(e); }
+  });
+
+  // SINCRONIZACIÓN
+  const btnSincronizar = document.getElementById('btnSincronizar');
+  btnSincronizar.addEventListener('click', async () => {
+    btnSincronizar.innerHTML = `Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { subirCambiosLocales } = require('../subir.js');
+        const { sincronizarTodo } = require('../sincronizacion.js');
+        await ejecutarSincronizacionCompleta();
+        lanzarToast('¡Sincronización de Cosecha exitosa!', 'success');
+        cargarReporteActivo();
+      } catch (err) {
+        console.error(err);
+        lanzarToast('Error de sincronización: ' + err.message, 'error');
+      } finally {
+        btnSincronizar.innerHTML = `Sincronizar`;
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizar.innerHTML = `Sincronizar`;
+        lanzarToast('Sincronización simulada.', 'success');
+      }, 1000);
+    }
+  });
+
+  // INICIO
+  cargarReporteActivo();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Panel de Configuración</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F3F5F1;
+    --color-surface: #FFFFFF;
+    --color-text: #1B231D;
+    --color-text-secondary: #5F6B62;
+    --color-accent: #1E6B4C;
+    --color-accent-soft: rgba(30, 107, 76, 0.10);
+    --color-border: rgba(27, 35, 29, 0.12);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', sans-serif;
+  }
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-volver:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    border-color: var(--color-accent);
+  }
+
+  .btn-volver:active {
+    transform: scale(0.97);
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text);
+    padding: 24px 36px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+  .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+  .header p { margin: 4px 0 0; color: var(--color-text-secondary); font-size: 13.5px; }
+
+  .btn {
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { background: #154e37; }
+  .btn:active { transform: scale(0.97); }
+  .btn-secundario { background: #fff; color: var(--color-text); border: 1px solid var(--color-border); }
+
+  /* Contenedor Principal en 2 Paneles */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  .panel-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+    background: rgba(0,0,0,0.015);
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .panel-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
+  /* Lista de Usuarios (Cards Lista 1) */
+  .usuario-card {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .usuario-card:hover { border-color: var(--color-accent); transform: translateY(-1px); }
+  .usuario-card.seleccionado {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+
+  .badge-rol {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: lowercase;
+  }
+
+  /* Árbol de Menús y Submódulos */
+  .acordeon-menu {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .acordeon-header {
+    padding: 14px 16px;
+    background: #FAFCFA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid transparent;
+  }
+  .acordeon-menu.abierto .acordeon-header { border-bottom-color: var(--color-border); }
+
+  .submodulos-container {
+    padding: 12px 16px 16px 16px;
+    background: #FFF;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+
+  .submodulo-card {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #FDFDFD;
+  }
+
+  /* Switches Estilo Apple */
+  .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #D1D5DB; transition: .25s; border-radius: 22px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background-color: white; transition: .25s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--color-accent); }
+  input:checked + .slider:before { transform: translateX(18px); }
+
+  /* Modales */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 1000;
+  }
+  .modal-overlay.activo { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: #fff; border-radius: var(--radius-lg); width: 100%; max-width: 440px; padding: 24px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+  .grupo-campo { margin-bottom: 14px; }
+  .grupo-campo label { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 5px; }
+  .grupo-campo input, .grupo-campo select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 13.5px; outline: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+    <button class="btn-volver" id="btnVolver">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Menú Principal
+    </button>
+    
+      <h1>Configuración de Usuarios y Accesos</h1>
+      <p>Gestión centralizada de asignación de perfiles, módulos y submódulos</p>
+    </div>
+    <button class="btn" id="btnAltaUsuario">+ Alta de Usuario</button>
+  </div>
+
+  <div class="layout-grid">
+    <!-- PANEL IZQUIERDO: LISTA DE USUARIOS -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span>Usuarios Activos</span>
+        <small id="cantUsuarios" style="color: var(--color-text-secondary);">0</small>
+      </div>
+      <div class="panel-body" id="listaUsuariosContainer"></div>
+    </div>
+
+    <!-- PANEL DERECHO: ARBOL DE PERMISOS -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span id="tituloPermisos">Seleccioná un usuario para gestionar sus permisos</span>
+      </div>
+      <div class="panel-body" id="arbolPermisosContainer">
+        <div style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
+          Haz clic en cualquier usuario de la izquierda para desplegar sus menús y submódulos habilitados.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ALTA USUARIO -->
+  <div class="modal-overlay" id="modalAlta">
+    <div class="modal">
+      <h2 style="margin-top:0; font-size:18px;">Alta de Nuevo Usuario</h2>
+      <form id="formAlta">
+        <div class="grupo-campo">
+          <label>Usuario (Login)</label>
+          <input type="text" id="addUsuario" required placeholder="ej: jgonzalez" />
+        </div>
+        <div class="grupo-campo">
+          <label>Nombre Completo</label>
+          <input type="text" id="addNombre" required placeholder="ej: Juan González" />
+        </div>
+        <div class="grupo-campo">
+          <label>Rol Asignado</label>
+          <select id="addRol">
+            <option value="admin">admin</option>
+            <option value="pañolero">pañolero</option>
+            <option value="rrhh">rrhh</option>
+            <option value="recepcion">recepcion</option>
+            <option value="volcado">volcado</option>
+            <option value="paletizado">paletizado</option>
+            <option value="despachos">despachos</option>
+            <option value="encargado campo">encargado campo</option>
+            <option value="encargado empaque">encargado empaque</option>
+          </select>
+        </div>
+        <div class="grupo-campo">
+          <label>Contraseña</label>
+          <input type="password" id="addPassword" required value="1234" />
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button type="button" class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn">Crear Usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const electronDisponible = typeof require === 'function';
+  let db = null;
+
+  if (electronDisponible) {
+    try { 
+      // Accedemos directamente a la propiedad .db del objeto exportado
+      const bases = require('../bases.js'); 
+      db = bases.db || bases;
+    } catch (e) { 
+      console.warn('Error al cargar la base de datos SQLite:', e.message); 
+    }
+  }
+
+  // ESTRUCTURA COMPLETA DE MENÚS Y SUBMÓDULOS
+  const MENUS_ESTRUCTURA = [
+    {
+      key: 'insumos',
+      titulo: 'Insumos',
+      submodulos: [
+        { key: 'catalogo', titulo: 'Catálogo', descripcion: 'Artículos, rubros y sub-rubros habilitados en bodega.' },
+        { key: 'ingresos', titulo: 'Ingresos', descripcion: 'Compras y recepciones de mercadería de proveedores.' },
+        { key: 'consumos', titulo: 'Consumos', descripcion: 'Salidas de insumos aplicadas a labores y campo.' },
+        { key: 'stock', titulo: 'Stock', descripcion: 'Existencias netas por depósito y alertas de vencimiento.' }
+      ]
+    },
+    {
+      key: 'empaque',
+      titulo: 'Empaque',
+      submodulos: [
+        { key: 'recepcion', titulo: 'Resumen de Recepción', descripcion: 'Fruta recibida de campo, por lote y productor.' },
+        { key: 'volcado', titulo: 'Resumen de Volcado', descripcion: 'Volcado de bins a línea de proceso.' },
+        { key: 'produccion', titulo: 'Resumen de Producción', descripcion: 'Rendimiento y salida de producto terminado.' },
+        { key: 'despachos', titulo: 'Despachos', descripcion: 'Salida de pallets y mercadería embalada.' },
+        { key: 'stock', titulo: 'Stock', descripcion: 'Existencias de pallets y de playa en planta.' },
+        { key: 'volumen', titulo: 'Volumen de Masa', descripcion: 'Balance general de Cosecha, Producción y Descarte.' }
+      ]
+    },
+    {
+      key: 'cosecha',
+      titulo: 'Cosecha',
+      submodulos: []
+    },
+    {
+      key: 'campo',
+      titulo: 'Campo',
+      submodulos: [
+        { key: 'parametros_campo', titulo: 'Parámetros', descripcion: 'Configuración de cuadros, cultivos y variedades.' },
+        { key: 'riego', titulo: 'Riego', descripcion: 'Partes diarios de riego, sectores y válvulas.' },
+        { key: 'aplicaciones', titulo: 'Aplicaciones', descripcion: 'Órdenes de aplicación, recetas y fertirriego.' }
+      ]
+    },
+    {
+      key: 'administracion',
+      titulo: 'Administración (RRHH)',
+      submodulos: [
+        { key: 'rrhh', titulo: 'RRHH', descripcion: 'Legajos de personal, altas/bajas y contratos.' },
+        { key: 'jornadas', titulo: 'Jornadas de Trabajo', descripcion: 'Control de presentismo y parte diario.' },
+        { key: 'contable', titulo: 'Contable', descripcion: 'Cuentas corrientes, caja y facturación.' },
+        { key: 'compras', titulo: 'Compras e Insumos', descripcion: 'Órdenes de compra y herramientas.' },
+        { key: 'maquinarias', titulo: 'Maquinarias y Equipos', descripcion: 'Control de parque automotor y servicios.' },
+        { key: 'auditoria', titulo: 'Auditoría y Reportes', descripcion: 'Informes gerenciales consolidados.' }
+      ]
+    },
+    {
+      key: 'labores',
+      titulo: 'Maquinaria y Labores',
+      submodulos: []
+    },
+    {
+      key: 'personal',
+      titulo: 'Personal',
+      submodulos: [
+        { key: 'nomina', titulo: 'Nómina y Legajos', descripcion: 'Personal activo e historial laboral.' }
+      ]
+    }
+  ];
+
+  let usuarioSeleccionado = null;
+
+  window.cerrarModal = function() {
+    document.getElementById('modalAlta').classList.remove('activo');
+  };
+
+  // 1. Cargar Usuarios
+  function cargarUsuarios() {
+    if (!db || typeof db.prepare !== 'function') return;
+
+    try {
+      const usuarios = db.prepare(`
+        SELECT * FROM local_usuarios 
+        WHERE LOWER(TRIM(rol)) NOT IN ('admin-1', 'adm-1')
+        ORDER BY usuario ASC
+      `).all();
+
+      document.getElementById('cantUsuarios').textContent = usuarios.length;
+      const container = document.getElementById('listaUsuariosContainer');
+
+      if (usuarios.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--color-text-secondary); padding:20px 0;">No hay usuarios registrados.</p>`;
+        return;
+      }
+
+      container.innerHTML = usuarios.map(u => `
+        <div class="usuario-card ${usuarioSeleccionado?.usuario === u.usuario ? 'seleccionado' : ''}" 
+             onclick="seleccionarUsuario('${u.usuario}', '${u.rol}')">
+          <div>
+            <strong style="display:block; font-size:14px;">${u.usuario}</strong>
+            <small style="color:var(--color-text-secondary);">${u.nombre_completo || ''}</small>
+          </div>
+          <span class="badge-rol">${(u.rol || '').toLowerCase()}</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error("Error al cargar lista de usuarios:", e);
+    }
+  }
+
+  // 2. Seleccionar usuario y dibujar sus permisos
+  window.seleccionarUsuario = function(usuario, rol) {
+    usuarioSeleccionado = { usuario, rol };
+    cargarUsuarios();
+
+    document.getElementById('tituloPermisos').textContent = `Permisos asignados a: ${usuario} (${rol})`;
+    renderizarArbolPermisos();
+  };
+
+    document.getElementById('btnVolver').addEventListener('click', () => { window.location.href = '../menu_central.html'; });
+
+  // 3. Renderizar Menús y Submódulos con sus Switches
+  function renderizarArbolPermisos() {
+    if (!db || !usuarioSeleccionado) return;
+
+    const { usuario, rol } = usuarioSeleccionado;
+
+    const permisosBD = db.prepare(`
+      SELECT LOWER(TRIM(menu)) as menu, LOWER(TRIM(sub_menu)) as sub_menu 
+      FROM local_sys_permisos_usuario 
+      WHERE (LOWER(TRIM(usuario)) = ? OR LOWER(TRIM(rol)) = ?)
+        AND (estado = 1 OR estado = '1')
+    `).all(usuario.toLowerCase(), rol.toLowerCase());
+
+    const container = document.getElementById('arbolPermisosContainer');
+
+    container.innerHTML = MENUS_ESTRUCTURA.map(m => {
+      const menuActivo = permisosBD.some(p => p.menu === m.key && (p.sub_menu === 'general' || p.sub_menu === m.key));
+
+      return `
+        <div class="acordeon-menu abierto">
+          <div class="acordeon-header">
+            <div>
+              <strong style="font-size:15px; color:var(--color-accent);">${m.titulo}</strong>
+              <small style="color:var(--color-text-secondary); margin-left:8px;">(menu: ${m.key})</small>
+            </div>
+            <label class="switch">
+              <input type="checkbox" ${menuActivo ? 'checked' : ''} onchange="togglePermisoMenu('${m.key}', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          ${m.submodulos.length > 0 ? `
+            <div class="submodulos-container">
+              ${m.submodulos.map(s => {
+                const subActivo = permisosBD.some(p => p.menu === m.key && p.sub_menu === s.key);
+                return `
+                  <div class="submodulo-card">
+                    <div style="padding-right:8px;">
+                      <strong style="font-size:13px; display:block;">${s.titulo}</strong>
+                      <small style="font-size:11px; color:var(--color-text-secondary); line-height:1.2; display:block; margin-top:2px;">${s.descripcion}</small>
+                    </div>
+                    <label class="switch">
+                      <input type="checkbox" ${subActivo ? 'checked' : ''} onchange="togglePermisoSubmenu('${m.key}', '${s.key}', this.checked)">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 4. Toggle Permisos
+  window.togglePermisoMenu = function(menuKey, estado) {
+    actualizarPermisoBD(menuKey, menuKey, estado);
+  };
+
+  window.togglePermisoSubmenu = function(menuKey, subKey, estado) {
+    actualizarPermisoBD(menuKey, subKey, estado);
+  };
+
+  function actualizarPermisoBD(menuKey, subKey, estadoBool) {
+    if (!db || !usuarioSeleccionado) return;
+    const { usuario, rol } = usuarioSeleccionado;
+    const valEstado = estadoBool ? 1 : 0;
+
+    const existe = db.prepare(`
+      SELECT id FROM local_sys_permisos_usuario 
+      WHERE LOWER(TRIM(usuario)) = ? AND LOWER(TRIM(menu)) = ? AND LOWER(TRIM(sub_menu)) = ?
+    `).get(usuario.toLowerCase(), menuKey.toLowerCase(), subKey.toLowerCase());
+
+    if (existe) {
+      db.prepare(`UPDATE local_sys_permisos_usuario SET estado = ?, sincronizado = 0 WHERE id = ?`)
+        .run(valEstado, existe.id);
+    } else {
+      db.prepare(`
+        INSERT INTO local_sys_permisos_usuario (usuario, rol, menu, sub_menu, estado, sincronizado)
+        VALUES (?, ?, ?, ?, ?, 0)
+      `).run(usuario.toLowerCase(), rol.toLowerCase(), menuKey.toLowerCase(), subKey.toLowerCase(), valEstado);
+    }
+  }
+
+  // Event Listeners
+  document.getElementById('btnAltaUsuario').addEventListener('click', () => {
+    document.getElementById('formAlta').reset();
+    document.getElementById('modalAlta').classList.add('activo');
+  });
+
+  document.getElementById('formAlta').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (!db || typeof db.prepare !== 'function') {
+      alert("Atención: No hay conexión con la base de datos SQLite.");
+      return;
+    }
+
+    const user = document.getElementById('addUsuario').value.trim().toLowerCase();
+    const nombre = document.getElementById('addNombre').value.trim();
+    const rol = document.getElementById('addRol').value.toLowerCase();
+    const pass = document.getElementById('addPassword').value;
+
+    try {
+      // FIX: Se quitó la columna 'sincronizado' de local_usuarios
+      db.prepare(`
+        INSERT INTO local_usuarios (usuario, nombre_completo, rol, unidad_negocio, password, activo)
+        VALUES (?, ?, ?, 'General', ?, 'ACTIVO')
+      `).run(user, nombre, rol, pass);
+
+      // Permiso por defecto inicial en tabla de permisos (acá sí existe 'sincronizado')
+      db.prepare(`
+        INSERT INTO local_sys_permisos_usuario (usuario, rol, menu, sub_menu, estado, sincronizado)
+        VALUES (?, ?, 'campo', 'campo', 1, 0)
+      `).run(user, rol);
+
+      cerrarModal();
+      cargarUsuarios();
+      seleccionarUsuario(user, rol);
+
+    } catch (err) {
+      console.error(err);
+      alert("Error al dar de alta el usuario: " + err.message);
+    }
+  });
+
+  // Carga inicial
+  cargarUsuarios();
+})();
+</script>
+</body>
+</html>

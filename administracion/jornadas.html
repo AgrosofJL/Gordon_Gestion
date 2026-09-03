@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Jornadas de Trabajo</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<script src="../utilidades.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3;
+    --color-adm: #1E6B4C;
+    --color-adm-dark: #104630;
+    --color-adm-soft: rgba(30, 107, 76, 0.10);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-adm); background-clip: content-box; }
+
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid var(--color-border); height: 55px; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-adm { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { width: 220px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+  .sidebar-header { margin-bottom: 20px; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-nav-lateral:active, .btn-global-add:active, .modal-btn:active, .btn-sync-top:active,
+  .btn-excel:active, .btn-pdf:active, .btn-accion-fila:active, .chip-preset:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important; transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 14px; font-weight: 700; margin-top: 20px; color: var(--color-adm-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+  .btn-nav-lateral { display: flex; align-items: center; gap: 10px; background: transparent; border: 1px solid transparent; padding: 12px 14px; border-radius: var(--radius-md); cursor: pointer; text-align: left; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--color-text-secondary); transition: all 0.2s ease; }
+  .btn-nav-lateral:hover { background: var(--color-adm-soft); color: var(--color-adm-dark); }
+  .btn-nav-lateral.active { background: var(--color-adm-soft); color: var(--color-adm-dark); border-color: var(--color-adm); box-shadow: 0 4px 12px rgba(30, 107, 76, 0.08); }
+
+  .sidebar-info-box { margin-top: auto; background: var(--color-adm-soft); border: 1px solid rgba(30,107,76,0.15); border-radius: var(--radius-md); padding: 12px; font-size: 10.5px; color: var(--color-adm-dark); line-height: 1.5; }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 28px 36px; display: flex; flex-direction: column; overflow-y: auto; }
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo { font-size: 24px; font-weight: 700; margin: 0; color: var(--color-adm-dark); position: relative; padding-left: 15px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-adm), var(--color-adm-dark)); }
+
+  .btn-global-add { background: var(--color-adm); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(30, 107, 76, 0.18); transition: all 0.2s ease; }
+  .btn-global-add:hover { background: var(--color-adm-dark); }
+  .btn-excel { background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease; }
+  .btn-excel:hover { background: #0A5C30; }
+  .btn-pdf { background: #B91C1C; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.15); transition: all 0.2s ease; }
+  .btn-pdf:hover { background: #991515; }
+  .btn-sync-top { background: #E8F5E9; color: #104630; border: 1px solid rgba(30,107,76,0.3); border-radius: var(--radius-md); padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; white-space: nowrap; }
+  .btn-sync-top:hover { background: #C8E6C9; }
+
+  /* FILTROS */
+  .filtro-fechas-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; flex-shrink: 0; }
+  .filtro-fechas-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip-preset { background: var(--color-adm-soft); color: var(--color-adm-dark); border: 1px solid transparent; border-radius: 20px; padding: 7px 14px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .chip-preset:hover { background: var(--color-adm); color: #fff; transform: translateY(-1px); }
+  .filtro-fechas-inputs { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+  .filtro-fechas-inputs .modal-group { min-width: 140px; }
+  .filtro-fechas-inputs .modal-input { padding: 8px 12px; }
+
+  .filtros-extra-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; flex-shrink: 0; }
+  .filtro-select-group { display: flex; flex-direction: column; gap: 4px; min-width: 170px; }
+  .filtro-select-group label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .filtro-select { padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 12px; background: #FAFAFA; color: var(--color-text); }
+
+  /* KPI */
+  .grid-metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; flex-shrink: 0; }
+  .card-metrica { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .card-metrica .label { font-size: 10.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-metrica .val { font-size: 24px; font-weight: 700; color: var(--color-text); margin-top: 6px; display: block; }
+  .card-metrica .val.highlight { color: var(--color-adm); }
+  .card-metrica .val.warn { color: #B8862A; }
+
+  /* TABLA */
+  .columna-split { display: flex; flex-direction: column; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; flex-grow: 1; }
+  .columna-header-sticky { padding: 16px 20px; background: #F8F9FB; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+  .columna-header-sticky h4 { margin: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 14px; background: #ECEFF1; border-bottom: 1px solid var(--color-border); white-space: nowrap; position: sticky; top: 0; }
+  .tabla-interna-fila td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 12px; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-adm-soft); }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid transparent; white-space: nowrap; }
+  .badge-estado.presente { background: rgba(30,107,76,0.10); color: #104630; border-color: rgba(30,107,76,0.25); }
+  .badge-estado.ausente { background: rgba(198,40,40,0.08); color: #B71C1C; border-color: rgba(198,40,40,0.2); }
+  .badge-estado.media { background: rgba(245,127,23,0.10); color: #E65100; border-color: rgba(245,127,23,0.25); }
+  .badge-estado.justificado { background: rgba(21,101,192,0.08); color: #0D47A1; border-color: rgba(21,101,192,0.2); }
+
+  .badge-pago { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid transparent; white-space: nowrap; }
+  .badge-pago.jornal { background: rgba(30,107,76,0.10); color: #104630; border-color: rgba(30,107,76,0.2); }
+  .badge-pago.hora { background: rgba(21,101,192,0.08); color: #0D47A1; border-color: rgba(21,101,192,0.2); }
+  .badge-pago.destajo { background: rgba(123,31,162,0.08); color: #6A1B78; border-color: rgba(123,31,162,0.2); }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .grupo-acciones-fila { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-accion-fila { background: var(--color-adm-soft); color: var(--color-adm-dark); border: 1px solid var(--color-border); border-radius: 8px; padding: 5px 9px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }
+  .btn-accion-fila:hover { background: var(--color-adm); color: #FFFFFF; border-color: var(--color-adm); }
+  .btn-accion-fila.danger:hover { background: #B91C1C; border-color: #B91C1C; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 720px; max-height: 88vh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--color-border); transform: translateY(-15px); transition: transform 0.2s ease; display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; flex-shrink: 0; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--color-adm-dark); margin: 0; }
+  .modal-subtitle { font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0; }
+  .modal-body { overflow-y: auto; padding-right: 4px; }
+  .modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .modal-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .modal-group label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .modal-input { width: 100%; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; }
+  .modal-input:disabled { color: var(--color-text-secondary); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-shrink: 0; }
+  .modal-btn { border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-adm); color: #FFFFFF; }
+  .modal-seccion-titulo { font-size: 11px; font-weight: 700; color: var(--color-adm-dark); text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 10px; padding-top: 12px; border-top: 1px dashed var(--color-border); }
+  .modal-seccion-titulo:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+  /* CONTROL DÍA A DÍA (MATRIZ CALENDARIO) */
+  .leyenda-calendario { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 12px; flex-shrink: 0; }
+  .leyenda-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: var(--color-text-secondary); }
+  .leyenda-swatch { width: 12px; height: 12px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .aviso-rango-amplio { text-align: center; padding: 30px 20px; color: #8A6A1E; background: #FFF8E1; border: 1px solid rgba(184,134,42,0.3); border-radius: var(--radius-md); font-size: 12.5px; font-weight: 600; margin: 20px; }
+
+  .tabla-calendario-wrap { overflow: auto; flex-grow: 1; }
+  .tabla-calendario { border-collapse: collapse; background: #FFFFFF; }
+  .tabla-calendario th, .tabla-calendario td { border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+  .tabla-calendario th { position: sticky; top: 0; z-index: 3; background: #ECEFF1; font-size: 9.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; padding: 10px 6px; text-align: center; }
+  .tabla-calendario td { padding: 0; text-align: center; font-size: 11px; }
+  .col-fija-th { position: sticky; left: 0; z-index: 4; text-align: left !important; padding: 10px 14px !important; min-width: 190px; background: #ECEFF1; border-right: 2px solid var(--color-border); }
+  .col-fija-td { position: sticky; left: 0; z-index: 2; text-align: left !important; padding: 8px 14px !important; min-width: 190px; background: #FFFFFF; border-right: 2px solid var(--color-border); cursor: pointer; }
+  .col-fija-td:hover { background: var(--color-adm-soft); }
+  .col-fija-td strong { display: block; font-size: 11.5px; color: var(--color-text); }
+  .col-fija-td span { font-size: 9.5px; color: var(--color-text-secondary); }
+  .celda-dia-cal { width: 40px; height: 42px; font-weight: 700; }
+  .celda-dia-cal.finde { background: rgba(85,99,88,0.045); }
+  .celda-dia-cal.presente { background: rgba(30,107,76,0.08); color: #104630; }
+  .celda-dia-cal.ausente { background: rgba(198,40,40,0.10); color: #B71C1C; }
+  .celda-dia-cal.media { background: rgba(245,127,23,0.12); color: #E65100; }
+  .celda-dia-cal.justificado { background: rgba(21,101,192,0.10); color: #0D47A1; }
+  .celda-dia-cal.vacia { color: #D2D7D3; font-weight: 400; }
+  .celda-dia-cal .extra-tag { display: block; font-size: 8px; font-weight: 700; color: #B8862A; }
+
+  /* RESUMEN DIARIO */
+  .buscador-diario { width: 100%; max-width: 280px; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 12px; background: #FAFAFA; color: var(--color-text); }
+
+  /* CARGA GRUPAL (CASCADA) */
+  .grupo-checklist { max-height: 190px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FAFAFA; }
+  .item-checklist { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--color-border); font-size: 12px; font-weight: 500; }
+  .item-checklist:last-child { border-bottom: none; }
+  .item-checklist:hover { background: var(--color-adm-soft); }
+  .item-checklist input[type="checkbox"] { accent-color: var(--color-adm); width: 15px; height: 15px; flex-shrink: 0; }
+  .chips-parcelas { display: flex; flex-wrap: wrap; gap: 6px; min-height: 34px; padding: 6px; border: 1px dashed var(--color-border); border-radius: var(--radius-md); background: #FAFAFA; }
+  .chip-parcela { display: flex; align-items: center; gap: 6px; background: var(--color-adm); color: #FFFFFF; border-radius: 16px; padding: 5px 8px 5px 12px; font-size: 11px; font-weight: 700; }
+  .chip-parcela .btn-quitar-chip { cursor: pointer; background: rgba(255,255,255,0.25); border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; }
+  .chip-parcela .btn-quitar-chip:hover { background: rgba(255,255,255,0.45); }
+  .fila-agregar-parcela { display: flex; gap: 8px; margin-bottom: 8px; }
+  .fila-agregar-parcela .modal-input { flex-grow: 1; }
+  .btn-agregar-chip { background: var(--color-adm-soft); color: var(--color-adm-dark); border: 1px solid var(--color-adm); border-radius: var(--radius-md); padding: 0 14px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .btn-agregar-chip:hover { background: var(--color-adm); color: #FFFFFF; }
+  .aviso-cascada { background: var(--color-adm-soft); border: 1px solid rgba(30,107,76,0.2); border-radius: var(--radius-md); padding: 10px 14px; font-size: 11.5px; font-weight: 700; color: var(--color-adm-dark); margin-top: 4px; }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid #107C41; background: #F1F9F4; color: #0A5C30; }
+  .toast-card.error { border-left: 4px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 4px solid #B8862A; background: #FFF8E1; color: #8A6A1E; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu último acceso fue: <span class="highlight" id="lblUltimoAcceso">HOY 16:00 HS</span>
+      &nbsp;|&nbsp; Módulo de <span class="highlight">Jornadas de Trabajo</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">CARGANDO FECHA...</div>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-adm">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Jornadas</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-seccion="listado">📋 Listado Detallado</button>
+        <button class="btn-nav-lateral" data-seccion="resumen">👥 Resumen por Trabajador</button>
+        <button class="btn-nav-lateral" data-seccion="calendario">📅 Control Día a Día</button>
+        <button class="btn-nav-lateral" data-seccion="diario">📊 Resumen Diario</button>
+      </div>
+
+      <div class="sidebar-info-box">
+        Central de logística de jornadas para preparar la liquidación de sueldos. "Control Día a Día" muestra la asistencia mensual por trabajador y "Resumen Diario" agrupa cada parte por fecha. Usá "Carga Grupal" para asentar una cuadrilla completa en varias parcelas de una sola vez.
+      </div>
+    </div>
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="main-content">
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Listado Detallado de Jornadas</h1>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-excel" id="btnExportExcel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Excel
+          </button>
+          <button class="btn-pdf" id="btnExportPdf">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            PDF
+          </button>
+          <button class="btn-sync-top" id="btnCargaGrupal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Carga Grupal
+          </button>
+          <button class="btn-global-add" id="btnNuevaJornada">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nueva Jornada
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTRO DE FECHAS -->
+      <div id="contFiltroFechas"></div>
+
+      <!-- FILTROS EXTRA -->
+      <div class="filtros-extra-row" id="filtrosExtraRow">
+        <div class="filtro-select-group">
+          <label>Trabajador</label>
+          <select class="filtro-select" id="fltLegajo"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-select-group">
+          <label>Sector</label>
+          <select class="filtro-select" id="fltSector"><option value="">Todos</option></select>
+        </div>
+        <div class="filtro-select-group">
+          <label>Forma de Pago</label>
+          <select class="filtro-select" id="fltFormaPago">
+            <option value="">Todas</option>
+            <option value="JORNAL">Jornal</option>
+            <option value="POR HORA">Por Hora</option>
+            <option value="DESTAJO">Destajo</option>
+          </select>
+        </div>
+        <div class="filtro-select-group">
+          <label>Estado</label>
+          <select class="filtro-select" id="fltEstado">
+            <option value="">Todos</option>
+            <option value="PRESENTE">Presente</option>
+            <option value="AUSENTE">Ausente</option>
+            <option value="MEDIA JORNADA">Media Jornada</option>
+            <option value="JUSTIFICADO">Justificado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="grid-metricas" id="gridMetricas">
+        <div class="card-metrica"><span class="label">Jornadas Registradas</span><span class="val highlight" id="kpiCantidad">0</span></div>
+        <div class="card-metrica"><span class="label">Trabajadores en el Período</span><span class="val" id="kpiTrabajadores">0</span></div>
+        <div class="card-metrica"><span class="label">Horas Totales</span><span class="val" id="kpiHoras">0</span></div>
+        <div class="card-metrica"><span class="label">Horas Extra</span><span class="val warn" id="kpiHorasExtra">0</span></div>
+        <div class="card-metrica"><span class="label">Total Liquidado</span><span class="val highlight" id="kpiTotal">$0</span></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow:1; display:flex; flex-direction:column; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título</h3>
+        <p class="modal-subtitle" id="modalSubtitle"></p>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <datalist id="dlMacroLabor"></datalist>
+  <datalist id="dlLabor"></datalist>
+  <datalist id="dlCentroCosto"></datalist>
+  <datalist id="dlSectorCG"></datalist>
+  <datalist id="dlParcelaCG"></datalist>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+  let path = null;
+
+  /* ACA ES LO NUEVO: Se conecta a la base de datos y asegura la existencia de las tablas de labores */
+  if (isElectron) {
+    try {
+
+    } catch (e) { console.error('Error conectando BBDD:', e); }
+  }
+
+  let sesion = { nombre_completo: 'ADMINISTRADOR', unidad_negocio: '' };
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const s = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (s) sesion = s;
+    } catch (e) {}
+  }
+
+  // ---------------------------------------------------------------------
+  // HELPERS DE FECHA Y FORMATO
+  // ---------------------------------------------------------------------
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  
+  function sumarDiasStr(str, n) {
+    if (!str) return hoyStr();
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + n);
+    return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+  }
+
+  function primerDiaMesStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-01'; }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toFixed(2); }
+  function nf(v) { return (parseFloat(v) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function generarToken() {
+    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let r = ''; for (let i = 0; i < 10; i++) r += c.charAt(Math.floor(Math.random() * c.length));
+    return r;
+  }
+  function claseEstado(estado) {
+    const e = String(estado || '').toUpperCase();
+    if (e === 'AUSENTE') return 'ausente';
+    if (e === 'MEDIA JORNADA') return 'media';
+    if (e === 'JUSTIFICADO') return 'justificado';
+    return 'presente';
+  }
+  function claseFormaPago(fp) {
+    const f = String(fp || '').toUpperCase();
+    if (f === 'POR HORA') return 'hora';
+    if (f === 'DESTAJO') return 'destajo';
+    return 'jornal';
+  }
+  function horasCorta(v) {
+    const n = parseFloat(v) || 0;
+    return Number.isInteger(n) ? String(n) : n.toFixed(1);
+  }
+  function prioridadEstado(estado) {
+    const orden = { AUSENTE: 3, JUSTIFICADO: 2, 'MEDIA JORNADA': 1, PRESENTE: 0 };
+    return orden[String(estado || 'PRESENTE').toUpperCase()] ?? 0;
+  }
+  function listaFechasEntre(desde, hasta) {
+    const out = [];
+    let cur = desde;
+    let guard = 0;
+    while (cur <= hasta && guard < 400) {
+      const [y, m, d] = cur.split('-').map(Number);
+      const dow = new Date(y, m - 1, d).getDay();
+      out.push({ fecha: cur, dia: pad2(d), finde: dow === 0 || dow === 6 });
+      cur = sumarDiasStr(cur, 1);
+      guard++;
+    }
+    return out;
+  }
+  const toastContenedor = document.getElementById('toastContenedor');
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = tipo === 'success' ? '✅' : (tipo === 'warning' ? '⚠️' : '❌');
+    tarjeta.innerHTML = `<div style="font-size:16px;">${icono}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 10);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 300); }, 3800);
+  }
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, saveLabel) {
+    modalTitle.textContent = title;
+    modalSubtitle.textContent = subtitle || '';
+    modalBody.innerHTML = fieldsHtml;
+    customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = saveLabel || 'Guardar';
+    modalBtnCancel.textContent = onSave ? 'Cancelar' : 'Cerrar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  const fechaFormateada = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('topDateTime').textContent = fechaFormateada;
+
+  document.getElementById('btnVolver').addEventListener('click', () => { window.location.href = 'menu_admin.html'; });
+
+  const btnSincronizar = document.getElementById('btnSincronizar');
+  btnSincronizar.addEventListener('click', async () => {
+    btnSincronizar.classList.add('syncing');
+    btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { subirCambiosLocales } = require('../subir.js');
+        const { sincronizarTodo } = require('../sincronizacion.js');
+        await subirCambiosLocales();
+        await sincronizarTodo();
+        lanzarNotificacionFlotante('¡Sincronización bidireccional exitosa!', 'success');
+      } catch (err) {
+        console.error(err);
+        lanzarNotificacionFlotante('Error de sincronización: ' + err.message, 'error');
+      } finally {
+        btnSincronizar.classList.remove('syncing');
+        btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar`;
+        renderPanel();
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizar.classList.remove('syncing');
+        btnSincronizar.innerHTML = 'Sincronizar';
+        lanzarNotificacionFlotante('Sincronización simulada en entorno de pruebas.', 'success');
+      }, 800);
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // ESTADO DE FILTROS
+  // ---------------------------------------------------------------------
+  let seccionActual = 'listado';
+  let jorDesde = sumarDiasStr(hoyStr(), -30);
+  let jorHasta = hoyStr();
+
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const contFiltroFechas = document.getElementById('contFiltroFechas');
+  const fltLegajo = document.getElementById('fltLegajo');
+  const fltSector = document.getElementById('fltSector');
+  const fltFormaPago = document.getElementById('fltFormaPago');
+  const fltEstado = document.getElementById('fltEstado');
+
+  function construirFiltroFechasHTML() {
+    return `
+      <div class="filtro-fechas-card">
+        <div class="filtro-fechas-chips">
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas(7)">Últimos 7 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas(30)">Últimos 30 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas(90)">Últimos 90 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('mes')">Este mes</button>
+        </div>
+        <div class="filtro-fechas-inputs">
+          <div class="modal-group"><label>Desde</label><input type="date" id="jorDesdeInput" class="modal-input" value="${jorDesde}" /></div>
+          <div class="modal-group"><label>Hasta</label><input type="date" id="jorHastaInput" class="modal-input" value="${jorHasta}" /></div>
+          <button type="button" class="btn-sync-top" id="jorBtnAplicar">Aplicar Rango</button>
+        </div>
+      </div>
+    `;
+  }
+  function renderFiltroFechas() {
+    contFiltroFechas.innerHTML = construirFiltroFechasHTML();
+    document.getElementById('jorBtnAplicar').addEventListener('click', () => {
+      const d = document.getElementById('jorDesdeInput').value;
+      const h = document.getElementById('jorHastaInput').value;
+      if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
+      if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+      jorDesde = d; jorHasta = h;
+      renderPanel();
+    });
+  }
+  window.aplicarPresetFechas = function(dias) {
+    jorHasta = hoyStr();
+    jorDesde = dias === 'mes' ? primerDiaMesStr() : sumarDiasStr(hoyStr(), -dias);
+    renderFiltroFechas();
+    renderPanel();
+  };
+
+  const TITULOS_SECCION = {
+    listado: 'Listado Detallado de Jornadas',
+    resumen: 'Resumen por Trabajador',
+    calendario: 'Control Día a Día',
+    diario: 'Resumen Diario'
+  };
+  const SECCIONES_SOLO_FECHA = ['calendario', 'resumen'];
+  const filtrosExtraRow = document.getElementById('filtrosExtraRow');
+  function actualizarVisibilidadFiltrosExtra() {
+    const soloFecha = SECCIONES_SOLO_FECHA.includes(seccionActual);
+    filtrosExtraRow.style.display = soloFecha ? 'none' : '';
+    if (soloFecha) {
+      fltLegajo.value = ''; fltSector.value = ''; fltFormaPago.value = ''; fltEstado.value = '';
+    }
+  }
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      seccionActual = btn.dataset.seccion;
+      seccionTitulo.textContent = TITULOS_SECCION[seccionActual] || 'Jornadas';
+      actualizarVisibilidadFiltrosExtra();
+      if (seccionActual === 'resumen') {
+        jorDesde = primerDiaMesStr();
+        jorHasta = hoyStr();
+        renderFiltroFechas();
+      }
+      renderPanel();
+    });
+  });
+  [fltLegajo, fltSector, fltFormaPago, fltEstado].forEach(sel => sel.addEventListener('change', renderPanel));
+  actualizarVisibilidadFiltrosExtra();
+
+  // ---------------------------------------------------------------------
+  // CATÁLOGOS Y CONSULTAS DINÁMICAS (CASCADA)
+  // ---------------------------------------------------------------------
+  function obtenerPersonalActivo() {
+    if (!db) return [];
+    try { return db.prepare("SELECT * FROM local_p_nomina_personal WHERE estado = 'ACTIVO' ORDER BY apellido, nombre").all(); }
+    catch (e) { console.error(e); return []; }
+  }
+
+  function obtenerCentrosCosto() {
+    if (!db) return [];
+    try { return db.prepare("SELECT DISTINCT centro_costo FROM local_p_centroCostos WHERE centro_costo IS NOT NULL AND centro_costo <> '' ORDER BY centro_costo").all(); }
+    catch (e) { return []; }
+  }
+
+  function obtenerSectoresCuadros() {
+    if (!db) return [];
+    try { return db.prepare("SELECT DISTINCT tipo FROM local_p_cuadros WHERE tipo IS NOT NULL AND tipo <> '' ORDER BY tipo").all(); }
+    catch (e) {
+      try { return db.prepare("SELECT DISTINCT sector FROM local_r_jornada_trabajo WHERE sector IS NOT NULL AND sector <> '' ORDER BY sector").all(); }
+      catch (e2) { return []; }
+    }
+  }
+
+  function obtenerParcelasPorSector(tipoSeleccionado) {
+    if (!db) return [];
+    try {
+      if (tipoSeleccionado) {
+        return db.prepare("SELECT DISTINCT nombre as parcela FROM local_p_cuadros WHERE tipo = ? AND nombre IS NOT NULL AND nombre <> '' ORDER BY nombre").all(tipoSeleccionado);
+      }
+      return db.prepare("SELECT DISTINCT nombre as parcela FROM local_p_cuadros WHERE nombre IS NOT NULL AND nombre <> '' ORDER BY nombre").all();
+    } catch (e) {
+      try { return db.prepare("SELECT DISTINCT parcela FROM local_r_jornada_trabajo WHERE parcela IS NOT NULL AND parcela <> '' ORDER BY parcela").all(); }
+      catch (e2) { return []; }
+    }
+  }
+
+  function obtenerUnidadNegocioDesdeCuadro(cuadroNombre) {
+    if (!db || !cuadroNombre) return '';
+    try {
+      const res = db.prepare("SELECT unidad_negocio FROM local_p_cuadros WHERE cuadro = ? AND unidad_negocio IS NOT NULL AND unidad_negocio <> '' LIMIT 1").get(cuadroNombre);
+      return res ? (res.unidad_negocio || '') : '';
+    } catch (e) { return ''; }
+  }
+
+  function obtenerSectoresPorNegocio(unidadNegocio) {
+    if (!db) return [];
+    const uNeg = (unidadNegocio || '').trim().toUpperCase();
+    const tablas = ['local_p_cuadros', 'p_cuadros'];
+    
+    for (let tabla of tablas) {
+      try {
+        const sql = uNeg 
+          ? `SELECT DISTINCT COALESCE(tipo, sector) as sector FROM ${tabla} WHERE UPPER(COALESCE(negocio, '')) = ? AND COALESCE(tipo, sector) IS NOT NULL AND COALESCE(tipo, sector) != '' ORDER BY sector ASC`
+          : `SELECT DISTINCT COALESCE(tipo, sector) as sector FROM ${tabla} WHERE COALESCE(tipo, sector) IS NOT NULL AND COALESCE(tipo, sector) != '' ORDER BY sector ASC`;
+        const res = uNeg ? db.prepare(sql).all(uNeg) : db.prepare(sql).all();
+        if (res && res.length > 0) return res;
+      } catch (e) {}
+    }
+    return [];
+  }
+
+  function obtenerParcelasPorSectorYNegocio(sector, unidadNegocio) {
+    if (!db) return [];
+    const sec = (sector || '').trim().toUpperCase();
+    const uNeg = (unidadNegocio || '').trim().toUpperCase();
+    const tablas = ['local_p_cuadros', 'p_cuadros'];
+
+    for (let tabla of tablas) {
+      try {
+        let sql = `SELECT DISTINCT nombre as parcela, cod_parcela FROM ${tabla} WHERE nombre IS NOT NULL AND nombre != ''`;
+        const params = [];
+        if (sec && sec !== 'TODOS') { sql += ` AND UPPER(COALESCE(tipo, sector, '')) = ?`; params.push(sec); }
+        if (uNeg) { sql += ` AND UPPER(COALESCE(negocio, '')) = ?`; params.push(uNeg); }
+        sql += ` ORDER BY nombre ASC`;
+
+        const res = db.prepare(sql).all(...params);
+        if (res && res.length > 0) return res;
+      } catch (e) {}
+    }
+    return [];
+  }
+
+  /* ESTO LO MODIFIQUE: Obtener ubicaciones activas según la parcela */
+  function obtenerUbicacionesPorParcela(parcelaNombre, unidadNegocio) {
+    if (!db || !parcelaNombre) return [{ ubicacion: 'CAMPO' }];
+    const parc = (parcelaNombre || '').trim().toUpperCase();
+
+    const combos = [
+      { inv: 'local_p_inventario_plantacion', mar: 'local_p_marcos_plantacion', cua: 'local_p_cuadros' },
+      { inv: 'p_inventario_plantacion', mar: 'p_marcos_plantacion', cua: 'p_cuadros' }
+    ];
+
+    for (let c of combos) {
+      try {
+        const sql = `
+          SELECT DISTINCT COALESCE(i.cuadro, c.nombre, 'CAMPO') as ubicacion
+          FROM ${c.inv} i
+          INNER JOIN ${c.mar} m ON CAST(i.cod_marco AS TEXT) = CAST(m.cod_marco AS TEXT)
+          INNER JOIN ${c.cua} c ON CAST(m.cod_parcela AS TEXT) = CAST(c.cod_parcela AS TEXT)
+          WHERE UPPER(c.nombre) = ?
+            AND UPPER(i.estado) = 'ACTIVO'
+          ORDER BY ubicacion ASC
+        `;
+        const res = db.prepare(sql).all(parc);
+        if (res && res.length > 0) return res;
+      } catch (e) {}
+    }
+    return [{ ubicacion: parcelaNombre || 'CAMPO' }];
+  }
+
+  function calcularMetricasCascadaInventario(unidadNegocio, sector, parcela) {
+    if (!db) return { sup: 0, mtrs_surco: 0, filas: 0 };
+
+    const uNeg = (unidadNegocio || '').trim().toUpperCase();
+    const sec = (sector || '').trim().toUpperCase();
+    const parc = (parcela || '').trim().toUpperCase();
+
+    const tablasPosibles = [
+      { inv: 'local_p_inventario_plantacion', mar: 'local_p_marcos_plantacion', cua: 'local_p_cuadros' },
+      { inv: 'p_inventario_plantacion', mar: 'p_marcos_plantacion', cua: 'p_cuadros' }
+    ];
+
+    for (let t of tablasPosibles) {
+      try {
+        let whereSql = `WHERE UPPER(i.estado) = 'ACTIVO'`;
+        const params = [];
+        if (uNeg) { whereSql += ` AND UPPER(COALESCE(c.unidad_negocio, '')) = ?`; params.push(uNeg); }
+        if (sec && sec !== 'TODOS') { whereSql += ` AND UPPER(COALESCE(c.tipo, c.sector, '')) = ?`; params.push(sec); }
+        if (parc && parc !== 'TODAS') { whereSql += ` AND UPPER(c.nombre) = ?`; params.push(parc); }
+
+        const sql = `
+          SELECT 
+            COALESCE(SUM(CAST(i.sup AS NUMERIC)), 0) as total_sup,
+            COALESCE(SUM(CAST(i.mtrs_surco AS NUMERIC)), 0) as total_mtrs,
+            COALESCE(SUM(CAST(i.filas AS NUMERIC)), COUNT(i.id)) as total_filas
+          FROM ${t.inv} i
+          INNER JOIN ${t.mar} m ON CAST(i.cod_marco AS TEXT) = CAST(m.cod_marco AS TEXT)
+          INNER JOIN ${t.cua} c ON CAST(m.cod_parcela AS TEXT) = CAST(c.cod_parcela AS TEXT)
+          ${whereSql}
+        `;
+
+        const res = db.prepare(sql).get(...params);
+        if (res) {
+          return {
+            sup: parseFloat(res.total_sup) || 0,
+            mtrs_surco: parseFloat(res.total_mtrs) || 0,
+            filas: parseInt(res.total_filas) || 0
+          };
+        }
+      } catch (e) {}
+    }
+
+    return { sup: 0, mtrs_surco: 0, filas: 0 };
+  }
+
+  function cargarFiltrosCatalogo() {
+    if (!db) return;
+    try {
+      const personal = obtenerPersonalActivo();
+      fltLegajo.innerHTML = '<option value="">Todos</option>' + personal.map(p => `<option value="${p.legajo}">${escapeHtml(p.nombre_completo || (p.apellido + ', ' + p.nombre))}</option>`).join('');
+
+      const sectores = obtenerSectoresCuadros();
+      fltSector.innerHTML = '<option value="">Todos</option>' + sectores.map(s => `<option value="${escapeHtml(s.tipo || s.sector)}">${escapeHtml(s.tipo || s.sector)}</option>`).join('');
+
+      const macros = db.prepare("SELECT DISTINCT macro_labor FROM local_p_macro_labores WHERE macro_labor IS NOT NULL AND macro_labor <> ''").all();
+      document.getElementById('dlMacroLabor').innerHTML = macros.map(m => `<option value="${escapeHtml(m.macro_labor)}">`).join('');
+
+      const labores = db.prepare("SELECT DISTINCT labor FROM local_p_macro_labores WHERE labor IS NOT NULL AND labor <> '' ORDER BY labor").all();
+      document.getElementById('dlLabor').innerHTML = labores.map(l => `<option value="${escapeHtml(l.labor)}">`).join('');
+
+      const centros = obtenerCentrosCosto();
+      document.getElementById('dlCentroCosto').innerHTML = centros.map(c => `<option value="${escapeHtml(c.centro_costo)}">`).join('');
+
+      document.getElementById('dlSectorCG').innerHTML = sectores.map(s => `<option value="${escapeHtml(s.tipo || s.sector)}">`).join('');
+
+      const parcelas = obtenerParcelasPorSector(null);
+      document.getElementById('dlParcelaCG').innerHTML = parcelas.map(p => `<option value="${escapeHtml(p.parcela)}">`).join('');
+    } catch (e) { console.error(e); }
+  }
+
+  function obtenerValorTarifaCascada({ labor, fecha, sector, parcela, legajo, formaPago }) {
+    if (!db || !labor) return { valor: null, unidad: null, origen: 'manual' };
+
+    try {
+      let query = `
+        SELECT * FROM local_p_labores_valorizado
+        WHERE labor = ?
+          AND fecha_desde <= ?
+          AND (fecha_hasta IS NULL OR fecha_hasta = '' OR fecha_hasta >= ?)
+          AND (estado IS NULL OR estado = '' OR estado = 'ACTIVO')
+      `;
+      const params = [labor, fecha, fecha];
+      if (parcela) { query += ' AND (parcela = ? OR parcela IS NULL OR parcela = \'\')'; params.push(parcela); }
+      if (sector) { query += ' AND (sector = ? OR sector IS NULL OR sector = \'\')'; params.push(sector); }
+      query += ' ORDER BY (parcela = ?) DESC, (sector = ?) DESC, fecha_desde DESC LIMIT 1';
+      params.push(parcela || '', sector || '');
+
+      const valObj = db.prepare(query).get(...params);
+      if (valObj && valObj.importe_uni != null && parseFloat(valObj.importe_uni) > 0) {
+        return {
+          valor: parseFloat(valObj.importe_uni),
+          unidad: valObj.pago_por || null,
+          origen: 'labores_valorizado'
+        };
+      }
+    } catch (e) { console.error('Error buscando en labores_valorizado:', e); }
+
+    if (legajo) {
+      try {
+        if (formaPago === 'POR HORA') {
+          const hist = db.prepare('SELECT importe_hora FROM local_p_personal_historial WHERE legajo = ? AND fecha_desde <= ? ORDER BY fecha_desde DESC LIMIT 1').get(legajo, fecha);
+          if (hist && hist.importe_hora != null && parseFloat(hist.importe_hora) > 0) {
+            return { valor: parseFloat(hist.importe_hora), unidad: 'hora', origen: 'personal_historial' };
+          }
+        } else if (formaPago === 'JORNAL') {
+          const hist = db.prepare('SELECT jornal FROM local_p_personal_historial WHERE legajo = ? AND fecha_desde <= ? ORDER BY fecha_desde DESC LIMIT 1').get(legajo, fecha);
+          if (hist && hist.jornal != null && parseFloat(hist.jornal) > 0) {
+            return { valor: parseFloat(hist.jornal), unidad: 'jornal', origen: 'personal_historial' };
+          }
+        }
+      } catch (e) { console.error('Error buscando en personal_historial:', e); }
+    }
+
+    return { valor: null, unidad: null, origen: 'manual' };
+  }
+
+  // ---------------------------------------------------------------------
+  // CONSULTA PRINCIPAL
+  // ---------------------------------------------------------------------
+  function obtenerJornadasFiltradas(overrides) {
+    if (!db) return [];
+    const f = Object.assign({ desde: jorDesde, hasta: jorHasta, legajo: fltLegajo.value, sector: fltSector.value, formaPago: fltFormaPago.value, estado: fltEstado.value }, overrides || {});
+    let sql = `
+      SELECT j.*, COALESCE(n.nombre_completo, j.empleado) as nombre_trabajador, n.categoria as categoria_trabajador
+      FROM local_r_jornada_trabajo j
+      LEFT JOIN local_p_nomina_personal n ON n.legajo = j.legajo
+      WHERE j.fecha BETWEEN ? AND ?
+    `;
+    const params = [f.desde, f.hasta];
+    if (f.legajo) { sql += ' AND j.legajo = ?'; params.push(f.legajo); }
+    if (f.sector) { sql += ' AND j.sector = ?'; params.push(f.sector); }
+    if (f.formaPago) { sql += ' AND j.forma_pago = ?'; params.push(f.formaPago); }
+    if (f.estado) { sql += ' AND j.estado = ?'; params.push(f.estado); }
+    sql += ' ORDER BY j.fecha DESC, j.id DESC';
+    try { return db.prepare(sql).all(...params); } catch (e) { console.error(e); return []; }
+  }
+
+  function agruparPorTrabajadorYFecha(registros) {
+    const mapa = new Map();
+    registros.forEach(r => {
+      const key = (r.legajo || r.empleado) + '|' + r.fecha;
+      if (!mapa.has(key)) {
+        mapa.set(key, { legajo: r.legajo, nombre: r.nombre_trabajador || r.empleado, fecha: r.fecha, horas: 0, extra: 0, estado: 'PRESENTE', prioridad: -1 });
+      }
+      const acc = mapa.get(key);
+      acc.horas += parseFloat(r.horas) || 0;
+      acc.extra += parseFloat(r.hora_extra) || 0;
+      const prio = prioridadEstado(r.estado);
+      if (prio >= acc.prioridad) { acc.prioridad = prio; acc.estado = String(r.estado || 'PRESENTE').toUpperCase(); }
+    });
+    return Array.from(mapa.values()).sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '') || a.fecha.localeCompare(b.fecha));
+  }
+
+  // ---------------------------------------------------------------------
+  // RENDER PRINCIPAL
+  // ---------------------------------------------------------------------
+  function renderPanel() {
+    const registros = obtenerJornadasFiltradas();
+    renderKPIs(registros);
+    document.getElementById('gridMetricas').style.display = seccionActual === 'calendario' ? 'none' : '';
+    if (seccionActual === 'listado') renderTablaListado(registros);
+    else if (seccionActual === 'resumen') renderResumenTrabajadores(registros);
+    else if (seccionActual === 'calendario') renderControlDiaADia(registros);
+    else if (seccionActual === 'diario') renderResumenDiario(registros);
+  }
+
+  function renderKPIs(registros) {
+    const trabajadoresUnicos = new Set(registros.map(r => r.legajo || r.empleado)).size;
+    const horas = registros.reduce((a, r) => a + (parseFloat(r.horas) || 0), 0);
+    const horaExtra = registros.reduce((a, r) => a + (parseFloat(r.hora_extra) || 0), 0);
+    const total = registros.reduce((a, r) => a + (parseFloat(r.total) || 0), 0);
+    document.getElementById('kpiCantidad').textContent = registros.length;
+    document.getElementById('kpiTrabajadores').textContent = trabajadoresUnicos;
+    document.getElementById('kpiHoras').textContent = nf(horas);
+    document.getElementById('kpiHorasExtra').textContent = nf(horaExtra);
+    document.getElementById('kpiTotal').textContent = '$' + nf(total);
+  }
+
+  function renderTablaListado(registros) {
+    contenedorDinamico.innerHTML = `
+      <div class="columna-split">
+        <div class="columna-header-sticky"><h4>Jornadas (${registros.length})</h4></div>
+        <div style="overflow:auto; flex-grow:1;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>FECHA</th><th>TRABAJADOR</th><th>LABOR / SECTOR</th><th>PAGO</th>
+                <th style="text-align:center;">HORAS</th><th style="text-align:center;">H. EXTRA</th>
+                <th style="text-align:right;">TOTAL</th><th style="text-align:center;">ESTADO</th><th style="text-align:center;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${registros.map(r => `
+                <tr>
+                  <td style="white-space:nowrap;">📅 ${r.fecha || '—'}</td>
+                  <td><strong>${escapeHtml(r.nombre_trabajador)}</strong><br><span style="color:var(--color-text-secondary); font-size:10.5px;">Legajo ${escapeHtml(r.legajo || '—')}</span></td>
+                  <td>${escapeHtml(r.labor || '—')} <span style="color:var(--color-text-secondary);">(${escapeHtml(r.sector || '—')})</span></td>
+                  <td><span class="badge-pago ${claseFormaPago(r.forma_pago)}">${escapeHtml(r.forma_pago || '—')}</span></td>
+                  <td style="text-align:center;">${nf(r.horas)}</td>
+                  <td style="text-align:center; ${parseFloat(r.hora_extra) > 0 ? 'color:#B8862A; font-weight:700;' : ''}">${nf(r.hora_extra)}</td>
+                  <td style="text-align:right; font-weight:700; color:#107C41;">$${nf(r.total)}</td>
+                  <td style="text-align:center;"><span class="badge-estado ${claseEstado(r.estado)}">${escapeHtml(r.estado || 'PRESENTE')}</span></td>
+                  <td>
+                    <div class="grupo-acciones-fila">
+                      <button class="btn-accion-fila" onclick="window.editarJornada(${r.id}, '${r.reg_local}')">✏️ Editar</button>
+                      <button class="btn-accion-fila danger" onclick="window.eliminarJornada(${r.id}, '${r.reg_local}')">🗑️ Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+              ${registros.length === 0 ? '<tr><td colspan="9" class="vista-vacia">No hay jornadas registradas para el filtro seleccionado.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderResumenTrabajadores(registros) {
+    if (registros.length === 0) {
+      contenedorDinamico.innerHTML = `<div class="columna-split"><div class="vista-vacia" style="margin:auto;">No hay jornadas registradas en el período seleccionado.</div></div>`;
+      return;
+    }
+    const filas = [...registros].sort((a, b) =>
+      (a.nombre_trabajador || '').localeCompare(b.nombre_trabajador || '') || (a.fecha || '').localeCompare(b.fecha || '')
+    );
+    const totalHoras = filas.reduce((a, r) => a + (parseFloat(r.horas) || 0), 0);
+    const totalGeneral = filas.reduce((a, r) => a + (parseFloat(r.total) || 0), 0);
+
+    contenedorDinamico.innerHTML = `
+      <div class="columna-split">
+        <div class="columna-header-sticky"><h4>Resumen por Trabajador (${filas.length})</h4></div>
+        <div style="overflow:auto; flex-grow:1;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>LEGAJO</th><th>TRABAJADOR</th><th>FECHA</th>
+                <th style="text-align:center;">HORAS TRABAJADAS</th><th>FORMA DE PAGO</th>
+                <th style="text-align:right;">IMP. UNITARIO</th><th style="text-align:right;">TOTAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filas.map(r => `
+                <tr style="cursor:pointer;" onclick="window.verDetalleTrabajador('${r.legajo}')">
+                  <td>${escapeHtml(r.legajo || '—')}</td>
+                  <td><strong>${escapeHtml(r.nombre_trabajador)}</strong></td>
+                  <td style="white-space:nowrap;">📅 ${r.fecha || '—'}</td>
+                  <td style="text-align:center;">${nf(r.horas)}${parseFloat(r.hora_extra) > 0 ? ' <span style="color:#B8862A;">(+' + nf(r.hora_extra) + ')</span>' : ''}</td>
+                  <td><span class="badge-pago ${claseFormaPago(r.forma_pago)}">${escapeHtml(r.forma_pago || '—')}</span></td>
+                  <td style="text-align:right;">$${nf(r.imp_uni)}</td>
+                  <td style="text-align:right; font-weight:700; color:#107C41;">$${nf(r.total)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr style="background:#F8F9FB; font-weight:700;">
+                <td colspan="3" style="text-align:right;">TOTALES</td>
+                <td style="text-align:center;">${nf(totalHoras)}</td>
+                <td></td>
+                <td></td>
+                <td style="text-align:right; color:#107C41;">$${nf(totalGeneral)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  window.verDetalleTrabajador = function(legajo) {
+    const registros = obtenerJornadasFiltradas({ legajo });
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay jornadas para este trabajador en el período.', 'warning');
+    const nombre = registros[0].nombre_trabajador;
+    const totalHoras = registros.reduce((a, r) => a + (parseFloat(r.horas) || 0), 0);
+    const totalExtra = registros.reduce((a, r) => a + (parseFloat(r.hora_extra) || 0), 0);
+    const totalPago = registros.reduce((a, r) => a + (parseFloat(r.total) || 0), 0);
+
+    const cuerpo = `
+      <div style="overflow-x:auto;">
+        <table class="tabla-interna-fila">
+          <thead><tr><th>FECHA</th><th>LABOR</th><th>SECTOR</th><th>PAGO</th><th style="text-align:center;">HORAS</th><th style="text-align:right;">TOTAL</th><th style="text-align:center;">ESTADO</th></tr></thead>
+          <tbody>
+            ${registros.map(r => `
+              <tr>
+                <td>📅 ${r.fecha || '—'}</td><td>${escapeHtml(r.labor || '—')}</td><td>${escapeHtml(r.sector || '—')}</td>
+                <td><span class="badge-pago ${claseFormaPago(r.forma_pago)}">${escapeHtml(r.forma_pago || '—')}</span></td>
+                <td style="text-align:center;">${nf(r.horas)}${parseFloat(r.hora_extra) > 0 ? ' +' + nf(r.hora_extra) : ''}</td>
+                <td style="text-align:right; font-weight:700; color:#107C41;">$${nf(r.total)}</td>
+                <td style="text-align:center;"><span class="badge-estado ${claseEstado(r.estado)}">${escapeHtml(r.estado || 'PRESENTE')}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr style="background:#F8F9FB; font-weight:700;">
+              <td colspan="4" style="text-align:right;">TOTALES</td>
+              <td style="text-align:center;">${nf(totalHoras)} ${totalExtra > 0 ? '(+' + nf(totalExtra) + ')' : ''}</td>
+              <td style="text-align:right; color:#107C41;">$${nf(totalPago)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    `;
+    openMiniModal(`Detalle de Jornadas · ${nombre}`, `Período ${jorDesde} a ${jorHasta} · ${registros.length} jornada(s)`, cuerpo, null);
+  };
+
+  function renderControlDiaADia(registros) {
+    const rangoFechas = listaFechasEntre(jorDesde, jorHasta);
+    if (rangoFechas.length > 62) {
+      contenedorDinamico.innerHTML = `<div class="aviso-rango-amplio">⚠️ El rango seleccionado tiene ${rangoFechas.length} días. Para ver el Control Día a Día acotá el filtro de fechas a 62 días o menos (por ejemplo, un mes).</div>`;
+      return;
+    }
+
+    const mapaLegajo = new Map();
+    const nombresPorLegajo = new Map();
+    registros.forEach(r => {
+      if (!r.legajo) return;
+      if (!nombresPorLegajo.has(r.legajo)) nombresPorLegajo.set(r.legajo, r.nombre_trabajador || r.empleado || r.legajo);
+      if (!mapaLegajo.has(r.legajo)) mapaLegajo.set(r.legajo, new Map());
+      const porDia = mapaLegajo.get(r.legajo);
+      if (!porDia.has(r.fecha)) porDia.set(r.fecha, { horas: 0, extra: 0, estado: 'PRESENTE', prioridad: -1 });
+      const acc = porDia.get(r.fecha);
+      acc.horas += parseFloat(r.horas) || 0;
+      acc.extra += parseFloat(r.hora_extra) || 0;
+      const prio = prioridadEstado(r.estado);
+      if (prio >= acc.prioridad) { acc.prioridad = prio; acc.estado = String(r.estado || 'PRESENTE').toUpperCase(); }
+    });
+
+    const personalBase = Array.from(nombresPorLegajo.entries())
+      .map(([legajo, nombre_completo]) => ({ legajo, nombre_completo }))
+      .sort((a, b) => (a.nombre_completo || '').localeCompare(b.nombre_completo || ''));
+
+    if (personalBase.length === 0) {
+      contenedorDinamico.innerHTML = `<div class="columna-split"><div class="vista-vacia" style="margin:auto;">No hay trabajadores con jornadas registradas en el período seleccionado.</div></div>`;
+      return;
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="leyenda-calendario">
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:rgba(30,107,76,0.08);"></span>Presente</div>
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:rgba(198,40,40,0.10);"></span>Ausente</div>
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:rgba(245,127,23,0.12);"></span>Media Jornada</div>
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:rgba(21,101,192,0.10);"></span>Justificado</div>
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:rgba(85,99,88,0.06);"></span>Fin de semana</div>
+        <div class="leyenda-item"><span class="leyenda-swatch" style="background:#FFFFFF;"></span>Sin registro</div>
+        <div class="leyenda-item" style="margin-left:auto; color:var(--color-text-secondary); font-weight:500;">Tocá un trabajador para ver el detalle del período.</div>
+      </div>
+      <div class="columna-split">
+        <div class="tabla-calendario-wrap">
+          <table class="tabla-calendario">
+            <thead>
+              <tr>
+                <th class="col-fija-th">TRABAJADOR</th>
+                ${rangoFechas.map(f => `<th style="${f.finde ? 'background:rgba(85,99,88,0.08);' : ''}">${f.dia}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${personalBase.map(p => {
+                const nombre = p.nombre_completo || (p.apellido + ', ' + p.nombre);
+                const porDia = mapaLegajo.get(p.legajo);
+                return `
+                  <tr>
+                    <td class="col-fija-td" onclick="window.verDetalleTrabajador('${p.legajo}')">
+                      <strong>${escapeHtml(nombre)}</strong>
+                      <span>Legajo ${escapeHtml(p.legajo)}</span>
+                    </td>
+                    ${rangoFechas.map(f => {
+                      const d = porDia && porDia.get(f.fecha);
+                      if (!d) return `<td class="celda-dia-cal vacia ${f.finde ? 'finde' : ''}">–</td>`;
+                      const total = d.horas + d.extra;
+                      return `<td class="celda-dia-cal ${claseEstado(d.estado)}">${horasCorta(total)}${d.extra > 0 ? `<span class="extra-tag">+${horasCorta(d.extra)}</span>` : ''}</td>`;
+                    }).join('')}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  let ultimoRegistrosDiario = [];
+  function coincideBusquedaDiario(r, texto) {
+    return [r.nombre_trabajador, r.legajo, r.labor, r.sector, r.estado, r.forma_pago, r.fecha]
+      .some(v => String(v || '').toLowerCase().includes(texto));
+  }
+  function pintarFilasDiario(lista) {
+    const tbody = document.getElementById('diarioTbody');
+    const contador = document.getElementById('diarioContador');
+    if (!tbody) return;
+    if (contador) contador.textContent = `Registros (${lista.length})`;
+    tbody.innerHTML = lista.length === 0
+      ? '<tr><td colspan="8" class="vista-vacia">No se encontraron registros para la búsqueda.</td></tr>'
+      : lista.map(r => `
+        <tr>
+          <td style="white-space:nowrap;">📅 ${r.fecha || '—'}</td>
+          <td><strong>${escapeHtml(r.nombre_trabajador)}</strong><br><span style="color:var(--color-text-secondary); font-size:10.5px;">Legajo ${escapeHtml(r.legajo || '—')}</span></td>
+          <td>${escapeHtml(r.labor || '—')} <span style="color:var(--color-text-secondary);">(${escapeHtml(r.sector || '—')})</span></td>
+          <td><span class="badge-pago ${claseFormaPago(r.forma_pago)}">${escapeHtml(r.forma_pago || '—')}</span></td>
+          <td style="text-align:center;">${nf(r.horas)}</td>
+          <td style="text-align:center; ${parseFloat(r.hora_extra) > 0 ? 'color:#B8862A; font-weight:700;' : ''}">${nf(r.hora_extra)}</td>
+          <td style="text-align:right; font-weight:700; color:#107C41;">$${nf(r.total)}</td>
+          <td style="text-align:center;"><span class="badge-estado ${claseEstado(r.estado)}">${escapeHtml(r.estado || 'PRESENTE')}</span></td>
+        </tr>
+      `).join('');
+  }
+  function renderResumenDiario(registros) {
+    ultimoRegistrosDiario = registros;
+    if (registros.length === 0) {
+      contenedorDinamico.innerHTML = `<div class="columna-split"><div class="vista-vacia" style="margin:auto;">No hay jornadas registradas en el período seleccionado.</div></div>`;
+      return;
+    }
+    contenedorDinamico.innerHTML = `
+      <div class="columna-split">
+        <div class="columna-header-sticky">
+          <h4 id="diarioContador">Registros (${registros.length})</h4>
+          <input type="text" id="diarioBuscador" class="buscador-diario" placeholder="🔎 Buscar trabajador, labor, sector, estado..." />
+        </div>
+        <div style="overflow:auto; flex-grow:1;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>FECHA</th><th>TRABAJADOR</th><th>LABOR / SECTOR</th><th>PAGO</th>
+                <th style="text-align:center;">HORAS</th><th style="text-align:center;">H. EXTRA</th>
+                <th style="text-align:right;">TOTAL</th><th style="text-align:center;">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody id="diarioTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    pintarFilasDiario(registros);
+    document.getElementById('diarioBuscador').addEventListener('input', (e) => {
+      const texto = e.target.value.trim().toLowerCase();
+      pintarFilasDiario(texto ? ultimoRegistrosDiario.filter(r => coincideBusquedaDiario(r, texto)) : ultimoRegistrosDiario);
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // ALTA / EDICIÓN DE JORNADA ÚNICA (MANUAL)
+  // ---------------------------------------------------------------------
+  function obtenerLaboresCatalogo() {
+    if (!db) return [];
+    try { return db.prepare("SELECT DISTINCT labor, macro_labor FROM local_p_macro_labores WHERE labor IS NOT NULL AND labor <> '' ORDER BY labor").all(); }
+    catch (e) { console.error(e); return []; }
+  }
+
+  function camposJornada(j) {
+    const v = (x) => x === null || x === undefined ? '' : x;
+    const personal = obtenerPersonalActivo();
+    const labores = obtenerLaboresCatalogo();
+    const sectores = obtenerSectoresCuadros();
+
+    return `
+      <div class="modal-seccion-titulo">Datos de la Jornada</div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="fFecha" class="modal-input" value="${v(j && j.fecha) || hoyStr()}" /></div>
+        <div class="modal-group"><label>Trabajador</label>
+          <select id="fLegajoSelect" class="modal-input">
+            <option value="">Seleccionar...</option>
+            ${personal.map(p => `<option value="${p.legajo}" ${j && j.legajo === p.legajo ? 'selected' : ''}>${escapeHtml(p.nombre_completo || (p.apellido + ', ' + p.nombre))} — Leg. ${p.legajo}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Sector</label>
+          <select id="fSectorSelect" class="modal-input">
+            <option value="">Seleccionar Sector...</option>
+            ${sectores.map(s => `<option value="${escapeHtml(s.tipo || s.sector)}" ${j && j.sector === (s.tipo || s.sector) ? 'selected' : ''}>${escapeHtml(s.tipo || s.sector)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="modal-group"><label>Cuadro / Parcela</label>
+          <select id="fParcelaSelect" class="modal-input">
+            <option value="">Seleccioná primero sector...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-group"><label>Labor</label>
+        <select id="fLaborSelect" class="modal-input">
+          <option value="">Seleccionar...</option>
+          ${labores.map(l => `<option value="${escapeHtml(l.labor)}" data-macro="${escapeHtml(l.macro_labor || '')}" ${j && j.labor === l.labor ? 'selected' : ''}>${escapeHtml(l.labor)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="modal-grid-3">
+        <div class="modal-group"><label>Forma de Pago</label>
+          <select id="fFormaPago" class="modal-input">
+            <option value="JORNAL" ${j && j.forma_pago === 'JORNAL' ? 'selected' : ''}>Jornal</option>
+            <option value="POR HORA" ${j && j.forma_pago === 'POR HORA' ? 'selected' : ''}>Por Hora</option>
+            <option value="DESTAJO" ${j && j.forma_pago === 'DESTAJO' ? 'selected' : ''}>Destajo</option>
+          </select>
+        </div>
+        <div class="modal-group"><label>Valor / Tarifa ($)</label>
+          <input type="number" step="0.01" id="fValorTarifa" class="modal-input" value="${v(j && (j.imp_uni || j.jornal))}" placeholder="Auto o manual" />
+        </div>
+        <div class="modal-group"><label>Rendimiento / Cantidad</label>
+          <input type="number" step="0.01" id="fRendimiento" class="modal-input" value="${v(j && j.rendimiento)}" />
+        </div>
+      </div>
+
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Horas Trabajadas</label><input type="number" step="0.01" id="fHoras" class="modal-input" value="${v(j && j.horas) || '8'}" /></div>
+        <div class="modal-group"><label>Horas Extra</label><input type="number" step="0.01" id="fHoraExtra" class="modal-input" value="${v(j && j.hora_extra) || '0'}" /></div>
+      </div>
+
+      <input type="hidden" id="fEstadoHidden" value="${v(j && j.estado) || 'PRESENTE'}" />
+      <input type="hidden" id="fEnReciboHidden" value="${v(j && j.en_recibo)}" />
+      <input type="hidden" id="fFueraReciboHidden" value="${v(j && j.fuera_recibo)}" />
+      <input type="hidden" id="fCampanaHidden" value="${v(j && j.campana)}" />
+      <input type="hidden" id="fCicloContableHidden" value="${v(j && j.ciclo_contable)}" />
+    `;
+  }
+
+  function wireFormularioJornadaUnica(jInicial) {
+    const fSector = document.getElementById('fSectorSelect');
+    const fParcela = document.getElementById('fParcelaSelect');
+    const fLabor = document.getElementById('fLaborSelect');
+    const fFecha = document.getElementById('fFecha');
+    const fLegajo = document.getElementById('fLegajoSelect');
+    const fFormaPago = document.getElementById('fFormaPago');
+    const fValor = document.getElementById('fValorTarifa');
+
+    function actualizarComboCuadros(sector, valorActual) {
+      if (!sector) {
+        fParcela.innerHTML = '<option value="">Seleccioná primero sector...</option>';
+        return;
+      }
+      const parcelas = obtenerParcelasPorSector(sector);
+      fParcela.innerHTML = '<option value="">Seleccionar Cuadro...</option>' +
+        parcelas.map(p => `<option value="${escapeHtml(p.parcela)}" ${valorActual === p.parcela ? 'selected' : ''}>${escapeHtml(p.parcela)}</option>`).join('');
+    }
+
+    fSector.addEventListener('change', (e) => actualizarComboCuadros(e.target.value, null));
+    if (jInicial && jInicial.sector) actualizarComboCuadros(jInicial.sector, jInicial.parcela);
+
+    function evaluarTarifaCascada() {
+      const labor = fLabor.value;
+      const fecha = fFecha.value;
+      const sector = fSector.value;
+      const parcela = fParcela.value;
+      const legajo = fLegajo.value;
+      const formaPago = fFormaPago.value;
+
+      if (!labor) return;
+
+      const res = obtenerValorTarifaCascada({ labor, fecha, sector, parcela, legajo, formaPago });
+      if (res.valor != null && res.valor > 0) {
+        fValor.value = res.valor;
+      } else if (!jInicial) {
+        fValor.value = '';
+      }
+    }
+
+    [fLabor, fFecha, fSector, fParcela, fLegajo, fFormaPago].forEach(el => el.addEventListener('change', evaluarTarifaCascada));
+  }
+
+  function leerFormularioJornada() {
+    const legajo = document.getElementById('fLegajoSelect').value;
+    if (!legajo) { lanzarNotificacionFlotante('Seleccioná un trabajador.', 'error'); return null; }
+    const fecha = document.getElementById('fFecha').value;
+    if (!fecha) { lanzarNotificacionFlotante('Ingresá la fecha de la jornada.', 'error'); return null; }
+    const laborSelect = document.getElementById('fLaborSelect');
+    const labor = laborSelect.value;
+    if (!labor) { lanzarNotificacionFlotante('Seleccioná la labor realizada.', 'error'); return null; }
+    const macroLabor = laborSelect.selectedOptions[0] ? (laborSelect.selectedOptions[0].dataset.macro || '') : '';
+
+    const sector = document.getElementById('fSectorSelect').value;
+    const parcela = document.getElementById('fParcelaSelect').value;
+    const unidadNegocio = obtenerUnidadNegocioDesdeCuadro(parcela);
+
+    const formaPago = document.getElementById('fFormaPago').value;
+    const horas = parseFloat(document.getElementById('fHoras').value) || 0;
+    const horaExtra = parseFloat(document.getElementById('fHoraExtra').value) || 0;
+    const rendimiento = parseFloat(document.getElementById('fRendimiento').value) || 0;
+    const valorTarifa = parseFloat(document.getElementById('fValorTarifa').value) || 0;
+
+    const p = db.prepare('SELECT * FROM local_p_nomina_personal WHERE legajo = ?').get(legajo) || {};
+    const centroCosto = p.centro_costo || '';
+
+    let jornal = null, impUni = null, total = 0;
+    if (formaPago === 'DESTAJO') {
+      impUni = valorTarifa;
+      total = rendimiento * valorTarifa;
+    } else if (formaPago === 'POR HORA') {
+      impUni = valorTarifa;
+      total = (horas * valorTarifa) + (horaExtra * valorTarifa * 1.5);
+    } else {
+      jornal = valorTarifa;
+      total = valorTarifa + (horaExtra * (valorTarifa / 8) * 1.5);
+    }
+
+    const anio = fecha.split('-')[0];
+    const campanaHidden = document.getElementById('fCampanaHidden').value.trim();
+    const cicloHidden = document.getElementById('fCicloContableHidden').value.trim();
+    const enReciboHidden = document.getElementById('fEnReciboHidden').value;
+    const fueraReciboHidden = document.getElementById('fFueraReciboHidden').value;
+
+    return {
+      fecha, legajo,
+      empleado: p.nombre_completo || (p.apellido ? (p.apellido + ', ' + (p.nombre || '')) : ''),
+      dni: p.dni || null,
+      macro_labor: macroLabor,
+      labor,
+      sector,
+      parcela,
+      centro_costo: centroCosto,
+      unidad_negocio: unidadNegocio,
+      campana: campanaHidden || anio,
+      ciclo_contable: cicloHidden || anio,
+      forma_pago: formaPago,
+      horas, hora_extra: horaExtra, jornal, imp_uni: impUni,
+      rendimiento: rendimiento || null, unidad_destajo: formaPago === 'DESTAJO' ? 'unidad' : null,
+      total: Number(n2(total)),
+      en_recibo: enReciboHidden === '' ? null : parseFloat(enReciboHidden),
+      fuera_recibo: fueraReciboHidden === '' ? null : parseFloat(fueraReciboHidden),
+      total_hs: horas + horaExtra,
+      estado: document.getElementById('fEstadoHidden').value || 'PRESENTE',
+      responsable: sesion.nombre_completo || 'ADMINISTRADOR'
+    };
+  }
+
+  document.getElementById('btnNuevaJornada').addEventListener('click', () => {
+    openMiniModal('Nueva Jornada de Trabajo', 'Carga manual del parte diario de un trabajador', camposJornada(null), () => {
+      const datos = leerFormularioJornada();
+      if (!datos || !db) return;
+      try {
+        const maxId = db.prepare('SELECT COALESCE(MAX(id), 0) as maxId FROM local_r_jornada_trabajo').get().maxId;
+        db.prepare(`
+          INSERT INTO local_r_jornada_trabajo
+            (id, reg_local, fecha, legajo, empleado, dni, macro_labor, labor, sector, parcela, horas, forma_pago,
+             jornal, hora_extra, imp_uni, total, en_recibo, fuera_recibo, centro_costo, unidad_negocio, campana,
+             ciclo_contable, responsable, estado, total_hs, rendimiento, unidad_destajo, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `).run(
+          maxId + 1, generarToken(), datos.fecha, datos.legajo, datos.empleado, datos.dni, datos.macro_labor,
+          datos.labor, datos.sector, datos.parcela, datos.horas, datos.forma_pago, datos.jornal, datos.hora_extra,
+          datos.imp_uni, datos.total, datos.en_recibo, datos.fuera_recibo, datos.centro_costo, datos.unidad_negocio,
+          datos.campana, datos.ciclo_contable, datos.responsable, datos.estado, datos.total_hs, datos.rendimiento, datos.unidad_destajo
+        );
+        lanzarNotificacionFlotante('Jornada registrada con éxito.', 'success');
+        closeMiniModal();
+        cargarFiltrosCatalogo();
+        renderPanel();
+      } catch (e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+    }, 'Guardar Jornada');
+    wireFormularioJornadaUnica(null);
+  });
+
+  // ---------------------------------------------------------------------
+  // CARGA GRUPAL
+  // ---------------------------------------------------------------------
+  let cgParcelasSeleccionadas = [];
+
+  function camposCargaGrupal() {
+    const personal = obtenerPersonalActivo();
+    const centros = obtenerCentrosCosto();
+    const labores = obtenerLaboresCatalogo();
+    const sectores = obtenerSectoresCuadros();
+
+    return `
+      <div class="modal-seccion-titulo">Datos Generales del Parte</div>
+      <div class="modal-grid-2">
+        <div class="modal-group">
+          <label>Fecha</label>
+          <input type="date" id="cgFecha" class="modal-input" value="${hoyStr()}" />
+        </div>
+        <div class="modal-group">
+          <label>Centro de Costo</label>
+          <select id="cgCentroCosto" class="modal-input">
+            <option value="">Seleccionar...</option>
+            ${centros.map(c => `<option value="${escapeHtml(c.centro_costo)}">${escapeHtml(c.centro_costo)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label style="margin: 0;">Labor *</label>
+          <button type="button" id="cgBtnNuevaLabor" class="btn-icon-add" title="Agregar Nueva Labor" 
+                  style="background: var(--color-adm); color: white; border: none; border-radius: 6px; width: 22px; height: 22px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+            +
+          </button>
+        </div>
+        <select id="cgLaborSelect" class="modal-input">
+          <option value="">Seleccionar...</option>
+          ${labores.map(l => `<option value="${escapeHtml(l.labor)}" data-macro="${escapeHtml(l.macro_labor || '')}">${escapeHtml(l.labor)}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="modal-seccion-titulo">Trabajadores de la Cuadrilla</div>
+      <div class="modal-group"><input type="text" id="cgBuscarTrabajador" class="modal-input" placeholder="🔎 Buscar trabajador..." /></div>
+      <div style="display:flex; justify-content:flex-end; gap:14px; margin:-6px 0 6px;">
+        <span style="font-size:11px; font-weight:700; color:var(--color-adm); cursor:pointer;" id="cgSeleccionarTodos">Seleccionar todos</span>
+        <span style="font-size:11px; font-weight:700; color:#B91C1C; cursor:pointer;" id="cgLimpiarTodos">Limpiar</span>
+      </div>
+      <div class="grupo-checklist" id="cgListaTrabajadores">
+        ${personal.map(p => `
+          <label class="item-checklist">
+            <input type="checkbox" class="cgChkTrabajador" value="${p.legajo}" />
+            ${escapeHtml(p.nombre_completo || (p.apellido + ', ' + p.nombre))} <span style="color:var(--color-text-secondary); font-weight:500;">— Leg. ${escapeHtml(p.legajo)}</span>
+          </label>
+        `).join('')}
+      </div>
+
+      <div class="modal-seccion-titulo">Sector y Parcelas Destino</div>
+      <div class="modal-group">
+        <label>Sector</label>
+        <select id="cgSectorSelect" class="modal-input">
+          <option value="">Seleccionar Sector...</option>
+          ${sectores.map(s => `<option value="${escapeHtml(s.tipo || s.sector)}">${escapeHtml(s.tipo || s.sector)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group">
+        <label>Agregar Parcela / Cuadro</label>
+        <div class="fila-agregar-parcela">
+          <select id="cgNuevaParcelaSelect" class="modal-input">
+            <option value="">Seleccioná primero un sector...</option>
+          </select>
+          <button type="button" class="btn-agregar-chip" id="cgBtnAgregarParcela">+ Agregar</button>
+        </div>
+      </div>
+      <div class="chips-parcelas" id="cgChipsParcelas"></div>
+
+      <div class="modal-seccion-titulo">Horas y Forma de Pago (valores por trabajador)</div>
+      <div class="modal-grid-3">
+        <div class="modal-group"><label>Horas Trabajadas (c/u)</label><input type="number" step="0.01" id="cgHoras" class="modal-input" value="8" /></div>
+        <div class="modal-group"><label>Horas Extra (c/u)</label><input type="number" step="0.01" id="cgHoraExtra" class="modal-input" value="0" /></div>
+        <div class="modal-group"><label>Forma de Pago</label>
+          <select id="cgFormaPago" class="modal-input">
+            <option value="JORNAL">Jornal</option>
+            <option value="POR HORA">Por Hora</option>
+            <option value="DESTAJO">Destajo</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid-3 bloque-pago-cg" data-modo="JORNAL">
+        <div class="modal-group"><label>Valor del Jornal ($, por trabajador)</label><input type="number" step="0.01" id="cgJornal" class="modal-input" placeholder="Auto o manual" /></div>
+      </div>
+      <div class="modal-grid-3 bloque-pago-cg" data-modo="POR HORA">
+        <div class="modal-group"><label>Valor por Hora ($)</label><input type="number" step="0.01" id="cgValorHora" class="modal-input" placeholder="Auto o manual" /></div>
+      </div>
+      <div class="modal-grid-3 bloque-pago-cg" data-modo="DESTAJO">
+        <div class="modal-group"><label>Rendimiento Total (c/u)</label><input type="number" step="0.01" id="cgRendimiento" class="modal-input" /></div>
+        <div class="modal-group"><label>Unidad</label><input type="text" id="cgUnidadDestajo" class="modal-input" placeholder="kg, bins..." /></div>
+        <div class="modal-group"><label>Valor Unitario ($)</label><input type="number" step="0.01" id="cgValorDestajo" class="modal-input" placeholder="Auto o manual" /></div>
+      </div>
+
+      <div class="aviso-cascada" id="cgAviso">Seleccioná trabajadores y parcelas para calcular cuántas jornadas se van a generar.</div>
+    `;
+  }
+
+  /* ESTO LO MODIFIQUE: Modal de Nueva Labor con Ubicaciones Multiselección (Checklist) */
+  function abrirModalNuevaLabor() {
+    if (!db) return;
+
+    const centroCostoCG = document.getElementById('cgCentroCosto') ? document.getElementById('cgCentroCosto').value.trim().toUpperCase() : '';
+    const sectorCG = document.getElementById('cgSectorSelect') ? document.getElementById('cgSectorSelect').value.trim().toUpperCase() : '';
+    const fechaHoy = hoyStr();
+    const fechaHasta30 = sumarDiasStr(fechaHoy, 30);
+
+    const htmlForm = `
+      <div style="text-align: left; font-family: var(--font-family);">
+        
+        <div class="modal-group">
+          <label>UNIDAD DE NEGOCIO / CENTRO DE COSTO *</label>
+          <select id="nlUnidadNegocio" class="modal-input">
+            <option value="FRUTALES" ${centroCostoCG === 'FRUTALES' ? 'selected' : ''}>FRUTALES</option>
+            <option value="HORTALIZAS" ${centroCostoCG === 'HORTALIZAS' ? 'selected' : ''}>HORTALIZAS</option>
+            <option value="EMPAQUE" ${centroCostoCG === 'EMPAQUE' ? 'selected' : ''}>EMPAQUE</option>
+            <option value="GANADERIA" ${centroCostoCG === 'GANADERIA' ? 'selected' : ''}>GANADERIA</option>
+            <option value="GENERAL" ${centroCostoCG === 'GENERAL' ? 'selected' : ''}>GENERAL</option>
+          </select>
+        </div>
+
+        <div class="modal-group">
+          <label>MACRO LABOR *</label>
+          <input type="text" id="nlMacroLabor" class="modal-input" list="nlListMacro" placeholder="Ej: PODA, RIEGO, COSECHA..." style="text-transform: uppercase;">
+          <datalist id="nlListMacro"></datalist>
+        </div>
+
+        <div class="modal-group">
+          <label>NOMBRE DE LA LABOR *</label>
+          <input type="text" id="nlLabor" class="modal-input" placeholder="Ej: Poda de Formación, Riego por Goteo..." style="text-transform: uppercase;">
+        </div>
+
+        <div style="margin-top: 14px; background: #FAFAFA; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <label style="font-weight: 700; font-size: 12px; color: var(--color-adm); cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0;">
+            <input type="checkbox" id="nlEsValorizada" style="width: 16px; height: 16px; accent-color: var(--color-adm);">
+            ¿Es una labor tarifada / valorizada?
+          </label>
+
+          <div id="nlBloqueValorizado" style="display: none; margin-top: 12px;">
+            
+            <div id="nlBadgeCascada" style="background: #E8F5E9; border: 1px solid rgba(30,107,76,0.3); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 11px; color: #104630;">
+              <b>🌱 Inventario Activo Filtrado:</b><br>
+              <span id="nlTxtCascada">Calculando superficie, metros de surco y filas...</span>
+            </div>
+
+            <div class="modal-grid-2">
+              <div class="modal-group">
+                <label>FECHA DESDE (HOY)</label>
+                <input type="date" id="nlFechaDesde" class="modal-input" value="${fechaHoy}">
+              </div>
+              <div class="modal-group">
+                <label>FECHA HASTA (+30 DÍAS)</label>
+                <input type="date" id="nlFechaHasta" class="modal-input" value="${fechaHasta30}">
+              </div>
+            </div>
+
+            <div class="modal-grid-2">
+              <div class="modal-group">
+                <label>SECTOR</label>
+                <select id="nlSectorSelect" class="modal-input">
+                  <option value="TODOS">TODOS LOS SECTORES</option>
+                </select>
+              </div>
+              <div class="modal-group">
+                <label>PARCELA / CUADRO</label>
+                <select id="nlParcelaSelect" class="modal-input">
+                  <option value="TODAS">TODAS LAS PARCELAS</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ACA ES LO NUEVO: Multiselección de Ubicaciones -->
+            <div class="modal-group">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <label style="margin:0;">UBICACIÓN (INVENTARIO ACTIVO) *</label>
+                <div style="display:flex; gap:10px;">
+                  <span style="font-size:10px; font-weight:700; color:var(--color-adm); cursor:pointer;" id="nlSelTodasUbi">Seleccionar todas</span>
+                  <span style="font-size:10px; font-weight:700; color:#B91C1C; cursor:pointer;" id="nlLimpiarUbi">Limpiar</span>
+                </div>
+              </div>
+              <div class="grupo-checklist" id="nlListaUbicaciones" style="max-height:110px;">
+                <label class="item-checklist">
+                  <input type="checkbox" class="nlChkUbicacion" value="CAMPO" checked /> CAMPO GENERAL
+                </label>
+              </div>
+            </div>
+
+            <div class="modal-grid-2">
+              <div class="modal-group">
+                <label>FORMA DE PAGO (PAGO POR)</label>
+                <select id="nlPagoPor" class="modal-input">
+                  <option value="DESTAJO">DESTAJO</option>
+                  <option value="MTRS">MTRS</option>
+                  <option value="BOLSA">BOLSA</option>
+                  <option value="FILA">FILA</option>
+                  <option value="POR DIA">POR DIA</option>
+                </select>
+              </div>
+              <div class="modal-group">
+                <label>IMPORTE TARIFA ($) *</label>
+                <input type="number" id="nlImporteUni" class="modal-input" placeholder="0.00" step="0.01">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    `;
+
+    openMiniModal('Nueva Labor de Campo', 'Creá e integrá una nueva tarea al catálogo', htmlForm, guardarNuevaLaborModal, 'Guardar Labor');
+
+    function CargarSectores() {
+      const uneg = document.getElementById('nlUnidadNegocio').value;
+      const selectSec = document.getElementById('nlSectorSelect');
+      if (!selectSec) return;
+
+      const sectores = obtenerSectoresPorNegocio(uneg);
+      selectSec.innerHTML = '<option value="TODOS">-- TODOS LOS SECTORES --</option>' +
+        sectores.map(s => `<option value="${escapeHtml(s.sector)}" ${sectorCG && sectorCG === s.sector.toUpperCase() ? 'selected' : ''}>${escapeHtml(s.sector)}</option>`).join('');
+
+      CargarParcelas();
+    }
+
+    function CargarParcelas() {
+      const uneg = document.getElementById('nlUnidadNegocio').value;
+      const sector = document.getElementById('nlSectorSelect').value;
+      const selectParc = document.getElementById('nlParcelaSelect');
+      if (!selectParc) return;
+
+      if (!sector || sector === 'TODOS') {
+        selectParc.innerHTML = '<option value="TODAS">-- TODAS LAS PARCELAS --</option>';
+        CargarUbicaciones();
+        return;
+      }
+
+      const parcelas = obtenerParcelasPorSectorYNegocio(sector, uneg);
+      selectParc.innerHTML = '<option value="TODAS">-- TODAS LAS PARCELAS --</option>' +
+        parcelas.map(p => `<option value="${escapeHtml(p.parcela)}">${escapeHtml(p.parcela)}</option>`).join('');
+
+      CargarUbicaciones();
+    }
+
+    /* ESTO LO MODIFIQUE: Cargar ubicaciones dinámicamente como lista de checkboxes multiselección */
+    function CargarUbicaciones() {
+      const uneg = document.getElementById('nlUnidadNegocio').value;
+      const parcela = document.getElementById('nlParcelaSelect').value;
+      const contenedor = document.getElementById('nlListaUbicaciones');
+      if (!contenedor) return;
+
+      if (!parcela || parcela === 'TODAS') {
+        contenedor.innerHTML = `
+          <label class="item-checklist">
+            <input type="checkbox" class="nlChkUbicacion" value="CAMPO" checked /> CAMPO GENERAL
+          </label>
+        `;
+        refrescarMetricasCascada();
+        return;
+      }
+
+      const ubis = obtenerUbicacionesPorParcela(parcela, uneg);
+      if (ubis.length === 0) {
+        contenedor.innerHTML = `
+          <label class="item-checklist">
+            <input type="checkbox" class="nlChkUbicacion" value="${escapeHtml(parcela)}" checked /> ${escapeHtml(parcela)}
+          </label>
+        `;
+      } else {
+        contenedor.innerHTML = ubis.map((u, idx) => `
+          <label class="item-checklist">
+            <input type="checkbox" class="nlChkUbicacion" value="${escapeHtml(u.ubicacion)}" ${idx === 0 ? 'checked' : ''} />
+            ${escapeHtml(u.ubicacion)}
+          </label>
+        `).join('');
+      }
+
+      contenedor.querySelectorAll('.nlChkUbicacion').forEach(chk => {
+        chk.addEventListener('change', refrescarMetricasCascada);
+      });
+
+      refrescarMetricasCascada();
+    }
+
+    function refrescarMetricasCascada() {
+      const chk = document.getElementById('nlEsValorizada');
+      if (!chk || !chk.checked) return;
+
+      const uneg = document.getElementById('nlUnidadNegocio').value;
+      const sector = document.getElementById('nlSectorSelect') ? document.getElementById('nlSectorSelect').value : 'TODOS';
+      const parcela = document.getElementById('nlParcelaSelect') ? document.getElementById('nlParcelaSelect').value : 'TODAS';
+      const txtBadge = document.getElementById('nlTxtCascada');
+
+      if (!txtBadge) return;
+
+      const m = calcularMetricasCascadaInventario(uneg, sector, parcela);
+      txtBadge.innerHTML = `
+        📐 <b>Superficie:</b> ${nf(m.sup)} Ha &nbsp;•&nbsp; 
+        📏 <b>Metros Surco:</b> ${nf(m.mtrs_surco)} m &nbsp;•&nbsp; 
+        🧵 <b>Filas Contadas:</b> ${m.filas}
+      `;
+    }
+
+    function actualizarSugerenciasMacro() {
+      const uneg = document.getElementById('nlUnidadNegocio').value;
+      const dl = document.getElementById('nlListMacro');
+      if (!dl) return;
+
+      try {
+        const macros = db.prepare(`
+          SELECT DISTINCT macro_labor 
+          FROM local_p_macro_labores 
+          WHERE macro_labor IS NOT NULL AND macro_labor != '' 
+            AND (UPPER(unidad_negocio) = ? OR unidad_negocio IS NULL OR unidad_negocio = '')
+          ORDER BY macro_labor ASC
+        `).all(uneg);
+
+        dl.innerHTML = macros.map(m => `<option value="${escapeHtml(m.macro_labor)}">`).join('');
+      } catch (e) {}
+    }
+
+    setTimeout(() => {
+      actualizarSugerenciasMacro();
+      CargarSectores();
+
+      document.getElementById('nlUnidadNegocio').addEventListener('change', () => {
+        actualizarSugerenciasMacro();
+        CargarSectores();
+      });
+
+      document.getElementById('nlSectorSelect').addEventListener('change', CargarParcelas);
+      document.getElementById('nlParcelaSelect').addEventListener('change', CargarUbicaciones);
+
+      /* ACA ES LO NUEVO: Listeners para Seleccionar todas / Limpiar Ubicaciones */
+      const selTodas = document.getElementById('nlSelTodasUbi');
+      const limpiarUbi = document.getElementById('nlLimpiarUbi');
+      if (selTodas) {
+        selTodas.addEventListener('click', () => {
+          document.querySelectorAll('#nlListaUbicaciones .nlChkUbicacion').forEach(c => c.checked = true);
+          refrescarMetricasCascada();
+        });
+      }
+      if (limpiarUbi) {
+        limpiarUbi.addEventListener('click', () => {
+          document.querySelectorAll('#nlListaUbicaciones .nlChkUbicacion').forEach(c => c.checked = false);
+          refrescarMetricasCascada();
+        });
+      }
+
+      const chk = document.getElementById('nlEsValorizada');
+      if (chk) {
+        chk.addEventListener('change', (e) => {
+          const bloque = document.getElementById('nlBloqueValorizado');
+          if (bloque) {
+            bloque.style.display = e.target.checked ? 'block' : 'none';
+            if (e.target.checked) refrescarMetricasCascada();
+          }
+        });
+      }
+    }, 100);
+  }
+
+  /* ACA ES LO NUEVO: Helper para obtener la lista de ubicaciones seleccionadas */
+  function obtenerUbicacionesSeleccionadasModal() {
+    const chks = document.querySelectorAll('#nlListaUbicaciones .nlChkUbicacion:checked');
+    const seleccionadas = Array.from(chks).map(c => c.value.trim().toUpperCase()).filter(Boolean);
+    return seleccionadas.length > 0 ? seleccionadas : ['CAMPO'];
+  }
+
+  /* ESTO LO MODIFIQUE: Carga registros unitarios en local_p_labores_valorizado por cada ubicación seleccionada */
+  function guardarNuevaLaborModal() {
+    if (!db) return;
+
+    const unidadNegocio = document.getElementById('nlUnidadNegocio').value.trim().toUpperCase();
+    const macroLabor = document.getElementById('nlMacroLabor').value.trim().toUpperCase();
+    const labor = document.getElementById('nlLabor').value.trim().toUpperCase();
+    const esValorizada = document.getElementById('nlEsValorizada').checked;
+
+    if (!macroLabor) return lanzarNotificacionFlotante('Ingresá o seleccioná la Macro Labor.', 'error');
+    if (!labor) return lanzarNotificacionFlotante('Ingresá el nombre de la Labor.', 'error');
+
+    try {
+      db.transaction(() => {
+        // 1. Inserción obligatoria en local_p_macro_labores
+        const maxIdMacro = db.prepare('SELECT COALESCE(MAX(id), 0) as maxId FROM local_p_macro_labores').get().maxId + 1;
+        db.prepare(`
+          INSERT INTO local_p_macro_labores (id, reg_local, macro_labor, labor, unidad_negocio, sincronizado) 
+          VALUES (?, ?, ?, ?, ?, 0)
+        `).run(maxIdMacro, generarToken(), macroLabor, labor, unidadNegocio);
+
+        // 2. ACA ES LO NUEVO: Inserción unitaria por cada ubicación seleccionada en local_p_labores_valorizado
+        if (esValorizada) {
+          const fechaDesde = document.getElementById('nlFechaDesde').value || hoyStr();
+          const fechaHasta = document.getElementById('nlFechaHasta').value || sumarDiasStr(fechaDesde, 30);
+          const sector = document.getElementById('nlSectorSelect').value.trim().toUpperCase() || 'TODOS';
+          const parcela = document.getElementById('nlParcelaSelect').value.trim().toUpperCase() || 'TODAS';
+          const pagoPor = document.getElementById('nlPagoPor').value;
+          const importeUni = parseFloat(document.getElementById('nlImporteUni').value) || 0;
+
+          const ubicaciones = obtenerUbicacionesSeleccionadasModal();
+          let maxIdVal = db.prepare('SELECT COALESCE(MAX(id), 0) as maxId FROM local_p_labores_valorizado').get().maxId;
+
+          const stmtVal = db.prepare(`
+            INSERT INTO local_p_labores_valorizado
+              (id, fecha_desde, fecha_hasta, sector, parcela, ubicacion, macro_labor, labor, pago_por, importe_uni, estado, sincronizado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', 0)
+          `);
+
+          ubicaciones.forEach(ubi => {
+            maxIdVal++;
+            stmtVal.run(maxIdVal, fechaDesde, fechaHasta, sector, parcela, ubi, macroLabor, labor, pagoPor, importeUni);
+          });
+        }
+      })();
+
+      lanzarNotificacionFlotante(`Labor '${labor}' registrada con éxito.`, 'success');
+      closeMiniModal();
+
+      cargarFiltrosCatalogo();
+      recargarComboLaboresCG(labor);
+
+    } catch (e) {
+      console.error(e);
+      lanzarNotificacionFlotante('Error guardando la nueva labor: ' + e.message, 'error');
+    }
+  }
+
+  function recargarComboLaboresCG(laborASeleccionar = '') {
+    if (!db) return;
+    const select = document.getElementById('cgLaborSelect');
+    if (!select) return;
+
+    try {
+      const labores = obtenerLaboresCatalogo();
+      select.innerHTML = '<option value="">Seleccionar...</option>';
+
+      labores.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.labor;
+        opt.textContent = l.labor;
+        opt.dataset.macro = l.macro_labor || '';
+        if (l.labor === laborASeleccionar) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      evaluarTarifaCascadaCG();
+    } catch (e) {
+      console.error("Error recargando labores:", e);
+    }
+  }
+
+  function recargarComboLaboresPorNegocio(centroCosto = '') {
+    if (!db) return;
+    const select = document.getElementById('cgLaborSelect');
+    if (!select) return;
+
+    try {
+      let sql = `SELECT DISTINCT macro_labor, labor FROM local_p_macro_labores WHERE labor IS NOT NULL AND labor != ''`;
+      const params = [];
+
+      if (centroCosto) {
+        sql += ` AND (UPPER(unidad_negocio) = ? OR unidad_negocio IS NULL OR unidad_negocio = '')`;
+        params.push(centroCosto);
+      }
+      sql += ` ORDER BY labor ASC`;
+
+      const labores = db.prepare(sql).all(...params);
+      select.innerHTML = '<option value="">Seleccionar...</option>';
+
+      labores.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.labor;
+        opt.textContent = l.labor;
+        opt.dataset.macro = l.macro_labor || '';
+        select.appendChild(opt);
+      });
+    } catch (e) {
+      console.error("Error filtrando labores por negocio:", e);
+    }
+  }
+
+  function togglePagoBlocksCG(modo) {
+    document.querySelectorAll('.bloque-pago-cg').forEach(b => { b.style.display = b.dataset.modo === modo ? 'grid' : 'none'; });
+  }
+
+  function actualizarAvisoCascada() {
+    const aviso = document.getElementById('cgAviso');
+    if (!aviso) return;
+    const cantTrabajadores = document.querySelectorAll('#cgListaTrabajadores .cgChkTrabajador:checked').length;
+    const cantParcelas = cgParcelasSeleccionadas.length;
+    const total = cantTrabajadores * cantParcelas;
+    aviso.textContent = total > 0
+      ? `Se van a generar ${total} jornada(s): ${cantTrabajadores} trabajador(es) × ${cantParcelas} parcela(s).`
+      : 'Seleccioná trabajadores y parcelas para calcular cuántas jornadas se van a generar.';
+  }
+
+  function renderChipsParcelasCG() {
+    const cont = document.getElementById('cgChipsParcelas');
+    if (!cont) return;
+    cont.innerHTML = cgParcelasSeleccionadas.length === 0
+      ? '<span style="font-size:11px; color:var(--color-text-secondary); padding:6px;">Sin parcelas agregadas todavía.</span>'
+      : cgParcelasSeleccionadas.map((p, idx) => `<span class="chip-parcela">${escapeHtml(p)}<span class="btn-quitar-chip" onclick="window.quitarParcelaCG(${idx})">✕</span></span>`).join('');
+  }
+
+  window.quitarParcelaCG = function(idx) {
+    cgParcelasSeleccionadas.splice(idx, 1);
+    renderChipsParcelasCG();
+    actualizarAvisoCascada();
+  };
+
+  function agregarParcelaCG() {
+    const select = document.getElementById('cgNuevaParcelaSelect');
+    const val = select.value.trim();
+    if (!val) return;
+    if (cgParcelasSeleccionadas.some(p => p.toUpperCase() === val.toUpperCase())) {
+      lanzarNotificacionFlotante('Esa parcela ya fue agregada.', 'warning');
+      return;
+    }
+    cgParcelasSeleccionadas.push(val);
+    select.value = '';
+    renderChipsParcelasCG();
+    actualizarAvisoCascada();
+  }
+
+  function actualizarComboParcelasSegunSector(sectorSeleccionado) {
+    const selectParcelas = document.getElementById('cgNuevaParcelaSelect');
+    if (!selectParcelas) return;
+
+    if (!sectorSeleccionado) {
+      selectParcelas.innerHTML = '<option value="">Seleccioná primero un sector...</option>';
+      return;
+    }
+
+    const parcelasFiltradas = obtenerParcelasPorSector(sectorSeleccionado);
+    if (parcelasFiltradas.length === 0) {
+      selectParcelas.innerHTML = '<option value="">Sin parcelas para este sector</option>';
+    } else {
+      selectParcelas.innerHTML = '<option value="">Seleccionar Parcela / Cuadro...</option>' +
+        parcelasFiltradas.map(p => `<option value="${escapeHtml(p.parcela)}">${escapeHtml(p.parcela)}</option>`).join('');
+    }
+  }
+
+  function evaluarTarifaCascadaCG() {
+    const labor = document.getElementById('cgLaborSelect').value;
+    const fecha = document.getElementById('cgFecha').value;
+    const sector = document.getElementById('cgSectorSelect').value;
+    const formaPago = document.getElementById('cgFormaPago').value;
+
+    if (!labor) return;
+
+    const res = obtenerValorTarifaCascada({ labor, fecha, sector, parcela: cgParcelasSeleccionadas[0] || null, legajo: null, formaPago });
+
+    if (res.valor != null && res.valor > 0) {
+      if (formaPago === 'JORNAL') document.getElementById('cgJornal').value = res.valor;
+      else if (formaPago === 'POR HORA') document.getElementById('cgValorHora').value = res.valor;
+      else if (formaPago === 'DESTAJO') document.getElementById('cgValorDestajo').value = res.valor;
+    }
+  }
+
+  function wireFormularioCargaGrupal() {
+    cgParcelasSeleccionadas = [];
+    renderChipsParcelasCG();
+    togglePagoBlocksCG('JORNAL');
+
+    document.getElementById('cgCentroCosto').addEventListener('change', (e) => {
+      const centroCosto = e.target.value.trim().toUpperCase();
+      recargarComboLaboresPorNegocio(centroCosto);
+      evaluarTarifaCascadaCG();
+    });
+
+    document.getElementById('cgFormaPago').addEventListener('change', (e) => {
+      togglePagoBlocksCG(e.target.value);
+      evaluarTarifaCascadaCG();
+    });
+
+    document.getElementById('cgSectorSelect').addEventListener('change', (e) => {
+      actualizarComboParcelasSegunSector(e.target.value);
+      evaluarTarifaCascadaCG();
+    });
+
+    document.getElementById('cgLaborSelect').addEventListener('change', evaluarTarifaCascadaCG);
+    document.getElementById('cgFecha').addEventListener('change', evaluarTarifaCascadaCG);
+
+    const btnNuevaLabor = document.getElementById('cgBtnNuevaLabor');
+    if (btnNuevaLabor) {
+      btnNuevaLabor.addEventListener('click', abrirModalNuevaLabor);
+    }
+
+    document.getElementById('cgBuscarTrabajador').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('#cgListaTrabajadores .item-checklist').forEach(lbl => {
+        lbl.style.display = lbl.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+      });
+    });
+
+    document.getElementById('cgSeleccionarTodos').addEventListener('click', () => {
+      document.querySelectorAll('#cgListaTrabajadores .item-checklist').forEach(lbl => {
+        if (lbl.style.display !== 'none') lbl.querySelector('.cgChkTrabajador').checked = true;
+      });
+      actualizarAvisoCascada();
+    });
+    document.getElementById('cgLimpiarTodos').addEventListener('click', () => {
+      document.querySelectorAll('#cgListaTrabajadores .cgChkTrabajador').forEach(chk => { chk.checked = false; });
+      actualizarAvisoCascada();
+    });
+    document.querySelectorAll('#cgListaTrabajadores .cgChkTrabajador').forEach(chk => chk.addEventListener('change', actualizarAvisoCascada));
+
+    document.getElementById('cgBtnAgregarParcela').addEventListener('click', () => {
+      agregarParcelaCG();
+      evaluarTarifaCascadaCG();
+    });
+
+    actualizarAvisoCascada();
+  }
+
+  function guardarCargaGrupal() {
+    if (!db) return;
+    const legajosSeleccionados = Array.from(document.querySelectorAll('#cgListaTrabajadores .cgChkTrabajador:checked')).map(chk => chk.value);
+    if (legajosSeleccionados.length === 0) return lanzarNotificacionFlotante('Seleccioná al menos un trabajador.', 'error');
+    if (cgParcelasSeleccionadas.length === 0) return lanzarNotificacionFlotante('Agregá al menos una parcela destino.', 'error');
+
+    const fecha = document.getElementById('cgFecha').value;
+    if (!fecha) return lanzarNotificacionFlotante('Ingresá la fecha del parte.', 'error');
+
+    const centroCosto = document.getElementById('cgCentroCosto').value.trim();
+    const laborSelect = document.getElementById('cgLaborSelect');
+    const labor = laborSelect.value.trim();
+    if (!labor) return lanzarNotificacionFlotante('Seleccioná la labor realizada.', 'error');
+    const macroLabor = laborSelect.selectedOptions[0] ? (laborSelect.selectedOptions[0].dataset.macro || '') : '';
+
+    const sector = document.getElementById('cgSectorSelect').value.trim();
+    const formaPago = document.getElementById('cgFormaPago').value;
+    const horasTotales = parseFloat(document.getElementById('cgHoras').value) || 0;
+    const extraTotales = parseFloat(document.getElementById('cgHoraExtra').value) || 0;
+    const jornalTotal = formaPago === 'JORNAL' ? (parseFloat(document.getElementById('cgJornal').value) || 0) : 0;
+    const valorHora = formaPago === 'POR HORA' ? (parseFloat(document.getElementById('cgValorHora').value) || 0) : 0;
+    const rendimientoTotal = formaPago === 'DESTAJO' ? (parseFloat(document.getElementById('cgRendimiento').value) || 0) : 0;
+    const unidadDestajo = formaPago === 'DESTAJO' ? document.getElementById('cgUnidadDestajo').value.trim() : null;
+    const valorDestajo = formaPago === 'DESTAJO' ? (parseFloat(document.getElementById('cgValorDestajo').value) || 0) : 0;
+
+    const cantParcelas = cgParcelasSeleccionadas.length;
+    const horasPorParcela = horasTotales / cantParcelas;
+    const extraPorParcela = extraTotales / cantParcelas;
+    const jornalPorParcela = jornalTotal / cantParcelas;
+    const rendimientoPorParcela = rendimientoTotal / cantParcelas;
+    const campana = fecha.slice(0, 4);
+
+    try {
+      const personal = obtenerPersonalActivo();
+      const trabajadores = legajosSeleccionados.map(legajo => personal.find(p => p.legajo === legajo)).filter(Boolean);
+
+      let maxId = db.prepare('SELECT COALESCE(MAX(id), 0) as maxId FROM local_r_jornada_trabajo').get().maxId;
+      const insertar = db.prepare(`
+        INSERT INTO local_r_jornada_trabajo
+          (id, reg_local, fecha, legajo, empleado, dni, macro_labor, labor, sector, parcela, horas, forma_pago,
+           jornal, hora_extra, imp_uni, total, en_recibo, fuera_recibo, centro_costo, unidad_negocio, campana,
+           ciclo_contable, responsable, estado, total_hs, rendimiento, unidad_destajo, sincronizado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+      `);
+
+      const ejecutarCascada = db.transaction(() => {
+        trabajadores.forEach(trabajador => {
+          cgParcelasSeleccionadas.forEach(parcela => {
+            maxId++;
+            const unidadNegocio = obtenerUnidadNegocioDesdeCuadro(parcela);
+            let jornalFila = null, impUniFila = null, totalFila = 0;
+
+            if (formaPago === 'JORNAL') {
+              jornalFila = jornalPorParcela;
+              totalFila = jornalPorParcela + (extraPorParcela * (jornalPorParcela / 8) * 1.5);
+            } else if (formaPago === 'POR HORA') {
+              impUniFila = valorHora;
+              totalFila = (horasPorParcela * valorHora) + (extraPorParcela * valorHora * 1.5);
+            } else if (formaPago === 'DESTAJO') {
+              impUniFila = valorDestajo;
+              totalFila = rendimientoPorParcela * valorDestajo;
+            }
+
+            insertar.run(
+              maxId, generarToken(), fecha, trabajador.legajo,
+              trabajador.nombre_completo || (trabajador.apellido + ', ' + trabajador.nombre),
+              trabajador.dni || null, macroLabor, labor, sector, parcela,
+              horasPorParcela, formaPago, jornalFila, extraPorParcela, impUniFila,
+              Number(n2(totalFila)), null, null, centroCosto, unidadNegocio, campana,
+              campana, sesion.nombre_completo || 'ADMINISTRADOR', 'PRESENTE',
+              horasPorParcela + extraPorParcela,
+              formaPago === 'DESTAJO' ? rendimientoPorParcela : null,
+              unidadDestajo
+            );
+          });
+        });
+      });
+      ejecutarCascada();
+
+      lanzarNotificacionFlotante(`¡${trabajadores.length * cantParcelas} jornada(s) generadas con éxito!`, 'success');
+      closeMiniModal();
+      cargarFiltrosCatalogo();
+      renderPanel();
+    } catch (e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+  }
+
+  document.getElementById('btnCargaGrupal').addEventListener('click', () => {
+    openMiniModal('Carga Grupal de Jornadas', 'Asentá una cuadrilla completa en varias parcelas de una sola vez', camposCargaGrupal(), guardarCargaGrupal, 'Generar Jornadas');
+    wireFormularioCargaGrupal();
+  });
+
+  window.editarJornada = function(id, regLocal) {
+    if (!db) return;
+    const j = db.prepare('SELECT * FROM local_r_jornada_trabajo WHERE id = ? AND reg_local = ?').get(id, regLocal);
+    if (!j) return lanzarNotificacionFlotante('No se encontró la jornada.', 'error');
+
+    openMiniModal(`Editar Jornada · ${j.fecha}`, `Legajo ${j.legajo} — ${j.empleado || ''}`, camposJornada(j), () => {
+      const datos = leerFormularioJornada();
+      if (!datos) return;
+      try {
+        db.prepare(`
+          UPDATE local_r_jornada_trabajo SET
+            fecha = ?, legajo = ?, empleado = ?, dni = ?, macro_labor = ?, labor = ?, sector = ?, parcela = ?,
+            horas = ?, forma_pago = ?, jornal = ?, hora_extra = ?, imp_uni = ?, total = ?, en_recibo = ?, fuera_recibo = ?,
+            centro_costo = ?, unidad_negocio = ?, campana = ?, ciclo_contable = ?, responsable = ?, estado = ?,
+            total_hs = ?, rendimiento = ?, unidad_destajo = ?, sincronizado = 0
+          WHERE id = ? AND reg_local = ?
+        `).run(
+          datos.fecha, datos.legajo, datos.empleado, datos.dni, datos.macro_labor, datos.labor, datos.sector, datos.parcela,
+          datos.horas, datos.forma_pago, datos.jornal, datos.hora_extra, datos.imp_uni, datos.total, datos.en_recibo, datos.fuera_recibo,
+          datos.centro_costo, datos.unidad_negocio, datos.campana, datos.ciclo_contable, datos.responsable, datos.estado,
+          datos.total_hs, datos.rendimiento, datos.unidad_destajo, id, regLocal
+        );
+        lanzarNotificacionFlotante('Jornada actualizada.', 'success');
+        closeMiniModal();
+        renderPanel();
+      } catch (e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+    }, 'Guardar Cambios');
+    wireFormularioJornadaUnica(j);
+  };
+
+  window.eliminarJornada = async function(id, regLocal) {
+    if (!db) return;
+    const ok = await GordonConfirm({
+      titulo: 'Eliminar jornada',
+      mensaje: 'Esta acción no se puede deshacer.',
+      tipo: 'peligro',
+      textoOk: 'Eliminar'
+    });
+    if (!ok) return;
+    try {
+      db.prepare('DELETE FROM local_r_jornada_trabajo WHERE id = ? AND reg_local = ?').run(id, regLocal);
+      lanzarNotificacionFlotante('Jornada eliminada.', 'success');
+      renderPanel();
+    } catch (e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+  };
+
+  // ---------------------------------------------------------------------
+  // EXPORTACIÓN A EXCEL
+  // ---------------------------------------------------------------------
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const fs = require('fs');
+    const carpetaDescargas = path.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = path.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6B4C' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  document.getElementById('btnExportExcel').addEventListener('click', async () => {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const registros = obtenerJornadasFiltradas();
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Jornadas';
+
+      if (seccionActual === 'listado') {
+        crearHojaEstilizada(wb, 'Jornadas', [
+          { header: 'FECHA', key: 'fecha', width: 12 }, { header: 'LEGAJO', key: 'legajo', width: 10 },
+          { header: 'TRABAJADOR', key: 'nombre', width: 26 }, { header: 'LABOR', key: 'labor', width: 18 },
+          { header: 'SECTOR', key: 'sector', width: 16 }, { header: 'FORMA DE PAGO', key: 'pago', width: 14 },
+          { header: 'HORAS', key: 'horas', width: 10 }, { header: 'H. EXTRA', key: 'extra', width: 10 },
+          { header: 'TOTAL $', key: 'total', width: 14 }, { header: 'ESTADO', key: 'estado', width: 14 }
+        ], registros.map(r => ({
+          fecha: r.fecha, legajo: r.legajo, nombre: r.nombre_trabajador, labor: r.labor, sector: r.sector,
+          pago: r.forma_pago, horas: Number(n2(r.horas)), extra: Number(n2(r.hora_extra)), total: Number(n2(r.total)), estado: r.estado
+        })));
+      } else if (seccionActual === 'resumen') {
+        const filas = [...registros].sort((a, b) => (a.nombre_trabajador || '').localeCompare(b.nombre_trabajador || '') || (a.fecha || '').localeCompare(b.fecha || ''));
+        crearHojaEstilizada(wb, 'Resumen', [
+          { header: 'LEGAJO', key: 'legajo', width: 10 }, { header: 'TRABAJADOR', key: 'nombre', width: 26 },
+          { header: 'FECHA', key: 'fecha', width: 12 }, { header: 'HORAS TRABAJADAS', key: 'horas', width: 16 },
+          { header: 'FORMA DE PAGO', key: 'pago', width: 14 }, { header: 'IMP. UNITARIO', key: 'impuni', width: 14 },
+          { header: 'TOTAL $', key: 'total', width: 14 }
+        ], filas.map(r => ({
+          legajo: r.legajo, nombre: r.nombre_trabajador, fecha: r.fecha, horas: Number(n2(r.horas)),
+          pago: r.forma_pago, impuni: Number(n2(r.imp_uni)), total: Number(n2(r.total))
+        })));
+      } else if (seccionActual === 'calendario') {
+        const filas = agruparPorTrabajadorYFecha(registros);
+        crearHojaEstilizada(wb, 'Control Dia a Dia', [
+          { header: 'FECHA', key: 'fecha', width: 12 }, { header: 'LEGAJO', key: 'legajo', width: 10 },
+          { header: 'TRABAJADOR', key: 'nombre', width: 26 }, { header: 'HORAS', key: 'horas', width: 10 },
+          { header: 'H. EXTRA', key: 'extra', width: 10 }, { header: 'ESTADO', key: 'estado', width: 16 }
+        ], filas.map(f => ({
+          fecha: f.fecha, legajo: f.legajo, nombre: f.nombre,
+          horas: Number(n2(f.horas)), extra: Number(n2(f.extra)), estado: f.estado
+        })));
+      } else if (seccionActual === 'diario') {
+        crearHojaEstilizada(wb, 'Resumen Diario', [
+          { header: 'FECHA', key: 'fecha', width: 12 }, { header: 'LEGAJO', key: 'legajo', width: 10 },
+          { header: 'TRABAJADOR', key: 'nombre', width: 26 }, { header: 'LABOR', key: 'labor', width: 18 },
+          { header: 'SECTOR', key: 'sector', width: 16 }, { header: 'FORMA DE PAGO', key: 'pago', width: 14 },
+          { header: 'HORAS', key: 'horas', width: 10 }, { header: 'H. EXTRA', key: 'extra', width: 10 },
+          { header: 'TOTAL $', key: 'total', width: 14 }, { header: 'ESTADO', key: 'estado', width: 14 }
+        ], registros.map(r => ({
+          fecha: r.fecha, legajo: r.legajo, nombre: r.nombre_trabajador, labor: r.labor, sector: r.sector,
+          pago: r.forma_pago, horas: Number(n2(r.horas)), extra: Number(n2(r.hora_extra)), total: Number(n2(r.total)), estado: r.estado
+        })));
+      }
+
+      const nombre = `Jornadas_${seccionActual}_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  });
+
+  // ---------------------------------------------------------------------
+  // EXPORTACIÓN A PDF
+  // ---------------------------------------------------------------------
+  function encabezadoPdf(doc, subtitulo) {
+    const margen = 15; let cursorY = 14;
+    try {
+      const fs = require('fs');
+      const logoBase64 = fs.readFileSync(path.join(__dirname, '../logo.png')).toString('base64');
+      doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, cursorY, 20, 20);
+    } catch (e) { console.error('No se pudo cargar logo.png:', e.message); }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(16, 70, 48);
+    doc.text('GORDON GESTIÓN · AGROSOFT J&L', margen + 26, cursorY + 5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(85, 99, 88);
+    doc.text(subtitulo, margen + 26, cursorY + 11);
+    return cursorY + 24;
+  }
+  function piePdf(doc) {
+    const margen = 15;
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPaginas; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+      doc.text(`Generado el ${new Date().toLocaleString('es-AR')}`, margen, doc.internal.pageSize.getHeight() - 8);
+      doc.text(`Página ${i} de ${totalPaginas}`, doc.internal.pageSize.getWidth() - margen, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+    }
+  }
+  function guardarPdfEnDescargas(doc, nombreArchivo) {
+    const fs = require('fs'); const os = require('os');
+    const carpetaDescargas = path.join(os.homedir(), 'Downloads');
+    if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+    fs.writeFileSync(path.join(carpetaDescargas, nombreArchivo), Buffer.from(doc.output('arraybuffer')));
+  }
+
+  document.getElementById('btnExportPdf').addEventListener('click', () => {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const registros = obtenerJornadasFiltradas();
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const margen = 15;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      let cursorY = encabezadoPdf(doc, `Reporte de Jornadas · ${jorDesde} a ${jorHasta}`);
+
+      if (seccionActual === 'listado') {
+        autoTable(doc, {
+          startY: cursorY, margin: { left: margen, right: margen },
+          head: [['Fecha', 'Legajo', 'Trabajador', 'Labor / Sector', 'Pago', 'Horas', 'H.Extra', 'Total $', 'Estado']],
+          body: registros.map(r => [r.fecha, r.legajo, r.nombre_trabajador, `${r.labor || '—'} / ${r.sector || '—'}`, r.forma_pago || '—', nf(r.horas), nf(r.hora_extra), '$' + nf(r.total), r.estado || 'PRESENTE']),
+          headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 9 }, styles: { fontSize: 7.5 }, theme: 'striped'
+        });
+      } else if (seccionActual === 'resumen') {
+        const filas = [...registros].sort((a, b) => (a.nombre_trabajador || '').localeCompare(b.nombre_trabajador || '') || (a.fecha || '').localeCompare(b.fecha || ''));
+        autoTable(doc, {
+          startY: cursorY, margin: { left: margen, right: margen },
+          head: [['Legajo', 'Trabajador', 'Fecha', 'Horas Trabajadas', 'Forma de Pago', 'Imp. Unitario', 'Total $']],
+          body: filas.map(r => [r.legajo, r.nombre_trabajador, r.fecha, nf(r.horas), r.forma_pago || '—', '$' + nf(r.imp_uni), '$' + nf(r.total)]),
+          headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 9 }, styles: { fontSize: 8 }, theme: 'striped'
+        });
+      } else if (seccionActual === 'calendario') {
+        const filas = agruparPorTrabajadorYFecha(registros);
+        autoTable(doc, {
+          startY: cursorY, margin: { left: margen, right: margen },
+          head: [['Fecha', 'Legajo', 'Trabajador', 'Horas', 'H.Extra', 'Estado']],
+          body: filas.map(f => [f.fecha, f.legajo, f.nombre, nf(f.horas), nf(f.extra), f.estado]),
+          headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 9 }, styles: { fontSize: 7.5 }, theme: 'striped'
+        });
+      } else if (seccionActual === 'diario') {
+        autoTable(doc, {
+          startY: cursorY, margin: { left: margen, right: margen },
+          head: [['Fecha', 'Legajo', 'Trabajador', 'Labor / Sector', 'Pago', 'Horas', 'H.Extra', 'Total $', 'Estado']],
+          body: registros.map(r => [r.fecha, r.legajo, r.nombre_trabajador, `${r.labor || '—'} / ${r.sector || '—'}`, r.forma_pago || '—', nf(r.horas), nf(r.hora_extra), '$' + nf(r.total), r.estado || 'PRESENTE']),
+          headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 9 }, styles: { fontSize: 7.5 }, theme: 'striped'
+        });
+      }
+
+      piePdf(doc);
+      const nombre = `Jornadas_${seccionActual}_${hoyStr()}.pdf`;
+      guardarPdfEnDescargas(doc, nombre);
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  });
+
+  window.exportarPdfTrabajador = function(legajo) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const registros = obtenerJornadasFiltradas({ legajo });
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay jornadas para este trabajador en el período.', 'warning');
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const margen = 15;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const r0 = registros[0];
+      let cursorY = encabezadoPdf(doc, 'Reporte Individual de Jornadas de Trabajo');
+
+      doc.setDrawColor(210, 215, 211); doc.setFillColor(244, 246, 244);
+      doc.roundedRect(margen, cursorY, 180, 22, 2, 2, 'FD');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(26, 33, 28);
+      doc.text(r0.nombre_trabajador || '—', margen + 5, cursorY + 8);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(85, 99, 88);
+      doc.text(`Legajo: ${legajo}   ·   DNI: ${r0.dni || '—'}   ·   Categoría: ${r0.categoria_trabajador || '—'}`, margen + 5, cursorY + 14);
+      doc.text(`Período informado: ${jorDesde} al ${jorHasta}`, margen + 5, cursorY + 19);
+      cursorY += 28;
+
+      const totalHoras = registros.reduce((a, r) => a + (parseFloat(r.horas) || 0), 0);
+      const totalExtra = registros.reduce((a, r) => a + (parseFloat(r.hora_extra) || 0), 0);
+      const totalPago = registros.reduce((a, r) => a + (parseFloat(r.total) || 0), 0);
+      const totalEnRecibo = registros.reduce((a, r) => a + (parseFloat(r.en_recibo) || 0), 0);
+      const totalFueraRecibo = registros.reduce((a, r) => a + (parseFloat(r.fuera_recibo) || 0), 0);
+
+      autoTable(doc, {
+        startY: cursorY, margin: { left: margen, right: margen },
+        head: [['Fecha', 'Labor', 'Sector', 'Pago', 'Horas', 'H.Extra', 'Total $', 'Estado']],
+        body: registros.map(r => [r.fecha, r.labor || '—', r.sector || '—', r.forma_pago || '—', nf(r.horas), nf(r.hora_extra), '$' + nf(r.total), r.estado || 'PRESENTE']),
+        foot: [['', '', '', 'TOTALES', nf(totalHoras), nf(totalExtra), '$' + nf(totalPago), '']],
+        headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 9 },
+        footStyles: { fillColor: [232, 245, 233], textColor: [16, 70, 48], fontStyle: 'bold', fontSize: 9 },
+        styles: { fontSize: 8 }, theme: 'striped'
+      });
+
+      let y = doc.lastAutoTable.finalY + 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(16, 70, 48);
+      doc.text('Resumen de Liquidación', margen, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(26, 33, 28);
+      doc.text(`Jornadas registradas: ${registros.length}`, margen, y); y += 5.5;
+      doc.text(`Horas trabajadas: ${nf(totalHoras)}   |   Horas extra: ${nf(totalExtra)}`, margen, y); y += 5.5;
+      if (totalEnRecibo || totalFueraRecibo) { doc.text(`En recibo: $${nf(totalEnRecibo)}   |   Fuera de recibo: $${nf(totalFueraRecibo)}`, margen, y); y += 5.5; }
+      doc.setFont('helvetica', 'bold');
+      doc.text(`TOTAL A PAGAR: $${nf(totalPago)}`, margen, y);
+
+      piePdf(doc);
+      const nombreArchivo = `Reporte_${(r0.nombre_trabajador || legajo).replace(/[^a-z0-9]+/gi, '_')}_${hoyStr()}.pdf`;
+      guardarPdfEnDescargas(doc, nombreArchivo);
+      lanzarNotificacionFlotante(`¡Reporte individual guardado en Descargas!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  };
+
+  // ---------------------------------------------------------------------
+  // INICIALIZACIÓN
+  // ---------------------------------------------------------------------
+  renderFiltroFechas();
+  cargarFiltrosCatalogo();
+  renderPanel();
+})();
+</script>
+</body>
+</html>

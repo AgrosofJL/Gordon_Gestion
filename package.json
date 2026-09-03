@@ -1,0 +1,81 @@
+{
+  "name": "gordon-gestion",
+  "version": "1.0.5",
+  "description": "Sistema de gestión agrícola",
+  "main": "main.js",
+  "author": "SOSA JUAN ANTONIO",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "node start.js",
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.109.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "11.0.0",
+    "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "4.1.0",
+    "electron": "30.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.gordongestion.app",
+    "productName": "Gordon Gestión",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!supabase_usuarios.sql",
+      "!*.db",
+      "!.env",
+      "!.env.*"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/sqlite3/**/*",
+      "**/*.node"
+    ],
+    "npmRebuild": true,
+    "win": {
+      "icon": "logo.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "logo.ico",
+      "uninstallerIcon": "logo.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "category": "Office"
+    }
+  }
+}

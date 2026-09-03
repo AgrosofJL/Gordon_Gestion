@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Control de Producción y Paletizado</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- ESTO LO MODIFIQUE: Librería XLSX para exportación nativa a Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3; 
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* BARRA LATERAL IZQUIERDA */
+  .sidebar {
+    width: 220px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header { margin-bottom: 25px; }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  /* FEEDBACK TÁCTIL Y EFECTO PRESIONADO */
+  .btn-volver:active, 
+  .btn-nav-lateral:active, 
+  .renglon-card:active, 
+  .btn-global-add:active,
+  .modal-btn:active,
+  .btn-sync-top:active,
+  .btn-excel:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 14px; font-weight: 700; margin-top: 20px; color: var(--color-accent-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    transition: all 0.2s ease;
+  }
+  .btn-nav-lateral:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); }
+  .btn-nav-lateral.active { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(30, 107, 76, 0.05); }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 28px 36px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; gap: 12px; }
+  .seccion-titulo { font-size: 24px; font-weight: 700; margin: 0; color: var(--color-accent-dark); }
+
+  .btn-global-add {
+    background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(30, 107, 76, 0.15); transition: all 0.2s ease;
+  }
+  .btn-global-add:hover { background: var(--color-accent-dark); }
+
+  .btn-excel {
+    background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease;
+  }
+  .btn-excel:hover { background: #0A5C30; }
+
+  .btn-sync-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-sync-top:hover { background: #C8E6C9; }
+
+  /* VISTA SPLIT DOS COLUMNAS */
+  .split-dos-columnas { display: flex; gap: 20px; width: 100%; flex-grow: 1; height: 0; overflow: hidden; }
+  .col-dos-left { width: 310px; flex-shrink: 0; }
+  .col-dos-right { flex-grow: 1; }
+
+  .columna-split { display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); height: 100%; overflow: hidden; }
+  .columna-header-sticky { padding: 16px 20px; background: #F8F9F8; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .columna-header-sticky h4 { margin: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .columna-body-scroll { padding: 16px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; background: #FAFAFA; }
+  .columna-body-scroll.no-padding { padding: 0; background: #FFFFFF; }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); }
+  .badge-estado.activo { background: rgba(46, 117, 89, 0.1); color: var(--color-accent); }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; }
+  .renglon-card:hover { border-color: var(--color-accent); }
+  .renglon-card.clickable { cursor: pointer; }
+  .renglon-card.selected { border-color: var(--color-accent); background: var(--color-accent-soft); box-shadow: 0 0 0 1px var(--color-accent); }
+
+  .renglon-info-block { display: flex; flex-direction: column; }
+  .renglon-info-block span.label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 2px; }
+  .renglon-info-block span.value { font-size: 13px; font-weight: 600; color: var(--color-text); }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 12px; background: #ECEFF1; border-bottom: 1px solid var(--color-border); }
+  .tabla-interna-fila td { padding: 12px 12px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 12px; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-accent-soft); }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  /* MODAL AMIGABLE */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 580px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--color-border); transform: translateY(-15px); transition: transform 0.2s ease; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--color-accent-dark); margin: 0; }
+  .modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .modal-group label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .modal-input { width: 100%; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+  .modal-btn { border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-accent); color: #FFFFFF; }
+  .modal-body.modal-body-scroll { max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+
+  /* BOTÓN DE EDITAR PALLET (dentro de cada fila/card) */
+  .btn-editar-fila {
+    background: var(--color-accent-soft); color: var(--color-accent-dark); border: 1px solid var(--color-border);
+    border-radius: 8px; padding: 5px 9px; font-size: 12px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .btn-editar-fila:hover { background: var(--color-accent); color: #FFFFFF; border-color: var(--color-accent); }
+
+  /* NOTIFICACIÓN TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid #107C41; background: #F1F9F4; color: #0A5C30; }
+  .toast-card.error { border-left: 4px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR DEL SISTEMA -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight" id="lblUltimoAcceso">LUNES 20 DE JULIO DE 2026</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">LUNES 20 DE JULIO DE 2026</div>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar Todo
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-parametros" id="contenedorModuloPrincipal">
+    <!-- PANEL LATERAL IZQUIERDO CON FILTROS -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Producción</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-filtro="todos">
+          <span>📦</span> Todos los Pallets
+        </button>
+        <button class="btn-nav-lateral" data-filtro="especie">
+          <span>🍏</span> Por Especie
+        </button>
+        <button class="btn-nav-lateral" data-filtro="cliente">
+          <span>🏢</span> Por Cliente
+        </button>
+        <button class="btn-nav-lateral" data-filtro="productor">
+          <span>👨‍🌾</span> Por Productor
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="main-content">
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Paletizado Activo</h1>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-excel" onclick="window.exportarExcel()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            Exportar Excel
+          </button>
+          <button class="btn-global-add" id="btnNuevoPallet">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nuevo Pallet
+          </button>
+        </div>
+      </div>
+      
+      <!-- CONTENEDOR SPLIT DINÁMICO -->
+      <div id="contenedorDinamicoProduccion" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <!-- MINI MODAL -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Nuevo Pallet</h3>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      
+    } catch (e) { console.error('Error iniciando BBDD:', e); }
+  }
+
+  let modoFiltroActual = 'todos';
+  let subFiltroSeleccionado = null;
+
+  const btnVolver = document.getElementById('btnVolver');
+  const contenedorDinamico = document.getElementById('contenedorDinamicoProduccion');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    tarjeta.innerHTML = `<div style="font-size:16px;">${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 10);
+    setTimeout(() => {
+      tarjeta.classList.remove('show');
+      setTimeout(() => tarjeta.remove(), 300);
+    }, 3500);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, fieldsHtml, onSave) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = fieldsHtml; 
+    customModal.classList.add('show');
+    modalSaveHandler = onSave;
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalBody.classList.remove('modal-body-scroll'); modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  btnVolver.addEventListener('click', () => {
+    if (typeof window.renderizar === 'function' && window.sesionActual) {
+      window.renderizar(window.sesionActual);
+    } else {
+      window.location.href = 'menu_empaque.html';
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      modoFiltroActual = btn.dataset.filtro;
+      subFiltroSeleccionado = null;
+      renderizarPantallaProduccion();
+    });
+  });
+
+  const btnSincronizar = document.getElementById('btnSincronizar');
+
+btnSincronizar.addEventListener('click', async () => {
+  btnSincronizar.classList.add('syncing');
+  btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+  
+  if (isElectron) {
+    try {
+      const { subirCambiosLocales } = require('../subir.js');
+      const { sincronizarTodo } = require('../sincronizacion.js');
+      await ejecutarSincronizacionCompleta();
+      
+      lanzarToast('¡Sincronización bidireccional exitosa!', 'success');
+    } catch (err) {
+      console.error(err);
+      lanzarToast('Error de sincronización: ' + err.message, 'error');
+    } finally {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar`;
+      cargarTodasLasSolapas();
+    }
+  } else {
+    setTimeout(() => {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `Sincronizar`;
+      lanzarToast('Sincronización simulada en entorno de pruebas.', 'success');
+    }, 1000);
+  }
+});
+
+
+  document.getElementById('btnNuevoPallet').addEventListener('click', modalCrearPallet);
+
+  function renderizarPantallaProduccion() {
+    if (modoFiltroActual === 'todos') {
+      seccionTitulo.textContent = "Paletizado General";
+      renderizarTablaGeneral();
+    } else if (modoFiltroActual === 'especie') {
+      seccionTitulo.textContent = "Producción por Especie";
+      renderizarSplitAgrupado("especie", "Especie");
+    } else if (modoFiltroActual === 'cliente') {
+      seccionTitulo.textContent = "Producción por Cliente";
+      renderizarSplitAgrupado("cliente", "Cliente");
+    } else if (modoFiltroActual === 'productor') {
+      seccionTitulo.textContent = "Producción por Productor";
+      renderizarSplitAgrupado("productor", "Productor");
+    }
+  }
+
+  function renderizarTablaGeneral() {
+    let registros = [];
+    if (db) {
+      try { 
+        registros = db.prepare("SELECT * FROM local_paletizado WHERE estado = 'ACTIVO' ORDER BY fecha_proc DESC").all(); 
+      } catch(e) { console.error(e); }
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div style="background:#FFFFFF; border:1px solid var(--color-border); border-radius:var(--radius-lg); height:100%; overflow:hidden; display:flex; flex-direction:column;">
+        <div class="columna-header-sticky">
+          <h4>Listado de Pallets (${registros.length})</h4>
+        </div>
+        <div class="columna-body-scroll no-padding">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th style="padding-left:14px;">NRO PALLET</th>
+                <th>FECHA PROC</th>
+                <th>ESPECIE / VARIEDAD</th>
+                <th>CALIBRE</th>
+                <th>CLIENTE</th>
+                <th>PRODUCTOR</th>
+                <th style="text-align:center;">UNIDADES</th>
+                <th style="text-align:center;">ESTADO</th>
+                <th style="text-align:center;">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${registros.map(r => `
+                <tr>
+                  <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);"># ${r.nro_pallet || r.id}</td>
+                  <td>📅 ${r.fecha_proc || '—'}</td>
+                  <td><strong>${r.especie || '—'}</strong> (${r.variedad || 'N/A'})</td>
+                  <td><span style="background:#E3F2FD; color:#0D47A1; padding:2px 6px; border-radius:4px; font-weight:bold;">${r.calibre || '—'}</span></td>
+                  <td>${r.cliente || '—'}</td>
+                  <td>${r.productor || '—'}</td>
+                  <td style="text-align:center; font-weight:bold; color:#107C41;">${r.cant_unidades || 0}</td>
+                  <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                  <td style="text-align:center;"><button class="btn-editar-fila" onclick="window.editarPallet('${String(r.reg_local || '').replace(/'/g, "\\'")}', ${r.id})">✏️ Editar</button></td>
+                </tr>
+              `).join('')}
+              ${registros.length === 0 ? '<tr><td colspan="9" class="vista-vacia">Sin registros activos.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderizarSplitAgrupado(campoGrupo, labelGrupo) {
+    let grupos = [];
+    if (db) {
+      try {
+        grupos = db.prepare(`
+          SELECT 
+            COALESCE(${campoGrupo}, 'SIN ' || UPPER('${campoGrupo}')) as nombre_grupo, 
+            COUNT(id) as total_pallets, 
+            SUM(CAST(cant_unidades AS INTEGER)) as suma_unidades
+          FROM local_paletizado
+          WHERE estado = 'ACTIVO'
+          GROUP BY COALESCE(${campoGrupo}, 'SIN ' || UPPER('${campoGrupo}'))
+          ORDER BY nombre_grupo ASC
+        `).all();
+      } catch(e) { console.error(e); }
+    }
+
+    if (grupos.length > 0 && !subFiltroSeleccionado) {
+      subFiltroSeleccionado = grupos[0].nombre_grupo;
+    }
+
+    let detallePallets = [];
+    if (db && subFiltroSeleccionado) {
+      try {
+        detallePallets = db.prepare(`
+          SELECT * FROM local_paletizado 
+          WHERE estado = 'ACTIVO' AND COALESCE(${campoGrupo}, 'SIN ' || UPPER('${campoGrupo}')) = ?
+          ORDER BY fecha_proc DESC
+        `).all(subFiltroSeleccionado);
+      } catch(e) { console.error(e); }
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="split-dos-columnas">
+        <!-- IZQUIERDA -->
+        <div class="columna-split col-dos-left">
+          <div class="columna-header-sticky">
+            <h4>${labelGrupo}s</h4>
+          </div>
+          <div class="columna-body-scroll">
+            ${grupos.map(g => {
+              const sel = g.nombre_grupo === subFiltroSeleccionado ? 'selected' : '';
+              return `
+                <div class="renglon-card clickable ${sel}" onclick="window.cambiarSubFiltroGrupo('${g.nombre_grupo.replace(/'/g, "\\'")}')">
+                  <div class="renglon-info-block">
+                    <span class="value" style="font-size:13px; color:var(--color-accent-dark);">${g.nombre_grupo}</span>
+                    <span class="label" style="margin-top:2px; font-weight:bold; color:var(--color-accent);">${g.total_pallets} Pallets · ${g.suma_unidades || 0} un.</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+            ${grupos.length === 0 ? '<div class="vista-vacia">Sin datos agrupados.</div>' : ''}
+          </div>
+        </div>
+
+        <!-- DERECHA -->
+        <div class="columna-split col-dos-right">
+          <div class="columna-header-sticky">
+            <h4>Pallets en ${subFiltroSeleccionado || '—'}</h4>
+          </div>
+          <div class="columna-body-scroll no-padding">
+            <table class="tabla-interna-fila">
+              <thead>
+                <tr>
+                  <th style="padding-left:14px;">NRO PALLET</th>
+                  <th>FECHA PROC</th>
+                  <th>ESPECIE / VARIEDAD</th>
+                  <th>CALIBRE</th>
+                  <th>EMBALAJE</th>
+                  <th style="text-align:center;">UNIDADES</th>
+                  <th style="text-align:center;">ESTADO</th>
+                  <th style="text-align:center;">ACCIONES</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detallePallets.map(r => `
+                  <tr>
+                    <td style="padding-left:14px; font-weight:700; color:var(--color-accent-dark);"># ${r.nro_pallet || r.id}</td>
+                    <td>📅 ${r.fecha_proc || '—'}</td>
+                    <td><strong>${r.especie || '—'}</strong> (${r.variedad || 'N/A'})</td>
+                    <td><span style="background:#E3F2FD; color:#0D47A1; padding:2px 6px; border-radius:4px; font-weight:bold;">${r.calibre || '—'}</span></td>
+                    <td>${r.embalaje || '—'}</td>
+                    <td style="text-align:center; font-weight:bold; color:#107C41;">${r.cant_unidades || 0}</td>
+                    <td style="text-align:center;"><span class="badge-estado activo">${r.estado || 'ACTIVO'}</span></td>
+                    <td style="text-align:center;"><button class="btn-editar-fila" onclick="window.editarPallet('${String(r.reg_local || '').replace(/'/g, "\\'")}', ${r.id})">✏️ Editar</button></td>
+                  </tr>
+                `).join('')}
+                ${detallePallets.length === 0 ? '<tr><td colspan="8" class="vista-vacia">Seleccione un elemento del listado.</td></tr>' : ''}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.cambiarSubFiltroGrupo = function(nombreGrupo) {
+    subFiltroSeleccionado = nombreGrupo;
+    renderizarPantallaProduccion();
+  };
+
+  function modalCrearPallet() {
+    const hoyStr = new Date().toISOString().split('T')[0];
+    const fields = `
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Nro Pallet</label><input type="text" id="mPalletNro" class="modal-input" placeholder="Ej. P-001" /></div>
+        <div class="modal-group"><label>Fecha Proceso</label><input type="date" id="mPalletFecha" class="modal-input" value="${hoyStr}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Especie</label><input type="text" id="mPalletEspecie" class="modal-input" placeholder="Ej. Manzana" /></div>
+        <div class="modal-group"><label>Variedad</label><input type="text" id="mPalletVariedad" class="modal-input" placeholder="Ej. Red" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Cliente</label><input type="text" id="mPalletCliente" class="modal-input" /></div>
+        <div class="modal-group"><label>Productor</label><input type="text" id="mPalletProductor" class="modal-input" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Calibre</label><input type="text" id="mPalletCalibre" class="modal-input" /></div>
+        <div class="modal-group"><label>Unidades</label><input type="number" id="mPalletUnidades" class="modal-input" /></div>
+      </div>
+    `;
+    openMiniModal("Registrar Nuevo Pallet", fields, () => {
+      const nro = document.getElementById('mPalletNro').value.trim();
+      const fecha = document.getElementById('mPalletFecha').value;
+      const especie = document.getElementById('mPalletEspecie').value.trim();
+      const variedad = document.getElementById('mPalletVariedad').value.trim();
+      const cliente = document.getElementById('mPalletCliente').value.trim();
+      const productor = document.getElementById('mPalletProductor').value.trim();
+      const calibre = document.getElementById('mPalletCalibre').value.trim();
+      const unidades = document.getElementById('mPalletUnidades').value.trim();
+
+      if (!nro || !especie) return lanzarNotificacionFlotante("Faltan datos obligatorios.", "error");
+
+      if (db) {
+        try {
+          const row = db.prepare("SELECT COALESCE(MAX(id), 0) as maxId FROM local_paletizado").get();
+          const nuevoId = row.maxId + 1;
+
+          db.prepare(`
+            INSERT INTO local_paletizado (id, reg_local, nro_pallet, fecha_proc, cant_unidades, especie, variedad, cliente, productor, calibre, estado, sincronizado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', 0)
+          `).run(nuevoId, 'REG-' + Date.now(), nro, fecha, unidades, especie, variedad, cliente, productor, calibre);
+
+          lanzarNotificacionFlotante("Pallet guardado con éxito", "success");
+          closeMiniModal();
+          renderizarPantallaProduccion();
+        } catch(e) { lanzarNotificacionFlotante(e.message, "error"); }
+      } else {
+        lanzarNotificacionFlotante("Simulación guardada", "success");
+        closeMiniModal();
+      }
+    });
+  }
+
+  // EDICIÓN DE PALLET: se puede tocar cualquier dato salvo el número de
+  // pallet (nro_pallet), que queda fijo porque es el identificador que usan
+  // despachos y otras pantallas para referenciar este pallet puntual.
+  window.editarPallet = function(regLocal, id) {
+    if (!db) return lanzarNotificacionFlotante("Base de datos no disponible.", "error");
+    let pallet = null;
+    try {
+      pallet = db.prepare("SELECT * FROM local_paletizado WHERE reg_local = ? AND id = ?").get(regLocal, id);
+    } catch(e) { console.error(e); }
+
+    if (!pallet) return lanzarNotificacionFlotante("No se encontró el pallet a editar.", "error");
+
+    modalEditarPallet(pallet);
+  };
+
+  function modalEditarPallet(p) {
+    const val = (v) => v === null || v === undefined ? '' : v;
+    const fields = `
+      <div class="modal-group">
+        <label>Nro Pallet (no editable)</label>
+        <input type="text" class="modal-input" value="${val(p.nro_pallet)}" disabled style="background:#ECEFF1; color:var(--color-text-secondary);" />
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Fecha Proceso</label><input type="date" id="ePalletFecha" class="modal-input" value="${val(p.fecha_proc)}" /></div>
+        <div class="modal-group"><label>Estado</label>
+          <select id="ePalletEstado" class="modal-input">
+            <option value="ACTIVO" ${p.estado === 'ACTIVO' ? 'selected' : ''}>ACTIVO</option>
+            <option value="INACTIVO" ${p.estado === 'INACTIVO' ? 'selected' : ''}>INACTIVO (Despachado)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Especie</label><input type="text" id="ePalletEspecie" class="modal-input" value="${val(p.especie)}" /></div>
+        <div class="modal-group"><label>Variedad</label><input type="text" id="ePalletVariedad" class="modal-input" value="${val(p.variedad)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Color</label><input type="text" id="ePalletColor" class="modal-input" value="${val(p.color)}" /></div>
+        <div class="modal-group"><label>Embalaje</label><input type="text" id="ePalletEmbalaje" class="modal-input" value="${val(p.embalaje)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Cliente</label><input type="text" id="ePalletCliente" class="modal-input" value="${val(p.cliente)}" /></div>
+        <div class="modal-group"><label>Productor</label><input type="text" id="ePalletProductor" class="modal-input" value="${val(p.productor)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Categoría</label><input type="text" id="ePalletCategoria" class="modal-input" value="${val(p.categoria)}" /></div>
+        <div class="modal-group"><label>Calibre</label><input type="text" id="ePalletCalibre" class="modal-input" value="${val(p.calibre)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Calidad</label><input type="text" id="ePalletCalidad" class="modal-input" value="${val(p.calidad)}" /></div>
+        <div class="modal-group"><label>Tipo Pallet</label><input type="text" id="ePalletTipo" class="modal-input" value="${val(p.tipo_pallet)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Unidades</label><input type="number" id="ePalletUnidades" class="modal-input" value="${val(p.cant_unidades)}" /></div>
+        <div class="modal-group"><label>Nro Lote</label><input type="text" id="ePalletLote" class="modal-input" value="${val(p.nro_lote)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Peso Pallet (KG)</label><input type="text" id="ePalletPeso" class="modal-input" value="${val(p.peso_pallet)}" /></div>
+        <div class="modal-group"><label>Peso Unitario (KG)</label><input type="text" id="ePalletPesoUni" class="modal-input" value="${val(p.peso_uni)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Mercado</label><input type="text" id="ePalletMercado" class="modal-input" value="${val(p.mercado)}" /></div>
+        <div class="modal-group"><label>Cuadro / Fila</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="ePalletCuadro" class="modal-input" placeholder="Cuadro" value="${val(p.cuadro)}" />
+            <input type="text" id="ePalletFila" class="modal-input" placeholder="Fila" value="${val(p.fila)}" />
+          </div>
+        </div>
+      </div>
+    `;
+
+    openMiniModal(`Editar Pallet # ${p.nro_pallet || p.id}`, fields, () => {
+      try {
+        db.prepare(`
+          UPDATE local_paletizado SET
+            fecha_proc = ?, estado = ?, especie = ?, variedad = ?, color = ?, embalaje = ?,
+            cliente = ?, productor = ?, categoria = ?, calibre = ?, calidad = ?, tipo_pallet = ?,
+            cant_unidades = ?, nro_lote = ?, peso_pallet = ?, peso_uni = ?, mercado = ?,
+            cuadro = ?, fila = ?, sincronizado = 0
+          WHERE reg_local = ? AND id = ?
+        `).run(
+          document.getElementById('ePalletFecha').value,
+          document.getElementById('ePalletEstado').value,
+          document.getElementById('ePalletEspecie').value.trim(),
+          document.getElementById('ePalletVariedad').value.trim(),
+          document.getElementById('ePalletColor').value.trim(),
+          document.getElementById('ePalletEmbalaje').value.trim(),
+          document.getElementById('ePalletCliente').value.trim(),
+          document.getElementById('ePalletProductor').value.trim(),
+          document.getElementById('ePalletCategoria').value.trim(),
+          document.getElementById('ePalletCalibre').value.trim(),
+          document.getElementById('ePalletCalidad').value.trim(),
+          document.getElementById('ePalletTipo').value.trim(),
+          document.getElementById('ePalletUnidades').value.trim(),
+          document.getElementById('ePalletLote').value.trim(),
+          document.getElementById('ePalletPeso').value.trim(),
+          document.getElementById('ePalletPesoUni').value.trim(),
+          document.getElementById('ePalletMercado').value.trim(),
+          document.getElementById('ePalletCuadro').value.trim(),
+          document.getElementById('ePalletFila').value.trim(),
+          p.reg_local, p.id
+        );
+
+        lanzarNotificacionFlotante("Pallet actualizado con éxito", "success");
+        closeMiniModal();
+        renderizarPantallaProduccion();
+      } catch(e) { console.error(e); lanzarNotificacionFlotante(e.message, "error"); }
+    });
+
+    // El formulario de edición tiene muchos más campos que el de alta:
+    // se hace scrolleable para que no se corte en pantallas chicas.
+    modalBody.classList.add('modal-body-scroll');
+  }
+
+  // ESTO LO MODIFIQUE: Exportación nativa a Excel sin depender de librerías de CDN externas
+  window.exportarExcel = function() {
+    if (!db) {
+      return lanzarNotificacionFlotante("Base de datos no disponible para exportar.", "error");
+    }
+
+    try {
+      let registros = [];
+      let nombreArchivo = "Paletizado";
+
+      if (modoFiltroActual === 'todos') {
+        registros = db.prepare("SELECT * FROM local_paletizado WHERE estado = 'ACTIVO' ORDER BY fecha_proc DESC").all();
+        nombreArchivo = "Paletizado_General_Activo";
+      } else {
+        const campoGrupo = modoFiltroActual;
+        if (!subFiltroSeleccionado) {
+          return lanzarNotificacionFlotante("Seleccione un grupo para exportar.", "error");
+        }
+        registros = db.prepare(`
+          SELECT * FROM local_paletizado 
+          WHERE estado = 'ACTIVO' AND COALESCE(${campoGrupo}, 'SIN ' || UPPER('${campoGrupo}')) = ?
+          ORDER BY fecha_proc DESC
+        `).all(subFiltroSeleccionado);
+        nombreArchivo = `Paletizado_${modoFiltroActual}_${subFiltroSeleccionado.replace(/\s+/g, '_')}`;
+      }
+
+      if (registros.length === 0) {
+        return lanzarNotificacionFlotante("No hay datos para exportar.", "error");
+      }
+
+      // 1. Armar cabeceras y filas para Excel (separado por punto y coma)
+      const cabeceras = ["ID", "NRO_PALLET", "FECHA_PROC", "CANT_UNIDADES", "ESPECIE", "VARIEDAD", "CALIBRE", "EMBALAJE", "CLIENTE", "PRODUCTOR", "ESTADO"];
+      
+      let lineas = [];
+      lineas.push(cabeceras.join(";"));
+
+      registros.forEach(r => {
+        const fila = [
+          r.id || '',
+          `"${r.nro_pallet || r.id || ''}"`,
+          `"${r.fecha_proc || ''}"`,
+          r.cant_unidades || 0,
+          `"${r.especie || ''}"`,
+          `"${r.variedad || ''}"`,
+          `"${r.calibre || ''}"`,
+          `"${r.embalaje || ''}"`,
+          `"${r.cliente || ''}"`,
+          `"${r.productor || ''}"`,
+          `"${r.estado || 'ACTIVO'}"`
+        ];
+        lineas.push(fila.join(";"));
+      });
+
+      const contenidoCSV = "\ufeff" + lineas.join("\n"); // \ufeff asegura codificación UTF-8 en Excel
+
+      // 2. Descarga directa desde el navegador o Electron
+      const blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      
+      const hoyStr = new Date().toISOString().split('T')[0];
+      link.setAttribute("href", url);
+      link.setAttribute("download", `${nombreArchivo}_${hoyStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      lanzarNotificacionFlotante(`📊 Excel/CSV descargado con éxito (${registros.length} registros).`, "success");
+    } catch(e) {
+      console.error(e);
+      lanzarNotificacionFlotante("Error al generar la exportación.", "error");
+    }
+  };
+
+  window.renderizarVistaProduccion = function() {
+    const contGrid = document.getElementById('gridSubmodulos');
+    if (contGrid) contGrid.style.display = 'none';
+
+    modoFiltroActual = 'todos';
+    subFiltroSeleccionado = null;
+    renderizarPantallaProduccion();
+  };
+
+  renderizarPantallaProduccion();
+})();
+</script>
+</body>
+</html>

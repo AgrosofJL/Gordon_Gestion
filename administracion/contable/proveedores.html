@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Proveedores y Cuenta Corriente</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-border: #D2D7D3;
+    --color-adm: #1E6B4C;
+    --color-adm-dark: #104630;
+    --color-adm-soft: rgba(30, 107, 76, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-blue: #0071E3;
+    --color-blue-soft: #EBF3FA;
+    --color-amber: #B45309;
+    --color-amber-soft: #FFFBEB; /* Crema Pastel */
+    --color-amber-border: #FCD34D;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-adm); background-clip: content-box; }
+
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 32px; border-bottom: 1px solid var(--color-border); height: 55px; flex-shrink: 0; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-adm { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+  .sidebar { width: 190px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: 100%; justify-content: center; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .filtro-chip:active, .btn-action:active, .fila-proveedor:active, .modal-btn:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25) !important; transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 15px; font-weight: 800; margin-top: 22px; color: var(--color-adm-dark); letter-spacing: 0.5px; text-transform: uppercase; padding-left: 4px; }
+  .sidebar-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; padding-left: 4px; line-height: 1.5; }
+
+  .main-content { flex-grow: 1; padding: 24px 32px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .header-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo-wrap { position: relative; padding-left: 15px; }
+  .seccion-titulo-wrap::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-adm), var(--color-adm-dark)); }
+  .seccion-titulo { font-size: 24px; font-weight: 800; margin: 0; color: var(--color-adm-dark); line-height: 1.15; }
+  .seccion-subtitulo { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-top: 3px; }
+
+  .btn-action { border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-nuevo { background: var(--color-adm); color: #FFFFFF; box-shadow: 0 4px 10px rgba(30, 107, 76, 0.25); }
+  .btn-nuevo:hover { background: var(--color-adm-dark); transform: translateY(-1px); }
+  .btn-secundario { background: #FFFFFF; color: var(--color-adm-dark); border: 1px solid var(--color-adm); box-shadow: none; }
+  .btn-secundario:hover { background: var(--color-adm-soft); }
+  .btn-excel { background: #107C41; color: #FFFFFF; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.20); }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+  .btn-pdf { background: #B91C1C; color: #FFFFFF; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.20); }
+  .btn-pdf:hover { background: #991515; transform: translateY(-1px); }
+  .btn-pago { background: var(--color-blue); color: #FFFFFF; box-shadow: 0 4px 10px rgba(0, 113, 227, 0.20); }
+  .btn-pago:hover { background: #005BBF; transform: translateY(-1px); }
+
+  .kpi-strip { display: flex; gap: 12px; margin-bottom: 16px; flex-shrink: 0; flex-wrap: wrap; }
+  .kpi-card { flex: 1; min-width: 170px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s ease; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.05); }
+  .kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .kpi-icon.tono-verde { background: var(--color-ok-soft); color: var(--color-ok); }
+  .kpi-icon.tono-rojo { background: var(--color-warn-soft); color: var(--color-warn); }
+  .kpi-icon.tono-amarillo { background: var(--color-amber-soft); color: var(--color-amber); border: 1px solid var(--color-amber-border); }
+  .kpi-icon.tono-azul { background: var(--color-blue-soft); color: var(--color-blue); }
+  .kpi-valor { font-size: 19px; font-weight: 900; color: var(--color-text); line-height: 1.1; }
+  .kpi-valor.grande { font-size: 26px; }
+  .kpi-label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+  .search-input { width: 100%; padding: 11px 14px 11px 38px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23556358' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'></circle><line x1='21' y1='21' x2='16.65' y2='16.65'></line></svg>") no-repeat 12px center / 16px 16px; font-family: inherit; font-size: 13px; margin-bottom: 14px; flex-shrink: 0; transition: all 0.15s ease; }
+  .search-input:focus { outline: none; border-color: var(--color-adm); box-shadow: 0 0 0 3px var(--color-adm-soft); background-color: #FFFFFF; }
+
+  .filtros-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-shrink: 0; flex-wrap: wrap; }
+  .filtro-chip { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
+  .filtro-chip:hover { border-color: var(--color-adm); color: var(--color-adm-dark); }
+  .filtro-chip.active { background: var(--color-adm); border-color: var(--color-adm); color: #FFFFFF; box-shadow: 0 3px 8px rgba(30, 107, 76, 0.25); }
+
+  .tabla-container { flex-grow: 1; overflow-y: auto; background: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); box-shadow: 0 4px 14px rgba(0,0,0,0.03); }
+  .tabla-stock { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .tabla-stock th { position: sticky; top: 0; background: #FAFAF8; padding: 12px 16px; font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--color-border); text-align: left; z-index: 1; }
+  .tabla-stock td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+  .tabla-stock tr:last-child td { border-bottom: none; }
+  .tabla-stock tr.fila-proveedor { cursor: pointer; transition: background 0.15s ease; }
+  .tabla-stock tr.fila-proveedor:hover { background: #F1F9F4; }
+
+  /* Fila estilo Crema Pastel para proveedores sin migrar */
+  .tabla-stock tr.fila-pastel-migrar { background-color: var(--color-amber-soft) !important; }
+  .tabla-stock tr.fila-pastel-migrar:hover { background-color: #FEF3C7 !important; }
+
+  .prov-nombre { font-weight: 800; color: var(--color-text); font-size: 13px; letter-spacing: 0.2px; }
+  .prov-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+
+  .badge-estado { padding: 4px 10px; border-radius: 7px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; display: inline-block; letter-spacing: 0.3px; }
+  .badge-si { background: var(--color-ok-soft); color: var(--color-ok); }
+  .badge-no { background: var(--color-warn-soft); color: var(--color-warn); }
+  .badge-migrar { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+
+  .badge-tipo { padding: 4px 9px; border-radius: 7px; font-size: 9px; font-weight: 800; text-transform: uppercase; display: inline-block; letter-spacing: 0.3px; white-space: nowrap; }
+  .badge-tipo.t-factura { background: var(--color-warn-soft); color: var(--color-warn); }
+  .badge-tipo.t-nota_debito { background: var(--color-amber-soft); color: #B45309; }
+  .badge-tipo.t-nota_credito { background: var(--color-ok-soft); color: var(--color-ok); }
+  .badge-tipo.t-pago { background: var(--color-blue-soft); color: var(--color-blue); }
+
+  .col-num { text-align: right; font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .num-debe { color: var(--color-warn); }
+  .num-haber { color: var(--color-ok); }
+  .num-saldo { font-weight: 900; font-size: 13.5px; }
+  .num-saldo.positivo { color: var(--color-warn); }
+  .num-saldo.cero { color: var(--color-text-secondary); }
+
+  .vista-vacia { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 50px 20px; color: var(--color-text-secondary); }
+  .vista-vacia svg { opacity: 0.35; }
+  .vista-vacia span { font-size: 13px; font-weight: 500; }
+
+  /* Ficha de proveedor */
+  .ruta-volver { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--color-adm); cursor: pointer; margin-bottom: 14px; width: fit-content; }
+  .ruta-volver:hover { text-decoration: underline; }
+
+  .ficha-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; flex-shrink: 0; }
+  .ficha-card-titulo { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .ficha-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ficha-grid .full { grid-column: 1 / -1; }
+
+  .campo-group { display: flex; flex-direction: column; gap: 5px; }
+  .campo-group label { font-size: 10.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .campo-input, .campo-select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAF8; transition: all 0.15s ease; }
+  .campo-input:focus, .campo-select:focus { outline: none; border-color: var(--color-adm); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-adm-soft); }
+
+  .ficha-header-nombre { font-size: 22px; font-weight: 900; color: var(--color-adm-dark); }
+  .ficha-header-cuit { font-size: 12.5px; color: var(--color-text-secondary); font-weight: 600; margin-top: 2px; }
+
+  /* Mini Modal Pro */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 680px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 19px; font-weight: 800; color: var(--color-adm-dark); margin: 0; }
+  .modal-subtitle { font-size: 12.5px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; max-height: 65vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-adm); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-adm-soft); }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-adm); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-adm-dark); }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      operario en turno... <span id="lblOperario" style="color:var(--color-adm); font-weight:700;">—</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-adm">
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Volver
+      </button>
+      <div class="sidebar-titulo">Contable</div>
+      <div class="sidebar-sub">Proveedores, órdenes de compra y estado de cuenta corriente.</div>
+    </div>
+
+    <div class="main-content">
+      <div id="vistaDinamica" style="display:flex; flex-direction:column; flex-grow:1; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+  let generarRegLocal = null;
+
+  if (isElectron) {
+    try {
+      const basesModule = require('../../bases.js');
+      db = basesModule.db;
+      generarRegLocal = basesModule.generarRegLocal;
+    } catch (e) { console.error('Error al iniciar bases.js:', e); }
+  }
+
+  let operarioName = 'ADMINISTRADOR';
+  if (isElectron) {
+    try {
+      const auth = require('../../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { /* auth opcional */ }
+  }
+
+  function q(sql, ...args) { if (!db) return []; try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; } }
+  function qGet(sql, ...args) { if (!db) return null; try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; } }
+  function qRun(sql, ...args) { if (!db) return { changes: 0 }; try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; } }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100); }
+  function money(v) { return (parseFloat(v) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function fechaLarga(f) {
+    if (!f) return 'S/F';
+    try {
+      const [y, m, d] = String(f).split('-').map(Number);
+      if (!y || !m || !d) return f;
+      return `${pad2(d)}/${pad2(m)}/${y}`;
+    } catch (e) { return f; }
+  }
+  function generarToken() { return generarRegLocal ? generarRegLocal() : Math.random().toString(36).slice(2, 12); }
+
+  const ICONS = {
+    building: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"></rect><line x1="9" y1="7" x2="9" y2="7.01"></line><line x1="15" y1="7" x2="15" y2="7.01"></line><line x1="9" y1="11" x2="9" y2="11.01"></line><line x1="15" y1="11" x2="15" y2="11.01"></line><line x1="9" y1="15" x2="9" y2="15.01"></line><line x1="15" y1="15" x2="15" y2="15.01"></line></svg>',
+    alertTriangle: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    checkCircle: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    dollar: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
+    inbox: '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>',
+    fileText: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
+    calendar: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>'
+  };
+
+  // ===== Toasts y mini modal =====
+  const toastContenedor = document.getElementById('toastContenedor');
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = `<div style="font-size:18px; display:flex; align-items:center;">${icono}</div><div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 4000);
+  }
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, saveLabel) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = saveLabel || 'Guardar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  function botonHTML(clase, icono, texto, onclickCall) {
+    return `<button class="btn-action ${clase}" onclick="${onclickCall}">${icono}${escapeHtml(texto)}</button>`;
+  }
+
+  // =========================================================================
+  // Estado
+  // =========================================================================
+  let _vista = 'listado'; // 'listado' | 'ficha'
+  let _proveedorActivo = null;
+  let _queryBusqueda = '';
+  let _filtroListado = 'TODOS'; // TODOS | HABILITADOS | CON_SALDO | PENDIENTES_MIGRAR
+
+  const vistaDinamica = document.getElementById('vistaDinamica');
+
+  // =========================================================================
+  // Datos
+  // =========================================================================
+  // ACA ES LO NUEVO: Unificación usando la estructura de local_i_insumos_ordenes_Compra
+  function obtenerProveedoresConsolidados() {
+    const filas = q(`
+      SELECT 
+  COALESCE(p.proveedor, oc.prov_oc) AS proveedor,
+  p.id AS cuenta_id,
+  p.razon_social,
+  p.cuit,
+  p.localidad,
+  p.telefono,
+  p.habilitado,
+  IFNULL((
+    SELECT SUM(debe) 
+    FROM local_ctb_movimientos_cc m 
+    WHERE UPPER(TRIM(m.proveedor)) = UPPER(TRIM(COALESCE(p.proveedor, oc.prov_oc)))
+  ), 0) AS total_debe,
+  IFNULL((
+    SELECT SUM(haber) 
+    FROM local_ctb_movimientos_cc m 
+    WHERE UPPER(TRIM(m.proveedor)) = UPPER(TRIM(COALESCE(p.proveedor, oc.prov_oc)))
+  ), 0) AS total_haber,
+  IFNULL(oc.cant_oc, 0) AS total_ordenes,
+  IFNULL(oc.suma_oc, 0) AS total_monto_oc,
+  CASE WHEN p.id IS NULL THEN 1 ELSE 0 END AS requiere_migracion
+FROM local_proveedores_cuentas p
+FULL OUTER JOIN (
+  SELECT 
+    UPPER(TRIM(proveedor)) AS prov_oc,
+    COUNT(*) AS cant_oc,
+    SUM(IFNULL(cantidad * imp_uni_usd * IFNULL(NULLIF(cotizacion, 0), 1), 0)) AS suma_oc
+  FROM local_i_insumos_ordenes_Compra
+  WHERE proveedor IS NOT NULL 
+    AND TRIM(proveedor) != '' 
+    AND UPPER(TRIM(proveedor)) NOT IN ('STOCK INICIAL')
+  GROUP BY UPPER(TRIM(proveedor))
+) oc ON UPPER(TRIM(p.proveedor)) = oc.prov_oc
+WHERE COALESCE(p.proveedor, oc.prov_oc) IS NOT NULL 
+  AND TRIM(COALESCE(p.proveedor, oc.prov_oc)) != ''
+ORDER BY requiere_migracion DESC, proveedor COLLATE NOCASE ASC
+    `);
+
+    return filas.map(p => ({
+      ...p,
+      saldo: n2(p.total_debe) - n2(p.total_haber)
+    }));
+  }
+
+  function obtenerMovimientosCC(proveedor) {
+    return q(`SELECT * FROM local_ctb_movimientos_cc WHERE UPPER(TRIM(proveedor)) = UPPER(TRIM(?)) ORDER BY fecha ASC, id ASC`, proveedor);
+  }
+
+  function calcularMovimientosConSaldo(proveedor) {
+    let saldo = 0;
+    return obtenerMovimientosCC(proveedor).map(m => {
+      saldo += (n2(m.debe) - n2(m.haber));
+      return { ...m, saldo_corrido: saldo };
+    });
+  }
+
+  // =========================================================================
+  // Vista LISTADO
+  // =========================================================================
+  function renderListado() {
+    const proveedores = obtenerProveedoresConsolidados();
+    const qStr = _queryBusqueda.toLowerCase();
+
+    const totalProveedores = proveedores.length;
+    const conSaldo = proveedores.filter(p => p.saldo > 0.009);
+    const deudaTotal = conSaldo.reduce((acc, p) => acc + p.saldo, 0);
+    const pendientesMigrar = proveedores.filter(p => p.requiere_migracion === 1).length;
+
+    let filtrados = proveedores.filter(p => {
+      const nombre = String(p.proveedor || '').toLowerCase();
+      const razon = String(p.razon_social || '').toLowerCase();
+      const cuit = String(p.cuit || '').toLowerCase();
+      const qMatch = !qStr || nombre.includes(qStr) || razon.includes(qStr) || cuit.includes(qStr);
+      let filtroMatch = true;
+      if (_filtroListado === 'HABILITADOS') filtroMatch = p.requiere_migracion === 0 && String(p.habilitado || 'SI').toUpperCase() === 'SI';
+      if (_filtroListado === 'CON_SALDO') filtroMatch = p.saldo > 0.009;
+      if (_filtroListado === 'PENDIENTES_MIGRAR') filtroMatch = p.requiere_migracion === 1;
+      return qMatch && filtroMatch;
+    });
+
+    vistaDinamica.innerHTML = `
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo">Proveedores</h1>
+          <div class="seccion-subtitulo">Ficha de proveedores, órdenes de compra e ingresos de insumos</div>
+        </div>
+        ${botonHTML('btn-nuevo', ICONS.building, 'Nuevo Proveedor', 'window.abrirModalNuevoProveedor()')}
+      </div>
+
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-icon tono-verde">${ICONS.building}</div>
+          <div><div class="kpi-valor">${totalProveedores}</div><div class="kpi-label">Proveedores Totales</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-amarillo">${ICONS.alertTriangle}</div>
+          <div><div class="kpi-valor">${pendientesMigrar}</div><div class="kpi-label">Pendientes Migración</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-rojo">${ICONS.dollar}</div>
+          <div><div class="kpi-valor">$ ${money(deudaTotal)}</div><div class="kpi-label">Deuda Total Cta. Cte.</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-azul">${ICONS.checkCircle}</div>
+          <div><div class="kpi-valor">${conSaldo.length}</div><div class="kpi-label">Con Saldo Pendiente</div></div>
+        </div>
+      </div>
+
+      <input type="text" id="searchController" class="search-input" placeholder="Buscar por nombre, razón social o CUIT..." value="${escapeHtml(_queryBusqueda)}" />
+
+      <div class="filtros-bar">
+        <div class="filtro-chip ${_filtroListado === 'TODOS' ? 'active' : ''}" onclick="window.setFiltroListado('TODOS')">TODOS</div>
+        <div class="filtro-chip ${_filtroListado === 'HABILITADOS' ? 'active' : ''}" onclick="window.setFiltroListado('HABILITADOS')">HABILITADOS</div>
+        <div class="filtro-chip ${_filtroListado === 'CON_SALDO' ? 'active' : ''}" onclick="window.setFiltroListado('CON_SALDO')">CON SALDO PENDIENTE</div>
+        <div class="filtro-chip ${_filtroListado === 'PENDIENTES_MIGRAR' ? 'active' : ''}" onclick="window.setFiltroListado('PENDIENTES_MIGRAR')">PENDIENTES MIGRACIÓN (${pendientesMigrar})</div>
+      </div>
+
+      <div class="tabla-container">
+        <table class="tabla-stock">
+          <thead>
+            <tr>
+              <th style="width:26%;">Proveedor</th>
+              <th style="width:13%;">CUIT</th>
+              <th style="width:15%;">Localidad</th>
+              <th style="text-align:center; width:12%;">Órdenes C.</th>
+              <th style="text-align:right; width:17%;">Saldo Cta. Cte.</th>
+              <th style="text-align:center; width:17%;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtrados.length === 0 ? `<tr><td colspan="6"><div class="vista-vacia">${ICONS.inbox}<span>No se encontraron proveedores con este criterio.</span></div></td></tr>` : ''}
+            ${filtrados.map(p => `
+              <tr class="fila-proveedor ${p.requiere_migracion === 1 ? 'fila-pastel-migrar' : ''}" onclick="window.gestionarClicProveedor('${escapeHtml(p.proveedor).replace(/'/g, "\\'")}', ${p.requiere_migracion})">
+                <td>
+                  <div class="prov-nombre">${escapeHtml(p.proveedor).toUpperCase()}</div>
+                  ${p.razon_social ? `<div class="prov-sub">${escapeHtml(p.razon_social)}</div>` : ''}
+                </td>
+                <td>${escapeHtml(p.cuit || 'S/D')}</td>
+                <td>${escapeHtml(p.localidad || 'S/D')}</td>
+                <td style="text-align:center; font-weight:800;">${p.total_ordenes > 0 ? `<span style="color:var(--color-adm); font-size:12px;">${p.total_ordenes}</span>` : '<span style="color:#A0AEC0;">0</span>'}</td>
+                <td class="col-num num-saldo ${p.saldo > 0.009 ? 'positivo' : 'cero'}">$ ${money(p.saldo)}</td>
+                <td style="text-align:center;">
+                  ${p.requiere_migracion === 1 
+                    ? '<span class="badge-estado badge-migrar">MIGRAR FICHA</span>' 
+                    : `<span class="badge-estado ${String(p.habilitado || 'SI').toUpperCase() === 'SI' ? 'badge-si' : 'badge-no'}">${String(p.habilitado || 'SI').toUpperCase() === 'SI' ? 'Habilitado' : 'Inhabilitado'}</span>`}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('searchController').addEventListener('input', e => {
+      _queryBusqueda = e.target.value;
+      renderListado();
+    });
+  }
+
+  window.setFiltroListado = function(f) { _filtroListado = f; renderListado(); };
+
+  window.gestionarClicProveedor = function(nombreProveedor, requiereMigracion) {
+    if (requiereMigracion === 1) {
+      window.desplegarOrdenesYMigracion(nombreProveedor);
+    } else {
+      window.abrirFichaProveedor(nombreProveedor);
+    }
+  };
+
+  // ESTO LO MODIFIQUE: Consulta cruzada entre Órdenes de Compra e Ingresos de Insumos
+  window.desplegarOrdenesYMigracion = function(nombreProveedor) {
+    const ordenes = q(`
+      SELECT oc.*, ing.remito, ing.recibio
+      FROM local_i_insumos_ordenes_Compra oc
+      LEFT JOIN local_i_insumosingresos ing ON oc.reg_local = ing.reg_orden OR CAST(oc.orden_compra AS TEXT) = CAST(ing.orden_compra AS TEXT)
+      WHERE UPPER(TRIM(oc.proveedor)) = UPPER(TRIM(?))
+      ORDER BY oc.id DESC
+    `, nombreProveedor);
+
+    const sumaTotal = ordenes.reduce((acc, o) => {
+      const cant = parseFloat(o.cantidad) || 0;
+      const pu = parseFloat(o.imp_uni_usd) || 0;
+      const cot = parseFloat(o.cotizacion) || 1;
+      return acc + (cant * pu * cot);
+    }, 0);
+
+    const fields = `
+      <div style="background:#FFFBEB; border:1px solid #FCD34D; border-radius:12px; padding:12px 14px; font-size:12px; color:#92400E; margin-bottom:14px;">
+        <strong>⚠️ Proveedor detectado desde Órdenes de Compra:</strong> Este proveedor no posee ficha en la tabla contable. Podés revisar sus compras ingresadas y completar los datos para integrarlo.
+      </div>
+
+      <div style="font-size:12px; font-weight:800; color:var(--color-adm-dark); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Historial de Órdenes e Ingresos (${ordenes.length})</span>
+        <span style="font-size:12.5px; font-weight:900; color:var(--color-adm);">Total Compra: $ ${money(sumaTotal)}</span>
+      </div>
+
+      <div style="max-height:180px; overflow-y:auto; border:1px solid var(--color-border); border-radius:10px; margin-bottom:16px;">
+        <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+          <thead style="background:#FAFAF8; position:sticky; top:0;">
+            <tr>
+              <th style="padding:8px 10px; text-align:left; border-bottom:1px solid var(--color-border);">Fecha / OC / Remito</th>
+              <th style="padding:8px 10px; text-align:left; border-bottom:1px solid var(--color-border);">Artículo / Estado</th>
+              <th style="padding:8px 10px; text-align:right; border-bottom:1px solid var(--color-border);">Cant. / Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${ordenes.length === 0 ? '<tr><td colspan="3" style="padding:12px; text-align:center; color:var(--color-text-secondary);">Sin órdenes ni ingresos registrados.</td></tr>' : ''}
+            ${ordenes.map(o => {
+              const cant = parseFloat(o.cantidad) || 0;
+              const pu = parseFloat(o.imp_uni_usd) || 0;
+              const cot = parseFloat(o.cotizacion) || 1;
+              const totalFila = cant * pu * cot;
+              return `
+                <tr style="border-bottom:1px solid var(--color-border);">
+                  <td style="padding:7px 10px;">
+                    ${fechaLarga(o.fecha)}<br>
+                    <strong style="color:var(--color-adm);">OC #${o.orden_compra || o.id}</strong>
+                    ${o.remito ? `<div style="font-size:10px; color:var(--color-text-secondary);">Rem: ${escapeHtml(o.remito)}</div>` : ''}
+                  </td>
+                  <td style="padding:7px 10px;">
+                    <strong>${escapeHtml(o.articulo || 'Insumo sin especificar')}</strong>
+                    ${o.estado ? `<div style="font-size:10px; color:var(--color-text-secondary); text-transform:uppercase;">Estado: ${escapeHtml(o.estado)}</div>` : ''}
+                  </td>
+                  <td style="padding:7px 10px; text-align:right;">
+                    <div style="font-weight:800; color:var(--color-text);">$ ${money(totalFila)}</div>
+                    <div style="font-size:10px; color:var(--color-text-secondary);">${cant} unidades</div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="font-size:12px; font-weight:800; color:var(--color-adm-dark); margin-bottom:8px; border-top:1px solid var(--color-border); padding-top:10px;">Completar Ficha Contable de Proveedor</div>
+      
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>CUIT</label><input type="text" id="pmCuit" class="modal-input" placeholder="30-12345678-9" /></div>
+        <div class="modal-group">
+          <label>Condición IVA</label>
+          <select id="pmCondicionIva" class="modal-select">
+            <option value="RESPONSABLE INSCRIPTO">Responsable Inscripto</option>
+            <option value="MONOTRIBUTO">Monotributo</option>
+            <option value="EXENTO">Exento</option>
+            <option value="CONSUMIDOR FINAL">Consumidor Final</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Localidad</label><input type="text" id="pmLocalidad" class="modal-input" placeholder="Ej: Villa Regina" /></div>
+        <div class="modal-group"><label>Teléfono</label><input type="text" id="pmTelefono" class="modal-input" /></div>
+      </div>
+      <div class="modal-group"><label>Dirección</label><input type="text" id="pmDireccion" class="modal-input" /></div>
+      <div class="modal-group"><label>Actividad</label><input type="text" id="pmActividad" class="modal-input" placeholder="Ej: Venta de agroquímicos y fertilizantes" /></div>
+    `;
+
+    openMiniModal('Migrar Ficha de Proveedor', nombreProveedor.toUpperCase(), fields, () => {
+      const cuitVal = document.getElementById('pmCuit').value.trim() || null;
+      const localidadVal = document.getElementById('pmLocalidad').value.trim() || null;
+      const actividadVal = document.getElementById('pmActividad').value.trim() || null;
+
+      try {
+        // 1. Inserción en local_proveedores_cuentas
+        const maxCuentas = qGet(`SELECT MAX(id) as maxId FROM local_proveedores_cuentas`);
+        const nextIdCuentas = (maxCuentas && maxCuentas.maxId ? maxCuentas.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_proveedores_cuentas
+            (id, reg_local, proveedor, cuit, condicion_iva, localidad, direccion, telefono, actividad, habilitado, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,'SI',0)
+        `, nextIdCuentas, generarToken(), nombreProveedor.toUpperCase(),
+           cuitVal,
+           document.getElementById('pmCondicionIva').value,
+           localidadVal,
+           document.getElementById('pmDireccion').value.trim() || null,
+           document.getElementById('pmTelefono').value.trim() || null,
+           actividadVal);
+
+        // 2. Inserción en local_p_proveedores
+        const maxP = qGet(`SELECT MAX(id) as maxId FROM local_p_proveedores`);
+        const nextIdP = (maxP && maxP.maxId ? maxP.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_p_proveedores
+            (id, proveedor, cuit, localidad, actividad, sincronizado)
+          VALUES (?,?,?,?,?,0)
+        `, nextIdP, nombreProveedor.toUpperCase(), cuitVal, localidadVal, actividadVal);
+
+        lanzarNotificacionFlotante('Proveedor migrado y registrado en ambas tablas con éxito.', 'success');
+        closeMiniModal();
+        renderListado();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al migrar el proveedor: ' + e.message, 'error');
+      }
+    }, 'Migrar y Guardar Ficha');
+  };
+
+  window.abrirModalNuevoProveedor = function() {
+    const fields = `
+      <div class="modal-group"><label>Nombre / Proveedor</label><input type="text" id="npNombre" class="modal-input" placeholder="Ej: AGROINSUMOS DEL SUR" /></div>
+      <div class="modal-group"><label>Razón Social (opcional)</label><input type="text" id="npRazonSocial" class="modal-input" /></div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>CUIT</label><input type="text" id="npCuit" class="modal-input" placeholder="30-12345678-9" /></div>
+        <div class="modal-group">
+          <label>Condición IVA</label>
+          <select id="npCondicionIva" class="modal-select">
+            <option value="RESPONSABLE INSCRIPTO">Responsable Inscripto</option>
+            <option value="MONOTRIBUTO">Monotributo</option>
+            <option value="EXENTO">Exento</option>
+            <option value="CONSUMIDOR FINAL">Consumidor Final</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Localidad</label><input type="text" id="npLocalidad" class="modal-input" /></div>
+        <div class="modal-group"><label>Teléfono</label><input type="text" id="npTelefono" class="modal-input" /></div>
+      </div>
+      <div class="modal-group"><label>Dirección</label><input type="text" id="npDireccion" class="modal-input" /></div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Email</label><input type="email" id="npEmail" class="modal-input" /></div>
+        <div class="modal-group"><label>Plazo de pago habitual (días)</label><input type="number" id="npPlazoPago" class="modal-input" min="0" value="0" /></div>
+      </div>
+      <div class="modal-group"><label>Actividad</label><input type="text" id="npActividad" class="modal-input" placeholder="Ej: Distribuidor de agroquímicos" /></div>
+    `;
+
+    openMiniModal('Nuevo Proveedor', 'Se crea habilitado en ambas tablas del sistema', fields, () => {
+      const nombre = document.getElementById('npNombre').value.trim();
+      if (!nombre) return lanzarNotificacionFlotante('El nombre del proveedor es obligatorio.', 'warning');
+
+      const cuitVal = document.getElementById('npCuit').value.trim() || null;
+      const localidadVal = document.getElementById('npLocalidad').value.trim() || null;
+      const actividadVal = document.getElementById('npActividad').value.trim() || null;
+
+      try {
+        const maxCuentas = qGet(`SELECT MAX(id) as maxId FROM local_proveedores_cuentas`);
+        const nextIdCuentas = (maxCuentas && maxCuentas.maxId ? maxCuentas.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_proveedores_cuentas
+            (id, reg_local, proveedor, razon_social, cuit, condicion_iva, localidad, direccion, telefono, email, condicion_pago_dias, actividad, habilitado, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextIdCuentas, generarToken(), nombre.toUpperCase(),
+           document.getElementById('npRazonSocial').value.trim() || null,
+           cuitVal,
+           document.getElementById('npCondicionIva').value,
+           localidadVal,
+           document.getElementById('npDireccion').value.trim() || null,
+           document.getElementById('npTelefono').value.trim() || null,
+           document.getElementById('npEmail').value.trim() || null,
+           parseInt(document.getElementById('npPlazoPago').value) || 0,
+           actividadVal,
+           'SI');
+
+        const maxP = qGet(`SELECT MAX(id) as maxId FROM local_p_proveedores`);
+        const nextIdP = (maxP && maxP.maxId ? maxP.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_p_proveedores
+            (id, proveedor, cuit, localidad, actividad, sincronizado)
+          VALUES (?,?,?,?,?,0)
+        `, nextIdP, nombre.toUpperCase(), cuitVal, localidadVal, actividadVal);
+
+        lanzarNotificacionFlotante('Proveedor registrado con éxito en ambas tablas.', 'success');
+        closeMiniModal();
+        renderListado();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al crear el proveedor: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // Vista FICHA (datos generales + cuenta corriente)
+  // =========================================================================
+  window.abrirFichaProveedor = function(nombreProveedor) {
+    _proveedorActivo = nombreProveedor;
+    _vista = 'ficha';
+    renderFicha();
+  };
+
+  function renderFicha() {
+    const p = qGet(`SELECT * FROM local_proveedores_cuentas WHERE UPPER(TRIM(proveedor)) = UPPER(TRIM(?))`, _proveedorActivo);
+    if (!p) { lanzarNotificacionFlotante('No se encontró el proveedor.', 'error'); _vista = 'listado'; renderListado(); return; }
+
+    const movimientos = calcularMovimientosConSaldo(_proveedorActivo);
+    const saldoActual = movimientos.length ? movimientos[movimientos.length - 1].saldo_corrido : 0;
+    const totalFacturado = movimientos.reduce((acc, m) => acc + n2(m.debe), 0);
+    const totalPagado = movimientos.reduce((acc, m) => acc + n2(m.haber), 0);
+
+    const hoy = hoyStr();
+    const vencimientosFuturos = movimientos
+      .filter(m => (m.tipo === 'FACTURA' || m.tipo === 'NOTA_DEBITO') && m.fecha_vencimiento && m.fecha_vencimiento >= hoy)
+      .sort((a, b) => a.fecha_vencimiento.localeCompare(b.fecha_vencimiento));
+    const proximoVencimiento = vencimientosFuturos.length ? vencimientosFuturos[0].fecha_vencimiento : null;
+
+    vistaDinamica.innerHTML = `
+      <div class="ruta-volver" onclick="window.volverAlListado()">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver al listado de proveedores
+      </div>
+
+      <div class="header-area">
+        <div class="seccion-titulo-wrap">
+          <div class="ficha-header-nombre">${escapeHtml(p.proveedor).toUpperCase()}</div>
+          <div class="ficha-header-cuit">CUIT: ${escapeHtml(p.cuit || 'S/D')} · ${escapeHtml(p.condicion_iva || 'S/D')}</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          ${botonHTML('btn-nuevo', ICONS.fileText, 'Nuevo Comprobante', 'window.abrirModalNuevoComprobante()')}
+          ${botonHTML('btn-pago', ICONS.dollar, 'Registrar Pago', 'window.abrirModalNuevoPago()')}
+        </div>
+      </div>
+
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-icon ${saldoActual > 0.009 ? 'tono-rojo' : 'tono-verde'}">${ICONS.dollar}</div>
+          <div><div class="kpi-valor grande">$ ${money(saldoActual)}</div><div class="kpi-label">Saldo actual</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-amarillo">${ICONS.fileText}</div>
+          <div><div class="kpi-valor">$ ${money(totalFacturado)}</div><div class="kpi-label">Total facturado</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-azul">${ICONS.checkCircle}</div>
+          <div><div class="kpi-valor">$ ${money(totalPagado)}</div><div class="kpi-label">Total pagado</div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon tono-verde">${ICONS.calendar}</div>
+          <div><div class="kpi-valor" style="font-size:15px;">${proximoVencimiento ? fechaLarga(proximoVencimiento) : 'Sin vencimientos'}</div><div class="kpi-label">Próximo vencimiento</div></div>
+        </div>
+      </div>
+
+      <div class="ficha-card">
+        <div class="ficha-card-titulo">
+          <span>Datos Generales</span>
+          ${botonHTML('btn-secundario', '', 'Guardar Ficha', 'window.guardarFichaProveedor()')}
+        </div>
+        <div class="ficha-grid">
+          <div class="campo-group"><label>Nombre / Proveedor</label><input type="text" id="fNombre" class="campo-input" value="${escapeHtml(p.proveedor)}" disabled /></div>
+          <div class="campo-group"><label>Razón Social</label><input type="text" id="fRazonSocial" class="campo-input" value="${escapeHtml(p.razon_social || '')}" /></div>
+          <div class="campo-group"><label>CUIT</label><input type="text" id="fCuit" class="campo-input" value="${escapeHtml(p.cuit || '')}" /></div>
+          <div class="campo-group">
+            <label>Condición IVA</label>
+            <select id="fCondicionIva" class="campo-select">
+              ${['RESPONSABLE INSCRIPTO', 'MONOTRIBUTO', 'EXENTO', 'CONSUMIDOR FINAL'].map(op => `<option value="${op}" ${String(p.condicion_iva || '').toUpperCase() === op ? 'selected' : ''}>${op.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}</option>`).join('')}
+            </select>
+          </div>
+          <div class="campo-group"><label>Localidad</label><input type="text" id="fLocalidad" class="campo-input" value="${escapeHtml(p.localidad || '')}" /></div>
+          <div class="campo-group"><label>Teléfono</label><input type="text" id="fTelefono" class="campo-input" value="${escapeHtml(p.telefono || '')}" /></div>
+          <div class="campo-group full"><label>Dirección</label><input type="text" id="fDireccion" class="campo-input" value="${escapeHtml(p.direccion || '')}" /></div>
+          <div class="campo-group"><label>Email</label><input type="email" id="fEmail" class="campo-input" value="${escapeHtml(p.email || '')}" /></div>
+          <div class="campo-group"><label>Plazo de pago (días)</label><input type="number" id="fPlazoPago" class="campo-input" min="0" value="${p.condicion_pago_dias || 0}" /></div>
+          <div class="campo-group">
+            <label>Habilitado</label>
+            <select id="fHabilitado" class="campo-select">
+              <option value="SI" ${String(p.habilitado || 'SI').toUpperCase() === 'SI' ? 'selected' : ''}>SÍ</option>
+              <option value="NO" ${String(p.habilitado || 'SI').toUpperCase() === 'NO' ? 'selected' : ''}>NO</option>
+            </select>
+          </div>
+          <div class="campo-group full"><label>Actividad</label><input type="text" id="fActividad" class="campo-input" value="${escapeHtml(p.actividad || '')}" /></div>
+        </div>
+      </div>
+
+      <div class="header-area" style="margin-bottom:10px;">
+        <div class="seccion-titulo-wrap" style="padding-left:0;">
+          <div style="font-size:15px; font-weight:800; color:var(--color-adm-dark);">Estado de Cuenta Corriente</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          ${botonHTML('btn-excel', ICONS.fileText, 'Excel', 'window.exportarCtaCteExcel()')}
+          ${botonHTML('btn-pdf', ICONS.fileText, 'PDF', 'window.exportarCtaCtePdf()')}
+        </div>
+      </div>
+
+      <div class="tabla-container">
+        <table class="tabla-stock">
+          <thead>
+            <tr>
+              <th style="width:10%;">Fecha</th>
+              <th style="width:12%;">Tipo</th>
+              <th style="width:12%;">Comprobante</th>
+              <th style="width:26%;">Concepto</th>
+              <th style="width:10%;">Vencimiento</th>
+              <th style="text-align:right;">Debe</th>
+              <th style="text-align:right;">Haber</th>
+              <th style="text-align:right;">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${movimientos.length === 0 ? `<tr><td colspan="8"><div class="vista-vacia">${ICONS.inbox}<span>Todavía no hay movimientos registrados para este proveedor.</span></div></td></tr>` : ''}
+            ${movimientos.map(m => `
+              <tr>
+                <td>${fechaLarga(m.fecha)}</td>
+                <td><span class="badge-tipo t-${String(m.tipo || '').toLowerCase()}">${escapeHtml((m.tipo || '').replace('_', ' '))}</span></td>
+                <td>${escapeHtml(m.numero_comprobante || '—')}</td>
+                <td>${escapeHtml(m.concepto || '')}${m.medio_pago ? ` <span style="color:var(--color-text-secondary); font-size:11px;">(${escapeHtml(m.medio_pago)})</span>` : ''}</td>
+                <td>${m.fecha_vencimiento ? fechaLarga(m.fecha_vencimiento) : '—'}</td>
+                <td class="col-num num-debe">${n2(m.debe) > 0 ? '$ ' + money(m.debe) : '—'}</td>
+                <td class="col-num num-haber">${n2(m.haber) > 0 ? '$ ' + money(m.haber) : '—'}</td>
+                <td class="col-num num-saldo ${m.saldo_corrido > 0.009 ? 'positivo' : 'cero'}">$ ${money(m.saldo_corrido)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  window.volverAlListado = function() {
+    _vista = 'listado';
+    _proveedorActivo = null;
+    renderListado();
+  };
+
+  window.guardarFichaProveedor = function() {
+    if (!_proveedorActivo) return;
+
+    const cuitVal = document.getElementById('fCuit').value.trim() || null;
+    const localidadVal = document.getElementById('fLocalidad').value.trim() || null;
+    const actividadVal = document.getElementById('fActividad').value.trim() || null;
+
+    try {
+      qRun(`
+        UPDATE local_proveedores_cuentas
+        SET razon_social = ?, cuit = ?, condicion_iva = ?, localidad = ?, direccion = ?, telefono = ?, email = ?, condicion_pago_dias = ?, habilitado = ?, actividad = ?, sincronizado = 0
+        WHERE UPPER(TRIM(proveedor)) = UPPER(TRIM(?))
+      `,
+        document.getElementById('fRazonSocial').value.trim() || null,
+        cuitVal,
+        document.getElementById('fCondicionIva').value,
+        localidadVal,
+        document.getElementById('fDireccion').value.trim() || null,
+        document.getElementById('fTelefono').value.trim() || null,
+        document.getElementById('fEmail').value.trim() || null,
+        parseInt(document.getElementById('fPlazoPago').value) || 0,
+        document.getElementById('fHabilitado').value,
+        actividadVal,
+        _proveedorActivo);
+
+      qRun(`
+        UPDATE local_p_proveedores
+        SET cuit = ?, localidad = ?, actividad = ?, sincronizado = 0
+        WHERE UPPER(TRIM(proveedor)) = UPPER(TRIM(?))
+      `, cuitVal, localidadVal, actividadVal, _proveedorActivo);
+
+      lanzarNotificacionFlotante('Ficha del proveedor actualizada en ambas tablas.', 'success');
+      renderFicha();
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al guardar la ficha: ' + e.message, 'error');
+    }
+  };
+
+  window.abrirModalNuevoComprobante = function() {
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Tipo de Comprobante</label>
+          <select id="ncTipo" class="modal-select">
+            <option value="FACTURA">Factura (aumenta la deuda)</option>
+            <option value="NOTA_DEBITO">Nota de Débito (aumenta la deuda)</option>
+            <option value="NOTA_CREDITO">Nota de Crédito (disminuye la deuda)</option>
+          </select>
+        </div>
+        <div class="modal-group"><label>Número de Comprobante</label><input type="text" id="ncNumero" class="modal-input" placeholder="0001-00012345" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="ncFecha" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Vencimiento (opcional)</label><input type="date" id="ncVencimiento" class="modal-input" /></div>
+      </div>
+      <div class="modal-group"><label>Monto</label><input type="number" id="ncMonto" class="modal-input" step="0.01" min="0" placeholder="0.00" /></div>
+      <div class="modal-group"><label>Concepto</label><input type="text" id="ncConcepto" class="modal-input" placeholder="Ej: Compra de agroquímicos - Remito 4521" /></div>
+    `;
+
+    openMiniModal('Nuevo Comprobante', _proveedorActivo, fields, () => {
+      const monto = parseFloat(document.getElementById('ncMonto').value);
+      if (!monto || monto <= 0) return lanzarNotificacionFlotante('Ingresá un monto válido.', 'warning');
+
+      try {
+        const maxId = qGet(`SELECT MAX(id) as maxId FROM local_ctb_movimientos_cc`);
+        const nextId = (maxId && maxId.maxId ? maxId.maxId : 0) + 1;
+        const tipo = document.getElementById('ncTipo').value;
+        const esCredito = tipo === 'NOTA_CREDITO';
+
+        qRun(`
+          INSERT INTO local_ctb_movimientos_cc
+            (id, reg_local, proveedor, fecha, tipo, numero_comprobante, concepto, debe, haber, fecha_vencimiento, operario, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextId, generarToken(), _proveedorActivo,
+           document.getElementById('ncFecha').value || hoyStr(), tipo,
+           document.getElementById('ncNumero').value.trim() || null,
+           document.getElementById('ncConcepto').value.trim() || null,
+           esCredito ? 0 : monto, esCredito ? monto : 0,
+           document.getElementById('ncVencimiento').value || null,
+           operarioName);
+
+        lanzarNotificacionFlotante('Comprobante registrado en la cuenta corriente.', 'success');
+        closeMiniModal();
+        renderFicha();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al registrar el comprobante: ' + e.message, 'error');
+      }
+    });
+  };
+
+  window.abrirModalNuevoPago = function() {
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Fecha</label><input type="date" id="npgFecha" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Monto</label><input type="number" id="npgMonto" class="modal-input" step="0.01" min="0" placeholder="0.00" /></div>
+      </div>
+      <div class="modal-row-grid">
+        <div class="modal-group">
+          <label>Medio de Pago</label>
+          <select id="npgMedio" class="modal-select">
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="CHEQUE">Cheque</option>
+            <option value="OTRO">Otro</option>
+          </select>
+        </div>
+        <div class="modal-group"><label>Nº de Operación (opcional)</label><input type="text" id="npgNumero" class="modal-input" /></div>
+      </div>
+      <div class="modal-group"><label>Concepto</label><input type="text" id="npgConcepto" class="modal-input" placeholder="Ej: Pago a cuenta factura 0001-00012345" /></div>
+    `;
+
+    openMiniModal('Registrar Pago', _proveedorActivo, fields, () => {
+      const monto = parseFloat(document.getElementById('npgMonto').value);
+      if (!monto || monto <= 0) return lanzarNotificacionFlotante('Ingresá un monto válido.', 'warning');
+
+      try {
+        const maxId = qGet(`SELECT MAX(id) as maxId FROM local_ctb_movimientos_cc`);
+        const nextId = (maxId && maxId.maxId ? maxId.maxId : 0) + 1;
+
+        qRun(`
+          INSERT INTO local_ctb_movimientos_cc
+            (id, reg_local, proveedor, fecha, tipo, numero_comprobante, concepto, debe, haber, medio_pago, operario, sincronizado)
+          VALUES (?,?,?,?,'PAGO',?,?,0,?,?,?,0)
+        `, nextId, generarToken(), _proveedorActivo,
+           document.getElementById('npgFecha').value || hoyStr(),
+           document.getElementById('npgNumero').value.trim() || null,
+           document.getElementById('npgConcepto').value.trim() || null,
+           monto,
+           document.getElementById('npgMedio').value,
+           operarioName);
+
+        lanzarNotificacionFlotante('Pago registrado en la cuenta corriente.', 'success');
+        closeMiniModal();
+        renderFicha();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al registrar el pago: ' + e.message, 'error');
+      }
+    });
+  };
+
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6B4C' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  window.exportarCtaCteExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const movimientos = calcularMovimientosConSaldo(_proveedorActivo);
+    if (movimientos.length === 0) return lanzarNotificacionFlotante('No hay movimientos para exportar.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Contable';
+      crearHojaEstilizada(wb, 'Estado de Cuenta', [
+        { header: 'FECHA', key: 'fecha', width: 12 },
+        { header: 'TIPO', key: 'tipo', width: 16 },
+        { header: 'COMPROBANTE', key: 'numero', width: 18 },
+        { header: 'CONCEPTO', key: 'concepto', width: 32 },
+        { header: 'VENCIMIENTO', key: 'venc', width: 12 },
+        { header: 'DEBE', key: 'debe', width: 14 },
+        { header: 'HABER', key: 'haber', width: 14 },
+        { header: 'SALDO', key: 'saldo', width: 14 }
+      ], movimientos.map(m => ({
+        fecha: fechaLarga(m.fecha), tipo: (m.tipo || '').replace('_', ' '), numero: m.numero_comprobante || '',
+        concepto: m.concepto || '', venc: m.fecha_vencimiento ? fechaLarga(m.fecha_vencimiento) : '',
+        debe: Number(n2(m.debe)), haber: Number(n2(m.haber)), saldo: Number(n2(m.saldo_corrido))
+      })));
+      const nombre = `EstadoCuenta_${_proveedorActivo.replace(/[^a-zA-Z0-9]/g, '_')}_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  };
+
+  window.exportarCtaCtePdf = function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const p = qGet(`SELECT * FROM local_proveedores_cuentas WHERE UPPER(TRIM(proveedor)) = UPPER(TRIM(?))`, _proveedorActivo);
+    const movimientos = calcularMovimientosConSaldo(_proveedorActivo);
+    if (movimientos.length === 0) return lanzarNotificacionFlotante('No hay movimientos para exportar.', 'warning');
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs'); const pathMod = require('path'); const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margen = 15;
+      const ALTO_HEADER = 46;
+
+      const fechaEmision = new Date().toLocaleString('es-AR');
+      const folio = 'CC-' + hoyStr().replace(/-/g, '') + '-' + Date.now().toString().slice(-5);
+      const saldoFinal = movimientos[movimientos.length - 1].saldo_corrido;
+
+      let logoBase64 = null;
+      try { logoBase64 = fs.readFileSync(pathMod.join(__dirname, '../../logo.png')).toString('base64'); }
+      catch (e) { console.error('No se pudo cargar logo.png:', e.message); }
+
+      function dibujarEncabezado() {
+        doc.setFillColor(30, 107, 76);
+        doc.rect(0, 0, pageW, 2.6, 'F');
+
+        doc.setFillColor(244, 248, 246);
+        doc.rect(0, 2.6, pageW, ALTO_HEADER - 2.6, 'F');
+
+        const topY = 9;
+        if (logoBase64) {
+          try { doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, topY, 20, 20); } catch (e) {}
+        }
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(26, 33, 28);
+        doc.text('GORDON GESTIÓN', margen + 25, topY + 6.5);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(16, 70, 48);
+        doc.text('AGROSOFT J&L · Módulo Contable', margen + 25, topY + 12);
+        doc.setFontSize(8); doc.setTextColor(85, 99, 88);
+        doc.text('Estado de Cuenta Corriente de Proveedores', margen + 25, topY + 16.8);
+
+        const boxW = 70, boxH = 24, boxX = pageW - margen - boxW, boxY = topY - 1;
+        doc.setDrawColor(210, 215, 211); doc.setLineWidth(0.3);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(boxX, boxY, boxW, boxH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(30, 107, 76);
+        doc.text('ESTADO DE CUENTA', boxX + boxW / 2, boxY + 6.5, { align: 'center' });
+
+        doc.setDrawColor(225, 230, 226); doc.setLineWidth(0.15);
+        doc.line(boxX + 4, boxY + 9, boxX + boxW - 4, boxY + 9);
+
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.3); doc.setTextColor(85, 99, 88);
+        doc.text(`Folio: ${folio}`, boxX + 4, boxY + 13.5);
+        doc.text(`Emitido: ${fechaEmision}`, boxX + 4, boxY + 17.7);
+        doc.text(`Movimientos: ${movimientos.length}`, boxX + 4, boxY + 21.9);
+
+        doc.setDrawColor(30, 107, 76); doc.setLineWidth(0.6);
+        doc.line(margen, ALTO_HEADER - 1, pageW - margen, ALTO_HEADER - 1);
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(30, 107, 76);
+        doc.text(`PROVEEDOR: ${String(p ? p.proveedor : _proveedorActivo).toUpperCase()}${p && p.cuit ? '  ·  CUIT: ' + p.cuit : ''}`, margen, ALTO_HEADER + 4.5);
+      }
+
+      autoTable(doc, {
+        startY: ALTO_HEADER + 8,
+        margin: { left: margen, right: margen, top: ALTO_HEADER + 8, bottom: 22 },
+        head: [['Fecha', 'Tipo', 'Comprobante', 'Concepto', 'Vencim.', 'Debe', 'Haber', 'Saldo']],
+        body: movimientos.map(m => [
+          fechaLarga(m.fecha),
+          (m.tipo || '').replace('_', ' '),
+          m.numero_comprobante || '—',
+          `${m.concepto || ''}${m.medio_pago ? ' (' + m.medio_pago + ')' : ''}`,
+          m.fecha_vencimiento ? fechaLarga(m.fecha_vencimiento) : '—',
+          n2(m.debe) > 0 ? money(m.debe) : '—',
+          n2(m.haber) > 0 ? money(m.haber) : '—',
+          money(m.saldo_corrido)
+        ]),
+        headStyles: { fillColor: [30, 107, 76], textColor: 255, fontSize: 8, halign: 'center' },
+        styles: { fontSize: 8, cellPadding: 2.6, lineColor: [225, 230, 226], lineWidth: 0.15 },
+        alternateRowStyles: { fillColor: [244, 248, 246] },
+        columnStyles: {
+          5: { halign: 'right' }, 6: { halign: 'right' },
+          7: { halign: 'right', fontStyle: 'bold', textColor: [198, 40, 40] }
+        },
+        theme: 'grid',
+        didDrawPage: dibujarEncabezado
+      });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setDrawColor(210, 215, 211); doc.setLineWidth(0.2);
+        doc.line(margen, pageH - 14, pageW - margen, pageH - 14);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.3); doc.setTextColor(150, 150, 150);
+        doc.text(`Documento generado automáticamente por Gordon Gestión · Folio ${folio}`, margen, pageH - 9);
+        doc.text(`Página ${i} de ${totalPaginas}`, pageW - margen, pageH - 9, { align: 'right' });
+      }
+
+      doc.setPage(totalPaginas);
+      const finalY = (doc.lastAutoTable && doc.lastAutoTable.finalY) || (ALTO_HEADER + 8);
+      if (pageH - finalY > 26) {
+        doc.setDrawColor(30, 107, 76); doc.setLineWidth(0.3);
+        doc.line(pageW - margen - 80, finalY + 5, pageW - margen, finalY + 5);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(30, 107, 76);
+        doc.text(`SALDO FINAL: $ ${money(saldoFinal)}`, pageW - margen, finalY + 11, { align: 'right' });
+      }
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const nombre = `EstadoCuenta_${_proveedorActivo.replace(/[^a-zA-Z0-9]/g, '_')}_${hoyStr()}.pdf`;
+      fs.writeFileSync(pathMod.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  };
+
+  // =========================================================================
+  // Arranque
+  // =========================================================================
+  document.getElementById('btnVolver').addEventListener('click', () => {
+    if (_vista === 'ficha') { window.volverAlListado(); return; }
+    window.location.href = '../contable.html';
+  });
+
+  document.getElementById('topDateTime').textContent = new Date()
+    .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+    .toUpperCase();
+  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+
+  renderListado();
+})();
+</script>
+</body>
+</html>

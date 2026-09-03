@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Menú Campo</title>
+<style>
+  :root {
+    --color-bg: #F3F5F1;
+    --color-surface: #FFFFFF;
+    --color-text: #1B231D;
+    --color-text-secondary: #5F6B62;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #123F2C;
+    --color-accent-soft: rgba(30, 107, 76, 0.10);
+    --color-gold-soft: rgba(184, 134, 42, 0.14);
+    --color-border: rgba(27, 35, 29, 0.10);
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+
+  body {
+    font-family: var(--font-family);
+    background: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .barra-superior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 44px;
+    background-color: rgba(255, 255, 255, 0.78);
+    background-image: repeating-linear-gradient(
+      100deg,
+      rgba(30, 107, 76, 0.035) 0px,
+      rgba(30, 107, 76, 0.035) 1.5px,
+      transparent 1.5px,
+      transparent 38px
+    );
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-volver:hover {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    border-color: var(--color-accent);
+  }
+
+  .btn-volver:active {
+    transform: scale(0.97);
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+  }
+
+  /* Botón de sincronización (mismo patrón que menu_central.html) */
+  .btn-sync {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-sync:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); }
+  .btn-sync:disabled { opacity: 0.6; cursor: wait; }
+  .rotating { animation: girar 1s linear infinite; }
+  @keyframes girar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .usuario-actual { display: flex; align-items: center; gap: 12px; }
+  .datos-usuario { line-height: 1.3; text-align: right; }
+  .datos-usuario .nombre { font-size: 13.5px; font-weight: 600; }
+  .rol-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-soft);
+    padding: 1px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .contenido {
+    padding: 40px 44px 60px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .cabecera-seccion h1 {
+    font-size: 27px;
+    font-weight: 650;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    color: var(--color-accent-dark);
+  }
+  .cabecera-seccion p { margin: 0; color: var(--color-text-secondary); font-size: 14.5px; }
+
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 34px;
+  }
+
+  .card-submodulo {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 30px 24px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 1px 2px rgba(20, 30, 24, 0.04);
+    opacity: 0;
+    animation: entrar 0.45s ease forwards;
+    font-family: inherit;
+    color: inherit;
+    display: block;
+    width: 100%;
+  }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-submodulo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(20, 30, 24, 0.10);
+  }
+
+  .icono-submodulo {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .card-submodulo h3 { margin: 0 0 6px; font-size: 17px; font-weight: 650; }
+  .card-submodulo p { margin: 0; font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.4; }
+
+  @media (max-width: 640px) {
+    .barra-superior, .contenido { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="barra-superior">
+    <button class="btn-volver" id="btnVolver">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Menú Principal
+    </button>
+
+    <div class="usuario-actual">
+      <div class="datos-usuario">
+        <div class="nombre" id="nombreUsuario">—</div>
+        <span class="rol-badge" id="rolUsuario">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div class="cabecera-seccion">
+      <h1>Operaciones de Campo</h1>
+      <p>Gestión de riegos, aplicaciones sanitarias y parámetros generales.</p>
+    </div>
+
+    <div class="grid-cards" id="gridSubmodulos"></div>
+  </div>
+
+<script>
+(function () {
+  const electronDisponible = typeof require === 'function';
+  let auth = null;
+  if (electronDisponible) {
+    try {
+      auth = require('../auth.js'); // Subimos un nivel de carpeta para buscar auth.js
+    } catch (e) {
+      console.warn('No se pudo cargar auth.js:', e.message);
+    }
+  }
+
+  // Iconos SVG para tus 3 secciones requeridas
+  const ICONOS = {
+    parametros: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    riego: '<path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/>',
+    aplicaciones: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'
+  };
+
+  function svgIcono(nombre) {
+    return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONOS[nombre]}</svg>`;
+  }
+
+  // Definición exacta de las 3 páginas requeridas
+  const SUBMODULOS = [
+    { key: 'parametros_campo', titulo: 'Parámetros', descripcion: 'Configuración de cuadros, cultivos y variedades.', icono: 'parametros' },
+    { key: 'riego', titulo: 'Riego', descripcion: 'Partes diarios de riego, sectores y válvulas.', icono: 'riego' },
+    { key: 'aplicaciones', titulo: 'Aplicaciones', descripcion: 'Órdenes de aplicación, recetas y fertirriego.', icono: 'aplicaciones' }
+  ];
+
+  function abrirSubmodulo(key) {
+    if (electronDisponible) {
+      window.location.href = `${key}.html`; // Carga el archivo .html del submódulo
+    } else {
+      alert('Abriendo submódulo en vista previa: ' + key);
+    }
+  }
+
+
+
+  function renderizar(sesion) {
+    document.getElementById('nombreUsuario').textContent = sesion.nombre_completo || sesion.usuario;
+    document.getElementById('rolUsuario').textContent = sesion.rol === 'admin' ? 'Administrador' : sesion.rol || 'Operario';
+
+    const grid = document.getElementById('gridSubmodulos');
+    grid.innerHTML = SUBMODULOS
+      .map(
+        (sm, i) => `
+      <button type="button" class="card-submodulo" style="animation-delay:${i * 0.05}s" data-key="${sm.key}">
+        <div class="icono-submodulo">${svgIcono(sm.icono)}</div>
+        <h3>${sm.titulo}</h3>
+        <p>${sm.descripcion}</p>
+      </button>
+    `
+      )
+      .join('');
+
+    grid.querySelectorAll('.card-submodulo').forEach((el) => {
+      el.addEventListener('click', () => abrirSubmodulo(el.dataset.key));
+    });
+  }
+
+  // Obtener sesión activa
+  let sesion = null;
+  if (auth) {
+    sesion = auth.obtenerSesionActiva();
+    if (!sesion) {
+      window.location.href = '../login.html';
+      return;
+    }
+  } else {
+    // Modo depuración visual
+    sesion = { nombre_completo: 'Juanchi Dev', rol: 'admin' };
+  }
+
+  document.getElementById('btnVolver').addEventListener('click', () => {
+  window.location.href = '../menu_central.html';
+  });
+
+  renderizar(sesion);
+})();
+</script>
+</body>
+</html>

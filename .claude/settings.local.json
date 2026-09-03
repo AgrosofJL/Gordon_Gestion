@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($p = \"c:\\\\Users\\\\pc\\\\Desktop\\\\TRABAJO\\\\SISTEMAS AGROSOFT J_L\\\\GORDON DIEGO NUEVO\\\\gordon_gestion\\\\node_modules\\\\exceljs\"; Write-Output \"version:\"; \\(Get-Content \\(Join-Path $p \"package.json\"\\) | ConvertFrom-Json\\).version; Write-Output \"----\"; Test-Path \\(Join-Path $p \"lib\\\\xlsx\\\\xform\\\\sheet\\\\cf\"\\); Write-Output \"----\"; Get-ChildItem \\(Join-Path $p \"lib\\\\xlsx\\\\xform\\\\sheet\"\\) -ErrorAction SilentlyContinue | Select-Object Name)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\pc\\\\AppData\\\\Roaming\\\\Code\\\\User\\\\History\" -Filter \"entries.json\" -Recurse | ForEach-Object { $content = Get-Content $_.FullName -Raw; if \\($content -match \"personal\\\\.html\"\\) { $_.FullName } })"
+    ]
+  }
+}

@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Egresos y Despacho</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F5F4F1;
+    --color-surface: #FFFFFF;
+    --color-text: #211C16;
+    --color-text-secondary: #6B6255;
+    --color-border: #E0DCD4;
+    --color-ins: #B45309;
+    --color-ins-dark: #7C3809;
+    --color-ins-soft: rgba(180, 83, 9, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DAD4C8; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-ins); background-clip: content-box; }
+
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 30px; border-bottom: 1px solid var(--color-border); height: 55px; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-ins); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-ins { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  .sidebar { width: 220px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
+  .sidebar-header { margin-bottom: 20px; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 9px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: 100%; justify-content: center; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .renglon-card:active, .btn-sidebar:active,
+  .btn-global-add:active, .modal-btn:active, .btn-excel:active, .btn-pdf:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 11px; font-weight: 800; margin-top: 15px; margin-bottom: 10px; color: var(--color-text-secondary); letter-spacing: 0.8px; text-transform: uppercase; }
+
+  .menu-sidebar-list { display: flex; flex-direction: column; gap: 6px; }
+  .btn-sidebar { border: 1px solid transparent; background: transparent; padding: 12px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; transition: all 0.2s ease; }
+  .btn-sidebar:hover { background: var(--color-bg); color: var(--color-ins-dark); }
+  .btn-sidebar.active { background: var(--color-ins-soft); border-color: var(--color-ins); color: var(--color-ins-dark); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.08); }
+
+  .main-content { flex-grow: 1; padding: 30px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .ruta-navegacion { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; flex-shrink: 0; }
+  .ruta-step { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 11px; display: inline-flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+  .step-inicio { background: #FBEEDD; color: #7C3809; }
+  .ruta-step.clickable { cursor: pointer; }
+  .ruta-step.clickable:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .ruta-separator { color: var(--color-text-secondary); font-weight: bold; font-size: 11px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo { font-size: 24px; font-weight: 700; margin: 0; color: var(--color-ins-dark); position: relative; padding-left: 14px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 5px; bottom: 5px; width: 4px; border-radius: 4px; background: linear-gradient(180deg, var(--color-ins), var(--color-ins-dark)); }
+
+  .btn-global-add { background: var(--color-ins); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.20); transition: all 0.2s ease; }
+  .btn-global-add:hover { background: var(--color-ins-dark); }
+
+  .btn-secundario { background: #FFFFFF; color: var(--color-ins-dark); border: 1px solid var(--color-ins); border-radius: var(--radius-md); padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-secundario:hover { background: var(--color-ins-soft); }
+
+  .btn-excel { background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease; }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+
+  .btn-pdf { background: #B91C1C; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.15); transition: all 0.2s ease; }
+  .btn-pdf:hover { background: #991515; transform: translateY(-1px); }
+
+  .btn-mini { border: 1px solid var(--color-border); background: #FFFFFF; cursor: pointer; padding: 5px 9px; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: var(--color-text-secondary); transition: all 0.15s ease; }
+  .btn-mini:hover { border-color: var(--color-ins); color: var(--color-ins-dark); }
+  .btn-mini.ok:hover { border-color: var(--color-ok); color: var(--color-ok); background: var(--color-ok-soft); }
+  .btn-mini.peligro:hover { border-color: var(--color-warn); color: var(--color-warn); background: var(--color-warn-soft); }
+
+  .seccion-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
+
+  .buscador-catalogo { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: #FFFFFF; font-family: inherit; font-size: 13px; margin-bottom: 12px; }
+  .buscador-catalogo:focus { outline: none; border-color: var(--color-ins); box-shadow: 0 0 0 3px var(--color-ins-soft); }
+
+  .form-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+  .form-card-titulo { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-row-grid.tres { grid-template-columns: 1fr 1fr 1fr; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-ins); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-ins-soft); }
+
+  .sugerencias-lista { border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-top: 6px; overflow: hidden; background: #FFFFFF; }
+  .sugerencia-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--color-border); }
+  .sugerencia-item:hover { background: var(--color-ins-soft); }
+  .sugerencia-item .art { font-size: 12.5px; font-weight: 700; color: var(--color-text); }
+  .sugerencia-item .meta { font-size: 10.5px; color: var(--color-text-secondary); }
+
+  .articulo-elegido { display: flex; align-items: center; justify-content: space-between; background: var(--color-ins-soft); border: 1px solid var(--color-ins); border-radius: var(--radius-md); padding: 12px 14px; margin-top: 8px; }
+  .articulo-elegido .nombre { font-size: 13px; font-weight: 800; color: var(--color-ins-dark); }
+  .articulo-elegido .stock { font-size: 11px; color: var(--color-text-secondary); }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); flex-wrap: wrap; gap: 10px; margin-bottom: 8px; cursor: pointer; }
+  .renglon-card:hover { border-color: var(--color-ins); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .renglon-card.sin-click { cursor: default; }
+  .renglon-data-container { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; flex-grow: 1; }
+  .renglon-info-block { display: flex; flex-direction: column; }
+  .renglon-info-block span.label { font-size: 9.5px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .renglon-info-block span.value { font-size: 12.5px; font-weight: 600; color: var(--color-text); }
+  .acciones-wrapper { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+
+  .badge-estado { font-size: 9px; font-weight: 800; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; white-space: nowrap; }
+  .badge-estado.despachado { background: var(--color-warn-soft); color: var(--color-warn); }
+  .badge-estado.devolucion { background: var(--color-ok-soft); color: var(--color-ok); }
+
+  .tabla-registros-wrapper { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: #FFFFFF; }
+  .tabla-registros { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+  .tabla-registros th { background: #F8F6F2; padding: 10px 12px; font-size: 10px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; border-bottom: 1px solid var(--color-border); }
+  .tabla-registros td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); color: var(--color-text); }
+  .tabla-registros tr:last-child td { border-bottom: none; }
+  .tabla-registros tr:hover { background: #FAFAFA; }
+
+  .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 500px; border: 1px solid var(--color-border); }
+  .modal-box-ancho { background: #FFFFFF; border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto; border: 1px solid var(--color-border); box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: apareceModalDespacho 0.18s ease; }
+  @keyframes apareceModalDespacho { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header { margin-bottom: 14px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--color-ins-dark); margin: 0; }
+  .modal-subtitle { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-body { margin-bottom: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-btn { border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-ins); color: #FFFFFF; }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; }
+
+  /* MASTER-DETAIL SPLIT PARA REMITOS */
+  .oc-split-container { display: grid; grid-template-columns: 300px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+
+  .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+
+  .oc-card-item { background: #F8F6F2; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-ins); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-ins); background: var(--color-ins-soft); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12); }
+
+  .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-ins-dark); }
+  .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; }
+  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
+
+  .oc-info-card-header { background: #F8F6F2; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .tabla-oc-items { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .tabla-oc-items th { background: #475569; color: #FFFFFF; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 9px 10px; text-align: left; }
+  .tabla-oc-items td { padding: 9px 10px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--color-border); }
+
+  .tabla-totales-pie { margin-left: auto; width: 280px; border-collapse: collapse; margin-top: 10px; }
+  .tabla-totales-pie td { padding: 5px 8px; font-size: 11px; font-weight: 700; }
+  .tabla-totales-pie .lbl { color: var(--color-text-secondary); text-align: right; }
+  .tabla-totales-pie .val { text-align: right; color: var(--color-text); }
+  .tabla-totales-pie .total-final { font-size: 13px; color: var(--color-ins-dark); border-top: 1.5px solid var(--color-border); }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      operario en turno... <span class="highlight" id="lblOperario">RESPONSABLE DE BODEGA</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-ins">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Volver
+        </button>
+      </div>
+
+      <div class="sidebar-titulo">Módulos Egresos</div>
+      
+      <div class="menu-sidebar-list">
+        <button type="button" class="btn-sidebar active" id="btnNavDespachar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          DESPACHAR
+        </button>
+        
+        <button type="button" class="btn-sidebar" id="btnNavDevoluciones">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a4 4 0 0 1 0 8h-1"/></svg>
+          DEVOLUCIONES
+        </button>
+        
+        <button type="button" class="btn-sidebar" id="btnNavRegistros">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          REGISTROS TOTALES
+        </button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="ruta-navegacion" id="rutaNavegacion"></div>
+
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="tituloSeccion">Despachar Insumos</h1>
+        <div id="headerAccion" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalNuevoDespacho">
+    <div class="modal-box-ancho">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h3 class="modal-title">🚚 Nuevo Despacho de Insumos</h3>
+          <div class="modal-subtitle">Buscá el artículo, elegí depósito/lote y generá el remito</div>
+        </div>
+        <button id="btnCerrarModalDespacho" style="background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--color-text-secondary);">&times;</button>
+      </div>
+      <div id="cuerpoModalDespacho" style="margin-top:14px;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cerrar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const path = require('path');
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+  }
+
+  let operarioName = 'Responsable de Bodega';
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { }
+  }
+
+  function q(sql, ...args) {
+    if (!db) return [];
+    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
+  }
+  function qGet(sql, ...args) {
+    if (!db) return null;
+    try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
+  }
+  function qRun(sql, ...args) {
+    if (!db) return { changes: 0 };
+    try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
+  }
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function generarToken() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let resultado = '';
+    for (let i = 0; i < 10; i++) resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    return resultado;
+  }
+
+  // ACA ES LO NUEVO: Normalizador dinámico de Agroquímicos similar al motor de Flutter
+  const RUBROS_AGROQUIMICOS = ['AGROQUÍMICO', 'AGROQUÍMICOS', 'AGROQUIMICO', 'AGROQUIMICOS'];
+  function esRubroAgroquimico(rubro, subRubro) {
+    const r = String(rubro || '').trim().toUpperCase();
+    const sr = String(subRubro || '').trim().toUpperCase();
+    return RUBROS_AGROQUIMICOS.includes(r) || RUBROS_AGROQUIMICOS.includes(sr);
+  }
+
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const rutaNavegacion = document.getElementById('rutaNavegacion');
+  const btnVolver = document.getElementById('btnVolver');
+  const headerAccion = document.getElementById('headerAccion');
+  const tituloSeccion = document.getElementById('tituloSeccion');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  const modalNuevoDespacho = document.getElementById('modalNuevoDespacho');
+  const btnCerrarModalDespacho = document.getElementById('btnCerrarModalDespacho');
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    tarjeta.innerHTML = `<div style="font-size:16px;">${tipo === 'success' ? '✅' : (tipo === 'warning' ? '⚠️' : '❌')}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 3500);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  btnVolver.addEventListener('click', () => { window.location.href = 'menu_insumos.html'; });
+
+  function calcularProximoRemitoEgreso() {
+    const anio = new Date().getFullYear();
+    const filas = q("SELECT remito FROM local_i_insumos_movimientos WHERE remito LIKE ? GROUP BY remito", `${anio}-%`);
+    let maxSecuencia = 0;
+    filas.forEach(f => {
+      const remito = String(f.remito || '');
+      if (remito.length === 10 && remito.includes('-')) {
+        const seqExt = parseInt(remito.substring(5));
+        if (!isNaN(seqExt) && seqExt > maxSecuencia) maxSecuencia = seqExt;
+      }
+    });
+    return `${anio}-${String(maxSecuencia + 1).padStart(5, '0')}`;
+  }
+
+  // =========================================================================
+  // ESTADO GLOBAL
+  // =========================================================================
+  let moduloActivo = 'DESPACHAR'; // 'DESPACHAR' | 'DEVOLUCIONES' | 'REGISTROS'
+
+  let remitoSeleccionado = null;
+  let remitoSeleccionadoRegistros = null;
+  let historialEgresos = [];
+  let personasHistoricas = [];
+  let destinosDisponibles = [];
+
+  // Estado del Formulario Carrito
+  let queryBusquedaArticulo = '';
+  let sugerenciasCatalogo = [];
+  let articuloSeleccionado = null;
+  let depositosDisponibles = [];
+  let depositoSeleccionado = null;
+  let lotesDisponibles = [];
+  let loteSeleccionado = null;
+  let cantidadTexto = '';
+  let stockDisponibleActual = 0;
+
+  let listaTemporalItems = [];
+  let fechaDespachoTexto = hoyStr();
+  let destinoSeleccionado = null;
+  let recibioPersonaTexto = '';
+  let remitoTexto = '';
+
+  function cargarDatosIniciales() {
+    historialEgresos = q('SELECT * FROM local_i_insumos_movimientos ORDER BY fecha DESC, id DESC');
+    const personasSet = new Set();
+    historialEgresos.forEach(r => { if (r.recibio && String(r.recibio).trim()) personasSet.add(String(r.recibio).trim().toUpperCase()); });
+    personasHistoricas = Array.from(personasSet).sort();
+    destinosDisponibles = q('SELECT DISTINCT unidad_negocio FROM local_0_unidades_negocio WHERE unidad_negocio IS NOT NULL ORDER BY unidad_negocio').map(r => r.unidad_negocio);
+    remitoTexto = calcularProximoRemitoEgreso();
+  }
+
+  document.getElementById('btnNavDespachar').addEventListener('click', () => { moduloActivo = 'DESPACHAR'; renderPantalla(); });
+  document.getElementById('btnNavDevoluciones').addEventListener('click', () => { moduloActivo = 'DEVOLUCIONES'; renderPantalla(); });
+  document.getElementById('btnNavRegistros').addEventListener('click', () => { moduloActivo = 'REGISTROS'; renderPantalla(); });
+
+  function actualizarBotonesSidebar() {
+    document.querySelectorAll('.btn-sidebar').forEach(b => b.classList.remove('active'));
+    if (moduloActivo === 'DESPACHAR') document.getElementById('btnNavDespachar').classList.add('active');
+    if (moduloActivo === 'DEVOLUCIONES') document.getElementById('btnNavDevoluciones').classList.add('active');
+    if (moduloActivo === 'REGISTROS') document.getElementById('btnNavRegistros').classList.add('active');
+  }
+
+  function renderPantalla() {
+    actualizarBotonesSidebar();
+    headerAccion.innerHTML = '';
+    contenedorDinamico.innerHTML = '';
+
+    if (moduloActivo === 'DESPACHAR') renderModuloDespachar();
+    else if (moduloActivo === 'DEVOLUCIONES') renderModuloDevoluciones();
+    else if (moduloActivo === 'REGISTROS') renderModuloRegistrosTotales();
+  }
+
+  // =========================================================================
+  // MÓDULO 1: DESPACHAR
+  // =========================================================================
+  function renderModuloDespachar() {
+    tituloSeccion.textContent = 'Despachar Insumos';
+    rutaNavegacion.innerHTML = `<span class="ruta-step step-inicio">Inicio</span> <span class="ruta-separator">/</span> <span class="ruta-step step-inicio">Remitos de Despacho</span>`;
+
+    headerAccion.innerHTML = `
+      <button class="btn-global-add" id="btnNuevoDespachoForm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        NUEVO EGRESO / DESPACHAR
+      </button>
+      <button class="btn-mini peligro" id="btnDarBaja">🗑️ DAR DE BAJA</button>
+    `;
+    document.getElementById('btnNuevoDespachoForm').addEventListener('click', () => window.abrirModalNuevoDespacho());
+    document.getElementById('btnDarBaja').addEventListener('click', () => window.abrirModalDarBaja());
+
+    renderSplitDespachar();
+  }
+
+  function agruparRemitosDespacho() {
+    const mapa = {};
+    historialEgresos.filter(m => !['DEVOLUCION', 'BAJA'].includes(String(m.estado).toUpperCase())).forEach(m => {
+      const r = m.remito || 'S/N';
+      if (!mapa[r]) mapa[r] = { remito: r, fecha: m.fecha, destino: m.destino, recibio: m.recibio, items: [] };
+      mapa[r].items.push(m);
+    });
+    return Object.values(mapa).sort((a, b) => {
+      if (a.fecha === b.fecha) return String(b.remito).localeCompare(String(a.remito));
+      return String(b.fecha || '').localeCompare(String(a.fecha || ''));
+    });
+  }
+
+  function renderSplitDespachar() {
+    const listaRemitos = agruparRemitosDespacho();
+    if (listaRemitos.length > 0 && !listaRemitos.some(r => r.remito === remitoSeleccionado)) {
+      remitoSeleccionado = listaRemitos[0].remito;
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-ins-dark); margin-bottom:4px;">FECHA · REMITO · RETIRÓ</div>
+          <input type="text" id="buscarMasterRemitos" class="buscador-catalogo" style="margin-bottom:0;" placeholder="Buscar fecha, remito o retiró..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;" id="contenedorMasterRemitos">
+            ${listaRemitos.length === 0 ? '<div class="vista-vacia">No hay remitos de despacho registrados.</div>' : ''}
+            ${listaRemitos.map(r => `
+              <div class="oc-card-item ${remitoSeleccionado === r.remito ? 'active' : ''}" data-remito-sel="${escapeHtml(r.remito)}">
+                <div class="oc-card-num">REMITO N° ${escapeHtml(r.remito)}</div>
+                <div class="oc-card-prov">RETIRÓ: ${escapeHtml(r.recibio || '—')}</div>
+                <div class="oc-card-date">FECHA: ${escapeHtml(r.fecha || '-')} · ${r.items.length} ítem(s)</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleRemito">
+          ${renderDetalleRemitoDespachoHTML(remitoSeleccionado, listaRemitos)}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterRemitos').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterRemitos .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('[data-remito-sel]').forEach(el => {
+      el.addEventListener('click', () => { remitoSeleccionado = el.dataset.remitoSel; renderPantalla(); });
+    });
+  }
+
+  function renderDetalleRemitoDespachoHTML(remito, listaRemitos) {
+    const grupo = listaRemitos.find(r => r.remito === remito);
+    if (!grupo) return '<div class="vista-vacia">Seleccioná un remito para ver el detalle.</div>';
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:14px; font-weight:800; color:var(--color-ins-dark);">REMITO N° ${escapeHtml(grupo.remito)}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-text); margin-top:2px;">DESTINO: ${escapeHtml(grupo.destino || '—')} · RETIRÓ: ${escapeHtml(grupo.recibio || '—')}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary);">FECHA: ${escapeHtml(grupo.fecha || '-')}</div>
+          <div style="display:flex; gap:6px; margin-top:6px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="btn-global-add" style="padding:5px 10px; font-size:10px;" onclick="window.abrirAgregarItemARemito('${escapeHtml(grupo.remito)}')">+ ÍTEM</button>
+            <button class="btn-secundario" style="padding:5px 10px; font-size:10px;" onclick="window.abrirEditarRemitoCompleto('${escapeHtml(grupo.remito)}')">✏️ EDITAR</button>
+            <button class="btn-excel" style="padding:5px 10px; font-size:10px;" onclick="window.exportarRemitoExcel('${escapeHtml(grupo.remito)}')">EXCEL</button>
+            <button class="btn-pdf" style="padding:5px 10px; font-size:10px;" onclick="window.exportarRemitoPdf('${escapeHtml(grupo.remito)}')">PDF</button>
+            <button class="btn-secundario" style="padding:5px 10px; font-size:10px;" onclick="window.imprimirRemitoDirecto('${escapeHtml(grupo.remito)}')">🖨️</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>ARTÍCULO</th>
+              <th>DEPÓSITO ORIGEN</th>
+              <th style="text-align:right;">CANTIDAD DESPACHADA</th>
+              <th style="text-align:right;">ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${grupo.items.map(m => `
+              <tr>
+                <td><b>${escapeHtml(m.articulo)}</b></td>
+                <td>${escapeHtml(m.deposito_origen || 'PAÑOL')}</td>
+                <td style="text-align:right; font-weight:700;">${n1(Math.abs(m.cantidad))}</td>
+                <td style="text-align:right;"><button class="btn-mini ok" onclick="window.abrirModalDevolucionEspecifica(${m.id})">DEVOLUCIÓN</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // FORMULARIO DE NUEVO DESPACHO (CARRITO)
+  // =========================================================================
+  function buscarEnCatalogoEnVivo(query) {
+    if (!query.trim()) { sugerenciasCatalogo = []; return; }
+    sugerenciasCatalogo = q(`
+      SELECT cat.articulo, cat.rubro, cat.sub_rubro, cat.descripcion, cat.descripcion1, cat.unidad,
+        IFNULL((SELECT SUM(d.cantidad) FROM local_i_insumos_detalle d WHERE d.articulo = cat.articulo), 0.0) as stock_actual
+      FROM local_i_insumos_catalogo cat
+      WHERE cat.articulo LIKE ? OR cat.rubro LIKE ? OR cat.sub_rubro LIKE ? OR cat.descripcion LIKE ? OR cat.descripcion1 LIKE ?
+      LIMIT 8
+    `, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`);
+  }
+
+  function elegirArticuloBusqueda(art) {
+    articuloSeleccionado = art;
+    sugerenciasCatalogo = [];
+    queryBusquedaArticulo = art.articulo;
+    depositosDisponibles = q(`
+      SELECT ubicación as deposito, SUM(cantidad) as saldo_dep
+      FROM local_i_insumos_detalle
+      WHERE articulo = ?
+      GROUP BY ubicación
+      HAVING saldo_dep > 0
+    `, art.articulo);
+    depositoSeleccionado = null; loteSeleccionado = null; lotesDisponibles = []; stockDisponibleActual = 0;
+  }
+
+  function cargarLotesPorInsumo(articulo, deposito) {
+    lotesDisponibles = q(`
+      SELECT IFNULL(d.reg_ingr, d.reg_local) as token_ingreso,
+        IFNULL(ing.remito, 'STOCK INICIAL / S/N') as remito,
+        ing.fec_venc,
+        SUM(d.cantidad) as saldo_lote
+      FROM local_i_insumos_detalle d
+      LEFT JOIN local_i_insumosingresos ing ON d.reg_ingr = ing.reg_local
+      WHERE d.articulo = ? AND d.ubicación = ?
+      GROUP BY token_ingreso, remito, ing.fec_venc
+      HAVING saldo_lote > 0
+      ORDER BY IFNULL(ing.fec_venc, '9999-12-31') ASC
+    `, articulo, deposito);
+    loteSeleccionado = null; stockDisponibleActual = 0;
+  }
+
+  function resetCarritoDespachoState() {
+    queryBusquedaArticulo = ''; sugerenciasCatalogo = []; articuloSeleccionado = null;
+    depositosDisponibles = []; depositoSeleccionado = null; lotesDisponibles = []; loteSeleccionado = null;
+    cantidadTexto = ''; stockDisponibleActual = 0; listaTemporalItems = [];
+    fechaDespachoTexto = hoyStr(); destinoSeleccionado = null; recibioPersonaTexto = '';
+    remitoTexto = calcularProximoRemitoEgreso();
+  }
+
+  window.abrirModalNuevoDespacho = function() {
+    resetCarritoDespachoState();
+    modalNuevoDespacho.classList.add('show');
+    renderFormularioNuevoDespacho();
+  };
+  window.cerrarModalNuevoDespacho = function() {
+    modalNuevoDespacho.classList.remove('show');
+    resetCarritoDespachoState();
+  };
+  btnCerrarModalDespacho.addEventListener('click', window.cerrarModalNuevoDespacho);
+
+  function renderFormularioNuevoDespacho() {
+    const cuerpo = document.getElementById('cuerpoModalDespacho');
+    if (!cuerpo) return;
+
+    cuerpo.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-card">
+          <div class="form-card-titulo">🔍 Buscar Artículo en Catálogo</div>
+          <input type="text" id="buscadorArticulo" class="buscador-catalogo" placeholder="Escriba código o descripción..." value="${escapeHtml(queryBusquedaArticulo)}" ${articuloSeleccionado ? 'disabled' : ''} />
+          ${(!articuloSeleccionado && sugerenciasCatalogo.length > 0) ? `
+            <div class="sugerencias-lista">
+              ${sugerenciasCatalogo.map(s => `
+                <div class="sugerencia-item" data-articulo="${escapeHtml(s.articulo)}">
+                  <div class="art">${escapeHtml(s.articulo)} — ${escapeHtml(s.descripcion || '')}</div>
+                  <div class="meta">${escapeHtml(s.sub_rubro || s.rubro || '')} · Stock global: ${n1(s.stock_actual)} ${escapeHtml(s.unidad || '')}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${articuloSeleccionado ? `
+            <div class="articulo-elegido">
+              <div>
+                <div class="nombre">${escapeHtml(articuloSeleccionado.articulo)}</div>
+                <div class="stock">${escapeHtml(articuloSeleccionado.descripcion || '')} · Stock total: ${n1(articuloSeleccionado.stock_actual)} ${escapeHtml(articuloSeleccionado.unidad || '')}</div>
+              </div>
+              <button type="button" class="btn-mini peligro" id="btnQuitarArticuloSel">QUITAR</button>
+            </div>
+          ` : ''}
+        </div>
+
+        ${articuloSeleccionado ? `
+          <div class="form-card">
+            <div class="form-card-titulo">📦 Depósito, Lote y Cantidad</div>
+            <div class="modal-row-grid">
+              <div class="modal-group">
+                <label>Depósito de Origen</label>
+                <select id="selDeposito" class="modal-select">
+                  <option value="">-- Seleccionar --</option>
+                  ${depositosDisponibles.map(d => `<option value="${escapeHtml(d.deposito)}" ${d.deposito === depositoSeleccionado ? 'selected' : ''}>${escapeHtml(d.deposito)} (${n1(d.saldo_dep)})</option>`).join('')}
+                </select>
+              </div>
+              <div class="modal-group">
+                <label>Lote (Vencimiento)</label>
+                <select id="selLote" class="modal-select" ${depositoSeleccionado ? '' : 'disabled'}>
+                  <option value="">-- Seleccionar --</option>
+                  ${lotesDisponibles.map(l => `<option value="${escapeHtml(l.token_ingreso)}" ${l.token_ingreso === loteSeleccionado ? 'selected' : ''}>${escapeHtml(l.remito)} · Venc: ${escapeHtml(l.fec_venc || 'S/V')} · Disp: ${n1(l.saldo_lote)}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="modal-group" style="margin-top:12px;">
+              <label>Cantidad a Despachar ${loteSeleccionado ? `(disponible: ${n1(stockDisponibleActual)})` : ''}</label>
+              <input type="number" id="inputCantidad" class="modal-input" step="0.01" min="0" value="${escapeHtml(cantidadTexto)}" ${loteSeleccionado ? '' : 'disabled'} />
+            </div>
+            <div style="margin-top:14px;">
+              <button class="btn-secundario" id="btnAgregarItem" style="width:100%; justify-content:center;">AGREGAR ÍTEM AL REMITO</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${listaTemporalItems.length > 0 ? `
+          <div class="form-card-titulo">🧾 Artículos Agregados al Remito (${listaTemporalItems.length})</div>
+          ${listaTemporalItems.map((item, idx) => `
+            <div class="renglon-card sin-click">
+              <div class="renglon-data-container">
+                <div class="renglon-info-block"><span class="label">Artículo</span><span class="value">${escapeHtml(item.articulo)}</span></div>
+                <div class="renglon-info-block"><span class="label">Depósito</span><span class="value">${escapeHtml(item.deposito)}</span></div>
+                <div class="renglon-info-block"><span class="label">Cantidad</span><span class="value">${n1(item.cantidad)}</span></div>
+              </div>
+              <button type="button" class="btn-mini peligro" data-idx="${idx}">QUITAR</button>
+            </div>
+          `).join('')}
+        ` : ''}
+
+        <div class="form-card">
+          <div class="form-card-titulo">🚚 Datos del Despacho</div>
+          <div class="modal-row-grid tres">
+            <div class="modal-group"><label>Fecha</label><input type="date" id="inputFechaDespacho" class="modal-input" value="${fechaDespachoTexto}" /></div>
+            <div class="modal-group"><label>N° Remito (auto)</label><input type="text" class="modal-input" value="${escapeHtml(remitoTexto)}" disabled /></div>
+            <div class="modal-group">
+              <label>Destino / Unidad Negocio</label>
+              <select id="selDestino" class="modal-select">
+                <option value="">-- Seleccionar --</option>
+                ${destinosDisponibles.map(d => `<option value="${escapeHtml(d)}" ${d === destinoSeleccionado ? 'selected' : ''}>${escapeHtml(d)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="modal-group" style="margin-top:12px;">
+            <label>Quién Retira</label>
+            <input type="text" id="inputRecibio" class="modal-input" list="listaPersonasHistoricas" value="${escapeHtml(recibioPersonaTexto)}" placeholder="Nombre persona" />
+            <datalist id="listaPersonasHistoricas">
+              ${personasHistoricas.map(p => `<option value="${escapeHtml(p)}"></option>`).join('')}
+            </datalist>
+          </div>
+          <div style="margin-top:18px;">
+            <button class="btn-global-add" id="btnProcesarDespacho" style="width:100%; justify-content:center; height:44px;">DESPACHAR TODO Y GENERAR REMITO</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    wireFormularioDespacho();
+  }
+
+  function wireFormularioDespacho() {
+    const buscadorEl = document.getElementById('buscadorArticulo');
+    if (buscadorEl) {
+      buscadorEl.addEventListener('input', e => { queryBusquedaArticulo = e.target.value; buscarEnCatalogoEnVivo(queryBusquedaArticulo); renderFormularioNuevoDespacho(); });
+      buscadorEl.focus();
+    }
+    document.querySelectorAll('.sugerencia-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const art = sugerenciasCatalogo.find(s => s.articulo === el.dataset.articulo);
+        if (art) elegirArticuloBusqueda(art);
+        renderFormularioNuevoDespacho();
+      });
+    });
+    const btnQuitar = document.getElementById('btnQuitarArticuloSel');
+    if (btnQuitar) btnQuitar.addEventListener('click', () => {
+      articuloSeleccionado = null; queryBusquedaArticulo = ''; depositosDisponibles = []; depositoSeleccionado = null;
+      lotesDisponibles = []; loteSeleccionado = null; cantidadTexto = ''; stockDisponibleActual = 0;
+      renderFormularioNuevoDespacho();
+    });
+
+    const selDep = document.getElementById('selDeposito');
+    if (selDep) selDep.addEventListener('change', e => {
+      depositoSeleccionado = e.target.value || null;
+      if (depositoSeleccionado) cargarLotesPorInsumo(articuloSeleccionado.articulo, depositoSeleccionado);
+      renderFormularioNuevoDespacho();
+    });
+
+    const selLot = document.getElementById('selLote');
+    if (selLot) selLot.addEventListener('change', e => {
+      loteSeleccionado = e.target.value || null;
+      const l = lotesDisponibles.find(x => x.token_ingreso === loteSeleccionado);
+      stockDisponibleActual = l ? (parseFloat(l.saldo_lote) || 0) : 0;
+      renderFormularioNuevoDespacho();
+    });
+
+    const inputCant = document.getElementById('inputCantidad');
+    if (inputCant) inputCant.addEventListener('input', e => { cantidadTexto = e.target.value; });
+
+    const btnAdd = document.getElementById('btnAgregarItem');
+    if (btnAdd) btnAdd.addEventListener('click', () => {
+      const cant = parseFloat(cantidadTexto) || 0;
+      if (!articuloSeleccionado || !depositoSeleccionado || !loteSeleccionado || cant <= 0 || cant > stockDisponibleActual) {
+        return lanzarNotificacionFlotante('Verificá la cantidad y el lote seleccionado.', 'warning');
+      }
+      listaTemporalItems.push({
+        articulo: articuloSeleccionado.articulo,
+        deposito: depositoSeleccionado,
+        lote: loteSeleccionado,
+        lotesRef: lotesDisponibles.slice(),
+        cantidad: cant
+      });
+      articuloSeleccionado = null; queryBusquedaArticulo = ''; depositosDisponibles = []; depositoSeleccionado = null;
+      lotesDisponibles = []; loteSeleccionado = null; cantidadTexto = ''; stockDisponibleActual = 0;
+      renderFormularioNuevoDespacho();
+    });
+
+    document.querySelectorAll('[data-idx]').forEach(btn => {
+      btn.addEventListener('click', () => { listaTemporalItems.splice(parseInt(btn.dataset.idx), 1); renderFormularioNuevoDespacho(); });
+    });
+
+    const inputFecha = document.getElementById('inputFechaDespacho');
+    if (inputFecha) inputFecha.addEventListener('input', e => { fechaDespachoTexto = e.target.value; });
+    const selDestino = document.getElementById('selDestino');
+    if (selDestino) selDestino.addEventListener('change', e => { destinoSeleccionado = e.target.value || null; });
+    const inputRec = document.getElementById('inputRecibio');
+    if (inputRec) inputRec.addEventListener('input', e => { recibioPersonaTexto = e.target.value; });
+
+    const btnProc = document.getElementById('btnProcesarDespacho');
+    if (btnProc) btnProc.addEventListener('click', () => procesarDespachoCompleto());
+  }
+
+  function procesarDespachoCompleto() {
+    if (listaTemporalItems.length === 0 || !destinoSeleccionado || !recibioPersonaTexto.trim()) {
+      return lanzarNotificacionFlotante('Completá al menos un artículo, destino y quién retira.', 'warning');
+    }
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+    const fecha = fechaDespachoTexto || hoyStr();
+    const remito = remitoTexto;
+    const currentYear = new Date().getFullYear();
+
+    try {
+      const ejecutar = db.transaction(() => {
+        listaTemporalItems.forEach(item => {
+          const cat = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', item.articulo);
+          const rubro = cat ? String(cat.rubro || 'SIN RUBRO').toUpperCase() : 'SIN RUBRO';
+          const subRubro = cat ? String(cat.sub_rubro || 'SIN SUBRUBRO').toUpperCase() : 'SIN SUBRUBRO';
+          
+          // ESTO LO MODIFIQUE: Detección exacta del tipo Agroquímico
+          const esAgro = esRubroAgroquimico(rubro, subRubro);
+
+          const loteOri = qGet('SELECT * FROM local_i_insumos_detalle WHERE reg_local = ? OR reg_ingr = ? LIMIT 1', item.lote, item.lote);
+          const impUni = loteOri ? (parseFloat(loteOri.imp_uni) || 0) : 0;
+          const coti = loteOri ? (parseFloat(loteOri.cotizacion) || 1) : 1;
+          const impUsd = loteOri ? (parseFloat(loteOri.imp_uni_usd) || 0) : 0;
+          const tc = loteOri ? (parseFloat(loteOri.tc) || 0) : 0;
+          const ti = loteOri ? (parseFloat(loteOri.ti) || 0) : 0;
+
+          const loteInf = (item.lotesRef || []).find(l => l.token_ingreso === item.lote) || {};
+          const fecVenc = loteInf.fec_venc || 'S/V';
+
+          const nextMovId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+          const tokenMov = generarToken();
+
+          // Siempre inserta en movimientos para auditoría general
+          qRun(`
+            INSERT INTO local_i_insumos_movimientos
+              (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, descripcion, tc, ti, cantidad,
+               imp_uni_usd, cotizacion, fec_venc, estado, deposito_origen, destino, remito, sub_rubro, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextMovId, tokenMov, item.lote, fecha, operarioName, recibioPersonaTexto.trim().toUpperCase(), item.articulo,
+             'DESPACHO DE BODEGA', String(tc), String(ti), -item.cantidad, impUsd, coti, fecVenc, 'DESPACHADO',
+             item.deposito, destinoSeleccionado, remito, subRubro);
+
+          // ACA ES LO NUEVO: Exclusión estricta para NO enviar al detalle si es AGROQUÍMICO
+          if (!esAgro) {
+            const nextDetId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+            qRun(`
+              INSERT INTO local_i_insumos_detalle
+                (id, reg_local, reg_ingr, reg_egreso, articulo, articulo_rubro, art_subrubro, cantidad, imp_uni,
+                 cotizacion, imp_uni_usd, ubicación, operario, campaña, centro_costo, unidad_negocio, ciclo_contable, tc, ti, sincronizado)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+            `, nextDetId, generarToken(), item.lote, tokenMov, item.articulo, rubro, subRubro, -item.cantidad,
+               impUni, coti, impUsd, item.deposito, operarioName, String(currentYear), destinoSeleccionado,
+               destinoSeleccionado, String(currentYear), tc, ti);
+          }
+        });
+      });
+      ejecutar();
+
+      lanzarNotificacionFlotante(`Remito N° ${remito} generado correctamente.`, 'success');
+      window.cerrarModalNuevoDespacho();
+      cargarDatosIniciales();
+      remitoSeleccionado = remito;
+      renderPantalla();
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al despachar: ' + e.message, 'error');
+    }
+  }
+
+  // AGREGAR MÁS ÍTEMS A UN REMITO EXISTENTE
+  window.abrirAgregarItemARemito = function(remito) {
+    const items = historialEgresos.filter(m => m.remito === remito);
+    if (items.length === 0) return;
+    const cab = items[0];
+
+    const fields = `
+      <div class="modal-group"><label>Buscar Insumo</label>
+        <select id="addArticuloModal" class="modal-select">
+          <option value="">-- Seleccionar del Catálogo --</option>
+          ${q('SELECT articulo, descripcion FROM local_i_insumos_catalogo ORDER BY articulo').map(c => `<option value="${escapeHtml(c.articulo)}">${escapeHtml(c.articulo)} — ${escapeHtml(c.descripcion || '')}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Depósito Origen</label>
+        <select id="addDepoModal" class="modal-select"><option value="PAÑOL GENERAL">PAÑOL GENERAL</option></select>
+      </div>
+      <div class="modal-group"><label>Cantidad a Agregar</label>
+        <input type="number" id="addCantModal" class="modal-input" step="0.01" min="0.01" />
+      </div>
+    `;
+
+    openMiniModal(`Agregar Ítem al Remito #${remito}`, 'Agrega un artículo adicional al despacho ya asentado', fields, () => {
+      const art = document.getElementById('addArticuloModal').value;
+      const dep = document.getElementById('addDepoModal').value;
+      const cant = parseFloat(document.getElementById('addCantModal').value) || 0;
+
+      if (!art || cant <= 0) return lanzarNotificacionFlotante('Seleccioná artículo y cantidad válida.', 'error');
+
+      try {
+        const cat = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', art);
+        const rubro = cat ? String(cat.rubro || 'SIN RUBRO').toUpperCase() : 'SIN RUBRO';
+        const subRubro = cat ? String(cat.sub_rubro || 'SIN SUBRUBRO').toUpperCase() : 'SIN SUBRUBRO';
+        
+        // ESTO LO MODIFIQUE: Detección exacta del tipo Agroquímico en modal rápido
+        const esAgro = esRubroAgroquimico(rubro, subRubro);
+
+        const nextMovId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const tokenMov = generarToken();
+
+        qRun(`
+          INSERT INTO local_i_insumos_movimientos
+            (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, cantidad, estado, deposito_origen, destino, remito, sub_rubro, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextMovId, tokenMov, 'STOCK_DIRECTO', cab.fecha, operarioName, cab.recibio, art, -cant, 'DESPACHADO', dep, cab.destino, remito, subRubro);
+
+        // ACA ES LO NUEVO: Se aplica la exclusión al reingresar/añadir manualmente
+        if (!esAgro) {
+          const nextDetId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+          qRun(`
+            INSERT INTO local_i_insumos_detalle
+              (id, reg_local, reg_ingr, reg_egreso, articulo, articulo_rubro, art_subrubro, cantidad, ubicación, operario, unidad_negocio, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextDetId, generarToken(), 'STOCK_DIRECTO', tokenMov, art, rubro, subRubro, -cant, dep, operarioName, cab.destino);
+        }
+
+        lanzarNotificacionFlotante('Ítem agregado al remito con éxito.', 'success');
+        closeMiniModal();
+        cargarDatosIniciales();
+        renderPantalla();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al agregar ítem: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // MÓDULO 2: DEVOLUCIONES
+  // =========================================================================
+  function renderModuloDevoluciones() {
+    tituloSeccion.textContent = 'Historial de Devoluciones';
+    rutaNavegacion.innerHTML = `<span class="ruta-step step-inicio">Inicio</span> <span class="ruta-separator">/</span> <span class="ruta-step step-inicio">Devoluciones</span>`;
+
+    headerAccion.innerHTML = `
+      <button class="btn-excel" onclick="window.exportarDevolucionesExcel()">EXCEL DEVOLUCIONES</button>
+    `;
+
+    const devoluciones = historialEgresos.filter(m => String(m.estado).toUpperCase() === 'DEVOLUCION');
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll">
+        ${devoluciones.length === 0 ? '<div class="vista-vacia">No hay devoluciones registradas hasta la fecha.</div>' : ''}
+        ${devoluciones.map(m => `
+          <div class="renglon-card sin-click">
+            <div class="renglon-data-container">
+              <div class="renglon-info-block"><span class="label">Fecha</span><span class="value">${escapeHtml(m.fecha)}</span></div>
+              <div class="renglon-info-block"><span class="label">Vale Devolución</span><span class="value">${escapeHtml(m.despacho || m.remito)}</span></div>
+              <div class="renglon-info-block"><span class="label">Artículo Reingresado</span><span class="value">${escapeHtml(m.articulo)}</span></div>
+              <div class="renglon-info-block"><span class="label">Devuelto Por</span><span class="value">${escapeHtml(m.recibio || '—')}</span></div>
+              <div class="renglon-info-block"><span class="label">Cantidad</span><span class="value" style="color:var(--color-ok);">+${n1(m.cantidad)}</span></div>
+            </div>
+            <span class="badge-estado devolucion">DEVOLUCIÓN</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // MÓDULO 3: REGISTROS TOTALES
+  // =========================================================================
+  function renderModuloRegistrosTotales() {
+    tituloSeccion.textContent = 'Registros Totales Consolidados';
+    rutaNavegacion.innerHTML = `<span class="ruta-step step-inicio">Inicio</span> <span class="ruta-separator">/</span> <span class="ruta-step step-inicio">Registros Totales</span>`;
+
+    headerAccion.innerHTML = `
+      <button class="btn-excel" onclick="window.exportarRegistrosTotalesExcel()">EXCEL REGISTROS TOTALES</button>
+    `;
+
+    const listaRemitos = agruparRemitosDespacho();
+    if (listaRemitos.length > 0 && !listaRemitos.some(r => r.remito === remitoSeleccionadoRegistros)) {
+      remitoSeleccionadoRegistros = listaRemitos[0].remito;
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-ins-dark); margin-bottom:4px;">FECHA · REMITO · RETIRÓ</div>
+          <input type="text" id="buscarMasterRegistros" class="buscador-catalogo" style="margin-bottom:0;" placeholder="Buscar fecha, remito o retiró..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;" id="contenedorMasterRegistros">
+            ${listaRemitos.length === 0 ? '<div class="vista-vacia">Sin registros.</div>' : ''}
+            ${listaRemitos.map(r => `
+              <div class="oc-card-item ${remitoSeleccionadoRegistros === r.remito ? 'active' : ''}" data-remito-reg="${escapeHtml(r.remito)}">
+                <div class="oc-card-num">REMITO N° ${escapeHtml(r.remito)}</div>
+                <div class="oc-card-prov">RETIRÓ: ${escapeHtml(r.recibio || '—')}</div>
+                <div class="oc-card-date">FECHA: ${escapeHtml(r.fecha || '-')} · ${r.items.length} ítem(s)</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleRegistros">
+          ${renderDetalleRegistrosHTML(remitoSeleccionadoRegistros, listaRemitos)}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterRegistros').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterRegistros .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('[data-remito-reg]').forEach(el => {
+      el.addEventListener('click', () => { remitoSeleccionadoRegistros = el.dataset.remitoReg; renderPantalla(); });
+    });
+  }
+
+  function renderDetalleRegistrosHTML(remito, listaRemitos) {
+    const grupo = listaRemitos.find(r => r.remito === remito);
+    if (!grupo) return '<div class="vista-vacia">Seleccioná un remito para ver el detalle.</div>';
+
+    const devoluciones = historialEgresos.filter(m => String(m.estado).toUpperCase() === 'DEVOLUCION');
+    let totalNetoRemito = 0;
+
+    const filasHtml = grupo.items.map(d => {
+      const cantOriginal = Math.abs(parseFloat(d.cantidad) || 0);
+      const devAsociada = devoluciones
+        .filter(dev => dev.reg_ing === d.reg_ing && dev.articulo === d.articulo)
+        .reduce((acc, dev) => acc + (parseFloat(dev.cantidad) || 0), 0);
+      const totalNeto = cantOriginal - devAsociada;
+      totalNetoRemito += totalNeto;
+
+      return `
+        <tr>
+          <td><b>${escapeHtml(d.articulo)}</b></td>
+          <td>${escapeHtml(d.despacho || '—')}</td>
+          <td style="text-align:right; font-weight:700;">${n1(cantOriginal)}</td>
+          <td style="text-align:right; color:var(--color-ok); font-weight:700;">${devAsociada > 0 ? '+' + n1(devAsociada) : '0.0'}</td>
+          <td style="text-align:right; font-weight:800; color:var(--color-ins-dark);">${n1(totalNeto)}</td>
+          <td style="text-align:right;"><button class="btn-mini ok" onclick="window.abrirModalDevolucionEspecifica(${d.id})">DEVOLVER</button></td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:14px; font-weight:800; color:var(--color-ins-dark);">REMITO N° ${escapeHtml(grupo.remito)}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-text); margin-top:2px;">DESTINO: ${escapeHtml(grupo.destino || '—')} · RETIRÓ: ${escapeHtml(grupo.recibio || '—')}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary);">FECHA: ${escapeHtml(grupo.fecha || '-')}</div>
+          <button class="btn-secundario" style="margin-top:6px; padding:5px 10px; font-size:10px;" onclick="window.abrirEditarRemitoCompleto('${escapeHtml(grupo.remito)}')">✏️ EDITAR REMITO</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>ARTÍCULO</th>
+              <th>DESPACHÓ</th>
+              <th style="text-align:right;">CANTIDAD</th>
+              <th style="text-align:right;">DEVOLUCIÓN</th>
+              <th style="text-align:right;">TOTAL NETO</th>
+              <th style="text-align:right;">ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>${filasHtml}</tbody>
+        </table>
+      </div>
+
+      <table class="tabla-totales-pie">
+        <tr class="total-final"><td class="lbl">TOTAL NETO REMITO:</td><td class="val">${n1(totalNetoRemito)}</td></tr>
+      </table>
+    `;
+  }
+
+  // =========================================================================
+  // EDICIÓN Y DEVOLUCIONES DE REMITO
+  // =========================================================================
+  window.abrirEditarRemitoCompleto = function(remito) {
+    const items = historialEgresos.filter(m => m.remito === remito);
+    if (items.length === 0) return;
+    const cab = items[0];
+
+    const fields = `
+      <div class="modal-group"><label>Destino / Unidad de Negocio</label>
+        <select id="editDestino" class="modal-select">
+          ${destinosDisponibles.map(d => `<option value="${escapeHtml(d)}" ${d === cab.destino ? 'selected' : ''}>${escapeHtml(d)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Quién Retiró</label>
+        <input type="text" id="editRecibio" class="modal-input" value="${escapeHtml(cab.recibio || '')}" />
+      </div>
+    `;
+
+    openMiniModal(`Editar Remito #${remito}`, 'Afecta a todos los artículos de este remito', fields, () => {
+      const nuevoDestino = document.getElementById('editDestino').value;
+      const nuevoRecibio = document.getElementById('editRecibio').value.trim().toUpperCase();
+      try {
+        qRun('UPDATE local_i_insumos_movimientos SET destino = ?, recibio = ?, sincronizado = 0 WHERE remito = ?', nuevoDestino, nuevoRecibio, remito);
+        lanzarNotificacionFlotante('Remito actualizado correctamente.', 'success');
+        closeMiniModal();
+        cargarDatosIniciales();
+        renderPantalla();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al actualizar: ' + e.message, 'error');
+      }
+    });
+  };
+
+  window.abrirModalDevolucionEspecifica = function(idMov) {
+    const mov = historialEgresos.find(m => m.id === idMov);
+    if (!mov) return;
+
+    const cantMax = Math.abs(parseFloat(mov.cantidad) || 0);
+
+    const fields = `
+      <div class="modal-group"><label>Artículo</label><input type="text" class="modal-input" value="${escapeHtml(mov.articulo)}" disabled /></div>
+      <div class="modal-group"><label>Fecha Devolución</label><input type="date" id="devFecha" class="modal-input" value="${hoyStr()}" /></div>
+      <div class="modal-group"><label>Vale Devolución</label><input type="text" id="devVale" class="modal-input" value="DEV-${escapeHtml(mov.remito)}" /></div>
+      <div class="modal-group"><label>Cantidad a Devolver (máx: ${n1(cantMax)})</label><input type="number" id="devCant" class="modal-input" step="0.01" min="0.01" max="${cantMax}" /></div>
+      <div class="modal-group"><label>Quién Devuelve</label><input type="text" id="devPersona" class="modal-input" value="${escapeHtml(mov.recibio || '')}" /></div>
+    `;
+
+    openMiniModal('Registrar Devolución de Stock', mov.articulo, fields, () => {
+      const cant = parseFloat(document.getElementById('devCant').value) || 0;
+      if (cant <= 0 || cant > cantMax) return lanzarNotificacionFlotante('Cantidad inválida.', 'error');
+
+      const fechaDev = document.getElementById('devFecha').value || hoyStr();
+      const valeDev = document.getElementById('devVale').value.trim().toUpperCase();
+      const personaDev = document.getElementById('devPersona').value.trim().toUpperCase();
+
+      try {
+        const nextMovId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const tokenDev = generarToken();
+
+        qRun(`
+          INSERT INTO local_i_insumos_movimientos
+            (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, cantidad, estado, deposito_origen, destino, remito, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextMovId, tokenDev, mov.reg_ing, fechaDev, operarioName, personaDev, mov.articulo, cant, 'DEVOLUCION', mov.deposito_origen, mov.destino, valeDev);
+
+        lanzarNotificacionFlotante('Devolución ingresada al stock.', 'success');
+        closeMiniModal();
+        cargarDatosIniciales();
+        renderPantalla();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error: ' + e.message, 'error');
+      }
+    });
+  };
+
+  window.abrirModalDarBaja = function() {
+    const catalogo = q(`SELECT articulo, descripcion, descripcion1, unidad FROM local_i_insumos_catalogo ORDER BY articulo ASC`);
+
+    const fields = `
+      <div class="modal-group">
+        <label>Artículo a dar de baja</label>
+        <select id="bajaArticulo" class="modal-select">
+          <option value="">-- Seleccionar del catálogo --</option>
+          ${catalogo.map(c => `<option value="${escapeHtml(c.articulo)}">${escapeHtml(c.articulo)} — ${escapeHtml([c.descripcion, c.descripcion1].filter(Boolean).join(' '))}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Fecha</label><input type="date" id="bajaFecha" class="modal-input" value="${hoyStr()}" /></div>
+      <div class="modal-group"><label>Cantidad a dar de baja</label><input type="number" id="bajaCantidad" class="modal-input" step="0.01" min="0.01" /></div>
+      <div class="modal-group"><label>Motivo</label><input type="text" id="bajaMotivo" class="modal-input" placeholder="Ej: Vencido, rotura, merma..." /></div>
+    `;
+
+    openMiniModal('Dar de Baja de Stock', 'Ajuste de inventario por pérdida, rotura o vencimiento (no genera costo a centro de costo)', fields, () => {
+      const art = document.getElementById('bajaArticulo').value;
+      const fecha = document.getElementById('bajaFecha').value || hoyStr();
+      const cant = parseFloat(document.getElementById('bajaCantidad').value) || 0;
+      const motivo = document.getElementById('bajaMotivo').value.trim().toUpperCase();
+
+      if (!art || cant <= 0) return lanzarNotificacionFlotante('Seleccioná un artículo y una cantidad válida.', 'error');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+      try {
+        const nextMovId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const tokenMov = generarToken();
+
+        qRun(`
+          INSERT INTO local_i_insumos_movimientos
+            (id, reg_local, fecha, despacho, recibio, articulo, descripcion, cantidad, estado, deposito_origen, remito, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextMovId, tokenMov, fecha, operarioName, operarioName, art, motivo || 'BAJA DE STOCK', -cant, 'BAJA', 'PAÑOL GENERAL', 'BAJA-' + tokenMov.slice(0, 8));
+
+        lanzarNotificacionFlotante(`Baja de ${n1(cant)} registrada para ${art}.`, 'success');
+        closeMiniModal();
+        cargarDatosIniciales();
+        renderPantalla();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al registrar la baja: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // EXPORTACIÓN A EXCEL
+  // =========================================================================
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+
+  window.exportarRemitoExcel = async function(remito) {
+    if (!isElectron) return lanzarNotificacionFlotante('Disponible solo en la app de escritorio.', 'warning');
+    const items = historialEgresos.filter(m => m.remito === remito);
+    if (items.length === 0) return;
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet(`Remito_${remito}`);
+
+      ws.columns = [
+        { header: 'REMITO', key: 'remito', width: 14 },
+        { header: 'FECHA', key: 'fecha', width: 12 },
+        { header: 'ARTÍCULO', key: 'articulo', width: 25 },
+        { header: 'CANTIDAD', key: 'cantidad', width: 12 },
+        { header: 'DEPÓSITO', key: 'deposito', width: 18 },
+        { header: 'DESTINO', key: 'destino', width: 18 },
+        { header: 'RETIRÓ', key: 'recibio', width: 20 }
+      ];
+
+      items.forEach(it => ws.addRow({
+        remito: it.remito, fecha: it.fecha, articulo: it.articulo,
+        cantidad: Math.abs(parseFloat(it.cantidad) || 0), deposito: it.deposito_origen,
+        destino: it.destino, recibio: it.recibio
+      }));
+
+      const nombre = `Remito_${remito}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`Excel guardado: ${nombre}`, 'success');
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al exportar Excel: ' + e.message, 'error');
+    }
+  };
+
+  window.exportarDevolucionesExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('Disponible solo en la app de escritorio.', 'warning');
+    const devoluciones = historialEgresos.filter(m => String(m.estado).toUpperCase() === 'DEVOLUCION');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Devoluciones');
+
+      ws.columns = [
+        { header: 'FECHA', key: 'fecha', width: 12 },
+        { header: 'VALE DEV.', key: 'vale', width: 16 },
+        { header: 'ARTÍCULO', key: 'articulo', width: 25 },
+        { header: 'CANTIDAD DEVUELTA', key: 'cantidad', width: 18 },
+        { header: 'DEVUELTO POR', key: 'recibio', width: 20 }
+      ];
+
+      devoluciones.forEach(it => ws.addRow({
+        fecha: it.fecha, vale: it.despacho || it.remito, articulo: it.articulo,
+        cantidad: parseFloat(it.cantidad) || 0, recibio: it.recibio
+      }));
+
+      const nombre = `Devoluciones_Insumos_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`Excel guardado: ${nombre}`, 'success');
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al exportar Excel: ' + e.message, 'error');
+    }
+  };
+
+  window.exportarRegistrosTotalesExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('Disponible solo en la app de escritorio.', 'warning');
+    const despachos = historialEgresos.filter(m => !['DEVOLUCION', 'BAJA'].includes(String(m.estado).toUpperCase()));
+    const devoluciones = historialEgresos.filter(m => String(m.estado).toUpperCase() === 'DEVOLUCION');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Registros Totales');
+
+      ws.columns = [
+        { header: 'FECHA', key: 'fecha', width: 12 },
+        { header: 'REMITO', key: 'remito', width: 14 },
+        { header: 'DESPACHÓ', key: 'despacho', width: 20 },
+        { header: 'RECIBIÓ', key: 'recibio', width: 20 },
+        { header: 'ARTÍCULO', key: 'articulo', width: 25 },
+        { header: 'CANT. ORIGINAL', key: 'original', width: 16 },
+        { header: 'DEVOLUCIÓN', key: 'devolucion', width: 14 },
+        { header: 'TOTAL NETO', key: 'neto', width: 14 }
+      ];
+
+      despachos.forEach(d => {
+        const cantOriginal = Math.abs(parseFloat(d.cantidad) || 0);
+        const devAsociada = devoluciones
+          .filter(dev => dev.reg_ing === d.reg_ing && dev.articulo === d.articulo)
+          .reduce((acc, dev) => acc + (parseFloat(dev.cantidad) || 0), 0);
+
+        ws.addRow({
+          fecha: d.fecha, remito: d.remito, despacho: d.despacho, recibio: d.recibio,
+          articulo: d.articulo, original: cantOriginal, devolucion: devAsociada, neto: cantOriginal - devAsociada
+        });
+      });
+
+      const nombre = `Registros_Totales_Egresos_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`Excel guardado: ${nombre}`, 'success');
+    } catch (e) {
+      lanzarNotificacionFlotante('Error al exportar Excel: ' + e.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // EXPORTACIÓN A PDF E IMPRESIÓN DIRECTA
+  // =========================================================================
+  window.exportarRemitoPdf = function(remito) {
+    if (!isElectron) return lanzarNotificacionFlotante('Disponible solo en la app de escritorio.', 'warning');
+    const items = historialEgresos.filter(m => m.remito === remito);
+    if (items.length === 0) return;
+    const cab = items[0];
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs'); const pathMod = require('path'); const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const margen = 15;
+      const anchoPagina = doc.internal.pageSize.getWidth();
+
+      ['ORIGINAL', 'DUPLICADO'].forEach((tipoCopia, idx) => {
+        if (idx > 0) doc.addPage();
+        let cursorY = 15;
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(124, 56, 9);
+        doc.text('GORDON GESTIÓN · AGROSOFT J&L', margen, cursorY);
+        doc.setFontSize(10); doc.setTextColor(107, 98, 85);
+        doc.text(`REMITO DE DESPACHO DE BODEGA - [ ${tipoCopia} ]`, margen, cursorY + 6);
+
+        doc.setFontSize(12); doc.setTextColor(33, 28, 22);
+        doc.text(`REMITO N°: ${cab.remito}`, anchoPagina - margen, cursorY + 6, { align: 'right' });
+
+        cursorY += 18;
+        doc.setFontSize(9);
+        doc.text(`Fecha: ${cab.fecha}`, margen, cursorY);
+        doc.text(`Destino: ${cab.destino || '—'}`, margen + 50, cursorY);
+        doc.text(`Retiró: ${cab.recibio || '—'}`, margen + 110, cursorY);
+
+        cursorY += 8;
+
+        autoTable(doc, {
+          startY: cursorY,
+          head: [['#', 'Artículo / Material', 'Depósito', 'Cantidad']],
+          body: items.map((it, i) => [i + 1, it.articulo, it.deposito_origen || 'PAÑOL', n1(Math.abs(it.cantidad))]),
+          headStyles: { fillColor: [180, 83, 9], textColor: 255, fontStyle: 'bold' },
+          theme: 'plain'
+        });
+
+        cursorY = doc.lastAutoTable.finalY + 30;
+        doc.line(margen, cursorY, margen + 60, cursorY);
+        doc.line(anchoPagina - margen - 60, cursorY, anchoPagina - margen, cursorY);
+        doc.text('FIRMA ENTREGÓ', margen, cursorY + 5);
+        doc.text('FIRMA RECIBIÓ CONFORME', anchoPagina - margen - 60, cursorY + 5);
+      });
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      const nombre = `Remito_${remito}.pdf`;
+      fs.writeFileSync(pathMod.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+      lanzarNotificacionFlotante(`PDF guardado en Descargas: ${nombre}`, 'success');
+    } catch (e) {
+      lanzarNotificacionFlotante('Error en PDF: ' + e.message, 'error');
+    }
+  };
+
+  window.imprimirRemitoDirecto = function(remito) {
+    if (!isElectron) return lanzarNotificacionFlotante('Disponible solo en la app de escritorio.', 'warning');
+    window.exportarRemitoPdf(remito);
+    try {
+      const { ipcRenderer } = require('electron');
+      if (ipcRenderer) ipcRenderer.send('imprimir-documento-silencioso');
+      else window.print();
+    } catch (e) {
+      window.print();
+    }
+  };
+
+  // =========================================================================
+  // ARRANQUE DE PANTALLA
+  // =========================================================================
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+
+  cargarDatosIniciales();
+  renderPantalla();
+})();
+</script>
+</body>
+</html>

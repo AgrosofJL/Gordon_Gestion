@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Monitor de Tolva y Volcado</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3; 
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 12px 40px;
+    border-bottom: 1px solid var(--color-border);
+    height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-accent); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-parametros {
+    display: flex;
+    height: calc(100vh - 55px);
+    overflow: hidden;
+  }
+
+  /* BARRA LATERAL IZQUIERDA */
+  .sidebar {
+    width: 220px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-header { margin-bottom: 25px; }
+
+  .btn-volver {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFDE7; 
+    border: 1px solid #FBC02D; 
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    color: #F57F17; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: fit-content;
+    box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, 
+  .btn-nav-lateral:active, 
+  .renglon-card:active, 
+  .btn-global-add:active,
+  .modal-btn:active,
+  .btn-sync-top:active {
+    background-color: #FFFDE7 !important;
+    border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 14px; font-weight: 700; margin-top: 20px; color: var(--color-accent-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+  .btn-nav-lateral {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    transition: all 0.2s ease;
+  }
+  .btn-nav-lateral:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); }
+  .btn-nav-lateral.active { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(30, 107, 76, 0.05); }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 28px 36px; display: flex; flex-direction: column; overflow-y: auto; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; gap: 12px; }
+  .seccion-titulo { font-size: 24px; font-weight: 700; margin: 0; color: var(--color-accent-dark); }
+
+  .btn-global-add {
+    background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(30, 107, 76, 0.15); transition: all 0.2s ease;
+  }
+  .btn-global-add:hover { background: var(--color-accent-dark); }
+
+  .btn-sync-top {
+    background: #E8F5E9; color: #1B5E20; border: 1px solid rgba(27,94,32,0.3); border-radius: var(--radius-md);
+    padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .btn-sync-top:hover { background: #C8E6C9; }
+
+  /* TARJETAS SUPERIORES Y VELOCÍMETROS */
+  .grid-metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .card-metrica { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .card-metrica .label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-metrica .val { font-size: 26px; font-weight: 700; color: var(--color-text); margin-top: 6px; }
+  .card-metrica .val.highlight { color: var(--color-accent); }
+  .card-metrica .val.gold { color: #B8862A; }
+
+  .panel-relojes {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .clock-box { text-align: center; width: 180px; }
+  .clock-svg { width: 150px; height: 85px; }
+  .clock-title { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; margin-top: 6px; }
+
+  /* TABLAS Y LISTADOS */
+  .columna-split { display: flex; flex-direction: column; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
+  .columna-header-sticky { padding: 16px 20px; background: #F8F9F8; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+  .columna-header-sticky h4 { margin: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 16px; background: #ECEFF1; border-bottom: 1px solid var(--color-border); }
+  .tabla-interna-fila td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 12px; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-accent-soft); }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); }
+  .badge-estado.activo { background: rgba(46, 117, 89, 0.1); color: var(--color-accent); }
+
+  .vista-vacia { text-align: center; padding: 30px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  /* MODAL AMIGABLE */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 520px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--color-border); transform: translateY(-15px); transition: transform 0.2s ease; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--color-accent-dark); margin: 0; }
+  .modal-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .modal-group label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .modal-input { width: 100%; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .modal-btn { border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-accent); color: #FFFFFF; }
+
+  /* NOTIFICACIÓN TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid #107C41; background: #F1F9F4; color: #0A5C30; }
+  .toast-card.error { border-left: 4px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR DEL SISTEMA -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      tu ultimo acceso fue... <span class="highlight" id="lblUltimoAcceso">HOY</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">CARGANDO FECHA...</div>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- PANEL LATERAL IZQUIERDO -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Volcado de Bins</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-vista="envivo">
+          <span>⚡</span> Dashboard en Vivo
+        </button>
+        <button class="btn-nav-lateral" data-vista="dias">
+          <span>📅</span> Historial por Días
+        </button>
+        <button class="btn-nav-lateral" data-vista="variedades">
+          <span>🍏</span> Por Variedad
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="main-content">
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Monitor de Tolva en Vivo</h1>
+        <button class="btn-global-add" id="btnVolcarBolson">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Volcar Bolsón
+        </button>
+      </div>
+
+      <!-- CARDS DE MÉTRICAS -->
+      <div class="grid-metricas">
+        <div class="card-metrica">
+          <span class="label">Kilos Volcados Hoy</span>
+          <span class="val gold" id="lblKilosHoy">0 KG</span>
+        </div>
+        <div class="card-metrica">
+          <span class="label">Bolsones Hoy</span>
+          <span class="val highlight" id="lblBolsonesHoy">0 BOLS</span>
+        </div>
+        <div class="card-metrica">
+          <span class="label">Ritmo Promedio</span>
+          <span class="val" id="lblRitmoHoy">0 B/H</span>
+        </div>
+      </div>
+
+      <!-- VELOCÍMETROS / RELOJES DE VOLCADO -->
+      <div class="panel-relojes" id="panelRelojes">
+        <div class="clock-box">
+          <svg class="clock-svg" viewBox="0 0 100 55">
+            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#E2E8F0" stroke-width="8" stroke-linecap="round"/>
+            <path id="arcBolsones" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#1E6B4C" stroke-width="8" stroke-linecap="round" stroke-dasharray="126" stroke-dashoffset="126"/>
+            <text x="50" y="42" text-anchor="middle" fill="#1A211C" font-size="12" font-weight="bold" id="txtGaugeBolsones">0</text>
+          </svg>
+          <div class="clock-title">Rendimiento Bolsón (B/H)</div>
+        </div>
+
+        <div class="clock-box">
+          <svg class="clock-svg" viewBox="0 0 100 55">
+            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#E2E8F0" stroke-width="8" stroke-linecap="round"/>
+            <path id="arcKilos" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#B8862A" stroke-width="8" stroke-linecap="round" stroke-dasharray="126" stroke-dashoffset="126"/>
+            <text x="50" y="42" text-anchor="middle" fill="#1A211C" font-size="12" font-weight="bold" id="txtGaugeKilos">0K</text>
+          </svg>
+          <div class="clock-title">Flujo Kilos (KG/H)</div>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DE TABLA DINÁMICA -->
+      <div id="contenedorDinamico" class="columna-split"></div>
+    </div>
+  </div>
+
+  <!-- MINI MODAL DE REGISTRO MANUAL/QR -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Volcar Bolsón en Tolva</h3>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <div class="modal-group">
+          <label>Nro Bolsón o Código QR</label>
+          <input type="text" id="mVolcadoCodigo" class="modal-input" placeholder="Ej: BOLSON Nº-0025 o 25" autofocus />
+        </div>
+        <div class="modal-group">
+          <label>Estado del Bolsón</label>
+          <select id="mVolcadoEstado" class="modal-input">
+            <option value="✅ BUENO">✅ BUENO</option>
+            <option value="🔔 CONTIENE PIEDRAS">🔔 CONTIENE PIEDRAS</option>
+            <option value="🔔 BAJO PESO">🔔 BAJO PESO</option>
+            <option value="⚠️ PARA RECLAMAR">⚠️ PARA RECLAMAR</option>
+            <option value="⚠️ EXCESO PODRIDAS">⚠️ EXCESO PODRIDAS</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Volcar en Tolva</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let bases = null;
+  let db = null;
+
+  if (isElectron) {
+    try {
+      bases = require('../bases.js');
+      db = bases.db;
+    } catch(e) {
+      console.warn("No se pudo conectar a bases.js:", e.message);
+    }
+  }
+
+  let vistaActual = 'envivo';
+
+  const customModal = document.getElementById('customModal');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  // FORMATEADOR DE FECHA SUPERIOR
+  const ahora = new Date();
+  document.getElementById('topDateTime').textContent = ahora.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  function lanzarToast(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    tarjeta.innerHTML = `<div style="font-size:16px;">${tipo === 'success' ? '✅' : '❌'}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 10);
+    setTimeout(() => {
+      tarjeta.classList.remove('show');
+      setTimeout(() => tarjeta.remove(), 300);
+    }, 3500);
+  }
+
+  function openModal() { customModal.classList.add('show'); document.getElementById('mVolcadoCodigo').focus(); }
+  function closeModal() { customModal.classList.remove('show'); document.getElementById('mVolcadoCodigo').value = ''; }
+
+  modalBtnCancel.addEventListener('click', closeModal);
+  document.getElementById('btnVolcarBolson').addEventListener('click', openModal);
+
+    // ESTO LO MODIFIQUE: Si existe la función global renderizar, vuelve al menú de submódulos; si no, navega
+  btnVolver.addEventListener('click', () => {
+    if (typeof window.renderizar === 'function' && window.sesionActual) {
+      window.renderizar(window.sesionActual);
+    } else {
+      window.location.href = 'menu_empaque.html';
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      vistaActual = btn.dataset.vista;
+      actualizarDashboard();
+    });
+  });
+
+  // ACTUALIZACIÓN DE RELOJES (GAUGES SVG)
+  function actualizarRelojes(bolsonesHora, kilosHora) {
+    const maxBolsones = 30;
+    const maxKilos = 15000;
+
+    // Circunferencia del arco de SVG = 126
+    const offsetB = 126 - Math.min((bolsonesHora / maxBolsones), 1) * 126;
+    const offsetK = 126 - Math.min((kilosHora / maxKilos), 1) * 126;
+
+    document.getElementById('arcBolsones').style.strokeDashoffset = offsetB;
+    document.getElementById('txtGaugeBolsones').textContent = Math.round(bolsonesHora);
+
+    document.getElementById('arcKilos').style.strokeDashoffset = offsetK;
+    document.getElementById('txtGaugeKilos').textContent = kilosHora >= 1000 ? (kilosHora / 1000).toFixed(1) + 'K' : Math.round(kilosHora);
+  }
+
+  // Calcula las horas realmente trabajadas en un rango de volcado, a partir
+  // de la diferencia entre el primer y el último "hora_volcado" registrado.
+  // Se pone un piso de 15 minutos para que un puñado de bolsones volcados
+  // en pocos segundos no den un ritmo "por hora" irreal (miles de B/H).
+  // Devuelve null si no hay datos suficientes (por ej. registros viejos,
+  // de antes de que existiera la columna hora_volcado).
+  function horasEntre(horaIni, horaFin, cantidad) {
+    if (!horaIni || !horaFin || cantidad < 2) return null;
+    const horas = (new Date(horaFin) - new Date(horaIni)) / 3600000;
+    return Math.max(horas, 0.25);
+  }
+
+  // Trae, agrupado por día, todo lo volcado históricamente (para calcular
+  // ritmos promedio de "Historial por Días" y "Por Variedad", que no son
+  // el ritmo en vivo de hoy sino un promedio de todo lo cargado).
+  function calcularAgregadoHistorico() {
+    const vacio = { totalBolsones: 0, totalKilos: 0, totalHoras: 0, bolsonesHora: 0, kilosHora: 0 };
+    if (!db) return vacio;
+    try {
+      const dias = db.prepare(`
+        SELECT fecha, COUNT(*) as cant, COALESCE(SUM(CAST(kilos AS REAL)), 0) as kgs,
+               MIN(hora_volcado) as hora_ini, MAX(hora_volcado) as hora_fin
+        FROM local_detalle_recepcion
+        WHERE estado = 'VOLCADO'
+        GROUP BY fecha
+      `).all();
+
+      let totalBolsones = 0, totalKilos = 0, totalHoras = 0;
+      dias.forEach(d => {
+        totalBolsones += d.cant || 0;
+        totalKilos += d.kgs || 0;
+        const horasDia = horasEntre(d.hora_ini, d.hora_fin, d.cant);
+        if (horasDia) totalHoras += horasDia;
+      });
+
+      if (totalHoras <= 0) return { ...vacio, totalBolsones, totalKilos };
+      return {
+        totalBolsones, totalKilos, totalHoras,
+        bolsonesHora: totalBolsones / totalHoras,
+        kilosHora: totalKilos / totalHoras
+      };
+    } catch(e) { console.error("Error calculando agregado histórico:", e); return vacio; }
+  }
+
+  function actualizarDashboard() {
+    const hoyStr = new Date().toISOString().split('T')[0];
+    let totalKilosHoy = 0;
+    let totalBolsonesHoy = 0;
+    let bolsonesPorHora = 0;
+    let kilosPorHora = 0;
+
+    if (db) {
+      try {
+        // Métricas globales de hoy
+        const rowHoy = db.prepare(`
+          SELECT COUNT(*) as cant, COALESCE(SUM(CAST(kilos AS REAL)), 0) as kgs
+          FROM local_detalle_recepcion WHERE estado = 'VOLCADO' AND fecha = ?
+        `).get(hoyStr);
+
+        totalBolsonesHoy = rowHoy.cant || 0;
+        totalKilosHoy = rowHoy.kgs || 0;
+
+        // Ritmo real de HOY: horas transcurridas desde el primer volcado
+        // del día hasta este momento (jornada en curso).
+        const rowHoraHoy = db.prepare(`
+          SELECT MIN(hora_volcado) as ini FROM local_detalle_recepcion
+          WHERE estado = 'VOLCADO' AND fecha = ? AND hora_volcado IS NOT NULL
+        `).get(hoyStr);
+
+        const horasTrabajo = (rowHoraHoy && rowHoraHoy.ini)
+          ? Math.max((new Date() - new Date(rowHoraHoy.ini)) / 3600000, 0.1)
+          : 1; // Todavía no hay ningún registro con hora (jornada recién empezada)
+
+        bolsonesPorHora = totalBolsonesHoy / horasTrabajo;
+        kilosPorHora = totalKilosHoy / horasTrabajo;
+
+      } catch(e) { console.error("Error consultando métricas de volcado:", e); }
+    }
+
+    document.getElementById('lblKilosHoy').textContent = `${totalKilosHoy.toLocaleString('es-AR')} KG`;
+    document.getElementById('lblBolsonesHoy').textContent = `${totalBolsonesHoy} BOLS`;
+    document.getElementById('lblRitmoHoy').textContent = `${bolsonesPorHora.toFixed(1)} B/H`;
+
+    // Los relojes reflejan la vista activa: en "Dashboard en Vivo" muestran
+    // el ritmo real de hoy; en "Historial por Días" y "Por Variedad" muestran
+    // el promedio histórico (todo lo cargado), para que no se queden pegados
+    // en el número de hoy cuando el usuario está mirando otro período.
+    if (vistaActual === 'envivo') {
+      actualizarRelojes(bolsonesPorHora, kilosPorHora);
+    } else {
+      const agregado = calcularAgregadoHistorico();
+      actualizarRelojes(agregado.bolsonesHora, agregado.kilosHora);
+    }
+
+    const contenedor = document.getElementById('contenedorDinamico');
+
+    if (vistaActual === 'envivo') {
+      document.getElementById('seccionTitulo').textContent = "Monitor de Tolva en Vivo";
+      let registros = [];
+      if (db) {
+        try {
+          // ESTO LO MODIFIQUE: Filtro de historial de hoy en vivo
+          registros = db.prepare(`
+            SELECT * FROM local_detalle_recepcion 
+            WHERE estado = 'VOLCADO' AND fecha = ? 
+            ORDER BY reg_local DESC LIMIT 50
+          `).all(hoyStr);
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="columna-header-sticky">
+          <h4>Últimos Bolsones en Tolva (${registros.length})</h4>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>BOLSÓN N°</th>
+                <th>FECHA</th>
+                <th>VARIEDAD</th>
+                <th>CUADRO / FILA</th>
+                <th>PRODUCTOR</th>
+                <th style="text-align:center;">KILOS</th>
+                <th style="text-align:center;">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${registros.map(r => `
+                <tr>
+                  <td style="font-weight:700; color:var(--color-accent-dark);">${r.bolson_n || '# ' + r.nro_unidad}</td>
+                  <td>📅 ${r.fecha || '—'}</td>
+                  <td><strong>${r.variedad || 'S/V'}</strong> (${r.especie || '—'})</td>
+                  <td>${r.cuadro || '—'} / ${r.fila || '—'}</td>
+                  <td>${r.productor || '—'}</td>
+                  <td style="text-align:center; font-weight:700; color:#107C41;">${r.kilos || 0} KG</td>
+                  <td style="text-align:center;"><span class="badge-estado activo">VOLCADO</span></td>
+                </tr>
+              `).join('')}
+              ${registros.length === 0 ? '<tr><td colspan="7" class="vista-vacia">Sin volcados registrados hoy.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else if (vistaActual === 'dias') {
+      document.getElementById('seccionTitulo').textContent = "Archivero Histórico por Días";
+      let dias = [];
+      if (db) {
+        try {
+          dias = db.prepare(`
+            SELECT
+              fecha,
+              COUNT(*) as cant_bolsones,
+              SUM(CAST(kilos AS REAL)) as total_kilos,
+              MIN(hora_volcado) as hora_ini,
+              MAX(hora_volcado) as hora_fin
+            FROM local_detalle_recepcion
+            WHERE estado = 'VOLCADO'
+            GROUP BY fecha
+            ORDER BY fecha DESC
+          `).all();
+        } catch(e) { console.error(e); }
+      }
+
+      contenedor.innerHTML = `
+        <div class="columna-header-sticky">
+          <h4>Consolidado de Volcado por Día</h4>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>FECHA JORNADA</th>
+                <th style="text-align:center;">CANTIDAD BOLS</th>
+                <th style="text-align:center;">TOTAL KILOS</th>
+                <th style="text-align:center;">PROM. B/H</th>
+                <th style="text-align:center;">PROM. KG/H</th>
+                <th style="text-align:center;">ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dias.map(d => {
+                // Promedio por hora real de ese día, en base a la hora del
+                // primer y el último bolsón volcado. Si el día es viejo y no
+                // tiene hora registrada, se muestra "S/D" (sin dato).
+                const horasDia = horasEntre(d.hora_ini, d.hora_fin, d.cant_bolsones);
+                const promBolsHora = horasDia ? (d.cant_bolsones / horasDia) : null;
+                const promKilosHora = horasDia ? ((d.total_kilos || 0) / horasDia) : null;
+                return `
+                <tr>
+                  <td style="font-weight:700; color:var(--color-accent-dark);">📅 ${d.fecha}</td>
+                  <td style="text-align:center; font-weight:700;">${d.cant_bolsones} BOLS</td>
+                  <td style="text-align:center; font-weight:700; color:#107C41;">${(d.total_kilos || 0).toLocaleString('es-AR')} KG</td>
+                  <td style="text-align:center; font-weight:700;">${promBolsHora ? promBolsHora.toFixed(1) + ' B/H' : 'S/D'}</td>
+                  <td style="text-align:center; font-weight:700; color:#B8862A;">${promKilosHora ? promKilosHora.toLocaleString('es-AR', {maximumFractionDigits:0}) + ' KG/H' : 'S/D'}</td>
+                  <td style="text-align:center;"><span class="badge-estado activo">CERRADO</span></td>
+                </tr>
+              `; }).join('')}
+              ${dias.length === 0 ? '<tr><td colspan="6" class="vista-vacia">Sin registros en el archivero.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      `;
+    } else if (vistaActual === 'variedades') {
+      document.getElementById('seccionTitulo').textContent = "Volcado Agrupado por Variedad";
+      let vars = [];
+      if (db) {
+        try {
+          vars = db.prepare(`
+            SELECT
+              COALESCE(variedad, 'SIN VARIEDAD') as nombre_var,
+              COUNT(*) as cant_bolsones,
+              SUM(CAST(kilos AS REAL)) as total_kilos
+            FROM local_detalle_recepcion
+            WHERE estado = 'VOLCADO'
+            GROUP BY COALESCE(variedad, 'SIN VARIEDAD')
+            ORDER BY total_kilos DESC
+          `).all();
+        } catch(e) { console.error(e); }
+      }
+
+      // Para el promedio por hora de cada variedad se usan las horas
+      // realmente trabajadas en TODO el histórico (suma de las horas de
+      // cada día), ya que una misma variedad puede volcarse en varios días.
+      const agregado = calcularAgregadoHistorico();
+
+      contenedor.innerHTML = `
+        <div class="columna-header-sticky">
+          <h4>Resumen por Variedad de Fruta</h4>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tabla-interna-fila">
+            <thead>
+              <tr>
+                <th>VARIEDAD</th>
+                <th style="text-align:center;">TOTAL BOLS</th>
+                <th style="text-align:center;">TOTAL KILOS</th>
+                <th style="text-align:center;">PROM. KG/H</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${vars.map(v => {
+                const promKilosHora = agregado.totalHoras > 0 ? ((v.total_kilos || 0) / agregado.totalHoras) : null;
+                return `
+                <tr>
+                  <td style="font-weight:700; color:var(--color-text);">🍏 ${v.nombre_var}</td>
+                  <td style="text-align:center; font-weight:700;">${v.cant_bolsones} BOLS</td>
+                  <td style="text-align:center; font-weight:700; color:#107C41;">${(v.total_kilos || 0).toLocaleString('es-AR')} KG</td>
+                  <td style="text-align:center; font-weight:700; color:#B8862A;" title="Sobre el total de horas trabajadas de todo el histórico">${promKilosHora ? promKilosHora.toLocaleString('es-AR', {maximumFractionDigits:0}) + ' KG/H' : 'S/D'}</td>
+                </tr>
+              `; }).join('')}
+              ${vars.length === 0 ? '<tr><td colspan="4" class="vista-vacia">Sin datos agrupados.</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+  }
+
+  // ACCIÓN DE PROCESAR VOLCADO EN BASE DE DATOS
+  modalBtnSave.addEventListener('click', () => {
+    let inputCode = document.getElementById('mVolcadoCodigo').value.trim();
+    const estado = document.getElementById('mVolcadoEstado').value;
+
+    if (!inputCode) return lanzarToast("Ingrese un código de bolsón.", "error");
+
+    inputCode = inputCode.replace('°', 'º');
+    if (/^[0-9]+$/.test(inputCode)) {
+      inputCode = "BOLSON Nº-" + String(inputCode).padStart(4, '0');
+    }
+
+    if (db) {
+      try {
+        // Verificar si el bolsón existe y está activo
+        const existe = db.prepare(`SELECT * FROM local_detalle_recepcion WHERE bolson_n = ? AND estado = 'ACTIVO'`).get(inputCode);
+
+        if (!existe) {
+          const yaVolcado = db.prepare(`SELECT * FROM local_detalle_recepcion WHERE bolson_n = ? AND estado = 'VOLCADO'`).get(inputCode);
+          if (yaVolcado) {
+            lanzarToast("El bolsón ya fue volcado anteriormente.", "error");
+          } else {
+            lanzarToast("Código inexistente o no disponible.", "error");
+          }
+          return;
+        }
+
+        // REGLA DE NEGOCIO: Actualizar el estado a VOLCADO, guardar la hora exacta
+        // (para poder calcular el ritmo real B/H y KG/H) y marcar para sincronización
+        db.prepare(`
+          UPDATE local_detalle_recepcion
+          SET estado = 'VOLCADO', hora_volcado = ?, sincronizado = 0
+          WHERE reg_local = ?
+        `).run(new Date().toISOString(), existe.reg_local);
+
+        lanzarToast(`Bolsón ${existe.bolson_n || existe.nro_unidad} en Tolva!`, "success");
+        closeModal();
+        actualizarDashboard();
+
+      } catch(e) {
+        console.error(e);
+        lanzarToast("Error registrando volcado.", "error");
+      }
+    } else {
+      lanzarToast("Simulación de volcado exitosa.", "success");
+      closeModal();
+    }
+  });
+
+  const btnSincronizar = document.getElementById('btnSincronizar');
+
+btnSincronizar.addEventListener('click', async () => {
+  btnSincronizar.classList.add('syncing');
+  btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+  
+  if (isElectron) {
+    try {
+      const { subirCambiosLocales } = require('../subir.js');
+      const { sincronizarTodo } = require('../sincronizacion.js');
+      await ejecutarSincronizacionCompleta();
+
+      lanzarToast('¡Sincronización bidireccional exitosa!', 'success');
+    } catch (err) {
+      console.error(err);
+      lanzarToast('Error de sincronización: ' + err.message, 'error');
+    } finally {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar`;
+      cargarTodasLasSolapas();
+    }
+  } else {
+    setTimeout(() => {
+      btnSincronizar.classList.remove('syncing');
+      btnSincronizar.innerHTML = `Sincronizar`;
+      lanzarToast('Sincronización simulada en entorno de pruebas.', 'success');
+    }, 1000);
+  }
+});
+
+
+  // Carga inicial
+  actualizarDashboard();
+})();
+</script>
+</body>
+</html>

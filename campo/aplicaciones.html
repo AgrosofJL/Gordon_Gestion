@@ -1,0 +1,2399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Aplicaciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F4F6F4;
+    --color-surface: #FFFFFF;
+    --color-text: #1A211C;
+    --color-text-secondary: #556358;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #104630;
+    --color-accent-soft: rgba(30, 107, 76, 0.08);
+    --color-border: #D2D7D3;
+    --color-aplic: #6B3FA0;
+    --color-aplic-dark: #452873;
+    --color-aplic-soft: rgba(107, 63, 160, 0.08);
+    --color-pend: #E65100;
+    --color-pend-soft: #FFF3E0;
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C4CCC6; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-aplic); background-clip: content-box; }
+
+  .top-system-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid var(--color-border); height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-aplic); font-weight: 700; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-aplic { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  .sidebar {
+    width: 200px; background: #FFFFFF; border-right: 1px solid var(--color-border);
+    display: flex; flex-direction: column; padding: 22px 14px; flex-shrink: 0;
+  }
+  .sidebar-header { margin-bottom: 24px; }
+
+  .btn-volver {
+    display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D;
+    padding: 8px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17;
+    cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  /* Feedback táctil Apple soft con sombreado */
+  .btn-volver:active, .btn-nav-lateral:active, .card-item:active, .renglon-card:active,
+  .btn-accion:active, .btn-global-add:active, .btn-secundario:active, .modal-btn:active,
+  .btn-sync-top:active, .btn-excel:active, .orden-chip:active, .stock-card:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 13px; font-weight: 800; margin-top: 20px; color: var(--color-aplic-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+
+  .btn-nav-lateral {
+    display: flex; align-items: center; gap: 10px; background: transparent; border: 1px solid transparent;
+    padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer; text-align: left; font-family: inherit;
+    font-size: 11.5px; font-weight: 700; color: var(--color-text-secondary); transition: all 0.2s ease; letter-spacing: 0.6px;
+  }
+  .btn-nav-lateral:hover { background: var(--color-aplic-soft); color: var(--color-aplic-dark); }
+  .btn-nav-lateral.active { background: var(--color-aplic-soft); color: var(--color-aplic-dark); border-color: rgba(107, 63, 160, 0.25); box-shadow: 0 4px 12px rgba(107, 63, 160, 0.06); }
+
+  .main-content { flex-grow: 1; padding: 28px 36px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .ruta-navegacion { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; flex-shrink: 0; }
+  .ruta-step { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 11.5px; display: inline-flex; align-items: center; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.05); }
+  .step-inicio { background: #F1EAFB; color: #452873; }
+  .step-nivel1 { background: #F1EAFB; color: #452873; }
+  .step-nivel2 { background: #FFF3E0; color: #E65100; }
+  .ruta-step.clickable { cursor: pointer; }
+  .ruta-step.clickable:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .ruta-separator { color: var(--color-text-secondary); font-weight: bold; font-size: 12px; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; gap: 12px; }
+  .seccion-titulo { font-size: 24px; font-weight: 800; margin: 0; color: var(--color-aplic-dark); position: relative; padding-left: 14px; }
+  .seccion-titulo::before { content: ''; position: absolute; left: 0; top: 5px; bottom: 5px; width: 4px; border-radius: 4px; background: linear-gradient(180deg, var(--color-aplic), var(--color-aplic-dark)); }
+
+  .btn-global-add {
+    background: var(--color-aplic); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 8px 16px;
+    font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 3px 8px rgba(107, 63, 160, 0.20); transition: all 0.2s ease;
+  }
+  .btn-global-add:hover { background: var(--color-aplic-dark); transform: translateY(-1px); }
+
+  .btn-secundario {
+    background: #FFFFFF; color: var(--color-aplic-dark); border: 1px solid rgba(107,63,160,0.3); border-radius: var(--radius-md); padding: 7px 14px;
+    font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+  }
+  .btn-secundario:hover { background: var(--color-aplic-soft); border-color: var(--color-aplic); }
+
+  .btn-peligro {
+    background: #C62828; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 7px 14px;
+    font-size: 11.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+  }
+  .btn-peligro:hover { background: #B71C1C; transform: translateY(-1px); }
+
+  .btn-excel {
+    background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 8px 16px;
+    font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 3px 8px rgba(16, 124, 65, 0.15); transition: all 0.2s ease;
+  }
+  .btn-excel:hover { background: #0A5C30; transform: translateY(-1px); }
+
+  .btn-sync-top {
+    background: #F1EAFB; color: #452873; border: 1px solid rgba(69,40,115,0.25); border-radius: 20px;
+    padding: 6px 14px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.02); white-space: nowrap;
+  }
+  .btn-sync-top:hover { background: #E1D3F5; color: #2E1A4D; transform: translateY(-1px); }
+  .btn-sync-top.syncing { animation: pulseSync 1.5s infinite ease-in-out; pointer-events: none; opacity: 0.7; }
+  @keyframes pulseSync { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  .seccion-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
+  .grid-datos { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; padding-top: 4px; }
+
+  .card-item {
+    background: linear-gradient(180deg, #FFFFFF, #FCFDFC); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+    padding: 16px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-align: left; position: relative; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;
+  }
+  .card-item:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(107, 63, 160, 0.12); border-color: var(--color-aplic); }
+  .card-item::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-lg); box-shadow: inset 0 0 0 1.5px transparent; transition: box-shadow 0.2s ease; pointer-events: none; }
+  .card-item:hover::after { box-shadow: inset 0 0 0 1.5px var(--color-aplic); }
+
+  .card-item-header { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px; gap: 10px; }
+  .card-item-header h4 { margin: 0; font-size: 15px; font-weight: 700; color: var(--color-text); }
+
+  .card-icon-wrapper {
+    display: flex; align-items: center; justify-content: center; background: #F0F4F1;
+    border: 1px solid var(--color-border); padding: 7px; border-radius: var(--radius-md); color: var(--color-aplic); flex-shrink: 0;
+  }
+  .card-info-box { display: flex; flex-direction: column; gap: 5px; background: #F9FAF9; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid rgba(0,0,0,0.03); }
+  .card-info-line { display: flex; justify-content: space-between; font-size: 11.5px; gap: 10px; }
+  .card-info-line span { color: var(--color-text-secondary); }
+  .card-info-line strong { color: var(--color-text); font-weight: 600; text-align: right; }
+
+  .badge-estado { font-size: 9.5px; font-weight: 700; padding: 3px 8px; border-radius: 16px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); white-space: nowrap; }
+  .badge-estado.pendiente { background: var(--color-pend-soft); color: var(--color-pend); border-color: rgba(230,81,0,0.25); }
+  .badge-estado.aplicado { background: var(--color-ok-soft); color: var(--color-ok); border-color: rgba(46,125,50,0.25); }
+  .badge-estado.neutro { background: #ECEFF1; color: #455A64; border-color: rgba(69,90,100,0.25); }
+
+  .renglon-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01); flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+  .renglon-card:hover { border-color: var(--color-aplic); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+  .renglon-data-container { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; flex-grow: 1; }
+  .renglon-info-block { display: flex; flex-direction: column; }
+  .renglon-info-block span.label { font-size: 9.5px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .renglon-info-block span.value { font-size: 12.5px; font-weight: 600; color: var(--color-text); }
+
+  .acciones-wrapper { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+  .btn-accion {
+    border: 1px solid var(--color-border); background: #FFFFFF; cursor: pointer; padding: 5px; border-radius: var(--radius-md);
+    display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; color: var(--color-text-secondary);
+  }
+  .btn-accion:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  .btn-accion.edit:hover { background: #FFFDE7; border-color: #FFF176; color: #F57F17; }
+
+  /* ESTO LO MODIFIQUE: Modales profesionales Apple Soft */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box {
+    background: #FFFFFF; border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 540px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.16); border: 1px solid var(--color-border);
+    transform: translateY(-16px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex; flex-direction: column;
+  }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 14px; border-bottom: 1px solid #F0F2F0; padding-bottom: 8px; }
+  .modal-title { font-size: 18px; font-weight: 800; color: var(--color-aplic-dark); margin: 0; letter-spacing: 0.2px; }
+  .modal-subtitle { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+  .modal-body { margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .modal-group { display: flex; flex-direction: column; gap: 4px; }
+  .modal-group label { font-size: 10.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; transition: all 0.15s ease; outline: none; }
+  .modal-input:focus, .modal-select:focus { border-color: var(--color-aplic); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-aplic-soft); }
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #F0F2F0; }
+  .modal-btn { border-radius: var(--radius-md); padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-aplic); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-aplic-dark); transform: translateY(-1px); }
+
+  .vista-vacia { text-align: center; padding: 36px 20px; color: var(--color-text-secondary); font-size: 12.5px; }
+
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+
+  .grupo-estado-card { margin-bottom: 14px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.02); overflow: hidden; }
+  .grupo-estado-card.open { border-color: var(--color-aplic); }
+  .grupo-estado-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; gap: 12px; }
+  .grupo-estado-titulo { font-size: 13.5px; font-weight: 800; color: var(--color-text); letter-spacing: 0.3px; }
+  .grupo-estado-card.open .grupo-estado-titulo { color: var(--color-aplic-dark); }
+  .grupo-estado-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .grupo-estado-chevron { transition: transform 0.2s ease; color: var(--color-text-secondary); flex-shrink: 0; }
+  .grupo-estado-card.open .grupo-estado-chevron { transform: rotate(180deg); color: var(--color-aplic-dark); }
+  .grupo-estado-body { padding: 0 16px 16px; border-top: 1px solid #F5F5F5; background: #FAFBFA; padding-top: 12px; }
+
+  .sync-pill { font-size: 8px; font-weight: 800; padding: 3px 7px; border-radius: 6px; letter-spacing: 0.4px; }
+  .sync-pill.nube { background: #E8F5E9; color: #2E7D32; }
+  .sync-pill.local { background: #FFF3E0; color: #E65100; }
+
+  .consola-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); }
+  .consola-card-titulo { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+
+  .receta-linea { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .receta-linea:last-child { border-bottom: none; }
+  .receta-producto { font-size: 12px; font-weight: 800; color: var(--color-text); }
+  .receta-detalle { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+  .receta-dosis { font-size: 11.5px; font-weight: 900; color: var(--color-aplic); white-space: nowrap; }
+  .chip-litros { background: var(--color-aplic-soft); color: var(--color-aplic-dark); padding: 3px 8px; border-radius: 6px; font-size: 9.5px; font-weight: 700; white-space: nowrap; }
+
+  .cuadro-fila { margin-bottom: 6px; padding: 10px 14px; border-radius: var(--radius-md); background: #FFFFFF; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .banner-solo-lectura { background: #ECEFF1; border: 1px dashed #90A4AE; border-radius: var(--radius-md); padding: 10px 14px; font-size: 11.5px; color: #37474F; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  /* Consola Agronómica */
+  .orden-overlay { position: fixed; inset: 0; background: rgba(26,33,28,0.40); backdrop-filter: blur(4px); display: none; align-items: flex-end; justify-content: center; z-index: 1500; opacity: 0; transition: opacity 0.2s ease; }
+  .orden-overlay.show { display: flex; opacity: 1; }
+  .orden-panel {
+    width: 100%; max-width: 1060px; height: 94vh; background: var(--color-bg); border-radius: 24px 24px 0 0;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.16); display: flex; flex-direction: column; padding: 20px 24px;
+    transform: translateY(30px); transition: transform 0.28s cubic-bezier(0.16,1,0.3,1); border-top: 1px solid var(--color-border);
+  }
+  .orden-overlay.show .orden-panel { transform: translateY(0); }
+
+  .orden-panel-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 12px; }
+  .orden-panel-kicker { font-size: 9.5px; font-weight: 800; color: var(--color-aplic); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 2px; }
+  .orden-panel-title { font-size: 16px; font-weight: 900; color: var(--color-aplic-dark); margin: 0; }
+
+  .btn-cerrar-orden { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+  .btn-cerrar-orden:hover { background: #F5F5F5; color: var(--color-text); }
+
+  .btn-lanzar-ot { background: var(--color-aplic); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 9px 16px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(107, 63, 160, 0.20); }
+  .btn-lanzar-ot:hover { background: var(--color-aplic-dark); }
+
+  .orden-divider { height: 1px; background: var(--color-border); margin: 12px 0; flex-shrink: 0; }
+  .orden-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
+
+  .orden-card-dark { background: #FFFFFF; border-radius: var(--radius-md); padding: 14px; border: 1px solid var(--color-border); margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+  .orden-card-dark-titulo { font-size: 9.5px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase; }
+
+  .orden-field { display: flex; flex-direction: column; gap: 4px; }
+  .orden-field label { font-size: 9.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+  .orden-input, .orden-select {
+    width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: #FAFAFA;
+    color: var(--color-text); font-family: inherit; font-size: 12px; transition: all 0.15s ease; outline: none;
+  }
+  .orden-select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23556358' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .orden-input:focus, .orden-select:focus { border-color: var(--color-aplic); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-aplic-soft); }
+  .orden-input.acento { color: var(--color-aplic); font-weight: 800; }
+  .orden-row { display: flex; gap: 10px; }
+  .orden-row > * { flex: 1; min-width: 0; }
+
+  .orden-search-dark { display: flex; align-items: center; gap: 8px; background: #FAFAFA; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0 10px; height: 36px; margin-bottom: 10px; }
+  .orden-search-dark input { flex-grow: 1; background: transparent; border: none; outline: none; color: var(--color-text); font-size: 11.5px; font-family: inherit; }
+
+  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO: Card de Producto con ARTÍCULO y DESCRIPCIÓN bien destacados */
+  .stock-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+  .stock-card {
+    flex-shrink: 0; width: 195px; background: #FFFFFF; border-radius: var(--radius-md); border: 1px solid var(--color-border);
+    padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.15s ease;
+  }
+  .stock-card:hover { border-color: var(--color-aplic); transform: translateY(-2px); box-shadow: 0 6px 14px rgba(107,63,160,0.12); }
+  .stock-card .rubro { font-size: 8px; font-weight: 800; color: var(--color-aplic); letter-spacing: 0.4px; text-transform: uppercase; }
+  
+  .stock-card-articulo { font-size: 12px; font-weight: 900; color: var(--color-aplic-dark); margin-top: 2px; }
+  .stock-card-descripcion { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); line-height: 1.3; margin-top: 2px; min-height: 26px; }
+
+  .stock-card .neto-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed var(--color-border); padding-top: 6px; margin-top: 2px; }
+  .stock-card .neto-label { font-size: 8.5px; color: var(--color-text-secondary); font-weight: 700; }
+  .stock-card .neto-val { font-size: 10px; font-weight: 900; color: var(--color-ok); background: var(--color-ok-soft); padding: 2px 6px; border-radius: 4px; }
+  .btn-anadir-caldo { background: var(--color-aplic); color: #fff; border: none; border-radius: 6px; height: 26px; font-size: 9.5px; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.15s ease; }
+  .btn-anadir-caldo:hover { background: var(--color-aplic-dark); }
+
+  .caldo-card { background: var(--color-ok-soft); border: 1px solid rgba(46,125,50,0.25); border-radius: var(--radius-md); padding: 12px; margin-bottom: 10px; }
+  .caldo-titulo { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: var(--color-ok); margin-bottom: 8px; letter-spacing: 0.4px; }
+  .caldo-linea { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #FFFFFF; border-radius: var(--radius-sm); padding: 7px 10px; margin-bottom: 5px; border: 1px solid rgba(46,125,50,0.15); }
+  .caldo-linea:last-child { margin-bottom: 0; }
+  .caldo-linea .prod { font-size: 11px; font-weight: 800; color: var(--color-text); }
+  .caldo-linea .dosis { font-size: 9.5px; font-weight: 700; color: var(--color-aplic); margin-top: 1px; }
+  .btn-quitar-linea { background: transparent; border: none; color: #C62828; cursor: pointer; padding: 2px; display: flex; align-items: center; }
+
+  .orden-chip { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); border-radius: 10px; padding: 6px 10px; font-size: 9.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .orden-chip.selected { background: var(--color-aplic); border-color: var(--color-aplic); color: #fff; }
+  .orden-chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .btn-tildar-todo { background: transparent; border: none; color: var(--color-aplic); font-size: 9.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
+  /* Master-Detail Split */
+  .oc-split-container { display: grid; grid-template-columns: 290px 1fr; gap: 14px; flex-grow: 1; overflow: hidden; }
+  .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .oc-card-item { background: #F9F7FC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 9px 11px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-aplic); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-aplic); background: var(--color-aplic-soft); box-shadow: 0 2px 6px rgba(107, 63, 160, 0.10); }
+
+  .oc-card-num { font-size: 11.5px; font-weight: 800; color: var(--color-aplic-dark); }
+  .oc-card-prov { font-size: 10.5px; font-weight: 700; color: var(--color-text); margin-top: 2px; }
+  .oc-card-date { font-size: 9.5px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; overflow-y: auto; gap: 12px; }
+  .oc-info-card-header { background: #F9F7FC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+
+  .filtro-fechas-card { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .filtro-fechas-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip-preset { background: var(--color-aplic-soft); color: var(--color-aplic-dark); border: 1px solid transparent; border-radius: 16px; padding: 5px 11px; font-size: 10.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .chip-preset:hover { background: var(--color-aplic); color: #fff; transform: translateY(-1px); }
+
+  .orden-filtro-chip-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
+  .orden-filtro-chip { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); border-radius: 10px; padding: 5px 10px; font-size: 9.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+  .orden-filtro-chip.selected { background: var(--color-aplic); border-color: var(--color-aplic); color: #fff; }
+  .filtro-fechas-inputs { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+  .filtro-fechas-inputs .modal-group { min-width: 130px; }
+  .filtro-fechas-inputs .modal-input { padding: 6px 10px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right:4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      operario en turno... <span class="highlight" id="lblOperario">RESPONSABLE DE APLICACIONES</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">—</div>
+      <button class="btn-sync-top" id="btnSincronizarTodo">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="iconSync"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar Todo
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-aplic">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Aplicaciones</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-seccion="ordenes">ÓRDENES</button>
+        <button class="btn-nav-lateral" data-seccion="historico">HISTÓRICO</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="ruta-navegacion" id="rutaNavegacion"></div>
+
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Cargando...</h1>
+        <div id="headerAccion" style="display:flex; gap:8px;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Genérico Apple Soft -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título del Modal</h3>
+        <div class="modal-subtitle" id="modalSubtitle">Detalles informativos</div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consola Agronómica Maestra -->
+  <div class="orden-overlay" id="ordenOverlay">
+    <div class="orden-panel">
+      <div class="orden-panel-header">
+        <div>
+          <div class="orden-panel-kicker">CONSOLA AGRONÓMICA</div>
+          <h3 class="orden-panel-title">Emisión de Receta Maestra</h3>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-lanzar-ot" id="btnLanzarOT">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            LANZAR OT
+          </button>
+          <button class="btn-cerrar-orden" id="btnCerrarOrdenPanel">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="orden-divider"></div>
+      <div class="orden-scroll" id="ordenPanelBody"></div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+
+  if (isElectron) {
+    try {
+      const path = require('path');
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+  }
+
+  let operarioName = 'Responsable de Aplicaciones';
+  if (isElectron) {
+    try {
+      const auth = require('../auth.js');
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { }
+  }
+
+  function q(sql, ...args) {
+    if (!db) return [];
+    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
+  }
+  function qGet(sql, ...args) {
+    if (!db) return null;
+    try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
+  }
+  function qRun(sql, ...args) {
+    if (!db) return { changes: 0 };
+    try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function sumarDiasStr(str, n) {
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    dt.setDate(dt.getDate() + n);
+    return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+  }
+  function primerDiaMesStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-01'; }
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toFixed(2); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function escapeAttr(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+  let seccionActual = 'ordenes';
+
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const rutaNavegacion = document.getElementById('rutaNavegacion');
+  const btnVolver = document.getElementById('btnVolver');
+  const headerAccion = document.getElementById('headerAccion');
+  const btnSincronizarTodo = document.getElementById('btnSincronizarTodo');
+ 
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = '📋';
+    if (tipo === 'success') icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    if (tipo === 'warning') icono = '⚠️';
+    tarjeta.innerHTML = `
+      <div style="font-size:16px; display:flex; align-items:center;">${icono}</div>
+      <div style="flex-grow:1; font-size:12px; font-weight:700; line-height:1.3;">${mensaje}</div>
+    `;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => {
+      tarjeta.classList.remove('show');
+      setTimeout(() => tarjeta.remove(), 350);
+    }, 4000);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = 'Guardar';
+    modalBtnSave.style.background = 'var(--color-aplic)';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+  window.closeMiniModal = closeMiniModal;
+
+  function botonExcelHTML(onclickCall, titulo) {
+    return `
+      <button class="btn-excel" onclick="${onclickCall}" title="${titulo || 'Exportar a Excel'}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        EXCEL
+      </button>
+    `;
+  }
+
+  btnVolver.addEventListener('click', () => {
+    if (vistaDetalle && origenDetalle === 'historico') { volverDesdeDetalle(); return; }
+    window.location.href = 'menu_campo.html';
+  });
+
+  btnSincronizarTodo.addEventListener('click', async () => {
+    btnSincronizarTodo.classList.add('syncing');
+    btnSincronizarTodo.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+    if (isElectron) {
+      try {
+        const syncModule = require('../sincronizacion.js');
+        if (syncModule.ejecutarSincronizacionCompleta) {
+          await syncModule.ejecutarSincronizacionCompleta();
+        } else {
+          const { subirCambiosLocales } = require('../subir.js');
+          const { sincronizarTodo } = syncModule;
+          await subirCambiosLocales();
+          await sincronizarTodo();
+        }
+        lanzarNotificacionFlotante('¡Sincronización bidireccional exitosa con Hosting de Agrosoft J&L!', 'success');
+      } catch (err) {
+        console.error(err);
+        lanzarNotificacionFlotante('Error de sincronización: ' + err.message, 'error');
+      } finally {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Todo`;
+        cargarSeccion();
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizarTodo.classList.remove('syncing');
+        btnSincronizarTodo.innerHTML = `Sincronizar Todo`;
+        lanzarNotificacionFlotante('Sincronización simulada en entorno de pruebas.', 'warning');
+      }, 1000);
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => irASeccion(btn.dataset.seccion));
+  });
+  function irASeccion(key) {
+    seccionActual = key;
+    vistaDetalle = null; ordenSeleccionada = null;
+    document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.toggle('active', b.dataset.seccion === key));
+    cargarSeccion();
+  }
+
+  function cargarSeccion() {
+    headerAccion.innerHTML = '';
+    if (seccionActual === 'ordenes') renderOrdenes();
+    else if (seccionActual === 'historico') renderHistorico();
+  }
+
+  function actualizarRuta(pasos) {
+    rutaNavegacion.innerHTML = pasos.map((paso, idx) => {
+      let colorClass = 'step-inicio';
+      if (idx === 1) colorClass = 'step-nivel1';
+      if (idx === 2) colorClass = 'step-nivel2';
+      const clickableClass = paso.accion ? 'clickable' : '';
+      const onClickAttr = paso.accion ? `onclick="${paso.accion}"` : '';
+      const stepHtml = `<span class="ruta-step ${colorClass} ${clickableClass}" ${onClickAttr}>${paso.texto}</span>`;
+      return idx === pasos.length - 1 ? stepHtml : `${stepHtml} <span class="ruta-separator">/</span> `;
+    }).join('');
+  }
+
+  function badgeEstadoHTML(estado) {
+    const e = String(estado || '').trim().toUpperCase();
+    if (e === 'PENDIENTE') return `<span class="badge-estado pendiente">Pendiente</span>`;
+    if (e === 'APLICADO') return `<span class="badge-estado aplicado">Aplicado</span>`;
+    return `<span class="badge-estado neutro">${escapeHtml(estado || 'Sin Estado')}</span>`;
+  }
+
+  // =========================================================================
+  // 1. SECCIÓN: ÓRDENES
+  // =========================================================================
+  let vistaDetalle = null;
+  let origenDetalle = 'ordenes';
+  let ordenesFiltroEstado = 'ACTIVAS';
+
+  let ordenSeleccionada = null;
+  let recetaDetalleLineas = [];
+  let parcelasDesglosadas = [];
+  let historicoCargasOrden = [];
+  let modoEdicionDetalle = false;
+  let mostrarFormRegistrar = false;
+
+  let horasTrabajadasTexto = '4.5';
+  let fechaAplicacionTexto = hoyStr();
+  let responsableAplicacionTexto = operarioName;
+
+  function ordenEstaActiva(ord) {
+    return String(ord.estado || '').trim().toUpperCase() !== 'APLICADO';
+  }
+
+  function renderOrdenes() {
+    seccionTitulo.textContent = 'Órdenes de Aplicación';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Órdenes' }]);
+    headerAccion.innerHTML = `
+      ${botonExcelHTML("window.exportarOrdenesExcel()", 'Exportar listado de órdenes a Excel')}
+      <button class="btn-global-add" id="btnNuevaOrden">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        NUEVA ORDEN
+      </button>
+    `;
+    document.getElementById('btnNuevaOrden').addEventListener('click', () => window.abrirNuevaOrden());
+
+    renderSplitOrdenes();
+  }
+
+  function renderSplitOrdenes() {
+    const ordenesTodas = q('SELECT * FROM local_p_aplicacionesOrdenes ORDER BY orden DESC');
+    let listaFiltrada = ordenesTodas;
+    if (ordenesFiltroEstado === 'ACTIVAS') listaFiltrada = ordenesTodas.filter(o => ordenEstaActiva(o));
+    else if (ordenesFiltroEstado === 'TERMINADAS') listaFiltrada = ordenesTodas.filter(o => !ordenEstaActiva(o));
+
+    if (listaFiltrada.length === 0) {
+      vistaDetalle = null; ordenSeleccionada = null;
+    } else if (!vistaDetalle || !listaFiltrada.some(o => o.cabecera === vistaDetalle)) {
+      cargarDatosOrdenEnMemoria(listaFiltrada[0].cabecera, 'ordenes');
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-aplic-dark); margin-bottom:2px;">ÓRDENES (${listaFiltrada.length})</div>
+          <div class="orden-filtro-chip-wrap" style="margin-bottom:4px;">
+            <button type="button" class="orden-filtro-chip ${ordenesFiltroEstado === 'ACTIVAS' ? 'selected' : ''}" data-filtro-estado="ACTIVAS">ACTIVAS</button>
+            <button type="button" class="orden-filtro-chip ${ordenesFiltroEstado === 'TERMINADAS' ? 'selected' : ''}" data-filtro-estado="TERMINADAS">TERMINADAS</button>
+            <button type="button" class="orden-filtro-chip ${ordenesFiltroEstado === 'TODAS' ? 'selected' : ''}" data-filtro-estado="TODAS">TODAS</button>
+          </div>
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;">
+            ${listaFiltrada.length === 0 ? '<div class="vista-vacia">Sin órdenes en este filtro.</div>' : ''}
+            ${listaFiltrada.map(o => `
+              <div class="oc-card-item ${vistaDetalle === o.cabecera ? 'active' : ''}" data-cabecera-sel="${o.cabecera}">
+                <div class="oc-card-num">ORDEN N° ${o.orden}</div>
+                <div class="oc-card-prov">${escapeHtml(o.tipo_aplicacion || '—')}</div>
+                <div class="oc-card-date"><span>${escapeHtml(o.fecha || '—')}</span>${badgeEstadoHTML(o.estado)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleOrden">
+          ${renderDetalleOrdenPanelHTML()}
+        </div>
+      </div>
+    `;
+
+    document.querySelectorAll('[data-cabecera-sel]').forEach(el => {
+      el.addEventListener('click', () => window.seleccionarOrdenSplit(parseInt(el.dataset.cabeceraSel)));
+    });
+    document.querySelectorAll('[data-filtro-estado]').forEach(chip => {
+      chip.addEventListener('click', () => { ordenesFiltroEstado = chip.dataset.filtroEstado; renderSplitOrdenes(); });
+    });
+
+    wireDetalleOrdenPanel();
+  }
+
+  window.seleccionarOrdenSplit = function(cabecera) { abrirDetalleOrden(cabecera, 'ordenes'); };
+
+  function refrescarPanelDetalleOrden() {
+    const panel = document.getElementById('panelDetalleOrden');
+    if (!panel) return;
+    panel.innerHTML = renderDetalleOrdenPanelHTML();
+    wireDetalleOrdenPanel();
+  }
+
+  function renderDetalleOrdenPanelHTML() {
+    const ord = ordenSeleccionada;
+    if (!ord) return '<div class="vista-vacia">Seleccioná una orden del listado para ver su receta.</div>';
+    const esActiva = ordenEstaActiva(ord);
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:16px; font-weight:800; color:var(--color-aplic-dark);">ORDEN N° ${ord.orden}</div>
+          <div style="font-size:11.5px; color:var(--color-text-secondary); margin-top:2px;">${escapeHtml(ord.tipo_aplicacion || '—')} · ${escapeHtml(ord.fecha || '—')}</div>
+          <div style="margin-top:6px;">${badgeEstadoHTML(ord.estado)}</div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn-secundario" id="btnExportarPdfOrden" style="padding:6px 12px; font-size:10.5px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            PDF
+          </button>
+          ${esActiva ? `
+            <button class="btn-secundario" id="btnToggleRegistrar" style="padding:6px 12px; font-size:10.5px;">REGISTRAR</button>
+            <button class="btn-secundario" id="btnToggleEditar" style="padding:6px 12px; font-size:10.5px;">${modoEdicionDetalle ? 'SALIR EDICIÓN' : 'EDITAR'}</button>
+            <button class="btn-peligro" id="btnTerminarOrden" style="padding:6px 12px; font-size:10.5px;">TERMINAR</button>
+          ` : ''}
+        </div>
+      </div>
+
+      ${esActiva ? '' : `
+        <div class="banner-solo-lectura">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Esta orden ya fue finalizada (estado ${escapeHtml(ord.estado)}). Es de solo lectura.
+        </div>
+      `}
+      ${(mostrarFormRegistrar && esActiva) ? formRegistrarHTML() : ''}
+      ${recetaCardHTML(esActiva)}
+      ${cuadrosCardHTML()}
+      ${registrosCardHTML(esActiva)}
+    `;
+  }
+
+  function wireDetalleOrdenPanel() {
+    const ord = ordenSeleccionada;
+    if (!ord) return;
+    const esActiva = ordenEstaActiva(ord);
+
+    document.getElementById('btnExportarPdfOrden').addEventListener('click', () => window.exportarOrdenPDF());
+
+    if (esActiva) {
+      document.getElementById('btnToggleRegistrar').addEventListener('click', () => {
+        mostrarFormRegistrar = !mostrarFormRegistrar;
+        refrescarPanelDetalleOrden();
+      });
+      document.getElementById('btnToggleEditar').addEventListener('click', () => {
+        modoEdicionDetalle = !modoEdicionDetalle;
+        refrescarPanelDetalleOrden();
+      });
+      document.getElementById('btnTerminarOrden').addEventListener('click', () => window.confirmarFinalizarOrden());
+    }
+
+    if (mostrarFormRegistrar && esActiva) wireFormRegistrar();
+    if (modoEdicionDetalle && esActiva) wireEdicionDetalle();
+  }
+
+  function ordenCardHTML(ord) {
+    return `
+      <div class="card-item" data-cabecera="${ord.cabecera}">
+        <div class="card-item-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="card-icon-wrapper">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h4>Orden N° ${ord.orden}</h4>
+          </div>
+          ${badgeEstadoHTML(ord.estado)}
+        </div>
+        <div class="card-info-box">
+          <div class="card-info-line"><span>Tarea:</span><strong>${escapeHtml(ord.tipo_aplicacion || '—')}</strong></div>
+          <div class="card-info-line"><span>Motivo:</span><strong>${escapeHtml(ord.motivo_aplicacion || '—')}</strong></div>
+          <div class="card-info-line"><span>Cuadros:</span><strong>${escapeHtml(ord.parcelas || '—')}</strong></div>
+          <div class="card-info-line"><span>Fecha:</span><strong>${escapeHtml(ord.fecha || '—')}</strong></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function volverDesdeDetalle() {
+    vistaDetalle = null;
+    ordenSeleccionada = null;
+    modoEdicionDetalle = false;
+    mostrarFormRegistrar = false;
+    if (origenDetalle === 'historico') renderHistorico(); else renderOrdenes();
+  }
+  window.volverDesdeDetalleOrden = volverDesdeDetalle;
+
+  /* ACA ES LO NUEVO: Se asegura que toda la resolución de parcelas y superficies provenga directamente de local_p_cuadros */
+  function cargarDatosOrdenEnMemoria(cabecera, origen) {
+    const ord = qGet('SELECT * FROM local_p_aplicacionesOrdenes WHERE cabecera = ?', cabecera);
+    if (!ord) return false;
+
+    const lineasReceta = q(`
+      SELECT r.*,
+        IFNULL(cat.descripcion, 'Sin especificar') as desc_cat,
+        IFNULL(cat.descripcion1, 'Sin desc. secundaria') as desc1_cat,
+        IFNULL(cat.rubro, 'AGROQUÍMICOS') as rubro_cat,
+        IFNULL(cat.sub_rubro, 'AGROQUIMICO') as subrubro_cat
+      FROM local_p_recetas_aplicaciones r
+      LEFT JOIN local_i_insumos_catalogo cat ON r.producto = cat.articulo
+      WHERE r.cabecera = ?
+    `, cabecera);
+
+    const parcelasRaw = ord.parcelas || '';
+    const splitParcelas = parcelasRaw.split(',').map(p => p.trim()).filter(p => p.length > 0);
+
+    /* ACA ES LO NUEVO: Búsqueda estricta en local_p_cuadros para extraer superficie genuina */
+    const parcelasMapeadas = splitParcelas.map(pName => {
+      const match = qGet('SELECT * FROM local_p_cuadros WHERE UPPER(TRIM(nombre)) = ? LIMIT 1', pName.toUpperCase());
+      return {
+        nombre: pName,
+        sup: match ? (parseFloat(match.sup) || 0) : 0,
+        valvula: match ? (match.sector || match.tipo || 'S/V') : 'S/V'
+      };
+    });
+
+    const historial = q('SELECT * FROM local_r_aplicaciones_fol_fert WHERE cab_aplic = ? ORDER BY registro DESC', cabecera);
+
+    ordenSeleccionada = ord;
+    recetaDetalleLineas = lineasReceta;
+    parcelasDesglosadas = parcelasMapeadas;
+    historicoCargasOrden = historial;
+    vistaDetalle = cabecera;
+    origenDetalle = origen;
+    modoEdicionDetalle = false;
+    mostrarFormRegistrar = false;
+    horasTrabajadasTexto = '4.5';
+    fechaAplicacionTexto = hoyStr();
+    responsableAplicacionTexto = operarioName;
+
+    return true;
+  }
+
+  function abrirDetalleOrden(cabecera, origen) {
+    const ok = cargarDatosOrdenEnMemoria(cabecera, origen);
+    if (!ok) return lanzarNotificacionFlotante('No se encontró la orden seleccionada.', 'error');
+    if (origen === 'historico') renderDetalleOrden(); else renderOrdenes();
+  }
+
+  function renderDetalleOrden() {
+    const ord = ordenSeleccionada;
+    const esActiva = ordenEstaActiva(ord);
+
+    seccionTitulo.textContent = `Orden N° ${ord.orden}`;
+    actualizarRuta([
+      { texto: origenDetalle === 'historico' ? 'Histórico' : 'Órdenes', accion: 'window.volverDesdeDetalleOrden()' },
+      { texto: `Orden N° ${ord.orden}` }
+    ]);
+
+    headerAccion.innerHTML = `
+      <button class="btn-secundario" id="btnExportarPdfOrden">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        PDF
+      </button>
+      ${esActiva ? `
+        <button class="btn-secundario" id="btnToggleRegistrar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          REGISTRAR
+        </button>
+        <button class="btn-secundario" id="btnToggleEditar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          ${modoEdicionDetalle ? 'SALIR EDICIÓN' : 'EDITAR'}
+        </button>
+        <button class="btn-peligro" id="btnTerminarOrden">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          TERMINAR
+        </button>
+      ` : ''}
+    `;
+
+    document.getElementById('btnExportarPdfOrden').addEventListener('click', () => window.exportarOrdenPDF());
+
+    if (esActiva) {
+      document.getElementById('btnToggleRegistrar').addEventListener('click', () => {
+        mostrarFormRegistrar = !mostrarFormRegistrar;
+        renderDetalleOrden();
+      });
+      document.getElementById('btnToggleEditar').addEventListener('click', () => {
+        modoEdicionDetalle = !modoEdicionDetalle;
+        renderDetalleOrden();
+      });
+      document.getElementById('btnTerminarOrden').addEventListener('click', () => window.confirmarFinalizarOrden());
+    }
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll" id="detalleScrollRoot">
+        ${esActiva ? '' : `
+          <div class="banner-solo-lectura">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Esta orden ya fue finalizada (estado ${escapeHtml(ord.estado)}). Es de solo lectura.
+          </div>
+        `}
+        ${(mostrarFormRegistrar && esActiva) ? formRegistrarHTML() : ''}
+        ${recetaCardHTML(esActiva)}
+        ${cuadrosCardHTML()}
+        ${registrosCardHTML(esActiva)}
+        <div style="height:30px;"></div>
+      </div>
+    `;
+
+    if (mostrarFormRegistrar && esActiva) wireFormRegistrar();
+    if (modoEdicionDetalle && esActiva) wireEdicionDetalle();
+  }
+
+  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO: Detalle de Receta mostrando ARTÍCULO y DESCRIPCIÓN bien claros */
+  function recetaCardHTML(esActiva) {
+    return `
+      <div class="consola-card-titulo">🧬 Detalle de Receta Prescrita</div>
+      <div class="consola-card">
+        ${recetaDetalleLineas.length === 0 ? '<div class="vista-vacia">Esta orden no tiene líneas de receta cargadas.</div>' : recetaDetalleLineas.map(prod => `
+          <div class="receta-linea">
+            <div style="flex-grow:1; min-width:0;">
+              <div class="receta-producto">ARTÍCULO: ${escapeHtml(prod.producto)}</div>
+              <div class="receta-detalle">DESCRIPCIÓN: <strong>${escapeHtml(prod.desc_cat)}</strong> (${escapeHtml(prod.desc1_cat)})</div>
+            </div>
+            <div class="receta-dosis">${escapeHtml(prod.dosis_x_ha)} L/Ha</div>
+            <div class="chip-litros">${escapeHtml(ordenSeleccionada.volumen_aplic || '200')} L/Agua</div>
+            ${(modoEdicionDetalle && esActiva) ? `
+              <button type="button" class="btn-accion edit btn-editar-receta" data-registro="${prod.registro}" title="Editar dosis de receta">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  /* ACA ES LO NUEVO: Se detallan los cuadros usando siempre los valores reales de local_p_cuadros */
+  function cuadrosCardHTML() {
+    return `
+      <div class="consola-card-titulo">🧱 Cuadros Asignados desde p_cuadros (Superficies Reales)</div>
+      ${parcelasDesglosadas.length === 0 ? '<div class="vista-vacia">No se detectaron cuadros asociados a esta orden.</div>' : parcelasDesglosadas.map(cuad => `
+        <div class="cuadro-fila">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <strong style="font-size:12px; color:var(--color-text);">${escapeHtml(cuad.nombre)}</strong>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:10px; color:var(--color-text-secondary); font-weight:700;">Válvula/Sector: ${escapeHtml(cuad.valvula)}</span>
+            <span class="badge-estado aplicado">${n2(cuad.sup)} Has</span>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function registrosCardHTML(esActiva) {
+    return `
+      <div class="consola-card-titulo" style="margin-top:16px;">📋 Registros de Aplicaciones</div>
+      ${historicoCargasOrden.length === 0 ? '<div class="vista-vacia">No se registran partes diarios asentados para esta orden.</div>' : historicoCargasOrden.map(log => {
+        const sync = (log.sincronizado || 0) === 1;
+        return `
+          <div class="renglon-card">
+            <div class="renglon-data-container">
+              <div class="renglon-info-block"><span class="label">Producto</span><span class="value">🧪 ${escapeHtml(log.producto)}</span></div>
+              <div class="renglon-info-block"><span class="label">Cuadro</span><span class="value">${escapeHtml(log.parcela)}</span></div>
+              <div class="renglon-info-block"><span class="label">Variedad</span><span class="value">${escapeHtml(log.variedad || '—')}</span></div>
+              <div class="renglon-info-block"><span class="label">Sup.</span><span class="value">${n2(log.sup_aplic)} Has</span></div>
+              <div class="renglon-info-block"><span class="label">Consumo</span><span class="value" style="color:var(--color-aplic); font-weight:800;">${n1(log.consumo_prod)} Lts</span></div>
+              <div class="renglon-info-block"><span class="label">Horas</span><span class="value">${n1(log.horas_aplic)}</span></div>
+              <div class="renglon-info-block"><span class="label">Fecha</span><span class="value">${escapeHtml(log.fecha)}</span></div>
+              <div class="renglon-info-block"><span class="label">Aplicó</span><span class="value">${escapeHtml(log.aplico)}</span></div>
+            </div>
+            <div class="acciones-wrapper">
+              <span class="sync-pill ${sync ? 'nube' : 'local'}">${sync ? 'NUBE' : 'LOCAL'}</span>
+              ${(modoEdicionDetalle && esActiva) ? `
+                <button type="button" class="btn-accion edit btn-editar-registro" data-registro="${log.registro}" data-regaplic="${escapeHtml(log.reg_aplic)}" title="Editar registro">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+  }
+
+  function formRegistrarHTML() {
+    return `
+      <div class="consola-card-titulo">📝 Nuevo Registro de Aplicación</div>
+      <div class="consola-card">
+        <div class="modal-group" style="margin-bottom:10px;">
+          <label>Fecha de Trabajo</label>
+          <input type="date" id="fechaAplicacionInput" class="modal-input" value="${fechaAplicacionTexto}" />
+        </div>
+        <div class="modal-group" style="margin-bottom:10px;">
+          <label style="color:var(--color-aplic);">Horas Reales Consumidas</label>
+          <input type="number" id="horasTrabajadasInput" class="modal-input" min="0" step="0.1" value="${escapeHtml(horasTrabajadasTexto)}" />
+        </div>
+        <div class="modal-group" style="margin-bottom:12px;">
+          <label>Responsable / Aplicador Asignado</label>
+          <input type="text" id="responsableAplicacionInput" class="modal-input" value="${escapeHtml(responsableAplicacionTexto)}" />
+        </div>
+        <button class="btn-global-add" id="btnGuardarAvance" style="width:100%; justify-content:center; height:40px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          REGISTRAR Y DESCONTAR EN MASA
+        </button>
+      </div>
+    `;
+  }
+
+  function wireFormRegistrar() {
+    const fechaEl = document.getElementById('fechaAplicacionInput');
+    const horasEl = document.getElementById('horasTrabajadasInput');
+    const respEl = document.getElementById('responsableAplicacionInput');
+    if (fechaEl) fechaEl.addEventListener('input', e => { fechaAplicacionTexto = e.target.value; });
+    if (horasEl) horasEl.addEventListener('input', e => { horasTrabajadasTexto = e.target.value; });
+    if (respEl) respEl.addEventListener('input', e => { responsableAplicacionTexto = e.target.value; });
+    const btnGuardar = document.getElementById('btnGuardarAvance');
+    if (btnGuardar) btnGuardar.addEventListener('click', () => guardarAvanceParteDiario());
+  }
+
+  function wireEdicionDetalle() {
+    document.querySelectorAll('.btn-editar-receta').forEach(btn => {
+      btn.addEventListener('click', () => editarLineaReceta(parseInt(btn.dataset.registro)));
+    });
+    document.querySelectorAll('.btn-editar-registro').forEach(btn => {
+      btn.addEventListener('click', () => editarRegistroAplicacion(parseInt(btn.dataset.registro), btn.dataset.regaplic));
+    });
+  }
+
+  /* ESTO LO MODIFIQUE: Búsqueda y prorrateo de parcelas cruzando con local_p_cuadros */
+  function guardarAvanceParteDiario() {
+    if (!horasTrabajadasTexto || !responsableAplicacionTexto) {
+      return lanzarNotificacionFlotante('Complete las horas y el responsable antes de avanzar.', 'warning');
+    }
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+    const ord = ordenSeleccionada;
+    const hrsAplicadas = parseFloat(horasTrabajadasTexto) || 0;
+    const volAguaHa = parseFloat(ord.volumen_aplic) || 200;
+    const currentYear = new Date().getFullYear();
+    const fecha = fechaAplicacionTexto || hoyStr();
+    const responsable = responsableAplicacionTexto;
+    const esFertirriego = String(ord.aplicado_con || '').trim().toUpperCase() === 'FERTIRRIEGO';
+
+    try {
+      let nextRegistro = ((qGet('SELECT MAX(registro) as maxR FROM local_r_aplicaciones_fol_fert') || {}).maxR || 0) + 1;
+      let nextInsumoId = ((qGet('SELECT MAX(id) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+      let nextRiegoId = ((qGet('SELECT MAX(id) as maxR FROM local_r_campo_riego') || {}).maxR || 0) + 1;
+
+      const ejecutar = db.transaction(() => {
+        parcelasDesglosadas.forEach(cuadro => {
+          const nombreCuadro = String(cuadro.nombre);
+          let nombreNormalizado = nombreCuadro.trim().toUpperCase();
+          if (nombreNormalizado.length > 10) nombreNormalizado = nombreNormalizado.substring(0, 10);
+
+          /* ACA ES LO NUEVO: Búsqueda directa en local_p_cuadros */
+          const resCuadro = qGet('SELECT * FROM local_p_cuadros WHERE UPPER(TRIM(nombre)) = ? OR UPPER(SUBSTR(nombre, 1, 10)) = ? LIMIT 1', nombreNormalizado, nombreNormalizado);
+          const codParcelaMapeado = resCuadro ? (parseInt(resCuadro.cod_parcela) || 0) : 0;
+          const supCuadroReal = resCuadro ? (parseFloat(resCuadro.sup) || parseFloat(cuadro.sup) || 0) : (parseFloat(cuadro.sup) || 0);
+
+          const resMarcos = codParcelaMapeado > 0
+            ? q('SELECT * FROM local_p_marcos_plantacion WHERE cod_parcela = ?', codParcelaMapeado)
+            : [];
+
+          if (resMarcos.length === 0) {
+            recetaDetalleLineas.forEach(producto => {
+              const dosisHa = parseFloat(producto.dosis_x_ha) || 0;
+              const consumoCalculado = dosisHa * supCuadroReal;
+              const litrosAguaCalculados = volAguaHa * supCuadroReal;
+
+              const catRow = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', producto.producto);
+              const tc = catRow ? (parseFloat(catRow.tc) || 0) : 0;
+              const ti = catRow ? (parseFloat(catRow.ti) || 0) : 0;
+
+              const tokenAplicacion = `APLIC-${nextRegistro}-${Date.now()}`;
+              qRun(`
+                INSERT INTO local_r_aplicaciones_fol_fert
+                  (registro, reg_aplic, cab_aplic, fecha, parcela, valvula_n, orden, ref, producto, dosis_ha,
+                   principio_activo, concentracion, tipo_aplicacion, motivo_aplicacion, cultivo, variedad,
+                   litros_aplic, consumo_prod, horas_aplic, sup_aplic, aplico, maquina, tractor, unidad_negocio, centro_costo, sincronizado)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+              `, nextRegistro, tokenAplicacion, ord.cabecera, fecha, nombreCuadro, cuadro.valvula, ord.orden, ord.ref,
+                 producto.producto, dosisHa, producto.desc_cat, producto.desc1_cat, ord.tipo_aplicacion, ord.motivo_aplicacion,
+                 ord.centro_costo, 'GENERAL', litrosAguaCalculados, consumoCalculado, hrsAplicadas, supCuadroReal, responsable,
+                 ord.maquina_usada, ord.tractor_usado, ord.unidad_negocio, ord.centro_costo);
+              nextRegistro++;
+
+              qRun(`
+                INSERT INTO local_i_insumos_detalle
+                  (id, reg_local, reg_apli, articulo, cantidad, maquina, cod_parcela, parcela, variedad, ubicación, fila,
+                   centro_costo, operario, campaña, unidad_negocio, articulo_rubro, art_subrubro, tc, ti, ciclo_contable, sincronizado)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+              `, nextInsumoId, `INS-OUT-${nextInsumoId}-${Date.now()}`, tokenAplicacion, producto.producto, -consumoCalculado,
+                 ord.maquina_usada, codParcelaMapeado, nombreCuadro, 0, 'CUADRO COMPLETO', 'S/F', ord.centro_costo, responsable,
+                 String(currentYear), ord.unidad_negocio, producto.rubro_cat, producto.subrubro_cat, tc, ti, 'ABIERTO');
+              nextInsumoId++;
+            });
+            return;
+          }
+
+          resMarcos.forEach(marco => {
+            const codMarco = parseInt(marco.cod_marco) || 0;
+            let supTotalMarco = parseFloat(marco.SupTotal) || 0;
+            if (supTotalMarco === 0) supTotalMarco = supCuadroReal / resMarcos.length;
+
+            const resInv = q("SELECT * FROM local_p_inventario_plantacion WHERE cod_marco = ? AND UPPER(estado) = 'ACTIVO'", codMarco);
+
+            const gruposPorVariedad = {};
+            resInv.forEach(inv => {
+              const varClean = String(inv.variedad || 'GENERAL').trim().toUpperCase();
+              if (!gruposPorVariedad[varClean]) gruposPorVariedad[varClean] = [];
+              gruposPorVariedad[varClean].push(inv);
+            });
+            const nombresVariedad = Object.keys(gruposPorVariedad);
+
+            recetaDetalleLineas.forEach(producto => {
+              const dosisHa = parseFloat(producto.dosis_x_ha) || 0;
+              const consumoTotalMarco = dosisHa * supTotalMarco;
+              const litrosAguaTotalMarco = volAguaHa * supTotalMarco;
+
+              const catRow = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', producto.producto);
+              const tc = catRow ? (parseFloat(catRow.tc) || 0) : 0;
+              const ti = catRow ? (parseFloat(catRow.ti) || 0) : 0;
+
+              if (nombresVariedad.length === 0) {
+                const tokenAplicacion = `APLIC-${nextRegistro}-${Date.now()}`;
+                qRun(`
+                  INSERT INTO local_r_aplicaciones_fol_fert
+                    (registro, reg_aplic, cab_aplic, fecha, parcela, valvula_n, orden, ref, producto, dosis_ha,
+                     principio_activo, concentracion, tipo_aplicacion, motivo_aplicacion, cultivo, variedad,
+                     litros_aplic, consumo_prod, horas_aplic, sup_aplic, aplico, maquina, tractor, unidad_negocio, centro_costo, sincronizado)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+                `, nextRegistro, tokenAplicacion, ord.cabecera, fecha, nombreCuadro, marco.valvula_riego || cuadro.valvula, ord.orden, ord.ref,
+                   producto.producto, dosisHa, producto.desc_cat, producto.desc1_cat, ord.tipo_aplicacion, ord.motivo_aplicacion,
+                   ord.centro_costo, 'GENERAL', litrosAguaTotalMarco, consumoTotalMarco, hrsAplicadas, supTotalMarco, responsable,
+                   ord.maquina_usada, ord.tractor_usado, ord.unidad_negocio, ord.centro_costo);
+                nextRegistro++;
+
+                qRun(`
+                  INSERT INTO local_i_insumos_detalle
+                    (id, reg_local, reg_apli, articulo, cantidad, maquina, cod_parcela, parcela, variedad, ubicación, fila,
+                     centro_costo, operario, campaña, unidad_negocio, articulo_rubro, art_subrubro, tc, ti, ciclo_contable, sincronizado)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+                `, nextInsumoId, `INS-OUT-${nextInsumoId}-${Date.now()}`, tokenAplicacion, producto.producto, -consumoTotalMarco,
+                   ord.maquina_usada, codParcelaMapeado, nombreCuadro, 0, `MARCO FISICO: ${codMarco}`, 'S/F', ord.centro_costo, responsable,
+                   String(currentYear), ord.unidad_negocio, producto.rubro_cat, producto.subrubro_cat, tc, ti, 'ABIERTO');
+                nextInsumoId++;
+              } else {
+                const consumoPorVariedad = consumoTotalMarco / nombresVariedad.length;
+                const litrosPorVariedad = litrosAguaTotalMarco / nombresVariedad.length;
+                const supPorVariedad = supTotalMarco / nombresVariedad.length;
+
+                nombresVariedad.forEach(nombreVariedad => {
+                  const filaReferencia = gruposPorVariedad[nombreVariedad][0];
+                  const tokenAplicacion = `APLIC-${nextRegistro}-${Date.now()}`;
+
+                  qRun(`
+                    INSERT INTO local_r_aplicaciones_fol_fert
+                      (registro, reg_aplic, cab_aplic, fecha, parcela, valvula_n, orden, ref, producto, dosis_ha,
+                       principio_activo, concentracion, tipo_aplicacion, motivo_aplicacion, cultivo, variedad,
+                       litros_aplic, consumo_prod, horas_aplic, sup_aplic, aplico, maquina, tractor, unidad_negocio, centro_costo, sincronizado)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+                  `, nextRegistro, tokenAplicacion, ord.cabecera, fecha, nombreCuadro, filaReferencia.v_riego || marco.valvula_riego || cuadro.valvula,
+                     ord.orden, ord.ref, producto.producto, dosisHa, producto.desc_cat, producto.desc1_cat, ord.tipo_aplicacion, ord.motivo_aplicacion,
+                     ord.centro_costo, nombreVariedad, litrosPorVariedad, consumoPorVariedad, hrsAplicadas, supPorVariedad, responsable,
+                     ord.maquina_usada, ord.tractor_usado, ord.unidad_negocio, ord.centro_costo);
+                  nextRegistro++;
+
+                  qRun(`
+                    INSERT INTO local_i_insumos_detalle
+                      (id, reg_local, reg_apli, articulo, cantidad, maquina, cod_parcela, parcela, variedad, ubicación, fila,
+                       centro_costo, operario, campaña, unidad_negocio, articulo_rubro, art_subrubro, tc, ti, ciclo_contable, sincronizado)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+                  `, nextInsumoId, `INS-OUT-${nextInsumoId}-${Date.now()}`, tokenAplicacion, producto.producto, -consumoPorVariedad,
+                     ord.maquina_usada, codParcelaMapeado, nombreCuadro, parseInt(filaReferencia.id_inv) || 0, `MARCO: ${codMarco}`, 'AGRUPADO',
+                     ord.centro_costo, responsable, String(currentYear), ord.unidad_negocio, producto.rubro_cat, producto.subrubro_cat, tc, ti, 'ABIERTO');
+                  nextInsumoId++;
+                });
+              }
+            });
+
+            if (esFertirriego) {
+              const executionVariedad = nombresVariedad.length > 0 ? nombresVariedad[0] : 'GENERAL';
+              qRun(`
+                INSERT INTO local_r_campo_riego
+                  (id, reg_local, fecha, parcela, valvula, cultivo, variedad, sup_riego, horas, lamina, total_mm, usuario,
+                   periodo, operacion, comentario, tipo_riego, centro_costo, unidad_negocio, sincronizado)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+              `, nextRiegoId, `RIEGO-REG-${nextRiegoId}-${Date.now()}`, fecha, nombreCuadro, marco.valvula_riego || cuadro.valvula,
+                 ord.centro_costo, executionVariedad, supTotalMarco, hrsAplicadas, 0.0, 0.0, responsable, currentYear, hrsAplicadas,
+                 `Ejecución de Fertirriego desde Orden N° ${ord.orden}`, 'FERTIRRIEGO', ord.centro_costo, ord.unidad_negocio);
+              nextRiegoId++;
+            }
+          });
+        });
+      });
+
+      ejecutar();
+
+      lanzarNotificacionFlotante('Registro guardado: prorrateo consolidado por hectárea con éxito.', 'success');
+      aballeDetalleOrdenActual();
+    } catch (e) {
+      console.error('Error al grabar avance:', e);
+      lanzarNotificacionFlotante('Error al grabar: ' + e.message, 'error');
+    }
+  }
+
+  function aballeDetalleOrdenActual() {
+    if (origenDetalle === 'historico') renderDetalleOrden();
+    else renderOrdenes();
+  }
+
+  function editarLineaReceta(registro) {
+    const linea = recetaDetalleLineas.find(l => l.registro === registro);
+    if (!linea) return;
+    const fields = `
+      <div class="modal-group">
+        <label>Dosis por Hectárea (Lts o Kgs / Ha)</label>
+        <input type="number" id="editDosisRecetaInput" class="modal-input" step="0.01" min="0" value="${n2(linea.dosis_x_ha)}" />
+      </div>
+      <p style="font-size:11.5px; color:var(--color-text-secondary); line-height:1.4;">Al guardar se recalculan los registros de aplicación ya asentados de este producto en esta orden y se ajusta el stock descontado.</p>
+    `;
+    openMiniModal('Editar Receta', linea.producto, fields, () => {
+      const nuevaDosis = parseFloat(document.getElementById('editDosisRecetaInput').value);
+      if (isNaN(nuevaDosis) || nuevaDosis <= 0) return lanzarNotificacionFlotante('Ingresá una dosis válida.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+      try {
+        const ejecutar = db.transaction(() => {
+          qRun('UPDATE local_p_recetas_aplicaciones SET dosis = ?, dosis_x_ha = ?, sincronizado = 0 WHERE registro = ? AND cabecera = ?',
+            nuevaDosis, nuevaDosis, linea.registro, ordenSeleccionada.cabecera);
+
+          const registrosProducto = q('SELECT * FROM local_r_aplicaciones_fol_fert WHERE cab_aplic = ? AND producto = ?', ordenSeleccionada.cabecera, linea.producto);
+          registrosProducto.forEach(reg => {
+            const nuevoConsumo = nuevaDosis * (parseFloat(reg.sup_aplic) || 0);
+            qRun('UPDATE local_r_aplicaciones_fol_fert SET dosis_ha = ?, consumo_prod = ?, sincronizado = 0 WHERE registro = ? AND reg_aplic = ? AND cab_aplic = ?',
+              nuevaDosis, nuevoConsumo, reg.registro, reg.reg_aplic, reg.cab_aplic);
+            qRun('UPDATE local_i_insumos_detalle SET cantidad = ?, sincronizado = 0 WHERE reg_apli = ? AND articulo = ?',
+              -nuevoConsumo, reg.reg_aplic, linea.producto);
+          });
+        });
+        ejecutar();
+        lanzarNotificacionFlotante('Receta actualizada y consumos recalculados.', 'success');
+        closeMiniModal();
+        aballeDetalleOrdenActual();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al recalcular: ' + e.message, 'error');
+      }
+    });
+  }
+
+  function editarRegistroAplicacion(registro, regAplic) {
+    const reg = historicoCargasOrden.find(r => r.registro === registro && r.reg_aplic === regAplic);
+    if (!reg) return;
+    const fields = `
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Horas</label><input type="number" id="editRegHoras" class="modal-input" step="0.1" min="0" value="${n1(reg.horas_aplic)}" /></div>
+        <div class="modal-group"><label>Sup. Aplicada (Ha)</label><input type="number" id="editRegSup" class="modal-input" step="0.01" min="0" value="${n2(reg.sup_aplic)}" /></div>
+      </div>
+      <div class="modal-group"><label>Dosis Aplicada (por Ha)</label><input type="number" id="editRegDosis" class="modal-input" step="0.01" min="0" value="${n2(reg.dosis_ha)}" /></div>
+      <p style="font-size:11.5px; color:var(--color-text-secondary); line-height:1.4;">Al guardar se recalcula el consumo del registro y se ajusta el stock ya descontado en el catálogo.</p>
+    `;
+    openMiniModal('Editar Registro de Aplicación', `${reg.producto} · ${reg.parcela}`, fields, () => {
+      const nh = parseFloat(document.getElementById('editRegHoras').value);
+      const ns = parseFloat(document.getElementById('editRegSup').value);
+      const nd = parseFloat(document.getElementById('editRegDosis').value);
+      if ([nh, ns, nd].some(v => isNaN(v) || v < 0)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
+      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+      const volAguaHa = parseFloat(ordenSeleccionada.volumen_aplic) || 200;
+      const nuevoConsumo = nd * ns;
+      const nuevosLitros = volAguaHa * ns;
+      try {
+        const ejecutar = db.transaction(() => {
+          qRun(`UPDATE local_r_aplicaciones_fol_fert
+                  SET horas_aplic = ?, sup_aplic = ?, dosis_ha = ?, consumo_prod = ?, litros_aplic = ?, sincronizado = 0
+                  WHERE registro = ? AND reg_aplic = ? AND cab_aplic = ?`,
+            nh, ns, nd, nuevoConsumo, nuevosLitros, reg.registro, reg.reg_aplic, reg.cab_aplic);
+          qRun('UPDATE local_i_insumos_detalle SET cantidad = ?, sincronizado = 0 WHERE reg_apli = ? AND articulo = ?',
+            -nuevoConsumo, reg.reg_aplic, reg.producto);
+        });
+        ejecutar();
+        lanzarNotificacionFlotante('Registro actualizado y stock recalculado.', 'success');
+        closeMiniModal();
+        aballeDetalleOrdenActual();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error al recalcular: ' + e.message, 'error');
+      }
+    });
+  }
+
+  window.confirmarFinalizarOrden = function() {
+    const ord = ordenSeleccionada;
+    const fields = `<p style="font-size:13px; color:var(--color-text-secondary); line-height:1.5;">Una vez cerrada, la orden técnica pasará a histórico y no se podrán volver a cargar ni editar partes diarios sobre este lote.</p>`;
+    openMiniModal('¿Confirmar Terminación?', `Orden N° ${ord.orden}`, fields, () => {
+      try {
+        qRun('UPDATE local_p_aplicacionesOrdenes SET estado = ?, sincronizado = 0 WHERE cabecera = ?', 'APLICADO', ord.cabecera);
+        lanzarNotificacionFlotante('¡Orden finalizada por completo! Ciclo cerrado.', 'success');
+        closeMiniModal();
+        volverDesdeDetalle();
+      } catch (e) {
+        lanzarNotificacionFlotante('Error cerrando orden de aplicación: ' + e.message, 'error');
+      }
+    });
+  };
+
+  // =========================================================================
+  // NUEVA ORDEN — CONSOLA AGRONÓMICA (P_CUADROS COMO EJE CENTRAL)
+  // =========================================================================
+  const ordenOverlay = document.getElementById('ordenOverlay');
+  const ordenPanelBody = document.getElementById('ordenPanelBody');
+  const btnCerrarOrdenPanel = document.getElementById('btnCerrarOrdenPanel');
+  const btnLanzarOT = document.getElementById('btnLanzarOT');
+
+  let tiposControlLista = [];
+  let mapeoControlesPorTipo = {};
+  let zonasDisponibles = [];
+  let cuadrosDisponiblesForm = [];
+  let stockInsumosDisponibles = [];
+  let tractoresMaestro = [];
+  let pulverizadorasMaestro = [];
+
+  function nuevoEstadoNof() {
+    return {
+      fecha: hoyStr(),
+      turno: '1',
+      cc: 'FRUTALES',
+      un: 'VALLE',
+      ref: '1',
+      volumenAplic: '200',
+      ordenPreview: '—',
+      tipo: null,
+      tipoControl: null,
+      aplicadoCon: null,
+      zona: null,
+      parcelasSeleccionadas: [],
+      tractorSel: null,
+      pulverizadoraSel: null,
+      recetaTemporalLineas: [],
+      searchInsumo: ''
+    };
+  }
+  let nof = nuevoEstadoNof();
+
+  /* ACA ES LO NUEVO: Cuadros cargados 100% desde local_p_cuadros */
+  function cargarCatalogosNuevaOrden() {
+    const controles = q('SELECT * FROM local_p_tipo_control_aplicaciones');
+    const temporalCascada = {};
+    const tiposSet = new Set();
+    controles.forEach(row => {
+      const t = String(row.tipo || 'GENERAL').trim().toUpperCase();
+      const tc = String(row.tipo_control || 'GENERAL').trim().toUpperCase();
+      tiposSet.add(t);
+      if (!temporalCascada[t]) temporalCascada[t] = [];
+      temporalCascada[t].push(tc);
+    });
+
+    /* ACA ES LO NUEVO: Parcelas ordenadas desde local_p_cuadros */
+    const cuadros = q('SELECT * FROM local_p_cuadros WHERE nombre IS NOT NULL ORDER BY nombre ASC');
+    const zonasSet = new Set();
+    cuadros.forEach(c => { 
+      const z = c.sector || c.tipo;
+      if (z) zonasSet.add(String(z).trim().toUpperCase()); 
+    });
+
+    const maquinas = q('SELECT * FROM local_par_maquinaria_herramientas');
+    const listTractores = maquinas.filter(m => String(m.tipo || '').trim().toUpperCase() === 'TRACTOR');
+    const listPulverizadoras = maquinas.filter(m => String(m.tipo || '').trim().toUpperCase() === 'PULVERIZADORA');
+
+    const resultadoStock = q(`
+      SELECT
+        d.articulo,
+        d.ubicación,
+        IFNULL(d.articulo_rubro, 'SIN RUBRO') as rubro,
+        IFNULL(d.art_subrubro, 'SIN SUBRUBRO') as subrubro,
+        IFNULL(cat.descripcion, 'Sin descripción') as descripcion,
+        IFNULL(cat.descripcion1, '') as descripcion1,
+        SUM(d.cantidad) as stock_neto
+      FROM local_i_insumos_detalle d
+      LEFT JOIN local_i_insumos_catalogo cat ON d.articulo = cat.articulo
+      WHERE d.articulo IS NOT NULL AND d.articulo != ''
+        AND (UPPER(d.articulo_rubro) = 'AGROQUÍMICOS' OR UPPER(d.articulo_rubro) = 'AGROQUIMICOS' OR UPPER(d.art_subrubro) LIKE '%AGRO%')
+      GROUP BY d.articulo, d.articulo_rubro, d.art_subrubro, cat.descripcion, cat.descripcion1
+      HAVING SUM(d.cantidad) > 0
+    `);
+
+    tiposControlLista = Array.from(tiposSet).sort();
+    mapeoControlesPorTipo = temporalCascada;
+    zonasDisponibles = Array.from(zonasSet).sort();
+    cuadrosDisponiblesForm = cuadros;
+    stockInsumosDisponibles = resultadoStock;
+    tractoresMaestro = listTractores;
+    pulverizadorasMaestro = listPulverizadoras;
+  }
+
+  function precalcularProximaOrden() {
+    const currentYear = new Date().getFullYear();
+    const baseAnioMask = currentYear * 100000;
+    const maxOrd = qGet('SELECT MAX(orden) as maxO FROM local_p_aplicacionesOrdenes WHERE orden >= ?', baseAnioMask);
+    const lastOrden = maxOrd ? maxOrd.maxO : null;
+    nof.ordenPreview = String(lastOrden == null ? (baseAnioMask + 1) : (lastOrden + 1));
+  }
+
+  window.abrirNuevaOrden = function() {
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+    nof = nuevoEstadoNof();
+    cargarCatalogosNuevaOrden();
+    precalcularProximaOrden();
+    ordenOverlay.classList.add('show');
+    renderOrdenPanelBody();
+  };
+
+  function cerrarOrdenPanel() { ordenOverlay.classList.remove('show'); ordenPanelBody.innerHTML = ''; }
+  btnCerrarOrdenPanel.addEventListener('click', cerrarOrdenPanel);
+  btnLanzarOT.addEventListener('click', () => guardarOrdenMasivaSistema());
+
+  function cuadrosVisiblesForm() {
+    return cuadrosDisponiblesForm.filter(c => {
+      if (nof.zona) {
+        const zCuadro = String(c.sector || c.tipo || '').trim().toUpperCase();
+        return zCuadro === nof.zona;
+      }
+      return true;
+    });
+  }
+
+  function resolverUnidadNegocioPorZona(zona) {
+    if (!zona) return 'VALLE';
+    const match = qGet('SELECT negocio FROM local_p_cuadros WHERE UPPER(TRIM(sector)) = ? OR UPPER(TRIM(tipo)) = ? LIMIT 1', String(zona).trim().toUpperCase(), String(zona).trim().toUpperCase());
+    return (match && match.negocio) ? String(match.negocio).trim() : 'VALLE';
+  }
+
+  function renderOrdenPanelBody() {
+    const mostrarBloqueMecanico = nof.aplicadoCon != null && nof.aplicadoCon !== 'FERTIRRIEGO';
+    const query = nof.searchInsumo.toLowerCase().trim();
+    const insumosFiltrados = stockInsumosDisponibles.filter(item => {
+      const art = String(item.articulo || '').toLowerCase();
+      const desc = String(item.descripcion || '').toLowerCase();
+      const desc1 = String(item.descripcion1 || '').toLowerCase();
+      return art.includes(query) || desc.includes(query) || desc1.includes(query);
+    });
+    const cuadrosVisibles = cuadrosVisiblesForm();
+
+    ordenPanelBody.innerHTML = `
+      <div class="orden-card-dark">
+        <div class="orden-row">
+          <div class="orden-field" style="flex:1.4;">
+            <label>Fecha Emisión</label>
+            <input type="date" id="nofFecha" class="orden-input" value="${nof.fecha}" />
+          </div>
+          <div class="orden-field" style="flex:1.4;">
+            <label>N° Orden Correlativo</label>
+            <input type="text" class="orden-input acento" value="${escapeHtml(nof.ordenPreview)}" disabled />
+          </div>
+          <div class="orden-field" style="flex:0.7;">
+            <label>Ref</label>
+            <input type="number" id="nofRef" class="orden-input" value="${escapeHtml(nof.ref)}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="orden-card-dark">
+        <div class="orden-field" style="margin-bottom:10px;">
+          <label>Tipo Control Sanitario</label>
+          <select id="nofTipo" class="orden-select">
+            <option value="">-- Seleccionar --</option>
+            ${tiposControlLista.map(t => `<option value="${escapeHtml(t)}" ${t === nof.tipo ? 'selected' : ''}>${escapeHtml(t)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="orden-field" style="margin-bottom:10px;">
+          <label>Motivo Específico de Pasada</label>
+          <select id="nofTipoControl" class="orden-select" ${nof.tipo ? '' : 'disabled'}>
+            <option value="">-- Seleccionar --</option>
+            ${(nof.tipo ? (mapeoControlesPorTipo[nof.tipo] || []) : []).map(tc => `<option value="${escapeHtml(tc)}" ${tc === nof.tipoControl ? 'selected' : ''}>${escapeHtml(tc)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="orden-row">
+          <div class="orden-field">
+            <label>Método Distribución</label>
+            <select id="nofAplicadoCon" class="orden-select">
+              <option value="">-- Seleccionar --</option>
+              <option value="MAQUINA" ${nof.aplicadoCon === 'MAQUINA' ? 'selected' : ''}>🚜 Pulverizadora Terrestre</option>
+              <option value="FERTIRRIEGO" ${nof.aplicadoCon === 'FERTIRRIEGO' ? 'selected' : ''}>💧 Sistema Fertirriego</option>
+            </select>
+          </div>
+          <div class="orden-field">
+            <label>Zona / Sector (desde p_cuadros)</label>
+            <select id="nofZona" class="orden-select">
+              <option value="">-- Todas las Zonas --</option>
+              ${zonasDisponibles.map(z => `<option value="${escapeHtml(z)}" ${z === nof.zona ? 'selected' : ''}>${escapeHtml(z)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="orden-field" style="margin-top:10px;">
+          <label>Unidad de Negocio (heredada de p_cuadros)</label>
+          <input type="text" id="nofUnidadNegocio" class="orden-input acento" value="${escapeHtml(nof.un)}" disabled />
+        </div>
+      </div>
+
+      ${nof.aplicadoCon === 'MAQUINA' ? `
+        <div class="orden-card-dark">
+          <div class="orden-field">
+            <label style="color:var(--color-aplic);">💧 Volumen Hídrico Calibrado (Lts / Ha)</label>
+            <input type="number" id="nofVolumen" class="orden-input acento" step="0.1" value="${escapeHtml(nof.volumenAplic)}" />
+          </div>
+        </div>
+      ` : ''}
+
+      ${mostrarBloqueMecanico ? `
+        <div class="orden-card-dark">
+          <div class="orden-card-dark-titulo">Asignación de Flota Operativa Local</div>
+          <div class="orden-row">
+            <div class="orden-field">
+              <label>Tractor de Chacra</label>
+              <select id="nofTractor" class="orden-select">
+                <option value="">-- Seleccionar --</option>
+                ${tractoresMaestro.map(t => {
+                  const val = String(t.unidad || t.codigo_interno || '');
+                  return `<option value="${escapeHtml(val)}" ${val === nof.tractorSel ? 'selected' : ''}>🚜 ${escapeHtml(val)}</option>`;
+                }).join('')}
+              </select>
+            </div>
+            <div class="orden-field">
+              <label>Turbina Pulverizadora</label>
+              <select id="nofPulverizadora" class="orden-select">
+                <option value="">-- Seleccionar --</option>
+                ${pulverizadorasMaestro.map(p => {
+                  const val = String(p.unidad || p.codigo_interno || '');
+                  return `<option value="${escapeHtml(val)}" ${val === nof.pulverizadoraSel ? 'selected' : ''}>🛠️ ${escapeHtml(val)}</option>`;
+                }).join('')}
+              </select>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- ACA ES LO NUEVO: Catálogo de productos con ARTÍCULO y DESCRIPCIÓN bien destacados -->
+      <div class="orden-card-dark">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="orden-card-dark-titulo" style="margin-bottom:0;">🧪 Bodega Química (Agroquímicos Disponibles)</div>
+          <span style="font-size:9.5px; font-weight:900; color:var(--color-aplic);">${insumosFiltrados.length} ARTÍCULOS</span>
+        </div>
+        <div class="orden-search-dark">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B3FA0" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="nofBuscarInsumo" placeholder="Buscar por código de artículo o descripción..." value="${escapeHtml(nof.searchInsumo)}" />
+        </div>
+        ${insumosFiltrados.length === 0
+          ? '<div style="text-align:center; padding:18px 0; font-size:11.5px; color:var(--color-text-secondary); font-style:italic;">Sin coincidencias en stock.</div>'
+          : `<div class="stock-row">${insumosFiltrados.map(item => stockCardHTML(item)).join('')}</div>`}
+      </div>
+
+      ${nof.recetaTemporalLineas.length > 0 ? `
+        <div class="caldo-card">
+          <div class="caldo-titulo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/></svg>
+            TANQUE / MEZCLA DE CALDO DIARIO
+          </div>
+          ${nof.recetaTemporalLineas.map((linea, idx) => `
+            <div class="caldo-linea">
+              <div>
+                <div class="prod">ARTÍCULO: ${escapeHtml(linea.producto)}</div>
+                <div class="dosis">DOSIS: ${escapeHtml(linea.dosis_ha)} Lts o Kgs / Hectárea</div>
+              </div>
+              <button type="button" class="btn-quitar-linea" data-idx="${idx}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="orden-card-dark">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="orden-card-dark-titulo" style="margin-bottom:0;">🧱 Destino: Cuadros Agrícolas (desde p_cuadros)</div>
+          <button type="button" class="btn-tildar-todo" id="nofTildarTodo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6B3FA0" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Tildar Todo
+          </button>
+        </div>
+        <div class="orden-chip-wrap">
+          ${cuadrosVisibles.map(cuad => {
+            const cName = String(cuad.nombre || 'S/N');
+            const checked = nof.parcelasSeleccionadas.includes(cName);
+            const supTxt = cuad.sup ? ` (${n1(cuad.sup)} ha)` : '';
+            return `<button type="button" class="orden-chip ${checked ? 'selected' : ''}" data-cuadro="${escapeHtml(cName)}">${escapeHtml(cName)}${supTxt}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="height:30px;"></div>
+    `;
+
+    wireOrdenPanelBody();
+  }
+
+  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO: Formato del Card con ARTÍCULO arriba y DESCRIPCIÓN abajo */
+  function stockCardHTML(item) {
+    const art = String(item.articulo);
+    const stk = parseFloat(item.stock_neto) || 0;
+    const desc = [item.descripcion, item.descripcion1].filter(Boolean).join(' - ') || 'Sin descripción';
+    const subrubro = item.subrubro || 'AGROQUÍMICO';
+
+    return `
+      <div class="stock-card">
+        <div>
+          <div class="rubro">${escapeHtml(subrubro)}</div>
+          <div class="stock-card-articulo">ARTÍCULO: ${escapeHtml(art)}</div>
+          <div class="stock-card-descripcion">${escapeHtml(desc)}</div>
+        </div>
+        <div>
+          <div class="neto-row">
+            <span class="neto-label">DISP:</span>
+            <span class="neto-val">${n1(stk)} L/K</span>
+          </div>
+          <button type="button" class="btn-anadir-caldo" data-articulo="${escapeHtml(art)}" style="margin-top:6px;">Añadir Caldo</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function wireOrdenPanelBody() {
+    const fechaEl = document.getElementById('nofFecha');
+    if (fechaEl) fechaEl.addEventListener('input', e => { nof.fecha = e.target.value; });
+
+    const refEl = document.getElementById('nofRef');
+    if (refEl) refEl.addEventListener('input', e => { nof.ref = e.target.value; });
+
+    const volEl = document.getElementById('nofVolumen');
+    if (volEl) volEl.addEventListener('input', e => { nof.volumenAplic = e.target.value; });
+
+    const tipoEl = document.getElementById('nofTipo');
+    if (tipoEl) tipoEl.addEventListener('change', e => {
+      nof.tipo = e.target.value || null;
+      nof.tipoControl = null;
+      renderOrdenPanelBody();
+    });
+
+    const tipoControlEl = document.getElementById('nofTipoControl');
+    if (tipoControlEl) tipoControlEl.addEventListener('change', e => { nof.tipoControl = e.target.value || null; });
+
+    const aplicadoConEl = document.getElementById('nofAplicadoCon');
+    if (aplicadoConEl) aplicadoConEl.addEventListener('change', e => {
+      nof.aplicadoCon = e.target.value || null;
+      if (nof.aplicadoCon === 'FERTIRRIEGO') { nof.tractorSel = null; nof.pulverizadoraSel = null; }
+      renderOrdenPanelBody();
+    });
+
+    const zonaEl = document.getElementById('nofZona');
+    if (zonaEl) zonaEl.addEventListener('change', e => {
+      nof.zona = e.target.value || null;
+      nof.un = resolverUnidadNegocioPorZona(nof.zona);
+      renderOrdenPanelBody();
+    });
+
+    const tractorEl = document.getElementById('nofTractor');
+    if (tractorEl) tractorEl.addEventListener('change', e => { nof.tractorSel = e.target.value || null; });
+
+    const pulverizadoraEl = document.getElementById('nofPulverizadora');
+    if (pulverizadoraEl) pulverizadoraEl.addEventListener('change', e => { nof.pulverizadoraSel = e.target.value || null; });
+
+    const buscarEl = document.getElementById('nofBuscarInsumo');
+    if (buscarEl) {
+      buscarEl.addEventListener('input', e => { nof.searchInsumo = e.target.value; renderOrdenPanelBody(); });
+      buscarEl.focus();
+      buscarEl.selectionStart = buscarEl.selectionEnd = buscarEl.value.length;
+    }
+
+    document.querySelectorAll('.btn-anadir-caldo').forEach(btn => {
+      btn.addEventListener('click', () => solicitarDosisItemDialog(btn.dataset.articulo));
+    });
+
+    document.querySelectorAll('.btn-quitar-linea').forEach(btn => {
+      btn.addEventListener('click', () => {
+        nof.recetaTemporalLineas.splice(parseInt(btn.dataset.idx), 1);
+        renderOrdenPanelBody();
+      });
+    });
+
+    const tildarTodoBtn = document.getElementById('nofTildarTodo');
+    if (tildarTodoBtn) tildarTodoBtn.addEventListener('click', () => {
+      cuadrosVisiblesForm().forEach(cuad => {
+        const cName = String(cuad.nombre || 'S/N');
+        if (!nof.parcelasSeleccionadas.includes(cName)) nof.parcelasSeleccionadas.push(cName);
+      });
+      renderOrdenPanelBody();
+    });
+
+    document.querySelectorAll('.orden-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cName = chip.dataset.cuadro;
+        const idx = nof.parcelasSeleccionadas.indexOf(cName);
+        if (idx === -1) nof.parcelasSeleccionadas.push(cName); else nof.parcelasSeleccionadas.splice(idx, 1);
+        renderOrdenPanelBody();
+      });
+    });
+  }
+
+  function solicitarDosisItemDialog(articulo) {
+    const fields = `
+      <div class="modal-group">
+        <label>Dosis por Hectárea (Lts o Kgs / Ha)</label>
+        <input type="number" id="dosisItemInput" class="modal-input" step="0.01" min="0" placeholder="0.00" autofocus />
+      </div>
+    `;
+    openMiniModal('Añadir al Caldo', `ARTÍCULO: ${articulo}`, fields, () => {
+      const dosisEl = document.getElementById('dosisItemInput');
+      const dosis = parseFloat(dosisEl.value);
+      if (isNaN(dosis) || dosis <= 0) return lanzarNotificacionFlotante('Ingresá una dosis por hectárea válida.', 'warning');
+      nof.recetaTemporalLineas.push({ producto: articulo, dosis_ha: dosis });
+      closeMiniModal();
+      renderOrdenPanelBody();
+    });
+  }
+
+  function guardarOrdenMasivaSistema() {
+    if (!nof.tipo || !nof.tipoControl || nof.parcelasSeleccionadas.length === 0) {
+      return lanzarNotificacionFlotante('Complete los campos requeridos y elija cuadros.', 'warning');
+    }
+    if (nof.aplicadoCon === 'MAQUINA' && (!nof.tractorSel || !nof.pulverizadoraSel)) {
+      return lanzarNotificacionFlotante('Seleccione el tractor y la pulverizadora asignada.', 'warning');
+    }
+    if (!nof.aplicadoCon) {
+      return lanzarNotificacionFlotante('Seleccione el método de distribución.', 'warning');
+    }
+    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
+    const currentYear = new Date().getFullYear();
+    const valorRefFinal = parseInt(nof.ref) || 1;
+    const volAguaFinal = nof.aplicadoCon === 'MAQUINA' ? (parseFloat(nof.volumenAplic) || 0) : 0;
+    const baseAnioMask = currentYear * 100000;
+    const fecha = nof.fecha || hoyStr();
+    const unidad_negocio = nof.un;
+
+    try {
+      let finalOrdenNumber = 0;
+      const ejecutar = db.transaction(() => {
+        const maxCab = qGet('SELECT MAX(cabecera) as max_c FROM local_p_aplicacionesOrdenes');
+        const nextCabecera = ((maxCab && maxCab.max_c) || 0) + 1;
+
+        const maxOrd = qGet('SELECT MAX(orden) as maxO FROM local_p_aplicacionesOrdenes WHERE orden >= ?', baseAnioMask);
+        const lastOrden = maxOrd ? maxOrd.maxO : null;
+        finalOrdenNumber = (lastOrden == null) ? (baseAnioMask + 1) : (lastOrden + 1);
+
+        qRun(`
+          INSERT INTO local_p_aplicacionesOrdenes
+            (cabecera, fecha, orden, ref, tipo_aplicacion, motivo_aplicacion, parcelas, estado, turno, zona,
+             aplicado_con, maquina_usada, tractor_usado, centro_costo, unidad_negocio, volumen_aplic, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextCabecera, fecha, finalOrdenNumber, valorRefFinal, nof.tipo, nof.tipoControl,
+           nof.parcelasSeleccionadas.join(', '), 'PENDIENTE', parseInt(nof.turno) || 1, nof.zona || 'GENERAL',
+           nof.aplicadoCon, nof.aplicadoCon === 'MAQUINA' ? nof.pulverizadoraSel : 'SISTEMA FERTIRRIEGO',
+           nof.aplicadoCon === 'MAQUINA' ? nof.tractorSel : 'N/A', unidad_negocio, unidad_negocio, volAguaFinal);
+
+        let registroSecuencia = 1;
+        nof.recetaTemporalLineas.forEach(linea => {
+          qRun(`
+            INSERT INTO local_p_recetas_aplicaciones
+              (registro, cabecera, orden, ref, fecha, tipo_aplicacion, motivo_aplicacion, producto, principio_activo,
+               concentracion, dosis, unidad_dosis, dosis_x_ha, responsable, dosis_maq, unidad_negocio, centro_costo, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, registroSecuencia, nextCabecera, finalOrdenNumber, valorRefFinal, fecha, nof.tipo, nof.tipoControl,
+             linea.producto, 0, 0, linea.dosis_ha, 'LTS', linea.dosis_ha, operarioName, 0.0, nof.un, nof.un);
+          registroSecuencia++;
+        });
+
+        if (nof.aplicadoCon === 'FERTIRRIEGO') {
+          let riegoCounter = 1;
+          nof.parcelasSeleccionadas.forEach(nombreCuadro => {
+            /* ACA ES LO NUEVO: Búsqueda estricta en local_p_cuadros para superficie */
+            const cuadroMatch = cuadrosDisponiblesForm.find(c => String(c.nombre || '').trim().toUpperCase() === nombreCuadro.trim().toUpperCase()) || {};
+            const supCuadro = parseFloat(cuadroMatch.sup) || 0;
+
+            const maxRiego = qGet('SELECT MAX(id) as max_r FROM local_r_campo_riego');
+            const nextRiegoId = ((maxRiego && maxRiego.max_r) || 0) + 1;
+
+            qRun(`
+              INSERT INTO local_r_campo_riego
+                (id, reg_local, fecha, parcela, valvula, cultivo, variedad, sup_riego, horas, lamina, total_mm, usuario,
+                 periodo, operacion, comentario, tipo_riego, centro_costo, unidad_negocio, sincronizado)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+            `, nextRiegoId, `RIEGO-AUTO-${riegoCounter}-${Date.now()}`, fecha, nombreCuadro, cuadroMatch.sector || 'S/V',
+               nof.cc, 'GENERAL', supCuadro, 0.0, 0, 0.0, operarioName, currentYear, 0.0,
+               `AUTOMÁTICO: Orden de Fertirriego N° ${finalOrdenNumber} - Control: ${nof.tipoControl}`, 'FERTIRRIEGO', nof.cc, nof.un);
+            riegoCounter++;
+          });
+        }
+      });
+
+      ejecutar();
+
+      lanzarNotificacionFlotante('Orden técnica inyectada con éxito.', 'success');
+      cerrarOrdenPanel();
+      renderOrdenes();
+    } catch (e) {
+      console.error('Error guardando orden:', e);
+      lanzarNotificacionFlotante('Error guardando orden: ' + e.message, 'error');
+    }
+  }
+
+  // =========================================================================
+  // 2. SECCIÓN: HISTÓRICO
+  // =========================================================================
+  let historicoScrollTop = 0;
+  let ultimoHistoricoFilas = [];
+  let ultimoOrdenesHistoricoFiltradas = [];
+  let gruposHistoricoDesplegados = {};
+  let histDesde = primerDiaMesStr();
+  let histHasta = hoyStr();
+
+  function etiquetaMesLegible(mesKey) {
+    if (mesKey === 'SIN-FECHA') return 'SIN FECHA';
+    const [y, m] = mesKey.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
+  }
+
+  function construirFiltroFechasHistorico() {
+    return `
+      <div class="filtro-fechas-card">
+        <div class="filtro-fechas-chips">
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasHistorico(30)">Últimos 30 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasHistorico(90)">Últimos 90 días</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasHistorico('mes')">Este mes</button>
+          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechasHistorico('todo')">Todo</button>
+        </div>
+        <div class="filtro-fechas-inputs">
+          <div class="modal-group"><label>Desde</label><input type="date" id="histDesdeInput" class="modal-input" value="${histDesde}" /></div>
+          <div class="modal-group"><label>Hasta</label><input type="date" id="histHastaInput" class="modal-input" value="${histHasta}" /></div>
+          <button type="button" class="btn-sync-top" id="histBtnAplicar">Aplicar Rango</button>
+          <button type="button" class="btn-secundario" id="btnCuadernoCampo">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            CUADERNO DE CAMPO
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  function wireFiltroFechasHistorico() {
+    const btn = document.getElementById('histBtnAplicar');
+    if (btn) btn.addEventListener('click', () => {
+      const d = document.getElementById('histDesdeInput').value;
+      const h = document.getElementById('histHastaInput').value;
+      if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
+      if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+      histDesde = d; histHasta = h;
+      renderHistorico();
+    });
+    const btnCuaderno = document.getElementById('btnCuadernoCampo');
+    if (btnCuaderno) btnCuaderno.addEventListener('click', () => window.abrirModalCuadernoCampo());
+  }
+  window.aplicarPresetFechasHistorico = function(dias) {
+    histHasta = hoyStr();
+    if (dias === 'todo') histDesde = '2000-01-01';
+    else if (dias === 'mes') histDesde = primerDiaMesStr();
+    else histDesde = sumarDiasStr(hoyStr(), -dias);
+    renderHistorico();
+  };
+
+  function grupoMesHistoricoHTML(mesKey, ordenesDelMes) {
+    const isOpen = !!gruposHistoricoDesplegados[mesKey];
+    return `
+      <div class="grupo-estado-card ${isOpen ? 'open' : ''}">
+        <div class="grupo-estado-header" data-mes="${mesKey}">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div>
+              <div class="grupo-estado-titulo">${etiquetaMesLegible(mesKey)}</div>
+              <div class="grupo-estado-sub">${ordenesDelMes.length} orden(es)</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="badge-estado neutro">${ordenesDelMes.length}</span>
+            <svg class="grupo-estado-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
+        </div>
+        ${isOpen ? `<div class="grupo-estado-body"><div class="grid-datos">${ordenesDelMes.map(o => ordenCardHTML(o)).join('')}</div></div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderHistorico() {
+    if (vistaDetalle) { renderDetalleOrden(); return; }
+
+    seccionTitulo.textContent = 'Histórico de Órdenes';
+    actualizarRuta([{ texto: 'Inicio' }, { texto: 'Histórico' }]);
+    headerAccion.innerHTML = `
+      ${botonExcelHTML(`window.exportarOrdenesExcel('${histDesde}','${histHasta}')`, 'Exportar listado de órdenes del rango a Excel')}
+      ${botonExcelHTML(`window.exportarHistoricoExcel('${histDesde}','${histHasta}')`, 'Exportar aplicaciones registradas del rango a Excel')}
+    `;
+
+    const ordenes = q('SELECT * FROM local_p_aplicacionesOrdenes WHERE fecha >= ? AND fecha <= ? ORDER BY fecha DESC, orden DESC', histDesde, histHasta);
+    ultimoOrdenesHistoricoFiltradas = ordenes;
+    ultimoHistoricoFilas = q('SELECT * FROM local_r_aplicaciones_fol_fert WHERE fecha >= ? AND fecha <= ? ORDER BY fecha DESC, registro DESC', histDesde, histHasta);
+
+    const agrupadoPorMes = {};
+    ordenes.forEach(o => {
+      const mesKey = (o.fecha && String(o.fecha).length >= 7) ? String(o.fecha).substring(0, 7) : 'SIN-FECHA';
+      if (!agrupadoPorMes[mesKey]) agrupadoPorMes[mesKey] = [];
+      agrupadoPorMes[mesKey].push(o);
+    });
+    const mesesOrdenados = Object.keys(agrupadoPorMes).sort((a, b) => b.localeCompare(a));
+
+    contenedorDinamico.innerHTML = `
+      <div class="seccion-scroll" id="historicoScrollRoot">
+        ${construirFiltroFechasHistorico()}
+        ${ordenes.length === 0
+          ? '<div class="vista-vacia">No hay órdenes de aplicación en el rango seleccionado.</div>'
+          : mesesOrdenados.map(mesKey => grupoMesHistoricoHTML(mesKey, agrupadoPorMes[mesKey])).join('')}
+      </div>
+    `;
+    wireFiltroFechasHistorico();
+
+    const scrollRoot = document.getElementById('historicoScrollRoot');
+    if (scrollRoot) scrollRoot.scrollTop = historicoScrollTop;
+
+    document.querySelectorAll('.grupo-estado-header[data-mes]').forEach(h => {
+      h.addEventListener('click', () => {
+        const mesKey = h.dataset.mes;
+        const root = document.getElementById('historicoScrollRoot');
+        historicoScrollTop = root ? root.scrollTop : 0;
+        gruposHistoricoDesplegados[mesKey] = !gruposHistoricoDesplegados[mesKey];
+        renderHistorico();
+      });
+    });
+
+    document.querySelectorAll('.card-item[data-cabecera]').forEach(el => {
+      el.addEventListener('click', () => {
+        const root = document.getElementById('historicoScrollRoot');
+        historicoScrollTop = root ? root.scrollTop : 0;
+        abrirDetalleOrden(parseInt(el.dataset.cabecera), 'historico');
+      });
+    });
+  }
+
+  // =========================================================================
+  // Exportación a Excel
+  // =========================================================================
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os');
+    const pathMod = require('path');
+    const fs = require('fs');
+    const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B3FA0' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  window.exportarHistoricoExcel = async function(desde, hasta) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    if (!ultimoHistoricoFilas || ultimoHistoricoFilas.length === 0) return lanzarNotificacionFlotante('No hay registros para exportar en el rango.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Aplicaciones';
+      crearHojaEstilizada(wb, 'Historico de Aplicaciones', [
+        { header: 'FECHA', key: 'fecha', width: 14 }, { header: 'ORDEN', key: 'orden', width: 10 },
+        { header: 'CUADRO', key: 'parcela', width: 20 }, { header: 'VÁLVULA', key: 'valvula', width: 12 },
+        { header: 'PRODUCTO', key: 'producto', width: 24 }, { header: 'DOSIS / HA', key: 'dosis', width: 12 },
+        { header: 'VARIEDAD', key: 'variedad', width: 18 },
+        { header: 'SUP (HA)', key: 'sup', width: 12 }, { header: 'LITROS AGUA', key: 'litros', width: 14 },
+        { header: 'TOTAL PRODUCTO', key: 'consumo', width: 16 }, { header: 'HORAS', key: 'horas', width: 10 },
+        { header: 'APLICÓ', key: 'aplico', width: 20 }, { header: 'CENTRO COSTO', key: 'cc', width: 18 }
+      ], ultimoHistoricoFilas.map(r => {
+        const supHa = parseFloat(r.sup_aplic) || 0;
+        const dosisHa = parseFloat(r.dosis_ha) || 0;
+        const totalProd = dosisHa > 0 ? supHa * dosisHa : (parseFloat(r.consumo_prod) || 0);
+        return {
+          fecha: r.fecha, orden: r.orden, parcela: r.parcela, valvula: r.valvula_n, producto: r.producto,
+          dosis: Number(n2(dosisHa)), variedad: r.variedad,
+          sup: Number(n2(supHa)), litros: Number(n1(r.litros_aplic)), consumo: Number(n2(totalProd)),
+          horas: Number(n1(r.horas_aplic)), aplico: r.aplico, cc: r.centro_costo
+        };
+      }));
+      const nombre = (desde && hasta) ? `Historico_Aplicaciones_${desde}_a_${hasta}.xlsx` : `Historico_Aplicaciones_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  };
+
+  window.exportarOrdenesExcel = async function(desde, hasta) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    let sql = 'SELECT * FROM local_p_aplicacionesOrdenes';
+    let params = [];
+    if (desde && hasta) { sql += ' WHERE fecha >= ? AND fecha <= ?'; params = [desde, hasta]; }
+    sql += ' ORDER BY orden DESC';
+    const ordenes = q(sql, ...params);
+    if (ordenes.length === 0) return lanzarNotificacionFlotante('No hay órdenes para exportar.', 'warning');
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Aplicaciones';
+      crearHojaEstilizada(wb, 'Ordenes de Aplicacion', [
+        { header: 'ORDEN', key: 'orden', width: 12 }, { header: 'FECHA', key: 'fecha', width: 14 },
+        { header: 'ESTADO', key: 'estado', width: 14 }, { header: 'TIPO', key: 'tipo', width: 20 },
+        { header: 'MOTIVO', key: 'motivo', width: 22 }, { header: 'CUADROS', key: 'cuadros', width: 32 },
+        { header: 'ZONA', key: 'zona', width: 16 }, { header: 'TURNO', key: 'turno', width: 10 },
+        { header: 'APLICADO CON', key: 'aplicadoCon', width: 16 }, { header: 'MÁQUINA', key: 'maquina', width: 18 },
+        { header: 'TRACTOR', key: 'tractor', width: 18 }, { header: 'CENTRO COSTO', key: 'cc', width: 16 },
+        { header: 'UNIDAD NEGOCIO', key: 'un', width: 16 }, { header: 'VOL. AGUA', key: 'volumen', width: 12 }
+      ], ordenes.map(o => ({
+        orden: o.orden, fecha: o.fecha, estado: o.estado, tipo: o.tipo_aplicacion, motivo: o.motivo_aplicacion,
+        cuadros: o.parcelas, zona: o.zona, turno: o.turno, aplicadoCon: o.aplicado_con, maquina: o.maquina_usada,
+        tractor: o.tractor_usado, cc: o.centro_costo, un: o.unidad_negocio, volumen: Number(n1(o.volumen_aplic))
+      })));
+      const nombre = (desde && hasta) ? `Ordenes_Aplicacion_${desde}_a_${hasta}.xlsx` : `Ordenes_Aplicacion_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  };
+
+  // =========================================================================
+  // Exportación a PDF de una orden puntual
+  // =========================================================================
+  function generarPdfOrdenAplicacion() {
+    const { jsPDF } = require('jspdf');
+    const autoTable = require('jspdf-autotable').default;
+    const fs = require('fs');
+    const pathMod = require('path');
+
+    const ord = ordenSeleccionada;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const anchoPagina = doc.internal.pageSize.getWidth();
+    const margen = 15;
+    let cursorY = 14;
+
+    try {
+      const logoPath = pathMod.join(__dirname, '../logo.png');
+      const logoBase64 = fs.readFileSync(logoPath).toString('base64');
+      doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, cursorY, 20, 20);
+    } catch (e) { }
+
+    const xTexto = margen + 26;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(69, 40, 115);
+    doc.text('GORDON GESTIÓN · AGROSOFT J&L', xTexto, cursorY + 5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(85, 99, 88);
+    doc.text('Orden Técnica de Aplicación Fitosanitaria', xTexto, cursorY + 11);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(26, 33, 28);
+    doc.text(`ORDEN N° ${ord.orden}`, xTexto, cursorY + 19);
+
+    cursorY += 26;
+    doc.setDrawColor(210, 215, 211);
+    doc.line(margen, cursorY, anchoPagina - margen, cursorY);
+    cursorY += 7;
+
+    autoTable(doc, {
+      startY: cursorY,
+      margin: { left: margen, right: margen },
+      theme: 'plain',
+      styles: { fontSize: 9, cellPadding: 1.4 },
+      columnStyles: {
+        0: { fontStyle: 'bold', textColor: [85, 99, 88], cellWidth: 34 },
+        1: { textColor: [26, 33, 28], cellWidth: 60 },
+        2: { fontStyle: 'bold', textColor: [85, 99, 88], cellWidth: 34 },
+        3: { textColor: [26, 33, 28] }
+      },
+      body: [
+        ['Fecha Emisión', ord.fecha || '—', 'Estado', ord.estado || '—'],
+        ['Tipo Control', ord.tipo_aplicacion || '—', 'Motivo', ord.motivo_aplicacion || '—'],
+        ['Zona', ord.zona || '—', 'Turno', String(ord.turno || '—')],
+        ['Aplicado Con', ord.aplicado_con || '—', 'Volumen Agua', `${n1(ord.volumen_aplic)} L/Ha`],
+        ['Máquina', ord.maquina_usada || '—', 'Tractor', ord.tractor_usado || '—'],
+        ['Centro de Costo', ord.centro_costo || '—', 'Unidad de Negocio', ord.unidad_negocio || '—'],
+        ['Ref.', String(ord.ref || '—'), 'Cuadros', ord.parcelas || '—']
+      ]
+    });
+    cursorY = doc.lastAutoTable.finalY + 8;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(69, 40, 115);
+    doc.text('DETALLE DE RECETA PRESCRITA', margen, cursorY);
+    cursorY += 4;
+    autoTable(doc, {
+      startY: cursorY,
+      margin: { left: margen, right: margen },
+      head: [['Producto', 'Principio Activo', 'Concentración', 'Dosis / Ha', 'Volumen Agua']],
+      body: recetaDetalleLineas.length === 0
+        ? [['Sin líneas de receta cargadas.', '', '', '', '']]
+        : recetaDetalleLineas.map(p => [p.producto, p.desc_cat || '—', p.desc1_cat || '—', n2(p.dosis_x_ha), `${n1(ord.volumen_aplic)} L`]),
+      headStyles: { fillColor: [107, 63, 160], textColor: 255, fontSize: 9 },
+      styles: { fontSize: 8.5 },
+      theme: 'striped'
+    });
+    cursorY = doc.lastAutoTable.finalY + 8;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(69, 40, 115);
+    doc.text('CUADROS ASIGNADOS (DESDE P_CUADROS)', margen, cursorY);
+    cursorY += 4;
+    autoTable(doc, {
+      startY: cursorY,
+      margin: { left: margen, right: margen },
+      head: [['Cuadro', 'Válvula', 'Superficie (Ha)']],
+      body: parcelasDesglosadas.length === 0
+        ? [['Sin cuadros asociados.', '', '']]
+        : parcelasDesglosadas.map(c => [c.nombre, c.valvula, n2(c.sup)]),
+      headStyles: { fillColor: [107, 63, 160], textColor: 255, fontSize: 9 },
+      styles: { fontSize: 8.5 },
+      theme: 'striped'
+    });
+    cursorY = doc.lastAutoTable.finalY + 8;
+
+    if (historicoCargasOrden.length > 0) {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(69, 40, 115);
+      doc.text('REGISTROS DE APLICACIÓN', margen, cursorY);
+      cursorY += 4;
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margen, right: margen },
+        head: [['Fecha', 'Producto', 'Cuadro', 'Variedad', 'Sup (Ha)', 'Litros', 'Consumo', 'Horas', 'Aplicó']],
+        body: historicoCargasOrden.map(r => [
+          r.fecha, r.producto, r.parcela, r.variedad || '—', n2(r.sup_aplic), n1(r.litros_aplic), n1(r.consumo_prod), n1(r.horas_aplic), r.aplico
+        ]),
+        headStyles: { fillColor: [107, 63, 160], textColor: 255, fontSize: 8 },
+        styles: { fontSize: 7.5 },
+        theme: 'striped'
+      });
+    }
+
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPaginas; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+      doc.text(`Generado el ${new Date().toLocaleString('es-AR')}`, margen, doc.internal.pageSize.getHeight() - 8);
+      doc.text(`Página ${i} de ${totalPaginas}`, anchoPagina - margen, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+    }
+
+    return doc;
+  }
+
+  window.exportarOrdenPDF = function() {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    if (!ordenSeleccionada) return lanzarNotificacionFlotante('No hay una orden abierta para exportar.', 'warning');
+    try {
+      const os = require('os');
+      const pathMod = require('path');
+      const fs = require('fs');
+
+      const doc = generarPdfOrdenAplicacion();
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+
+      const nombre = `Orden_Aplicacion_N${ordenSeleccionada.orden}.pdf`;
+      const rutaFinal = pathMod.join(carpetaDescargas, nombre);
+      const bufferPdf = Buffer.from(doc.output('arraybuffer'));
+      fs.writeFileSync(rutaFinal, bufferPdf);
+
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) {
+      console.error('Error generando el PDF de la orden:', err);
+      lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // CUADERNO DE CAMPO
+  // =========================================================================
+  window.abrirModalCuadernoCampo = function() {
+    const fields = `
+      <p style="font-size:12px; color:var(--color-text-secondary); line-height:1.5; margin:0 0 4px;">
+        Genera el reporte oficial <strong>CUADERNO DE CAMPO — APLICACIÓN DE AGROQUÍMICOS</strong> con el detalle
+        de cada aplicación registrada en el rango, listo para auditoría.
+      </p>
+      <div class="modal-row-grid">
+        <div class="modal-group"><label>Desde</label><input type="date" id="cuadernoDesde" class="modal-input" value="${histDesde}" /></div>
+        <div class="modal-group"><label>Hasta</label><input type="date" id="cuadernoHasta" class="modal-input" value="${histHasta}" /></div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button type="button" class="btn-secundario" id="btnCuadernoPdf" style="flex:1; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          GENERAR PDF
+        </button>
+        <button type="button" class="btn-excel" id="btnCuadernoExcel" style="flex:1; justify-content:center;">
+          GENERAR EXCEL
+        </button>
+      </div>
+    `;
+    openMiniModal('📋 Cuaderno de Campo', 'Reporte de auditoría — Aplicación de Agroquímicos', fields, null);
+
+    document.getElementById('btnCuadernoPdf').addEventListener('click', () => {
+      const d = document.getElementById('cuadernoDesde').value;
+      const h = document.getElementById('cuadernoHasta').value;
+      if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
+      if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+      window.generarCuadernoCampoPDF(d, h);
+    });
+    document.getElementById('btnCuadernoExcel').addEventListener('click', () => {
+      const d = document.getElementById('cuadernoDesde').value;
+      const h = document.getElementById('cuadernoHasta').value;
+      if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
+      if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+      window.generarCuadernoCampoExcel(d, h);
+    });
+  };
+
+  function obtenerFilasCuadernoCampo(desde, hasta) {
+    const filas = q(`
+      SELECT r.*,
+        v.especie as cultivo_real,
+        cat.tc as tc_producto, cat.ti as ti_producto
+      FROM local_r_aplicaciones_fol_fert r
+      LEFT JOIN local_p_variedades v ON TRIM(UPPER(r.variedad)) = TRIM(UPPER(v.variedad))
+      LEFT JOIN local_i_insumos_catalogo cat ON r.producto = cat.articulo
+      WHERE r.fecha >= ? AND r.fecha <= ?
+      ORDER BY r.fecha ASC, r.parcela ASC, r.registro ASC
+    `, desde, hasta);
+
+    return filas.map(f => ({
+      fecha: f.fecha || '—',
+      cuadro: f.parcela || '—',
+      cultivo: f.cultivo_real || '—',
+      variedad: f.variedad || '—',
+      sup: parseFloat(f.sup_aplic) || 0,
+      orden: f.orden != null ? String(f.orden) : '—',
+      tipo: f.tipo_aplicacion || '—',
+      producto: f.producto || '—',
+      principioActivo: f.principio_activo || '—',
+      tr: f.tc_producto != null ? n1(f.tc_producto) : '—',
+      ti: f.ti_producto != null ? n1(f.ti_producto) : '—',
+      dosis: parseFloat(f.dosis_ha) || 0,
+      litros: Math.round(parseFloat(f.consumo_prod) || 0),
+      aplicador: f.aplico || '—',
+      comentario: f.motivo_aplicacion || ''
+    }));
+  }
+
+  const COLUMNAS_CUADERNO_CAMPO = [
+    'FECHA', 'CUADRO O PARCELA', 'CULTIVO', 'VARIEDAD', 'SUP', 'ORDEN APLICACION', 'TIPO APLICACION',
+    'PRODUCTO', 'PRINCIPIO ACTIVO', 'TR', 'TI', 'DOSIS APLICACION 1', 'LITROS', 'APLICADOR', 'COMENTARIO'
+  ];
+
+  window.generarCuadernoCampoPDF = function(desde, hasta) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerFilasCuadernoCampo(desde, hasta);
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay aplicaciones registradas en el rango seleccionado.', 'warning');
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs');
+      const pathMod = require('path');
+      const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+      const anchoPagina = doc.internal.pageSize.getWidth();
+      const margen = 10;
+      let cursorY = 12;
+
+      try {
+        const logoBase64 = fs.readFileSync(pathMod.join(__dirname, '../logo.png')).toString('base64');
+        doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, cursorY, 16, 16);
+      } catch (e) { }
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(69, 40, 115);
+      doc.text('CUADERNO DE CAMPO', anchoPagina / 2, cursorY + 5, { align: 'center' });
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(26, 33, 28);
+      doc.text('APLICACIÓN DE AGROQUÍMICOS', anchoPagina / 2, cursorY + 11, { align: 'center' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(85, 99, 88);
+      doc.text('GORDON STERN GARY', anchoPagina / 2, cursorY + 16, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(85, 99, 88);
+      doc.text(`Período: ${desde} a ${hasta}`, anchoPagina - margen, cursorY + 3, { align: 'right' });
+      doc.text(`Emitido: ${new Date().toLocaleString('es-AR')}`, anchoPagina - margen, cursorY + 8, { align: 'right' });
+
+      cursorY += 21;
+      doc.setDrawColor(210, 215, 211);
+      doc.line(margen, cursorY, anchoPagina - margen, cursorY);
+      cursorY += 5;
+
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margen, right: margen, bottom: 14 },
+        head: [COLUMNAS_CUADERNO_CAMPO],
+        body: filas.map(f => [
+          f.fecha, f.cuadro, f.cultivo, f.variedad, n2(f.sup), f.orden, f.tipo,
+          f.producto, f.principioActivo, f.tr, f.ti, n2(f.dosis), f.litros, f.aplicador, f.comentario
+        ]),
+        headStyles: { fillColor: [107, 63, 160], textColor: 255, fontSize: 6.6, halign: 'center' },
+        styles: { fontSize: 6.4, cellPadding: 1.4, overflow: 'linebreak' },
+        theme: 'striped'
+      });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        const letra = String.fromCharCode(96 + i);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(150, 150, 150);
+        doc.text(`Generado el ${new Date().toLocaleString('es-AR')}`, margen, doc.internal.pageSize.getHeight() - 6);
+        doc.text(`Hoja 1-${letra}`, anchoPagina - margen, doc.internal.pageSize.getHeight() - 6, { align: 'right' });
+      }
+
+      const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const nombre = `Cuaderno_Campo_Agroquimicos_${desde}_a_${hasta}.pdf`;
+      fs.writeFileSync(pathMod.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+      closeMiniModal();
+    } catch (err) {
+      console.error('Error generando el Cuaderno de Campo en PDF:', err);
+      lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error');
+    }
+  };
+
+  window.generarCuadernoCampoExcel = async function(desde, hasta) {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const filas = obtenerFilasCuadernoCampo(desde, hasta);
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay aplicaciones registradas en el rango seleccionado.', 'warning');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Aplicaciones';
+      const ws = wb.addWorksheet('Cuaderno de Campo');
+
+      const totalCols = COLUMNAS_CUADERNO_CAMPO.length;
+      const ultimaColLetra = String.fromCharCode(64 + totalCols);
+
+      ws.mergeCells(`A1:${ultimaColLetra}1`);
+      ws.getCell('A1').value = 'CUADERNO DE CAMPO — APLICACIÓN DE AGROQUÍMICOS';
+      ws.getCell('A1').font = { bold: true, size: 13, color: { argb: 'FF452873' } };
+      ws.getCell('A1').alignment = { horizontal: 'center' };
+
+      ws.mergeCells(`A2:${ultimaColLetra}2`);
+      ws.getCell('A2').value = 'GORDON STERN GARY';
+      ws.getCell('A2').font = { bold: true, size: 10.5 };
+      ws.getCell('A2').alignment = { horizontal: 'center' };
+
+      ws.mergeCells(`A3:${ultimaColLetra}3`);
+      ws.getCell('A3').value = `Período: ${desde} a ${hasta} · Emitido: ${new Date().toLocaleString('es-AR')}`;
+      ws.getCell('A3').font = { italic: true, size: 8.5, color: { argb: 'FF556358' } };
+      ws.getCell('A3').alignment = { horizontal: 'center' };
+
+      const anchos = [12, 20, 16, 16, 10, 16, 18, 22, 22, 8, 8, 16, 10, 20, 28];
+      anchos.forEach((w, idx) => { ws.getColumn(idx + 1).width = w; });
+
+      const headerRowIdx = 5;
+      const headerRow = ws.getRow(headerRowIdx);
+      COLUMNAS_CUADERNO_CAMPO.forEach((titulo, idx) => { headerRow.getCell(idx + 1).value = titulo; });
+      headerRow.eachCell(cell => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6B3FA0' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      });
+      headerRow.height = 26;
+
+      filas.forEach(f => {
+        ws.addRow([
+          f.fecha, f.cuadro, f.cultivo, f.variedad, Number(n2(f.sup)), f.orden, f.tipo,
+          f.producto, f.principioActivo, f.tr, f.ti, Number(n2(f.dosis)), f.litros, f.aplicador, f.comentario
+        ]);
+      });
+
+      const nombre = `Cuaderno_Campo_Agroquimicos_${desde}_a_${hasta}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+      closeMiniModal();
+    } catch (err) {
+      console.error('Error generando el Cuaderno de Campo en Excel:', err);
+      lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error');
+    }
+  };
+
+  // =========================================================================
+  // Arranque
+  // =========================================================================
+  document.getElementById('topDateTime').textContent = new Date()
+    .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+    .toUpperCase();
+  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+
+  cargarSeccion();
+})();
+</script>
+</body>
+</html>

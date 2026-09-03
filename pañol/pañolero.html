@@ -1,0 +1,3181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Pañolero</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --color-bg: #F3F4F5;
+    --color-surface: #FFFFFF;
+    --color-text: #1C2126;
+    --color-text-secondary: #626B74;
+    --color-border: #DEE2E6;
+    --color-pan: #37474F;
+    --color-pan-dark: #1E2A30;
+    --color-pan-soft: rgba(55, 71, 79, 0.10);
+    --color-ok: #2E7D32;
+    --color-ok-soft: #E8F5E9;
+    --color-warn: #C62828;
+    --color-warn-soft: #FFEBEE;
+    --color-amber: #B8862A;
+    --color-amber-soft: rgba(184, 134, 42, 0.14);
+    --color-info: #0071E3;
+    --color-info-soft: rgba(0, 113, 227, 0.10);
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D3D8DC; border-radius: 20px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-pan); background-clip: content-box; }
+
+  .top-system-bar { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 12px 32px; border-bottom: 1px solid var(--color-border); height: 55px; flex-shrink: 0; }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .user-access-info span.highlight { color: var(--color-pan); font-weight: 800; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-ins { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  .sidebar { width: 210px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; gap: 6px; }
+
+  .btn-volver { display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D; padding: 9px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; color: #F57F17; cursor: pointer; transition: all 0.2s ease; width: 100%; justify-content: center; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15); margin-bottom: 8px; }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .nav-side-btn:active, .btn-global-add:active, .btn-secundario:active, .btn-exportar:active,
+  .modal-btn:active, .oc-card-item:active, .rubro-chip:active, .fila-seleccionable:active,
+  .export-opcion-card:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+    transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 15px; font-weight: 800; color: var(--color-pan-dark); letter-spacing: 0.4px; text-transform: uppercase; padding: 4px 6px 12px; }
+
+  .nav-side-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md); border: 1.2px solid transparent; background: #F7F8F9; color: var(--color-text-secondary); font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.15s ease; }
+  .nav-side-btn:hover { background: #EFF1F2; color: var(--color-text); }
+  .nav-side-btn.active { background: var(--color-pan-soft); color: var(--color-pan-dark); border-color: rgba(55, 71, 79, 0.35); box-shadow: 0 2px 6px rgba(55, 71, 79, 0.10); }
+  .nav-side-btn .ico { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-foot { margin-top: auto; font-size: 9.5px; font-weight: 700; color: var(--color-text-secondary); text-align: center; letter-spacing: 0.5px; padding-top: 10px; }
+
+  .main-content { flex-grow: 1; padding: 24px 30px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .seccion-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo-wrap { position: relative; padding-left: 15px; }
+  .seccion-titulo-wrap::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 5px; border-radius: 4px; background: linear-gradient(180deg, var(--color-pan), var(--color-pan-dark)); }
+  .seccion-titulo { font-size: 24px; font-weight: 800; margin: 0; color: var(--color-pan-dark); line-height: 1.15; }
+  .seccion-subtitulo { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-top: 3px; }
+
+  .btn-global-add { background: var(--color-pan); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(55, 71, 79, 0.25); transition: all 0.2s ease; }
+  .btn-global-add:hover { background: var(--color-pan-dark); transform: translateY(-1px); }
+
+  .btn-secundario { background: #FFFFFF; color: var(--color-pan-dark); border: 1px solid var(--color-pan); border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-secundario:hover { background: var(--color-pan-soft); }
+
+  .btn-exportar { background: #1B5E20; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(27, 94, 32, 0.25); transition: all 0.2s ease; }
+  .btn-exportar:hover { background: #14431A; transform: translateY(-1px); }
+
+  /* TARJETAS DE FORMATO DE EXPORTACIÓN */
+  .export-formato-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .export-opcion-card { border: 1.6px solid var(--color-border); border-radius: 14px; padding: 20px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; background: #FAFAFA; transition: all 0.15s ease; text-align: center; }
+  .export-opcion-card .tit { font-size: 13px; font-weight: 800; color: var(--color-text); }
+  .export-opcion-card .desc { font-size: 10.5px; font-weight: 600; color: var(--color-text-secondary); line-height: 1.35; }
+  .export-opcion-card:hover { background: #FFFFFF; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.07); }
+  .export-opcion-card.excel { color: #1B5E20; }
+  .export-opcion-card.excel:hover { border-color: #1B5E20; }
+  .export-opcion-card.pdf { color: #C62828; }
+  .export-opcion-card.pdf:hover { border-color: #C62828; }
+  .export-resumen-box { background: #F8F9F9; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 11.5px; font-weight: 700; color: var(--color-text-secondary); }
+  .export-resumen-box b { color: var(--color-pan-dark); }
+
+  /* MASTER-DETAIL SPLIT */
+  .oc-split-container { display: grid; grid-template-columns: 330px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+  .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+
+  .buscador-catalogo { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); background: #FFFFFF; font-family: inherit; font-size: 13px; }
+  .buscador-catalogo:focus { outline: none; border-color: var(--color-pan); box-shadow: 0 0 0 3px var(--color-pan-soft); }
+
+  .oc-card-item { background: #F8F9F9; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item:hover { border-color: var(--color-pan); background: #FFFFFF; }
+  .oc-card-item.active { border-color: var(--color-pan); background: var(--color-pan-soft); box-shadow: 0 2px 6px rgba(55, 71, 79, 0.12); }
+  .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-pan-dark); }
+  .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+
+  .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
+  .oc-info-card-header { background: #F8F9F9; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+
+  .tabla-oc-items { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .tabla-oc-items th { background: #F1F3F4; color: var(--color-text-secondary); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
+  .tabla-oc-items td { padding: 10px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+  .tabla-oc-items tr:last-child td { border-bottom: none; }
+
+  .tabla-modal-sel { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12px; }
+  .tabla-modal-sel th { background: var(--color-pan); color: #FFFFFF; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 12px; text-align: left; }
+  .tabla-modal-sel td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); vertical-align: middle; font-weight: 600; }
+  .tabla-modal-sel tr.fila-seleccionable { cursor: pointer; transition: all 0.15s ease; }
+  .tabla-modal-sel tr.fila-seleccionable:hover { background: var(--color-pan-soft); }
+  .tabla-modal-sel tr.fila-seleccionable.activa { background: var(--color-pan-soft); border-left: 4px solid var(--color-pan); }
+
+  .badge { font-size: 9.5px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; white-space: nowrap; letter-spacing: 0.3px; }
+  .badge.pendiente { background: var(--color-amber-soft); color: #8A6A1E; }
+  .badge.parcial { background: var(--color-info-soft); color: var(--color-info); }
+  .badge.completo { background: var(--color-ok-soft); color: var(--color-ok); }
+  .badge.devolucion { background: var(--color-warn-soft); color: var(--color-warn); }
+
+  .led-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .led-dot.rojo { background: var(--color-warn); box-shadow: 0 0 0 rgba(198, 40, 40, 0.5); animation: ledPulseRojo 1.4s infinite; }
+  .led-dot.ambar { background: var(--color-amber); box-shadow: 0 0 0 rgba(184, 134, 42, 0.5); animation: ledPulseAmbar 1.8s infinite; }
+  .led-dot.verde { background: var(--color-ok); }
+  @keyframes ledPulseRojo { 0% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.55); } 70% { box-shadow: 0 0 0 6px rgba(198, 40, 40, 0); } 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0); } }
+  @keyframes ledPulseAmbar { 0% { box-shadow: 0 0 0 0 rgba(184, 134, 42, 0.5); } 70% { box-shadow: 0 0 0 5px rgba(184, 134, 42, 0); } 100% { box-shadow: 0 0 0 0 rgba(184, 134, 42, 0); } }
+  .oc-card-item .oc-card-num-row { display: flex; align-items: center; }
+  .pendiente-oc-tag { font-size: 9px; font-weight: 800; color: var(--color-warn); text-transform: uppercase; margin-top: 3px; letter-spacing: 0.3px; }
+  .pendiente-oc-tag.ambar { color: var(--color-amber); }
+  .badge-rubro-sm { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: var(--color-pan-soft); color: var(--color-pan-dark); display: inline-block; white-space: nowrap; }
+  .badge-subrubro-sm { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: #ECEFF1; color: #455A64; display: inline-block; white-space: nowrap; margin-left: 4px; }
+
+  .num-neto { font-weight: 900; font-size: 13px; }
+  .num-neto.positivo { color: var(--color-ok); }
+  .num-neto.cero { color: var(--color-text-secondary); }
+  .num-neto.negativo { color: var(--color-warn); }
+
+  .art-codigo { font-weight: 800; color: var(--color-text); font-size: 13px; letter-spacing: 0.2px; }
+  .art-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; font-style: italic; }
+  .col-num { text-align: center; font-weight: 700; font-size: 12.5px; }
+  .num-ing { color: var(--color-text); }
+  .num-sal { color: var(--color-pan); }
+  .num-dev { color: var(--color-info); }
+  .num-baja { color: var(--color-warn); }
+
+  /* STOCK TAB */
+  .kpi-strip { display: flex; gap: 12px; margin-bottom: 14px; flex-shrink: 0; flex-wrap: wrap; }
+  .kpi-card { flex: 1; min-width: 150px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+  .kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .kpi-icon.tono-pan { background: var(--color-pan-soft); color: var(--color-pan-dark); }
+  .kpi-icon.tono-verde { background: var(--color-ok-soft); color: var(--color-ok); }
+  .kpi-icon.tono-gris { background: #ECEFF1; color: #455A64; }
+  .kpi-icon.tono-rojo { background: var(--color-warn-soft); color: var(--color-warn); }
+  .kpi-valor { font-size: 19px; font-weight: 900; color: var(--color-text); line-height: 1.1; }
+  .kpi-label { font-size: 9.5px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+  .rubro-chip-wrap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
+  .rubro-chip { background: #FFFFFF; border: 1px solid var(--color-border); color: var(--color-text-secondary); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+  .rubro-chip:hover { border-color: var(--color-pan); color: var(--color-pan-dark); }
+  .rubro-chip.selected { background: var(--color-pan); border-color: var(--color-pan); color: #FFFFFF; }
+
+  .tabla-stock-contenedor { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.02); flex-grow: 1; }
+  .tabla-stock { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
+  .tabla-stock th { position: sticky; top: 0; background: #FAFAFA; color: var(--color-text-secondary); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px; border-bottom: 1px solid var(--color-border); z-index: 1; }
+  .tabla-stock td { padding: 11px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); vertical-align: middle; }
+  .tabla-stock tr:last-child td { border-bottom: none; }
+  .tabla-stock tr:hover { background: #FAFBFB; }
+
+  /* FORM ELEMENTS */
+  .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-row-grid.tres { grid-template-columns: 1fr 1fr 1fr; }
+  .modal-group { display: flex; flex-direction: column; gap: 5px; }
+  .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
+  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-pan); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-pan-soft); }
+
+  /* MINI MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 560px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; max-height: 88vh; }
+  .modal-box.ancho { max-width: 760px; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .modal-title { font-size: 19px; font-weight: 800; color: var(--color-pan-dark); margin: 0; }
+  .modal-subtitle { font-size: 12.5px; color: var(--color-text-secondary); margin-top: 4px; }
+  .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--color-text-secondary); line-height: 1; }
+  .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; flex-shrink: 0; }
+  .modal-btn { border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.cancel:hover { background: #F5F5F5; }
+  .modal-btn.save { background: var(--color-pan); color: #FFFFFF; }
+  .modal-btn.save:hover { background: var(--color-pan-dark); }
+
+  .form-card { background: #F8F9F9; border: 1px solid var(--color-border); border-radius: 14px; padding: 16px; }
+  .form-card-titulo { font-size: 10px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .sugerencias-lista { border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-top: 6px; overflow: hidden; background: #FFFFFF; max-height: 190px; overflow-y: auto; }
+  .sugerencia-item { padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--color-border); }
+  .sugerencia-item:hover { background: var(--color-pan-soft); }
+  .sugerencia-item .art { font-size: 12.5px; font-weight: 700; color: var(--color-text); }
+  .sugerencia-item .meta { font-size: 10.5px; color: var(--color-text-secondary); }
+  .articulo-elegido { display: flex; align-items: center; justify-content: space-between; background: var(--color-pan-soft); border: 1px solid var(--color-pan); border-radius: var(--radius-md); padding: 12px 14px; }
+  .articulo-elegido .nombre { font-size: 13px; font-weight: 800; color: var(--color-pan-dark); }
+  .articulo-elegido .stock { font-size: 11px; color: var(--color-text-secondary); }
+  .renglon-carrito { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .renglon-carrito .info { font-size: 12px; font-weight: 700; }
+  .renglon-carrito .info small { display: block; font-weight: 500; color: var(--color-text-secondary); font-size: 10.5px; margin-top: 2px; }
+
+  .vista-vacia { text-align: center; padding: 60px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2500; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; gap: 14px; width: 340px; box-shadow: 0 12px 30px rgba(0,0,0,0.1); transform: translateX(120%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 5px solid #2E7D32; background: #F1F9F4; color: #1B5E20; }
+  .toast-card.error { border-left: 5px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+  <datalist id="listProveedoresGlobal"></datalist>
+  <datalist id="listPersonasGlobal"></datalist>
+
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      pañolero en turno... <span class="highlight" id="lblOperario">PAÑOLERO</span>
+    </div>
+    <div class="system-datetime" id="topDateTime">—</div>
+  </div>
+
+  <div class="layout-ins">
+    <div class="sidebar">
+      <button class="btn-volver" id="btnVolver">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver
+      </button>
+
+      <div class="sidebar-titulo">🧰 Pañol</div>
+
+      <button class="nav-side-btn active" id="btnTabOC" data-tab="oc">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        ÓRDENES DE COMPRA
+      </button>
+      <button class="nav-side-btn" id="btnTabIngresos" data-tab="ingresos">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+        INGRESOS
+      </button>
+      <button class="nav-side-btn" id="btnTabDespacho" data-tab="despacho">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8 12 4l9 4-9 4-9-4Z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/></svg>
+        DESPACHO
+      </button>
+      <button class="nav-side-btn" id="btnTabStock" data-tab="stock">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V7a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 7v10a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 17v-1"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        STOCK
+      </button>
+      <button class="nav-side-btn" id="btnTabCatalogo">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg>
+        CATÁLOGO
+      </button>
+
+      <div class="sidebar-foot">GORDON GESTIÓN</div>
+    </div>
+
+    <div class="main-content">
+      <div class="seccion-header">
+        <div class="seccion-titulo-wrap">
+          <h1 class="seccion-titulo" id="seccionTitulo">Órdenes de Compra</h1>
+          <div class="seccion-subtitulo" id="seccionSubtitulo">Pedidos de reposición al proveedor</div>
+        </div>
+        <div id="headerAccion" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+      </div>
+
+      <div id="contenedorDinamico" style="flex-grow:1; display:flex; flex-direction:column; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <!-- MINI MODAL GENÉRICO -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box" id="customModalBox">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalTitle">Título</h3>
+          <div class="modal-subtitle" id="modalSubtitle">Subtítulo</div>
+        </div>
+        <button class="modal-close" id="modalBtnClose">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DESPACHO -->
+  <div class="modal-overlay" id="modalDespacho">
+    <div class="modal-box ancho">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">🚚 Nuevo Despacho</h3>
+          <div class="modal-subtitle">Entregar herramientas / repuestos y generar remito</div>
+        </div>
+        <button class="modal-close" id="btnCerrarModalDespacho">✕</button>
+      </div>
+      <div class="modal-body" id="cuerpoModalDespacho"></div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+  let auth = null;
+
+  if (isElectron) {
+    try { db = require('../bases.js').db; } catch (e) { console.warn('Modo simulación de navegador activo.'); }
+    try { auth = require('../auth.js'); } catch (e) { /* opcional */ }
+  }
+
+  let operarioName = 'PAÑOLERO';
+  if (auth) {
+    try {
+      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
+    } catch (e) { /* auth opcional */ }
+  }
+
+  // =========================================================================
+  // Helpers
+  // =========================================================================
+  function q(sql, ...args) { if (!db) return []; try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; } }
+  function qGet(sql, ...args) { if (!db) return null; try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; } }
+  function qRun(sql, ...args) { if (!db) return { changes: 0 }; try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; } }
+
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function hoyUserStr() { const d = new Date(); return pad2(d.getDate()) + '-' + pad2(d.getMonth() + 1) + '-' + d.getFullYear(); }
+  function n1(v) { return (Math.round((parseFloat(v) || 0) * 10) / 10).toFixed(1); }
+  function generarToken() {
+    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let r = ''; for (let i = 0; i < 10; i++) r += c.charAt(Math.floor(Math.random() * c.length));
+    return r;
+  }
+
+  const RUBROS_AGROQUIMICOS = ['AGROQUÍMICO', 'AGROQUÍMICOS', 'AGROQUIMICO', 'AGROQUIMICOS'];
+  function esRubroAgroquimico(rubro, subRubro) {
+    const r = String(rubro || '').trim().toUpperCase();
+    const sr = String(subRubro || '').trim().toUpperCase();
+    return RUBROS_AGROQUIMICOS.includes(r) || RUBROS_AGROQUIMICOS.includes(sr);
+  }
+
+  function stockNetoDeArticulo(articulo) {
+    const cat = qGet('SELECT rubro, sub_rubro FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', articulo) || {};
+    const esAgro = esRubroAgroquimico(cat.rubro, cat.sub_rubro);
+
+    const ing = qGet(`SELECT SUM(cantidad) as total FROM local_i_insumosingresos WHERE articulo = ?`, articulo) || {};
+    const stockInicial = parseFloat(ing.total) || 0;
+
+    let salidas = 0;
+    if (esAgro) {
+      const r = qGet(`SELECT SUM(ABS(cantidad)) as s FROM local_i_insumos_movimientos WHERE articulo = ? AND UPPER(estado) = 'DESPACHADO'`, articulo) || {};
+      salidas = parseFloat(r.s) || 0;
+    } else {
+      const r = qGet(`SELECT SUM(ABS(cantidad)) as s FROM local_i_insumos_detalle WHERE articulo = ? AND cantidad < 0`, articulo) || {};
+      salidas = parseFloat(r.s) || 0;
+    }
+
+    const dev = qGet(`SELECT SUM(cantidad) as s FROM local_i_insumos_movimientos WHERE articulo = ? AND UPPER(estado) = 'DEVOLUCION'`, articulo) || {};
+    const devoluciones = parseFloat(dev.s) || 0;
+
+    const baja = qGet(`SELECT SUM(ABS(cantidad)) as s FROM local_i_insumos_movimientos WHERE articulo = ? AND UPPER(estado) = 'BAJA'`, articulo) || {};
+    const bajas = parseFloat(baja.s) || 0;
+
+    return stockInicial - salidas + devoluciones - bajas;
+  }
+
+  const hoy = new Date();
+  const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+  const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+  document.getElementById('topDateTime').textContent = `${dias[hoy.getDay()]} ${pad2(hoy.getDate())} DE ${meses[hoy.getMonth()]} DE ${hoy.getFullYear()}`;
+  document.getElementById('lblOperario').textContent = operarioName;
+
+  document.getElementById('btnVolver').addEventListener('click', () => { window.location.href = '../menu_central.html'; });
+
+  function lanzarToast(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = tipo === 'success' ? '✅' : (tipo === 'warning' ? '⚠️' : '❌');
+    tarjeta.innerHTML = `<div style="font-size:18px;">${icono}</div><div style="flex-grow:1; font-size:13px; font-weight:700; line-height:1.3;">${mensaje}</div>`;
+    document.getElementById('toastContenedor').appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 15);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 350); }, 4000);
+  }
+
+  try {
+    const provs = q(`SELECT DISTINCT COALESCE(razon_social, proveedor) as nombre_prov FROM local_proveedores_cuentas WHERE (proveedor IS NOT NULL AND proveedor != '') OR (razon_social IS NOT NULL AND razon_social != '') ORDER BY nombre_prov ASC`);
+    const dlP = document.getElementById('listProveedoresGlobal');
+    provs.forEach(p => { if (p.nombre_prov) { const o = document.createElement('option'); o.value = p.nombre_prov; dlP.appendChild(o); } });
+  } catch (e) { /* opcional */ }
+
+  try {
+    const personas = q(`SELECT DISTINCT recibio FROM local_i_insumos_movimientos WHERE recibio IS NOT NULL AND recibio != ''`);
+    const dlR = document.getElementById('listPersonasGlobal');
+    personas.forEach(p => { if (p.recibio) { const o = document.createElement('option'); o.value = p.recibio; dlR.appendChild(o); } });
+  } catch (e) { /* opcional */ }
+
+  // =========================================================================
+  // MINI MODAL GENÉRICO
+  // =========================================================================
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+  const modalBtnClose = document.getElementById('modalBtnClose');
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, ancho) {
+    modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
+    modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
+    document.getElementById('customModalBox').classList.toggle('ancho', !!ancho);
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = 'Guardar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnClose.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  // =========================================================================
+  // REPARACIÓN AUTOMÁTICA DE HUÉRFANOS (CORREGIDO ERROR COLUMNA D.FECHA)
+  // =========================================================================
+  function repararRegistrosHuerfanos() {
+    if (!db) return { reparadosDetalle: 0, reparadosMovimientos: 0 };
+
+    let reparadosDetalle = 0;
+    let reparadosMovimientos = 0;
+
+    try {
+      const tx = db.transaction(() => {
+        // -------------------------------------------------------------
+        // 1. REPARAR HUÉRFANOS EN local_i_insumos_detalle (reg_ingr)
+        // -------------------------------------------------------------
+        const pasoA_det = qRun(`
+          UPDATE local_i_insumos_detalle 
+          SET reg_ingr = (
+            SELECT ing.reg_local 
+            FROM local_i_insumosingresos ing 
+            WHERE ing.reg_local = local_i_insumos_detalle.reg_local
+          )
+          WHERE (reg_ingr IS NULL OR reg_ingr = '' OR reg_ingr = '0')
+            AND EXISTS (
+              SELECT 1 FROM local_i_insumosingresos ing 
+              WHERE ing.reg_local = local_i_insumos_detalle.reg_local
+            )
+        `);
+        reparadosDetalle += pasoA_det.changes || 0;
+
+        // ESTO LO MODIFIQUE: Sin consultar d.fecha para evitar error SQLite si no existe la columna
+        const huerfanosDet = q(`
+          SELECT d.id, d.articulo, d.cantidad 
+          FROM local_i_insumos_detalle d
+          WHERE (d.reg_ingr IS NULL OR d.reg_ingr = '' OR d.reg_ingr = '0')
+            AND d.articulo IS NOT NULL AND d.cantidad > 0
+        `);
+
+        huerfanosDet.forEach(h => {
+          const ingCoincidente = qGet(`
+            SELECT reg_local 
+            FROM local_i_insumosingresos 
+            WHERE articulo = ? AND cantidad = ?
+            LIMIT 1
+          `, h.articulo, h.cantidad);
+
+          if (ingCoincidente && ingCoincidente.reg_local) {
+            qRun(`UPDATE local_i_insumos_detalle SET reg_ingr = ? WHERE id = ?`, ingCoincidente.reg_local, h.id);
+            reparadosDetalle++;
+          }
+        });
+
+        // -------------------------------------------------------------
+        // 2. REPARAR HUÉRFANOS EN local_i_insumos_movimientos (reg_ing)
+        // -------------------------------------------------------------
+        const pasoA_mov = qRun(`
+          UPDATE local_i_insumos_movimientos 
+          SET reg_ing = (
+            SELECT ing.reg_local 
+            FROM local_i_insumosingresos ing 
+            WHERE ing.reg_local = local_i_insumos_movimientos.reg_local
+          )
+          WHERE (reg_ing IS NULL OR reg_ing = '' OR reg_ing = '0' OR reg_ing = 'PAÑOL')
+            AND UPPER(estado) = 'INGRESO'
+            AND EXISTS (
+              SELECT 1 FROM local_i_insumosingresos ing 
+              WHERE ing.reg_local = local_i_insumos_movimientos.reg_local
+            )
+        `);
+        reparadosMovimientos += pasoA_mov.changes || 0;
+
+        const huerfanosMov = q(`
+          SELECT m.id, m.articulo, m.cantidad, m.fecha 
+          FROM local_i_insumos_movimientos m
+          WHERE (m.reg_ing IS NULL OR m.reg_ing = '' OR m.reg_ing = '0' OR m.reg_ing = 'PAÑOL')
+            AND UPPER(m.estado) = 'INGRESO'
+            AND m.articulo IS NOT NULL AND m.cantidad > 0
+        `);
+
+        huerfanosMov.forEach(h => {
+          const ingCoincidente = qGet(`
+            SELECT reg_local 
+            FROM local_i_insumosingresos 
+            WHERE articulo = ? AND cantidad = ? AND (fecha = ? OR ? IS NULL)
+            LIMIT 1
+          `, h.articulo, h.cantidad, h.fecha, h.fecha);
+
+          if (ingCoincidente && ingCoincidente.reg_local) {
+            qRun(`UPDATE local_i_insumos_movimientos SET reg_ing = ? WHERE id = ?`, ingCoincidente.reg_local, h.id);
+            reparadosMovimientos++;
+          }
+        });
+      });
+
+      tx();
+    } catch (e) {
+      console.error("Error al vincular huérfanos:", e);
+    }
+
+    return { reparadosDetalle, reparadosMovimientos };
+  }
+
+  // Ejecutamos la auto-reparación silenciosa
+  const resHuerfanos = repararRegistrosHuerfanos();
+  if (resHuerfanos.reparadosDetalle > 0 || resHuerfanos.reparadosMovimientos > 0) {
+    lanzarToast(`🧹 Se asociaron ${resHuerfanos.reparadosDetalle + resHuerfanos.reparadosMovimientos} registros huérfanos a sus ingresos.`);
+  }
+
+  // =========================================================================
+  // NAVEGACIÓN DE SOLAPAS
+  // =========================================================================
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const seccionSubtitulo = document.getElementById('seccionSubtitulo');
+  const headerAccion = document.getElementById('headerAccion');
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+
+  let tabActual = 'oc';
+
+  document.querySelectorAll('.nav-side-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => { tabActual = btn.dataset.tab; renderizarTab(); });
+  });
+
+  document.getElementById('btnTabCatalogo').addEventListener('click', () => {
+    window.location.href = 'catalogo.html';
+  });
+
+  function renderizarTab() {
+    document.querySelectorAll('.nav-side-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabActual));
+    headerAccion.innerHTML = '';
+    contenedorDinamico.innerHTML = '';
+
+    if (tabActual === 'oc') {
+      seccionTitulo.textContent = 'Órdenes de Compra';
+      seccionSubtitulo.textContent = 'Pedidos de reposición al proveedor';
+      headerAccion.innerHTML = `<button class="btn-global-add" id="btnNuevaOC">+ NUEVA ORDEN</button>`;
+      document.getElementById('btnNuevaOC').addEventListener('click', abrirModalNuevaOC);
+      renderOC();
+    } else if (tabActual === 'ingresos') {
+      seccionTitulo.textContent = 'Ingresos';
+      seccionSubtitulo.textContent = 'Recepción de mercadería contra una orden de compra';
+      headerAccion.innerHTML = `
+        <button class="btn-global-add" id="btnNuevoIngreso">+ RECEPCIONAR</button>
+        <button class="btn-exportar" id="btnExportarIngresos">⬇️ EXPORTAR INGRESOS</button>
+      `;
+      document.getElementById('btnNuevoIngreso').addEventListener('click', () => abrirModalRecepcionar(null));
+      document.getElementById('btnExportarIngresos').addEventListener('click', () => abrirModalExportacion('INGRESOS'));
+      renderIngresos();
+    } else if (tabActual === 'despacho') {
+      seccionTitulo.textContent = 'Despacho';
+      seccionSubtitulo.textContent = 'Entrega de herramientas y repuestos al personal';
+      headerAccion.innerHTML = `
+        <button class="btn-global-add" id="btnNuevoDespacho">+ NUEVO DESPACHO</button>
+        <button class="btn-secundario" id="btnDevolucionGlobal" style="border-color:var(--color-warn); color:var(--color-warn);">↩️ DEVOLUCIÓN</button>
+        <button class="btn-secundario" id="btnDarBajaGlobal" style="border-color:var(--color-warn); color:var(--color-warn);">🗑️ DAR DE BAJA</button>
+        <button class="btn-exportar" id="btnExportarDespachos">⬇️ EXPORTAR DESPACHOS</button>
+      `;
+      document.getElementById('btnNuevoDespacho').addEventListener('click', abrirModalDespacho);
+      document.getElementById('btnDevolucionGlobal').addEventListener('click', abrirModalDevolucionGlobal);
+      document.getElementById('btnDarBajaGlobal').addEventListener('click', abrirModalDarBaja);
+      document.getElementById('btnExportarDespachos').addEventListener('click', () => abrirModalExportacion('DESPACHOS'));
+      renderDespacho();
+    } else if (tabActual === 'stock') {
+      seccionTitulo.textContent = 'Stock';
+      seccionSubtitulo.textContent = 'Existencias actuales del pañol, en cantidades';
+      headerAccion.innerHTML = `<button class="btn-exportar" id="btnExportarStock">⬇️ EXPORTAR STOCK</button>`;
+      document.getElementById('btnExportarStock').addEventListener('click', () => abrirModalExportacion('STOCK'));
+      renderStock();
+    }
+  }
+
+  // =========================================================================
+  // TAB 1: ÓRDENES DE COMPRA
+  // =========================================================================
+  let ocSeleccionada = null;
+
+  function cargarOCMaster() {
+    return q(`
+      SELECT orden_compra, proveedor, MIN(fecha) as fecha,
+        COUNT(CASE WHEN articulo != 'GENERAL' THEN 1 END) as cant_items
+      FROM local_i_insumos_ordenes_Compra
+      WHERE orden_compra IS NOT NULL
+      GROUP BY orden_compra, proveedor
+      ORDER BY CAST(orden_compra AS INTEGER) DESC
+    `);
+  }
+
+  function estadoPendienteOC(nroOC) {
+    const itemsOC = q(`SELECT id, reg_local, articulo, cantidad FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? AND articulo != 'GENERAL'`, nroOC);
+    const recibidos = q(`SELECT reg_orden, SUM(cantidad) as recibido FROM local_i_insumosingresos WHERE orden_compra = ? AND reg_orden IS NOT NULL GROUP BY reg_orden`, String(nroOC));
+    const mapaRecibido = {};
+    recibidos.forEach(r => { mapaRecibido[r.reg_orden] = parseFloat(r.recibido) || 0; });
+
+    let pedidoTotal = 0, recibidoTotal = 0, pendienteTotal = 0;
+    itemsOC.forEach(it => {
+      const pedido = parseFloat(it.cantidad) || 0;
+      const recibido = mapaRecibido[it.reg_local] || 0;
+      pedidoTotal += pedido;
+      recibidoTotal += Math.min(recibido, pedido);
+      pendienteTotal += Math.max(0, pedido - recibido);
+    });
+
+    let estado = 'COMPLETO';
+    if (recibidoTotal <= 0 && pedidoTotal > 0) estado = 'PENDIENTE';
+    else if (pendienteTotal > 0) estado = 'PARCIAL';
+
+    return { pedidoTotal, recibidoTotal, pendienteTotal, estado };
+  }
+
+  function renderOC() {
+    const master = cargarOCMaster();
+    if (master.length > 0 && !master.some(o => String(o.orden_compra) === String(ocSeleccionada))) {
+      ocSeleccionada = master[0].orden_compra;
+    }
+    if (master.length === 0) ocSeleccionada = null;
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-pan-dark); margin-bottom:2px;">ÓRDENES (${master.length})</div>
+          <input type="text" id="buscarMasterOC" class="buscador-catalogo" placeholder="Buscar N° o proveedor..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:4px;" id="contenedorMasterOC">
+            ${master.length === 0 ? '<div class="vista-vacia">No hay órdenes de compra cargadas.</div>' : ''}
+            ${master.map(o => {
+              const pend = estadoPendienteOC(o.orden_compra);
+              const led = pend.estado === 'PENDIENTE' ? 'rojo' : (pend.estado === 'PARCIAL' ? 'ambar' : null);
+              return `
+              <div class="oc-card-item ${String(ocSeleccionada) === String(o.orden_compra) ? 'active' : ''}" data-oc-sel="${escapeHtml(o.orden_compra)}">
+                <div class="oc-card-num-row">
+                  ${led ? `<span class="led-dot ${led}"></span>` : ''}
+                  <div class="oc-card-num">ORDEN N° ${escapeHtml(o.orden_compra)}</div>
+                </div>
+                <div class="oc-card-prov">${escapeHtml(o.proveedor || 'S/PROVEEDOR')}</div>
+                <div class="oc-card-date">Fecha: ${escapeHtml(o.fecha || '-')} · ${o.cant_items} ítem(s)</div>
+                ${led ? `<div class="pendiente-oc-tag ${led === 'ambar' ? 'ambar' : ''}">${pend.estado === 'PENDIENTE' ? 'DEBE INGRESAR' : 'FALTAN ARTÍCULOS'}</div>` : ''}
+              </div>
+            `;
+            }).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleOC">${renderDetalleOCHTML()}</div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterOC').addEventListener('input', (e) => {
+      const qq = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterOC .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(qq) ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('[data-oc-sel]').forEach(el => {
+      el.addEventListener('click', () => { ocSeleccionada = el.dataset.ocSel; renderOC(); });
+    });
+    wireDetalleOC();
+  }
+
+  function renderDetalleOCHTML() {
+    if (!ocSeleccionada) return '<div class="vista-vacia">Seleccioná una orden de compra del listado, o creá una nueva.</div>';
+
+    const items = q(`SELECT * FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? AND articulo != 'GENERAL' ORDER BY id ASC`, ocSeleccionada);
+    const cabecera = qGet(`SELECT proveedor, fecha FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? LIMIT 1`, ocSeleccionada) || {};
+    const recibidos = q(`SELECT reg_orden, SUM(cantidad) as recibido FROM local_i_insumosingresos WHERE orden_compra = ? AND reg_orden IS NOT NULL GROUP BY reg_orden`, String(ocSeleccionada));
+    const mapaRecibido = {};
+    recibidos.forEach(r => { mapaRecibido[r.reg_orden] = parseFloat(r.recibido) || 0; });
+
+    const pend = estadoPendienteOC(ocSeleccionada);
+    const tienePendientes = pend.estado !== 'COMPLETO';
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--color-pan-dark);">ORDEN N° ${escapeHtml(ocSeleccionada)}</div>
+          <div style="font-size:11.5px; font-weight:700; color:var(--color-text); margin-top:2px;">PROVEEDOR: ${escapeHtml(cabecera.proveedor || '-')}</div>
+          <div style="font-size:11px; color:var(--color-text-secondary); margin-top:2px;">FECHA: ${escapeHtml(cabecera.fecha || '-')}</div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; align-items:center;">
+          <button class="btn-secundario" id="btnAgregarItemOC" style="padding:6px 12px; font-size:11px;">+ ÍTEM</button>
+          ${tienePendientes
+            ? `<button class="btn-secundario" id="btnIrARecepcionar" style="padding:6px 12px; font-size:11px;"><span class="led-dot ${pend.estado === 'PENDIENTE' ? 'rojo' : 'ambar'}" style="margin-right:6px;"></span>📦 RECEPCIONAR</button>`
+            : `<span class="badge completo">✔ ORDEN COMPLETA</span>`}
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead>
+            <tr>
+              <th>CÓDIGO</th><th>DESCRIPCIÓN</th><th style="text-align:center;">PEDIDO</th>
+              <th style="text-align:center;">RECIBIDO</th><th style="text-align:center;">PENDIENTE</th><th>ESTADO</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.length === 0 ? `<tr><td colspan="6" style="text-align:center; color:var(--color-text-secondary);">Sin ítems cargados. Presioná + ÍTEM.</td></tr>` : items.map(it => {
+              const cat = qGet('SELECT descripcion, descripcion1, unidad FROM local_i_insumos_catalogo WHERE articulo = ?', it.articulo) || {};
+              const pedido = parseFloat(it.cantidad) || 0;
+              const recibido = mapaRecibido[it.reg_local] || 0;
+              const pendiente = Math.max(0, pedido - recibido);
+              const estado = recibido <= 0 ? { cls: 'pendiente', txt: 'PENDIENTE' } : (pendiente > 0 ? { cls: 'parcial', txt: 'PARCIAL' } : { cls: 'completo', txt: 'COMPLETO' });
+              return `
+                <tr>
+                  <td><b>${escapeHtml(it.articulo)}</b></td>
+                  <td>${escapeHtml([cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '-')}</td>
+                  <td style="text-align:center;">${n1(pedido)} ${escapeHtml(cat.unidad || '')}</td>
+                  <td style="text-align:center;">${n1(recibido)}</td>
+                  <td style="text-align:center;">${n1(pendiente)}</td>
+                  <td><span class="badge ${estado.cls}">${estado.txt}</span></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function wireDetalleOC() {
+    const btnItem = document.getElementById('btnAgregarItemOC');
+    if (btnItem) btnItem.addEventListener('click', () => abrirModalItemOC(ocSeleccionada));
+    const btnRec = document.getElementById('btnIrARecepcionar');
+    if (btnRec) btnRec.addEventListener('click', () => abrirModalRecepcionar(ocSeleccionada));
+  }
+
+  function proximoNroOC() {
+    let maxNro = 1000;
+    const r = qGet(`SELECT MAX(CAST(orden_compra AS INTEGER)) as max_nro FROM local_i_insumos_ordenes_Compra`);
+    if (r && r.max_nro) maxNro = parseInt(r.max_nro);
+    return (maxNro + 1).toString();
+  }
+  function proximoIdOC() {
+    const r = qGet(`SELECT MAX(CAST(id AS INTEGER)) as max_id FROM local_i_insumos_ordenes_Compra`);
+    return (r && r.max_id ? parseInt(r.max_id) : 0) + 1;
+  }
+
+  function abrirModalNuevaOC() {
+    const fields = `
+      <div class="modal-group"><label>Proveedor</label><input type="text" id="mOcProveedor" class="modal-input" list="listProveedoresGlobal" placeholder="Escriba o seleccione proveedor..." /></div>
+      <div class="modal-group"><label>Fecha de Emisión</label><input type="date" id="mOcFecha" class="modal-input" value="${hoyStr()}" /></div>
+    `;
+    openMiniModal('Nueva Orden de Compra', 'Se crea la cabecera; luego agregá los ítems', fields, () => {
+      const prov = document.getElementById('mOcProveedor').value.trim().toUpperCase();
+      const fecha = document.getElementById('mOcFecha').value;
+      if (!prov || !fecha) return lanzarToast('Indicá proveedor y fecha.', 'warning');
+      if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+      try {
+        const nuevoNro = proximoNroOC();
+        const nuevoId = proximoIdOC();
+        qRun(`
+          INSERT INTO local_i_insumos_ordenes_Compra
+            (id, reg_local, orden_compra, fecha, proveedor, articulo, cantidad, imp_uni_usd, cotizacion, estado, sincronizado)
+          VALUES (?, ?, ?, ?, ?, 'GENERAL', 0, 0, 1, 'EN REVISIÓN', 0)
+        `, nuevoId, Date.now().toString(), nuevoNro, fecha, prov);
+        lanzarToast(`Orden de Compra N° ${nuevoNro} creada.`);
+        closeMiniModal();
+        ocSeleccionada = nuevoNro;
+        renderOC();
+      } catch (e) { lanzarToast('Error al crear la orden: ' + e.message, 'error'); }
+    });
+  }
+
+  function abrirModalItemOC(nroOC) {
+    if (!nroOC) return;
+    const catalogo = q(`SELECT articulo, descripcion, descripcion1, unidad FROM local_i_insumos_catalogo ORDER BY articulo ASC`);
+    const fields = `
+      <div class="modal-group">
+        <label>Insumo / Herramienta del catálogo</label>
+        <select id="mItemSelect" class="modal-select">
+          <option value="">-- Seleccionar del catálogo --</option>
+          ${catalogo.map(c => `<option value="${escapeHtml(c.articulo)}">${escapeHtml(c.articulo)} — ${escapeHtml([c.descripcion, c.descripcion1].filter(Boolean).join(' '))}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Cantidad</label><input type="number" id="mItemCantidad" class="modal-input" step="0.01" min="0.01" value="1" /></div>
+    `;
+    openMiniModal(`Agregar Ítem a la Orden N° ${nroOC}`, 'Seleccioná el artículo y la cantidad pedida', fields, () => {
+      const art = document.getElementById('mItemSelect').value;
+      const cant = parseFloat(document.getElementById('mItemCantidad').value) || 0;
+      if (!art || cant <= 0) return lanzarToast('Seleccioná un artículo y una cantidad válida.', 'warning');
+      if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+      try {
+        const cabecera = qGet(`SELECT proveedor, fecha FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? LIMIT 1`, nroOC) || {};
+        const nuevoId = proximoIdOC();
+        qRun(`
+          INSERT INTO local_i_insumos_ordenes_Compra
+            (id, reg_local, orden_compra, fecha, proveedor, articulo, cantidad, imp_uni_usd, cotizacion, estado, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 0, 1, 'PENDIENTE', 0)
+        `, nuevoId, generarToken(), nroOC, cabecera.fecha || hoyStr(), cabecera.proveedor || '', art, cant);
+        lanzarToast('Ítem agregado a la orden.');
+        closeMiniModal();
+        renderOC();
+      } catch (e) { lanzarToast('Error al agregar el ítem: ' + e.message, 'error'); }
+    });
+  }
+
+  // =========================================================================
+  // TAB 2: INGRESOS
+  // =========================================================================
+  let ingresoGrupoSel = null;
+
+  function cargarIngresosMaster() {
+    return q(`
+      SELECT COALESCE(orden_compra, 'S/OC') as orden_compra, COALESCE(remito, 'S/R') as remito,
+        proveedor, MAX(fecha) as fecha, COUNT(*) as cant_items, SUM(cantidad) as total_unidades
+      FROM local_i_insumosingresos
+      GROUP BY COALESCE(orden_compra, 'S/OC'), COALESCE(remito, 'S/R'), proveedor
+      ORDER BY MAX(fecha) DESC, CAST(COALESCE(orden_compra,'0') AS INTEGER) DESC
+    `);
+  }
+
+  function renderIngresos() {
+    const master = cargarIngresosMaster();
+    const keyDe = g => `${g.orden_compra}___${g.remito}`;
+    if (master.length > 0 && !master.some(g => keyDe(g) === ingresoGrupoSel)) ingresoGrupoSel = keyDe(master[0]);
+    if (master.length === 0) ingresoGrupoSel = null;
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-pan-dark); margin-bottom:2px;">RECEPCIONES REGISTRADAS (${master.length})</div>
+          <input type="text" id="buscarMasterIng" class="buscador-catalogo" placeholder="Buscar OC, remito o proveedor..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:4px;" id="contenedorMasterIng">
+            ${master.length === 0 ? '<div class="vista-vacia">Todavía no hay ingresos registrados.</div>' : ''}
+            ${master.map(g => {
+              const pendOC = g.orden_compra !== 'S/OC' ? estadoPendienteOC(g.orden_compra) : { estado: 'COMPLETO' };
+              const led = pendOC.estado === 'PENDIENTE' ? 'rojo' : (pendOC.estado === 'PARCIAL' ? 'ambar' : null);
+              return `
+              <div class="oc-card-item ${ingresoGrupoSel === keyDe(g) ? 'active' : ''}" data-ing-sel="${escapeHtml(keyDe(g))}">
+                <div class="oc-card-num-row">
+                  ${led ? `<span class="led-dot ${led}"></span>` : ''}
+                  <div class="oc-card-num">OC #${escapeHtml(g.orden_compra)} · REMITO ${escapeHtml(g.remito)}</div>
+                </div>
+                <div class="oc-card-prov">${escapeHtml(g.proveedor || 'S/PROVEEDOR')}</div>
+                <div class="oc-card-date">Fecha: ${escapeHtml(g.fecha || '-')} · ${g.cant_items} ítem(s) · ${n1(g.total_unidades)} un.</div>
+                ${led ? `<div class="pendiente-oc-tag ${led === 'ambar' ? 'ambar' : ''}">AÚN FALTAN ARTÍCULOS EN LA ORDEN</div>` : ''}
+              </div>
+            `;
+            }).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleIng">${renderDetalleIngresoHTML(master)}</div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterIng').addEventListener('input', (e) => {
+      const qq = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterIng .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(qq) ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('[data-ing-sel]').forEach(el => {
+      el.addEventListener('click', () => { ingresoGrupoSel = el.dataset.ingSel; renderIngresos(); });
+    });
+
+    wireDetalleIngresoAcciones();
+  }
+
+  function renderDetalleIngresoHTML(master) {
+    if (!ingresoGrupoSel) return '<div class="vista-vacia">Seleccioná una recepción del listado o recepcioná una orden pendiente.</div>';
+    const [oc, remito] = ingresoGrupoSel.split('___');
+    const items = q(`SELECT * FROM local_i_insumosingresos WHERE COALESCE(orden_compra,'S/OC') = ? AND COALESCE(remito,'S/R') = ? ORDER BY id ASC`, oc, remito);
+    const cab = items[0] || {};
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--color-pan-dark);">REMITO ${escapeHtml(remito)}</div>
+          <div style="font-size:11.5px; font-weight:700; color:var(--color-text); margin-top:2px;">VINCULADO A ORDEN N° ${escapeHtml(oc)} · ${escapeHtml(cab.proveedor || '-')}</div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn-secundario" id="btnEditarIngreso" style="padding:6px 12px; font-size:11px; border-color:var(--color-amber); color:var(--color-amber);">✏️ EDITAR RECEPCIÓN</button>
+          <button class="btn-secundario" id="btnMasIngreso" style="padding:6px 12px; font-size:11px;">+ RECEPCIONAR MÁS DE ESTA OC</button>
+          <button class="btn-global-add" id="btnImprimirIngreso" style="padding:6px 14px; font-size:11px;">🖨️ IMPRIMIR REMITO INGRESO</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th style="text-align:center;">CANTIDAD</th><th>FECHA</th><th>RECIBIÓ</th></tr></thead>
+          <tbody>
+            ${items.map(it => {
+              const cat = qGet('SELECT descripcion, descripcion1, unidad FROM local_i_insumos_catalogo WHERE articulo = ?', it.articulo) || {};
+              return `
+                <tr>
+                  <td><b>${escapeHtml(it.articulo)}</b></td>
+                  <td>${escapeHtml([cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '-')}</td>
+                  <td style="text-align:center;">${n1(it.cantidad)} ${escapeHtml(cat.unidad || '')}</td>
+                  <td>${escapeHtml(it.fecha || '-')}</td>
+                  <td>${escapeHtml(it.recibio || '-')}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function wireDetalleIngresoAcciones() {
+    const btnMas = document.getElementById('btnMasIngreso');
+    if (btnMas && ingresoGrupoSel) btnMas.addEventListener('click', () => abrirModalRecepcionar(ingresoGrupoSel.split('___')[0]));
+    
+    const btnImpIng = document.getElementById('btnImprimirIngreso');
+    if (btnImpIng && ingresoGrupoSel) {
+      const [ocSel, remitoSel] = ingresoGrupoSel.split('___');
+      btnImpIng.addEventListener('click', () => imprimirRemitoIngreso(ocSel, remitoSel));
+    }
+
+    const btnEditIng = document.getElementById('btnEditarIngreso');
+    if (btnEditIng && ingresoGrupoSel) {
+      const [ocSel, remitoSel] = ingresoGrupoSel.split('___');
+      btnEditIng.addEventListener('click', () => abrirModalEditarRecepcion(ocSel, remitoSel));
+    }
+  }
+
+  function abrirModalEditarRecepcion(ordenNro, remitoNro) {
+    const items = q(`SELECT * FROM local_i_insumosingresos WHERE COALESCE(orden_compra,'S/OC') = ? AND COALESCE(remito,'S/R') = ? ORDER BY id ASC`, ordenNro, remitoNro);
+    if (items.length === 0) return lanzarToast('No hay datos para editar.', 'warning');
+
+    const cab = items[0];
+
+    const fields = `
+      <div class="modal-group">
+        <label>N° Remito Proveedor</label>
+        <input type="text" id="mEditRemito" class="modal-input" value="${escapeHtml(cab.remito || '')}" />
+      </div>
+      <div class="modal-row-grid" style="margin-top:8px;">
+        <div class="modal-group">
+          <label>Fecha Recepción</label>
+          <input type="date" id="mEditFecha" class="modal-input" value="${escapeHtml(cab.fecha || hoyStr())}" />
+        </div>
+        <div class="modal-group">
+          <label>Recibió en Pañol</label>
+          <input type="text" id="mEditRecibio" class="modal-input" list="listPersonasGlobal" value="${escapeHtml(cab.recibio || operarioName)}" />
+        </div>
+      </div>
+      <div style="font-size:11.5px; font-weight:700; color:var(--color-text-secondary); margin-top:12px; margin-bottom:6px;">
+        Cantidades por artículo:
+      </div>
+      <div style="max-height:180px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:8px; background:#FAFAFA;">
+        ${items.map(it => `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; background:#FFF; padding:8px; border-radius:6px; border:1px solid #E0E0E0;">
+            <div style="font-size:12px; font-weight:700;">
+              ${escapeHtml(it.articulo)}
+              <small style="display:block; color:var(--color-text-secondary);">${escapeHtml(it.descripcion || '')}</small>
+            </div>
+            <div style="width:110px;">
+              <input type="number" step="0.01" min="0.01" class="modal-input input-cant-edit" data-reg-local="${it.reg_local}" value="${it.cantidad}" style="padding:4px 8px; font-weight:800; text-align:center;" />
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    openMiniModal(`✏️ Editar Recepción (Remito ${remitoNro})`, `Orden de Compra N° ${ordenNro}`, fields, () => {
+      const nuevoRemito = document.getElementById('mEditRemito').value.trim().toUpperCase() || 'S/R';
+      const nuevaFecha = document.getElementById('mEditFecha').value || hoyStr();
+      const nuevoRecibio = document.getElementById('mEditRecibio').value.trim().toUpperCase() || operarioName;
+
+      try {
+        const tx = db.transaction(() => {
+          items.forEach(it => {
+            const inputCant = document.querySelector(`.input-cant-edit[data-reg-local="${it.reg_local}"]`);
+            const nuevaCant = inputCant ? (parseFloat(inputCant.value) || 0) : it.cantidad;
+
+            qRun(`
+              UPDATE local_i_insumosingresos 
+              SET remito = ?, fecha = ?, recibio = ?, cantidad = ?, sincronizado = 0 
+              WHERE reg_local = ?
+            `, nuevoRemito, nuevaFecha, nuevoRecibio, nuevaCant, it.reg_local);
+
+            qRun(`
+              UPDATE local_i_insumos_movimientos 
+              SET remito = ?, fecha = ?, recibio = ?, cantidad = ?, sincronizado = 0 
+              WHERE reg_ing = ? AND UPPER(estado) = 'INGRESO'
+            `, nuevoRemito, nuevaFecha, nuevoRecibio, nuevaCant, it.reg_local);
+
+            qRun(`
+              UPDATE local_i_insumos_detalle 
+              SET operario = ?, cantidad = ?, sincronizado = 0 
+              WHERE reg_ingr = ?
+            `, nuevoRecibio, nuevaCant, it.reg_local);
+          });
+        });
+
+        tx();
+        lanzarToast('✅ Recepción actualizada correctamente.');
+        closeMiniModal();
+        ingresoGrupoSel = `${ordenNro}___${nuevoRemito}`;
+        renderizarTab();
+      } catch (e) {
+        console.error(e);
+        lanzarToast('Error al editar recepción: ' + e.message, 'error');
+      }
+    }, true);
+  }
+
+  function abrirModalRecepcionar(ordenPreseleccionada) {
+    const ordenesMaster = cargarOCMaster()
+      .map(o => Object.assign({}, o, { pend: estadoPendienteOC(o.orden_compra) }))
+      .filter(o => o.pend.estado !== 'COMPLETO');
+
+    if (ordenesMaster.length === 0 && !ordenPreseleccionada) {
+      return lanzarToast('No hay Órdenes de Compra con artículos pendientes de ingreso.', 'warning');
+    }
+
+    let ocElegida = ordenPreseleccionada || null;
+    let artElegido = null;
+
+    function renderContenidoRecepcion() {
+      if (!ocElegida) {
+        return `
+          <div style="font-size:12px; font-weight:700; color:var(--color-text-secondary); margin-bottom:8px;">
+            Seleccioná una Orden de Compra para recepcionar sus artículos:
+          </div>
+          <div style="max-height:350px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md);">
+            <table class="tabla-modal-sel">
+              <thead>
+                <tr>
+                  <th>FECHA</th>
+                  <th>PROVEEDOR</th>
+                  <th>ORDEN N°</th>
+                  <th style="text-align:center;">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ordenesMaster.map(o => `
+                  <tr class="fila-seleccionable" data-sel-oc="${escapeHtml(o.orden_compra)}">
+                    <td><b>${escapeHtml(o.fecha || '-')}</b></td>
+                    <td>${escapeHtml(o.proveedor || 'S/PROVEEDOR')}</td>
+                    <td><b style="color:var(--color-pan-dark);">OC #${escapeHtml(o.orden_compra)}</b></td>
+                    <td style="text-align:center;">
+                      <span class="badge ${o.pend.estado === 'PENDIENTE' ? 'devolucion' : 'pendiente'}">
+                        ${o.pend.estado === 'PENDIENTE' ? 'SIN INGRESAR' : 'PARCIAL'}
+                      </span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      const itemsOC = q(`
+        SELECT id, reg_local, articulo, cantidad 
+        FROM local_i_insumos_ordenes_Compra 
+        WHERE orden_compra = ? AND articulo != 'GENERAL'
+      `, ocElegida);
+
+      const recibidos = q(`
+        SELECT reg_orden, SUM(cantidad) as recibido 
+        FROM local_i_insumosingresos 
+        WHERE orden_compra = ? AND reg_orden IS NOT NULL 
+        GROUP BY reg_orden
+      `, ocElegida);
+
+      const mapaRecibido = {};
+      recibidos.forEach(r => { mapaRecibido[r.reg_orden] = parseFloat(r.recibido) || 0; });
+
+      const cabOC = qGet(`SELECT proveedor, fecha FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? LIMIT 1`, ocElegida) || {};
+
+      const itemsPendientes = [];
+      itemsOC.forEach(it => {
+        const pedido = parseFloat(it.cantidad) || 0;
+        const recibido = mapaRecibido[it.reg_local] || 0;
+        const pendiente = Math.max(0, pedido - recibido);
+
+        if (pendiente > 0) {
+          const cat = qGet('SELECT descripcion, descripcion1, unidad, rubro, sub_rubro FROM local_i_insumos_catalogo WHERE articulo = ?', it.articulo) || {};
+          itemsPendientes.push({
+            id_oc_item: it.id,
+            reg_local_oc: it.reg_local,
+            articulo: it.articulo,
+            descripcion: [cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || 'Sin descripción',
+            unidad: cat.unidad || 'U',
+            rubro: cat.rubro || 'SIN RUBRO',
+            sub_rubro: cat.sub_rubro || 'GENERAL',
+            pedido: pedido,
+            recibido: recibido,
+            pendiente: pendiente
+          });
+        }
+      });
+
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8F9F9; padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border); margin-bottom:10px;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:var(--color-pan-dark);">ORDEN DE COMPRA N° ${escapeHtml(ocElegida)}</div>
+            <div style="font-size:11px; color:var(--color-text-secondary); font-weight:700;">PROVEEDOR: ${escapeHtml(cabOC.proveedor || '-')}</div>
+          </div>
+          ${!ordenPreseleccionada ? `<button type="button" class="btn-mini" id="btnCambiarOCRec">↩ Cambiar Orden</button>` : ''}
+        </div>
+
+        <div style="font-size:11.5px; font-weight:700; color:var(--color-text-secondary); margin-bottom:6px;">1. Seleccioná el artículo a recepcionar:</div>
+        <div style="max-height:180px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md); margin-bottom:12px;">
+          <table class="tabla-modal-sel">
+            <thead>
+              <tr>
+                <th>CÓDIGO / ARTÍCULO</th>
+                <th style="text-align:center;">PEDIDO</th>
+                <th style="text-align:center;">PENDIENTE</th>
+                <th style="text-align:center;">UNIDAD</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsPendientes.length === 0 ? `<tr><td colspan="4" style="text-align:center;">No quedan artículos pendientes en esta orden.</td></tr>` : ''}
+              ${itemsPendientes.map(it => `
+                <tr class="fila-seleccionable ${artElegido && artElegido.reg_local_oc === it.reg_local_oc ? 'activa' : ''}" data-sel-reg-oc="${escapeHtml(it.reg_local_oc)}">
+                  <td><b>${escapeHtml(it.articulo)}</b><br><small style="color:var(--color-text-secondary);">${escapeHtml(it.descripcion)}</small></td>
+                  <td style="text-align:center;">${n1(it.pedido)}</td>
+                  <td style="text-align:center; color:var(--color-warn); font-weight:800;">${n1(it.pendiente)}</td>
+                  <td style="text-align:center;"><span class="badge-rubro-sm">${escapeHtml(it.unidad)}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${artElegido ? `
+          <div class="form-card" style="border-color:var(--color-pan);">
+            <div class="form-card-titulo" style="color:var(--color-pan-dark);">2. Completá los datos del remito de ingreso:</div>
+            <div class="modal-row-grid">
+              <div class="modal-group">
+                <label>Fecha Recepción</label>
+                <input type="date" id="mIngFecha" class="modal-input" value="${hoyStr()}" />
+              </div>
+              <div class="modal-group">
+                <label>N° Remito Proveedor</label>
+                <input type="text" id="mIngRemito" class="modal-input" placeholder="Ej: R-0001-00012345" />
+              </div>
+            </div>
+            <div class="modal-row-grid" style="margin-top:8px;">
+              <div class="modal-group">
+                <label>Cantidad a Ingresar (${escapeHtml(artElegido.unidad)})</label>
+                <input type="number" id="mIngCantidad" class="modal-input" step="0.01" min="0.01" value="${artElegido.pendiente}" max="${artElegido.pendiente}" />
+              </div>
+              <div class="modal-group">
+                <label>Recibió en Pañol</label>
+                <input type="text" id="mIngRecibio" class="modal-input" list="listPersonasGlobal" value="${escapeHtml(operarioName)}" />
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function refrescarUI() {
+      modalBody.innerHTML = renderContenidoRecepcion();
+
+      document.querySelectorAll('[data-sel-oc]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          ocElegida = tr.dataset.selOc;
+          artElegido = null;
+          refrescarUI();
+        });
+      });
+
+      document.querySelectorAll('[data-sel-reg-oc]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const regOcSel = tr.dataset.selRegOc;
+          const itemOcFound = qGet(`
+            SELECT id, reg_local, articulo, cantidad 
+            FROM local_i_insumos_ordenes_Compra 
+            WHERE reg_local = ? LIMIT 1
+          `, regOcSel);
+
+          if (itemOcFound) {
+            const cat = qGet('SELECT descripcion, descripcion1, unidad, rubro, sub_rubro FROM local_i_insumos_catalogo WHERE articulo = ?', itemOcFound.articulo) || {};
+            const recibidos = qGet(`
+              SELECT SUM(cantidad) as recibido 
+              FROM local_i_insumosingresos 
+              WHERE reg_orden = ?
+            `, regOcSel) || {};
+
+            const pedido = parseFloat(itemOcFound.cantidad) || 0;
+            const recibido = parseFloat(recibidos.recibido) || 0;
+
+            artElegido = {
+              id_oc_item: itemOcFound.id,
+              reg_local_oc: itemOcFound.reg_local,
+              articulo: itemOcFound.articulo,
+              descripcion: [cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '',
+              unidad: cat.unidad || 'U',
+              rubro: cat.rubro || 'SIN RUBRO',
+              sub_rubro: cat.sub_rubro || 'GENERAL',
+              pendiente: Math.max(0, pedido - recibido)
+            };
+          }
+          refrescarUI();
+        });
+      });
+
+      const btnCambiar = document.getElementById('btnCambiarOCRec');
+      if (btnCambiar) btnCambiar.addEventListener('click', () => { ocElegida = null; artElegido = null; refrescarUI(); });
+    }
+
+    openMiniModal('📦 Recepcionar Mercadería', 'Ingreso contra Orden de Compra', '', () => {
+      if (!ocElegida || !artElegido) return lanzarToast('Seleccioná una orden y un artículo a ingresar.', 'warning');
+
+      const fecha = document.getElementById('mIngFecha').value || hoyStr();
+      const remito = document.getElementById('mIngRemito').value.trim().toUpperCase() || 'S/R';
+      const cant = parseFloat(document.getElementById('mIngCantidad').value) || 0;
+      const recibio = document.getElementById('mIngRecibio').value.trim().toUpperCase() || operarioName;
+
+      if (cant <= 0) return lanzarToast('Ingresá una cantidad válida.', 'warning');
+      if (cant > artElegido.pendiente) return lanzarToast(`La cantidad ingresada supera el saldo pendiente (${n1(artElegido.pendiente)} ${artElegido.unidad}).`, 'warning');
+
+      try {
+        const ordenInfo = qGet(`SELECT proveedor FROM local_i_insumos_ordenes_Compra WHERE orden_compra = ? LIMIT 1`, ocElegida) || {};
+        
+        const rIng = qGet(`SELECT MAX(CAST(id AS INTEGER)) as max_id FROM local_i_insumosingresos`);
+        const nextIdIng = ((rIng && rIng.max_id) ? parseInt(rIng.max_id) : 0) + 1;
+        
+        const tokenRegLocalIngreso = Date.now().toString();
+
+        const nextIdMov = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const nextIdDet = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+
+        const ejecutar = db.transaction(() => {
+          qRun(`
+            INSERT INTO local_i_insumosingresos (
+              id, reg_local, reg_orden, fecha, remito, orden_compra, proveedor, 
+              articulo, descripcion, cantidad, recibio, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+          `, nextIdIng, tokenRegLocalIngreso, artElegido.reg_local_oc, fecha, remito, ocElegida, ordenInfo.proveedor || '', artElegido.articulo, artElegido.descripcion, cant, recibio);
+
+          qRun(`
+            INSERT INTO local_i_insumos_movimientos (
+              id, reg_local, reg_ing, fecha, despacho, recibio, articulo, 
+              descripcion, cantidad, estado, deposito_origen, destino, remito, sub_rubro, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'INGRESO', 'PROVEEDOR', 'PAÑOL', ?, ?, 0)
+          `, nextIdMov, generarToken(), tokenRegLocalIngreso, fecha, ordenInfo.proveedor || '', recibio, artElegido.articulo, artElegido.descripcion, cant, remito, artElegido.sub_rubro);
+
+          qRun(`
+            INSERT INTO local_i_insumos_detalle (
+              id, reg_local, reg_ingr, articulo, cantidad, ubicación, operario, 
+              articulo_rubro, art_subrubro, sincronizado
+            ) VALUES (?, ?, ?, ?, ?, 'PAÑOL', ?, ?, ?, 0)
+          `, nextIdDet, generarToken(), tokenRegLocalIngreso, artElegido.articulo, cant, recibio, artElegido.rubro, artElegido.sub_rubro);
+        });
+
+        ejecutar();
+
+        lanzarToast(`Ingreso de ${n1(cant)} ${artElegido.unidad} registrado con éxito.`);
+        closeMiniModal();
+        ingresoGrupoSel = `${ocElegida}___${remito}`;
+        renderizarTab();
+      } catch (e) { 
+        console.error(e);
+        lanzarToast('Error al registrar el ingreso: ' + e.message, 'error'); 
+      }
+    }, true);
+
+    refrescarUI();
+  }
+
+  function imprimirRemitoIngreso(ordenNro, remitoNro) {
+    const items = q(`SELECT * FROM local_i_insumosingresos WHERE COALESCE(orden_compra,'S/OC') = ? AND COALESCE(remito,'S/R') = ? ORDER BY id ASC`, ordenNro, remitoNro);
+    if (items.length === 0) return lanzarToast('No hay datos de ingreso para este remito.', 'warning');
+
+    const cab = items[0];
+    let provInfo = {};
+    try { provInfo = qGet(`SELECT * FROM local_p_proveedores WHERE proveedor = ? OR razon_social = ? LIMIT 1`, cab.proveedor, cab.proveedor) || {}; } catch (e) { /* opcional */ }
+
+    let totalCantidad = 0;
+    const filasHtml = items.map((it, idx) => {
+      const cat = qGet('SELECT descripcion, descripcion1, unidad FROM local_i_insumos_catalogo WHERE articulo = ?', it.articulo) || {};
+      const cant = parseFloat(it.cantidad) || 0;
+      totalCantidad += cant;
+      return `
+        <tr>
+          <td style="text-align:center; font-weight:bold;">${idx + 1}</td>
+          <td style="font-weight:bold;">${escapeHtml(it.articulo)}</td>
+          <td>${escapeHtml([cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '-')}</td>
+          <td style="text-align:center; font-weight:bold; font-size:12px;">${n1(cant)} ${escapeHtml(cat.unidad || '')}</td>
+          <td style="text-align:center;">INGRESADO EN PAÑOL</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContenido = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+      <meta charset="UTF-8">
+      <title>REMITO_INGRESO_${escapeHtml(remitoNro)}_OC_${escapeHtml(ordenNro)}</title>
+      <style>
+        @page { size: A4 portrait; margin: 12mm; }
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        body { color: #211C16; margin: 0; padding: 0; background: #FFF; font-size: 11px; }
+
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 2px solid #37474F; padding-bottom: 10px; }
+        .main-title { font-size: 24px; font-weight: bold; color: #2E7D32; text-transform: uppercase; }
+        .subtitle { font-size: 11px; font-weight: bold; color: #4A5568; margin-top: 2px; }
+
+        .company-card { text-align: right; font-size: 10px; line-height: 1.5; color: #4A5568; }
+        .company-card .name { font-weight: bold; font-size: 12px; color: #1A202C; }
+
+        .info-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 11.5px; font-weight: bold; background: #E8F5E9; padding: 8px 12px; border-radius: 6px; border: 1px solid #A5D6A7; }
+
+        .vendor-client-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #37474F; margin-bottom: 18px; }
+        .vc-header { background: #37474F; color: white; padding: 6px 12px; font-weight: bold; font-size: 10.5px; text-transform: uppercase; }
+        .vc-body { padding: 10px 12px; font-size: 10.5px; line-height: 1.6; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .items-table th { background: #2E7D32; color: white; padding: 8px; font-size: 10px; text-transform: uppercase; border: 1px solid #2E7D32; }
+        .items-table td { padding: 7px; border: 1px solid #CBD5E0; font-size: 10.5px; }
+
+        .totals-table { width: 300px; margin-left: auto; border-collapse: collapse; margin-bottom: 20px; }
+        .totals-table td { padding: 6px 10px; font-size: 11px; font-weight: bold; text-align: right; border: 1px solid #CBD5E0; }
+        .totals-table .bg-ok { background: #E8F5E9; color: #1B5E20; font-size: 12px; }
+
+        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; }
+        .sig-box { border-top: 1.5px solid #37474F; text-align: center; padding-top: 6px; font-size: 10px; font-weight: bold; color: #4A5568; }
+
+        .footer-logo { text-align: right; margin-top: 25px; font-size: 11px; font-weight: bold; color: #718096; letter-spacing: 1px; }
+      </style>
+      </head>
+      <body>
+
+      <div class="header-top">
+        <div>
+          <div class="main-title">Remito de Ingreso</div>
+          <div class="subtitle">RECEPCIÓN DE MERCADERÍA Y CONTROL DE PAÑOL</div>
+        </div>
+        <div class="company-card">
+          <div class="name">GORDON STERN DIEGO SEBASTIAN GARY</div>
+          Gobernador Tello 140 - Choele Choel, Río Negro <br>
+          CUIT: 20-24155794-5 <br>
+        </div>
+      </div>
+
+      <div class="info-bar">
+        <div>REMITO PROVEEDOR: [ ${escapeHtml(cab.remito || 'S/R')} ]</div>
+        <div>ORDEN DE COMPRA N.°: [ ${escapeHtml(cab.orden_compra || 'S/OC')} ]</div>
+        <div>FECHA INGRESO: ${escapeHtml(cab.fecha || '-')}</div>
+      </div>
+
+      <div class="vendor-client-grid">
+        <div>
+          <div class="vc-header">PROVEEDOR / ENTREGÓ</div>
+          <div class="vc-body">
+            <b>${escapeHtml(cab.proveedor || '-')}</b><br>
+            Localidad: ${escapeHtml(provInfo.localidad || 'CHOELE CHOEL')}<br>
+            CUIT: ${escapeHtml(provInfo.cuit || 'S/D')}<br>
+            Actividad: ${escapeHtml(provInfo.actividad || 'Insumos Agrícolas')}
+          </div>
+        </div>
+        <div style="border-left: 1.5px solid #37474F;">
+          <div class="vc-header">LUGAR DE RECEPCIÓN / DEPÓSITO</div>
+          <div class="vc-body">
+            <b>GORDON GESTIÓN - PAÑOL</b><br>
+            Gobernador Tello 140 - Choele Choel, Río Negro<br>
+            Responsable Recepción: <b>${escapeHtml(cab.recibio || operarioName)}</b><br>
+            Estado de Carga: <b>RECIBIDO CONFORME</b>
+          </div>
+        </div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width:6%;">N.º</th>
+            <th style="width:20%;">CÓDIGO INSUMO</th>
+            <th style="width:44%;">DESCRIPCIÓN DE MERCADERÍA</th>
+            <th style="width:15%;">CANTIDAD RECIBIDA</th>
+            <th style="width:15%;">ESTADO / DESTINO</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filasHtml}
+        </tbody>
+      </table>
+
+      <table class="totals-table">
+        <tr class="bg-ok">
+          <td>TOTAL UNIDADES INGRESADAS:</td>
+          <td>${n1(totalCantidad)} Unid.</td>
+        </tr>
+      </table>
+
+      <div class="signatures-grid">
+        <div class="sig-box">
+          FIRMA Y ACLARACIÓN ENTREGÓ (TRANSPORTISTA / PROVEEDOR)
+        </div>
+        <div class="sig-box">
+          FIRMA Y ACLARACIÓN RECIBIÓ (RESPONSABLE PAÑOL)
+        </div>
+      </div>
+
+      <div class="footer-logo">
+        GORDON GESTIÓN · AGROSOFT J&L
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 500);
+        };
+      <\/script>
+      </body>
+      </html>
+    `;
+
+    const ventPrint = window.open('', '_blank', 'width=850,height=900');
+    ventPrint.document.open();
+    ventPrint.document.write(htmlContenido);
+    ventPrint.document.close();
+  }
+
+  // =========================================================================
+  // TAB 3: DESPACHO
+  // =========================================================================
+  let despachoRemitoSel = null;
+
+  function agruparDespachos() {
+    const filas = q(`SELECT * FROM local_i_insumos_movimientos WHERE estado IN ('DESPACHADO', 'DEVOLUCION') ORDER BY fecha DESC, id DESC`);
+    const mapa = {};
+    filas.forEach(m => {
+      const r = m.remito || m.despacho || 'S/N';
+      if (!mapa[r]) mapa[r] = { remito: r, fecha: m.fecha, destino: m.destino, recibio: m.recibio, items: [] };
+      mapa[r].items.push(m);
+    });
+    return Object.values(mapa).sort((a, b) => String(b.fecha || '').localeCompare(String(a.fecha || '')) || String(b.remito).localeCompare(String(a.remito)));
+  }
+
+  function renderDespacho() {
+    const master = agruparDespachos();
+    if (master.length > 0 && !master.some(r => r.remito === despachoRemitoSel)) despachoRemitoSel = master[0].remito;
+    if (master.length === 0) despachoRemitoSel = null;
+
+    contenedorDinamico.innerHTML = `
+      <div class="oc-split-container">
+        <div class="oc-master-panel">
+          <div style="font-size:11px; font-weight:800; color:var(--color-pan-dark); margin-bottom:2px;">REMITOS (${master.length})</div>
+          <input type="text" id="buscarMasterDesp" class="buscador-catalogo" placeholder="Buscar remito, destino o retiró..." />
+          <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px; margin-top:4px;" id="contenedorMasterDesp">
+            ${master.length === 0 ? '<div class="vista-vacia">No hay despachos registrados.</div>' : ''}
+            ${master.map(r => `
+              <div class="oc-card-item ${despachoRemitoSel === r.remito ? 'active' : ''}" data-desp-sel="${escapeHtml(r.remito)}">
+                <div class="oc-card-num">REMITO N° ${escapeHtml(r.remito)}</div>
+                <div class="oc-card-prov">RETIRÓ: ${escapeHtml(r.recibio || '—')}</div>
+                <div class="oc-card-date">FECHA: ${escapeHtml(r.fecha || '-')} · DESTINO: ${escapeHtml(r.destino || '—')} · ${r.items.length} ítem(s)</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="oc-detail-panel" id="panelDetalleDesp">${renderDetalleDespachoHTML(master)}</div>
+      </div>
+    `;
+
+    document.getElementById('buscarMasterDesp').addEventListener('input', (e) => {
+      const qq = e.target.value.toLowerCase();
+      document.querySelectorAll('#contenedorMasterDesp .oc-card-item').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(qq) ? 'block' : 'none';
+      });
+    });
+    document.querySelectorAll('[data-desp-sel]').forEach(el => {
+      el.addEventListener('click', () => { despachoRemitoSel = el.dataset.despSel; renderDespacho(); });
+    });
+    wireDetalleDespachoAcciones();
+  }
+
+  function renderDetalleDespachoHTML(master) {
+    const grupo = master.find(r => r.remito === despachoRemitoSel);
+    if (!grupo) return '<div class="vista-vacia">Seleccioná un remito del listado.</div>';
+
+    return `
+      <div class="oc-info-card-header">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--color-pan-dark);">REMITO N° ${escapeHtml(grupo.remito)}</div>
+          <div style="font-size:11.5px; font-weight:700; color:var(--color-text); margin-top:2px;">DESTINO: ${escapeHtml(grupo.destino || '—')} · RETIRÓ: ${escapeHtml(grupo.recibio || '—')}</div>
+          <div style="font-size:11px; font-weight:700; color:var(--color-text-secondary); margin-top:2px;">FECHA: ${escapeHtml(grupo.fecha || '-')}</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn-secundario" id="btnAgregarItemDesp" style="padding:6px 12px; font-size:11px;">+ ÍTEM</button>
+          <button class="btn-secundario" id="btnDevolucionRemito" style="padding:6px 12px; font-size:11px; border-color:var(--color-warn); color:var(--color-warn);">↩️ DEVOLUCIÓN</button>
+          <button class="btn-global-add" id="btnImprimirRemito" style="padding:6px 14px; font-size:11px;">🖨️ IMPRIMIR REMITO (x2)</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto; flex-grow:1;">
+        <table class="tabla-oc-items">
+          <thead><tr><th>CÓDIGO</th><th>DESCRIPCIÓN</th><th>RUBRO</th><th style="text-align:center;">CANTIDAD</th><th>ESTADO</th></tr></thead>
+          <tbody>
+            ${grupo.items.map(m => {
+              const cat = qGet('SELECT descripcion, descripcion1, unidad FROM local_i_insumos_catalogo WHERE articulo = ?', m.articulo) || {};
+              const esDev = m.estado === 'DEVOLUCION';
+              const cantMostrar = Math.abs(m.cantidad);
+              return `
+                <tr>
+                  <td><b>${escapeHtml(m.articulo)}</b></td>
+                  <td>
+                    ${escapeHtml([cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '-')}
+                    ${m.descripcion ? `<br><small style="color:var(--color-amber); font-weight:700;">${escapeHtml(m.descripcion)}</small>` : ''}
+                  </td>
+                  <td><span class="badge-rubro-sm">${escapeHtml(m.sub_rubro || 'GENERAL')}</span></td>
+                  <td style="text-align:center; font-weight:700; color:${esDev ? 'var(--color-ok)' : 'var(--color-text)'};">
+                    ${esDev ? '+' : ''}${n1(cantMostrar)} ${escapeHtml(cat.unidad || '')}
+                  </td>
+                  <td>
+                    <span class="badge ${esDev ? 'devolucion' : 'completo'}">${escapeHtml(m.estado)}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function wireDetalleDespachoAcciones() {
+    const btnImp = document.getElementById('btnImprimirRemito');
+    if (btnImp && despachoRemitoSel) btnImp.addEventListener('click', () => imprimirRemitoX2(despachoRemitoSel));
+
+    const btnDev = document.getElementById('btnDevolucionRemito');
+    if (btnDev && despachoRemitoSel) btnDev.addEventListener('click', () => abrirModalDevolucionDeRemito(despachoRemitoSel));
+
+    const btnAddIt = document.getElementById('btnAgregarItemDesp');
+    if (btnAddIt && despachoRemitoSel) btnAddIt.addEventListener('click', () => abrirModalAgregarItemADespacho(despachoRemitoSel));
+  }
+
+  function imprimirRemitoX2(nroRemito) {
+    const filas = q(`SELECT * FROM local_i_insumos_movimientos WHERE remito = ? OR despacho = ? ORDER BY id ASC`, nroRemito, nroRemito);
+    if (filas.length === 0) return lanzarToast('No se encontró el remito para imprimir.', 'warning');
+    const cab = filas[0];
+
+    let totalCantidad = 0;
+    const filasHtml = filas.map((f, idx) => {
+      const cat = qGet('SELECT descripcion, descripcion1, unidad FROM local_i_insumos_catalogo WHERE articulo = ?', f.articulo) || {};
+      const cant = Math.abs(parseFloat(f.cantidad) || 0);
+      totalCantidad += cant;
+      const esDev = f.estado === 'DEVOLUCION';
+      return `
+        <tr>
+          <td style="text-align:center; font-weight:bold;">${idx + 1}</td>
+          <td style="font-weight:bold;">${escapeHtml(f.articulo)}</td>
+          <td>${escapeHtml([cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || '-')}</td>
+          <td style="text-align:center; font-weight:bold; font-size:11.5px;">${esDev ? '+' : ''}${n1(cant)} ${escapeHtml(cat.unidad || '')}</td>
+          <td style="text-align:center; font-weight:bold; font-size:10px; color:${esDev ? '#C62828' : '#2E7D32'};">${escapeHtml(f.estado)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContenido = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+      <meta charset="UTF-8">
+      <title>REMITO_DESPACHO_${escapeHtml(nroRemito)}</title>
+      <style>
+        @page { size: A4 portrait; margin: 8mm; }
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+        body { color: #211C16; margin: 0; padding: 0; background: #FFF; font-size: 10.5px; }
+
+        .hoja-remito { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .copia-remito { border: 1.5px solid #37474F; border-radius: 8px; padding: 12px 16px; background: #FFF; position: relative; }
+        .etiqueta-copia { position: absolute; top: 10px; right: 14px; font-size: 9px; font-weight: bold; background: #37474F; color: #FFF; padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px; }
+
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 2px solid #37474F; padding-bottom: 6px; }
+        .main-title { font-size: 20px; font-weight: bold; color: #37474F; text-transform: uppercase; }
+        .subtitle { font-size: 10px; font-weight: bold; color: #4A5568; margin-top: 1px; }
+
+        .company-card { text-align: right; font-size: 9.5px; line-height: 1.4; color: #4A5568; margin-right: 75px; }
+        .company-card .name { font-weight: bold; font-size: 11px; color: #1A202C; }
+
+        .info-bar { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 10.5px; font-weight: bold; background: #ECEFF1; padding: 6px 10px; border-radius: 5px; border: 1px solid #B0BEC5; color: #263238; }
+
+        .vendor-client-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #37474F; margin-bottom: 10px; border-radius: 4px; overflow: hidden; }
+        .vc-header { background: #37474F; color: white; padding: 5px 10px; font-weight: bold; font-size: 9.5px; text-transform: uppercase; }
+        .vc-body { padding: 8px 10px; font-size: 10px; line-height: 1.5; }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .items-table th { background: #37474F; color: white; padding: 6px; font-size: 9.5px; text-transform: uppercase; border: 1px solid #37474F; }
+        .items-table td { padding: 5px 6px; border: 1px solid #CBD5E0; font-size: 10px; }
+
+        .totals-table { width: 260px; margin-left: auto; border-collapse: collapse; margin-bottom: 10px; }
+        .totals-table td { padding: 5px 8px; font-size: 10.5px; font-weight: bold; text-align: right; border: 1px solid #CBD5E0; }
+        .totals-table .bg-ok { background: #ECEFF1; color: #1E2A30; font-size: 11px; }
+
+        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
+        .sig-box { border-top: 1.5px solid #37474F; text-align: center; padding-top: 4px; font-size: 9.5px; font-weight: bold; color: #4A5568; }
+
+        .footer-logo { text-align: right; margin-top: 8px; font-size: 9.5px; font-weight: bold; color: #718096; letter-spacing: 0.5px; }
+
+        .linea-corte { border-top: 2px dashed #B0BEC5; margin: 4px 0; text-align: center; position: relative; }
+        .linea-corte span { position: relative; top: -9px; background: #FFF; padding: 0 8px; font-size: 8.5px; font-weight: bold; color: #78909C; }
+      </style>
+      </head>
+      <body>
+
+      <div class="hoja-remito">
+        ${['ORIGINAL', 'DUPLICADO'].map((tipoCopia, idx) => `
+          ${idx === 1 ? `<div class="linea-corte"><span>✂️ CORTAR POR AQUÍ</span></div>` : ''}
+          <div class="copia-remito">
+            <div class="etiqueta-copia">${tipoCopia}</div>
+            
+            <div class="header-top">
+              <div>
+                <div class="main-title">Remito de Despacho</div>
+                <div class="subtitle">ENTREGA DE HERRAMIENTAS Y CONTROL DE SALIDA</div>
+              </div>
+              <div class="company-card">
+                <div class="name">GORDON STERN DIEGO SEBASTIAN GARY</div>
+                Gobernador Tello 140 - Choele Choel, Río Negro <br>
+                CUIT: 20-24155794-5
+              </div>
+            </div>
+
+            <div class="info-bar">
+              <div>REMITO N.°: [ ${escapeHtml(nroRemito)} ]</div>
+              <div>ENTREGÓ PAÑOL: ${escapeHtml(cab.despacho || operarioName)}</div>
+              <div>FECHA SALIDA: ${escapeHtml(cab.fecha || hoyUserStr())}</div>
+            </div>
+
+            <div class="vendor-client-grid">
+              <div>
+                <div class="vc-header">EMISOR / PAÑOL</div>
+                <div class="vc-body">
+                  <b>GORDON GESTIÓN - PAÑOL CENTRAL</b><br>
+                  Gobernador Tello 140 - Choele Choel, Río Negro<br>
+                  Atendido por: <b>${escapeHtml(cab.despacho || operarioName)}</b>
+                </div>
+              </div>
+              <div style="border-left: 1.5px solid #37474F;">
+                <div class="vc-header">DESTINO / RECEPTOR</div>
+                <div class="vc-body">
+                  DESTINO / CENTRO COSTO: <b>${escapeHtml(cab.destino || '—')}</b><br>
+                  RETIRÓ / SOLICITÓ: <b>${escapeHtml(cab.recibio || '—')}</b><br>
+                  Estado del Comprobante: <b>ENTREGADO CONFORME</b>
+                </div>
+              </div>
+            </div>
+
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th style="width:5%;">N.º</th>
+                  <th style="width:20%;">CÓDIGO INSUMO</th>
+                  <th style="width:45%;">DESCRIPCIÓN DE MERCADERÍA</th>
+                  <th style="width:15%;">CANTIDAD</th>
+                  <th style="width:15%;">ESTADO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filasHtml}
+              </tbody>
+            </table>
+
+            <table class="totals-table">
+              <tr class="bg-ok">
+                <td>TOTAL UNIDADES DESPACHADAS:</td>
+                <td>${n1(totalCantidad)} Unid.</td>
+              </tr>
+            </table>
+
+            <div class="signatures-grid">
+              <div class="sig-box">
+                FIRMA Y ACLARACIÓN ENTREGÓ (RESPONSABLE PAÑOL)
+              </div>
+              <div class="sig-box">
+                FIRMA Y ACLARACIÓN RECIBIÓ (SOLICITANTE / OPERARIO)
+              </div>
+            </div>
+
+            <div class="footer-logo">
+              GORDON GESTIÓN · AGROSOFT J&L
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 500);
+        };
+      <\/script>
+      </body>
+      </html>
+    `;
+
+    const ventPrint = window.open('', '_blank', 'width=850,height=900');
+    ventPrint.document.open();
+    ventPrint.document.write(htmlContenido);
+    ventPrint.document.close();
+  }
+
+  function abrirModalDevolucionDeRemito(nroRemito) {
+    const itemsDespachados = q(`
+      SELECT m.*, cat.descripcion as cat_desc, cat.unidad
+      FROM local_i_insumos_movimientos m
+      LEFT JOIN local_i_insumos_catalogo cat ON m.articulo = cat.articulo
+      WHERE (m.remito = ? OR m.despacho = ?) AND m.estado = 'DESPACHADO'
+      ORDER BY m.id ASC
+    `, nroRemito, nroRemito);
+
+    if (itemsDespachados.length === 0) {
+      return lanzarToast('No se encontraron artículos despachados para devolver en este remito.', 'warning');
+    }
+
+    let itemElegido = null;
+
+    function renderDevolucionRemitoUI() {
+      return `
+        <div style="background:#F8F9F9; padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border); margin-bottom:10px;">
+          <div style="font-size:13px; font-weight:800; color:var(--color-pan-dark);">REMITO N° ${escapeHtml(nroRemito)}</div>
+          <div style="font-size:11px; color:var(--color-text-secondary); font-weight:700;">RETIRÓ: ${escapeHtml(itemsDespachados[0].recibio || '-')} · DESTINO: ${escapeHtml(itemsDespachados[0].destino || '-')}</div>
+        </div>
+
+        <div style="font-size:11.5px; font-weight:700; color:var(--color-text-secondary); margin-bottom:6px;">1. Seleccioná el artículo a devolver:</div>
+        <div style="max-height:180px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md); margin-bottom:12px;">
+          <table class="tabla-modal-sel">
+            <thead>
+              <tr>
+                <th>CÓDIGO / ARTÍCULO</th>
+                <th style="text-align:center;">DESPACHADO</th>
+                <th style="text-align:center;">UNIDAD</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsDespachados.map(m => `
+                <tr class="fila-seleccionable ${itemElegido && itemElegido.id === m.id ? 'activa' : ''}" data-sel-dev-item="${m.id}">
+                  <td><b>${escapeHtml(m.articulo)}</b><br><small style="color:var(--color-text-secondary);">${escapeHtml(m.cat_desc || m.descripcion || 'Sin descripción')}</small></td>
+                  <td style="text-align:center; font-weight:800;">${n1(Math.abs(m.cantidad))}</td>
+                  <td style="text-align:center;"><span class="badge-rubro-sm">${escapeHtml(m.unidad || 'U')}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${itemElegido ? `
+          <div class="form-card" style="border-color:var(--color-warn);">
+            <div class="form-card-titulo" style="color:var(--color-warn);">2. Datos de la devolución:</div>
+            <div class="modal-row-grid">
+              <div class="modal-group">
+                <label>Fecha Devolución</label>
+                <input type="date" id="mDevFecha" class="modal-input" value="${hoyStr()}" />
+              </div>
+              <div class="modal-group">
+                <label>Vale Devolución</label>
+                <input type="text" id="mDevRemito" class="modal-input" value="DEV-${escapeHtml(nroRemito)}" />
+              </div>
+            </div>
+            <div class="modal-row-grid" style="margin-top:8px;">
+              <div class="modal-group">
+                <label>Cantidad a Reingresar (${escapeHtml(itemElegido.unidad || 'U')})</label>
+                <input type="number" id="mDevCantidad" class="modal-input" step="0.01" min="0.01" value="${Math.abs(itemElegido.cantidad)}" max="${Math.abs(itemElegido.cantidad)}" />
+              </div>
+              <div class="modal-group">
+                <label>Quién Devuelve</label>
+                <input type="text" id="mDevPersona" class="modal-input" list="listPersonasGlobal" value="${escapeHtml(itemElegido.recibio || '')}" />
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function refrescarUI() {
+      modalBody.innerHTML = renderDevolucionRemitoUI();
+      document.querySelectorAll('[data-sel-dev-item]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          itemElegido = itemsDespachados.find(x => String(x.id) === String(tr.dataset.selDevItem));
+          refrescarUI();
+        });
+      });
+    }
+
+    openMiniModal(`↩️ Devolución de Remito N° ${nroRemito}`, 'Enlista los artículos entregados en esta orden', '', () => {
+      if (!itemElegido) return lanzarToast('Seleccioná el artículo a devolver.', 'warning');
+
+      const fechaDev = document.getElementById('mDevFecha').value || hoyStr();
+      const nuevoRemito = document.getElementById('mDevRemito').value.trim().toUpperCase() || `DEV-${nroRemito}`;
+      const cantDev = parseFloat(document.getElementById('mDevCantidad').value) || 0;
+      const personaDev = document.getElementById('mDevPersona').value.trim().toUpperCase();
+
+      const cantMax = Math.abs(parseFloat(itemElegido.cantidad) || 0);
+      if (cantDev <= 0 || cantDev > cantMax) return lanzarToast(`Cantidad inválida. Máximo a devolver: ${n1(cantMax)}`, 'warning');
+      if (!personaDev) return lanzarToast('Ingresá quién realiza la devolución.', 'warning');
+
+      procesarDevolucionLocal(itemElegido, cantDev, fechaDev, nuevoRemito, personaDev);
+      closeMiniModal();
+    }, true);
+
+    refrescarUI();
+  }
+
+  function abrirModalDevolucionGlobal() {
+    const remitosMaster = agruparDespachos();
+    if (remitosMaster.length === 0) return lanzarToast('No hay remitos de despacho registrados.', 'warning');
+
+    let remitoElegido = null;
+    let itemElegido = null;
+
+    function renderDevolucionGlobalUI() {
+      if (!remitoElegido) {
+        return `
+          <div style="font-size:12px; font-weight:700; color:var(--color-text-secondary); margin-bottom:8px;">
+            Seleccioná el remito del cual querés registrar la devolución:
+          </div>
+          <div style="max-height:350px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md);">
+            <table class="tabla-modal-sel">
+              <thead>
+                <tr>
+                  <th>FECHA</th>
+                  <th>REMITO N°</th>
+                  <th>RECIBIÓ / RETIRÓ</th>
+                  <th style="text-align:center;">DESTINO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${remitosMaster.map(r => `
+                  <tr class="fila-seleccionable" data-sel-remito-dev="${escapeHtml(r.remito)}">
+                    <td><b>${escapeHtml(r.fecha || '-')}</b></td>
+                    <td><b style="color:var(--color-pan-dark);">N° ${escapeHtml(r.remito)}</b></td>
+                    <td>${escapeHtml(r.recibio || '—')}</td>
+                    <td style="text-align:center;"><span class="badge-rubro-sm">${escapeHtml(r.destino || '—')}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      const itemsDespachados = q(`
+        SELECT m.*, cat.descripcion as cat_desc, cat.unidad
+        FROM local_i_insumos_movimientos m
+        LEFT JOIN local_i_insumos_catalogo cat ON m.articulo = cat.articulo
+        WHERE (m.remito = ? OR m.despacho = ?) AND m.estado = 'DESPACHADO'
+        ORDER BY m.id ASC
+      `, remitoElegido, remitoElegido);
+
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8F9F9; padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--color-border); margin-bottom:10px;">
+          <div>
+            <div style="font-size:13px; font-weight:800; color:var(--color-pan-dark);">REMITO N° ${escapeHtml(remitoElegido)}</div>
+            <div style="font-size:11px; color:var(--color-text-secondary); font-weight:700;">RETIRÓ: ${escapeHtml(itemsDespachados[0] ? itemsDespachados[0].recibio : '—')}</div>
+          </div>
+          <button type="button" class="btn-mini" id="btnCambiarRemitoDev">↩ Cambiar Remito</button>
+        </div>
+
+        <div style="font-size:11.5px; font-weight:700; color:var(--color-text-secondary); margin-bottom:6px;">1. Seleccioná el artículo a devolver:</div>
+        <div style="max-height:180px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-md); margin-bottom:12px;">
+          <table class="tabla-modal-sel">
+            <thead>
+              <tr>
+                <th>CÓDIGO / ARTÍCULO</th>
+                <th style="text-align:center;">DESPACHADO</th>
+                <th style="text-align:center;">UNIDAD</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsDespachados.length === 0 ? `<tr><td colspan="3" style="text-align:center;">Todos los artículos de este remito ya fueron devueltos.</td></tr>` : ''}
+              ${itemsDespachados.map(m => `
+                <tr class="fila-seleccionable ${itemElegido && itemElegido.id === m.id ? 'activa' : ''}" data-sel-dev-item-global="${m.id}">
+                  <td><b>${escapeHtml(m.articulo)}</b><br><small style="color:var(--color-text-secondary);">${escapeHtml(m.cat_desc || m.descripcion || 'Sin descripción')}</small></td>
+                  <td style="text-align:center; font-weight:800;">${n1(Math.abs(m.cantidad))}</td>
+                  <td style="text-align:center;"><span class="badge-rubro-sm">${escapeHtml(m.unidad || 'U')}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        ${itemElegido ? `
+          <div class="form-card" style="border-color:var(--color-warn);">
+            <div class="form-card-titulo" style="color:var(--color-warn);">2. Datos de la devolución:</div>
+            <div class="modal-row-grid">
+              <div class="modal-group">
+                <label>Fecha Devolución</label>
+                <input type="date" id="mDevFecha" class="modal-input" value="${hoyStr()}" />
+              </div>
+              <div class="modal-group">
+                <label>Vale Devolución</label>
+                <input type="text" id="mDevRemito" class="modal-input" value="DEV-${escapeHtml(remitoElegido)}" />
+              </div>
+            </div>
+            <div class="modal-row-grid" style="margin-top:8px;">
+              <div class="modal-group">
+                <label>Cantidad a Reingresar (${escapeHtml(itemElegido.unidad || 'U')})</label>
+                <input type="number" id="mDevCantidad" class="modal-input" step="0.01" min="0.01" value="${Math.abs(itemElegido.cantidad)}" max="${Math.abs(itemElegido.cantidad)}" />
+              </div>
+              <div class="modal-group">
+                <label>Quién Devuelve</label>
+                <input type="text" id="mDevPersona" class="modal-input" list="listPersonasGlobal" value="${escapeHtml(itemElegido.recibio || '')}" />
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function refrescarUI() {
+      modalBody.innerHTML = renderDevolucionGlobalUI();
+
+      document.querySelectorAll('[data-sel-remito-dev]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          remitoElegido = tr.dataset.selRemitoDev;
+          itemElegido = null;
+          refrescarUI();
+        });
+      });
+
+      document.querySelectorAll('[data-sel-dev-item-global]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const items = q(`
+            SELECT m.*, cat.unidad 
+            FROM local_i_insumos_movimientos m 
+            LEFT JOIN local_i_insumos_catalogo cat ON m.articulo = cat.articulo 
+            WHERE m.id = ?
+          `, tr.dataset.selDevItemGlobal);
+          if (items.length > 0) itemElegido = items[0];
+          refrescarUI();
+        });
+      });
+
+      const btnCambiar = document.getElementById('btnCambiarRemitoDev');
+      if (btnCambiar) btnCambiar.addEventListener('click', () => { remitoElegido = null; itemElegido = null; refrescarUI(); });
+    }
+
+    openMiniModal('↩️ Devolución Global de Stock', 'Seleccioná el remito para reingresar herramientas o insumos', '', () => {
+      if (!remitoElegido || !itemElegido) return lanzarToast('Seleccioná un remito y el artículo a devolver.', 'warning');
+
+      const fechaDev = document.getElementById('mDevFecha').value || hoyStr();
+      const nuevoRemito = document.getElementById('mDevRemito').value.trim().toUpperCase() || `DEV-${remitoElegido}`;
+      const cantDev = parseFloat(document.getElementById('mDevCantidad').value) || 0;
+      const personaDev = document.getElementById('mDevPersona').value.trim().toUpperCase();
+
+      const cantMax = Math.abs(parseFloat(itemElegido.cantidad) || 0);
+      if (cantDev <= 0 || cantDev > cantMax) return lanzarToast(`Cantidad inválida. Máximo a devolver: ${n1(cantMax)}`, 'warning');
+      if (!personaDev) return lanzarToast('Ingresá quién realiza la devolución.', 'warning');
+
+      procesarDevolucionLocal(itemElegido, cantDev, fechaDev, nuevoRemito, personaDev);
+      closeMiniModal();
+    }, true);
+
+    refrescarUI();
+  }
+
+  function procesarDevolucionLocal(movimientoOriginal, cantidadDevuelta, fechaDev, nuevoRemito, personaDevuelve) {
+    if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+
+    try {
+      const loteOriginal = q(`
+        SELECT articulo_rubro, art_subrubro 
+        FROM local_i_insumos_detalle 
+        WHERE reg_local = ? OR reg_ingr = ? 
+        LIMIT 1
+      `, movimientoOriginal.reg_ing, movimientoOriginal.reg_ing);
+
+      let rubroHeredado = 'SIN RUBRO';
+      let subrubroHeredado = 'SIN SUBRUBRO';
+      if (loteOriginal.length > 0) {
+        rubroHeredado = loteOriginal[0].articulo_rubro || 'SIN RUBRO';
+        subrubroHeredado = loteOriginal[0].art_subrubro || 'SIN SUBRUBRO';
+      }
+
+      const nextMovId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+      const tokenMovDev = generarToken();
+
+      const ejecutar = db.transaction(() => {
+        qRun(`
+          INSERT INTO local_i_insumos_movimientos
+            (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, cantidad, estado, deposito_origen, destino, tc, sub_rubro, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'DEVOLUCION', ?, ?, ?, ?, 0)
+        `, nextMovId, tokenMovDev, movimientoOriginal.reg_ing, fechaDev, nuevoRemito.trim().toUpperCase(),
+           personaDevuelve.trim().toUpperCase(), movimientoOriginal.articulo, cantidadDevuelta,
+           movimientoOriginal.deposito_origen || 'PAÑOL', movimientoOriginal.destino || 'PAÑOL',
+           operarioName, subrubroHeredado);
+
+        const nextDetId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+        const tokenDet = generarToken();
+        qRun(`
+          INSERT INTO local_i_insumos_detalle
+            (id, reg_local, reg_ingr, reg_egreso, articulo, articulo_rubro, art_subrubro, cantidad, ubicación, operario, reg_mant, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+        `, nextDetId, tokenDet, movimientoOriginal.reg_ing, tokenMovDev, movimientoOriginal.articulo,
+           rubroHeredado, subrubroHeredado, cantidadDevuelta, movimientoOriginal.deposito_origen || 'PAÑOL', operarioName);
+
+        const descripDev = `Posee devolución de ${n1(cantidadDevuelta)} U registrada en el vale ${nuevoRemito.trim().toUpperCase()}`;
+        qRun(`UPDATE local_i_insumos_movimientos SET descripcion = ? WHERE reg_local = ? OR id = ?`, descripDev, movimientoOriginal.reg_local, movimientoOriginal.id);
+      });
+
+      ejecutar();
+      lanzarToast(`Devolución de ${n1(cantidadDevuelta)} U registrada correctamente.`);
+      despachoRemitoSel = nuevoRemito;
+      renderizarTab();
+    } catch (e) {
+      lanzarToast('Error al procesar devolución: ' + e.message, 'error');
+    }
+  }
+
+  function abrirModalAgregarItemADespacho(remitoNum) {
+    const cab = qGet(`SELECT destino, recibio, fecha FROM local_i_insumos_movimientos WHERE remito = ? OR despacho = ? LIMIT 1`, remitoNum, remitoNum);
+    if (!cab) return;
+
+    const catalogo = q(`SELECT articulo, descripcion, sub_rubro FROM local_i_insumos_catalogo ORDER BY articulo ASC`);
+
+    const fields = `
+      <div class="modal-group">
+        <label>Artículo a agregar al remito N° ${escapeHtml(remitoNum)}</label>
+        <select id="mAddDespArt" class="modal-select">
+          <option value="">-- Seleccionar del catálogo --</option>
+          ${catalogo.map(c => `<option value="${escapeHtml(c.articulo)}">${escapeHtml(c.articulo)} — ${escapeHtml(c.descripcion || '')}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Cantidad a Despachar</label><input type="number" id="mAddDespCant" class="modal-input" step="0.01" min="0.01" value="1" /></div>
+    `;
+
+    openMiniModal(`Agregar Ítem al Remito N° ${remitoNum}`, 'Entrega adicional en el mismo comprobante', fields, () => {
+      const art = document.getElementById('mAddDespArt').value;
+      const cant = parseFloat(document.getElementById('mAddDespCant').value) || 0;
+      if (!art || cant <= 0) return lanzarToast('Seleccioná un artículo y una cantidad válida.', 'warning');
+
+      const stockDisponible = stockNetoDeArticulo(art);
+      if (cant > stockDisponible) return lanzarToast(`La cantidad supera el stock disponible (${n1(stockDisponible)}).`, 'warning');
+
+      try {
+        const cat = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', art);
+        const rubro = cat ? String(cat.rubro || 'SIN RUBRO').toUpperCase() : 'SIN RUBRO';
+        const subRubro = cat ? String(cat.sub_rubro || 'SIN SUBRUBRO').toUpperCase() : 'SIN SUBRUBRO';
+        const esAgro = esRubroAgroquimico(rubro, subRubro);
+        const currentYear = new Date().getFullYear();
+
+        const nextMovId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const tokenMov = generarToken();
+
+        const ejecutar = db.transaction(() => {
+          qRun(`
+            INSERT INTO local_i_insumos_movimientos
+              (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, descripcion, tc, ti, cantidad,
+               imp_uni_usd, cotizacion, fec_venc, estado, deposito_origen, destino, remito, sub_rubro, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextMovId, tokenMov, 'PAÑOL', cab.fecha || hoyStr(), operarioName, cab.recibio || '', art,
+             'DESPACHO DE PAÑOL', '0', '0', -cant, 0, 1, 'S/V', 'DESPACHADO', 'PAÑOL', cab.destino || '', remitoNum, subRubro);
+
+          if (!esAgro) {
+            const nextDetId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+            qRun(`
+              INSERT INTO local_i_insumos_detalle
+                (id, reg_local, reg_ingr, reg_egreso, articulo, articulo_rubro, art_subrubro, cantidad, imp_uni,
+                 cotizacion, imp_uni_usd, ubicación, operario, campaña, centro_costo, unidad_negocio, ciclo_contable, tc, ti, sincronizado)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+            `, nextDetId, generarToken(), 'PAÑOL', tokenMov, art, rubro, subRubro, -cant,
+               0, 1, 0, 'PAÑOL', operarioName, String(currentYear), cab.destino || '', cab.destino || '', String(currentYear), 0, 0);
+          }
+        });
+
+        ejecutar();
+        lanzarToast(`Ítem ${art} agregado al remito N° ${remitoNum}.`);
+        closeMiniModal();
+        renderDespacho();
+      } catch (e) { lanzarToast('Error al agregar ítem: ' + e.message, 'error'); }
+    });
+  }
+
+  // Carrito de despacho
+  const modalDespacho = document.getElementById('modalDespacho');
+  const btnCerrarModalDespacho = document.getElementById('btnCerrarModalDespacho');
+  let carritoDespacho = [];
+  let despArticuloBuscado = '';
+  let despSugerencias = [];
+  let despArticuloSel = null;
+  let despCantidadTxt = '';
+  let despDestino = '';
+  let despRecibio = '';
+  let despFecha = hoyStr();
+  let despRemito = '';
+
+  function calcularProximoRemitoDespacho() {
+    const anio = new Date().getFullYear();
+    const filas = q("SELECT remito FROM local_i_insumos_movimientos WHERE remito LIKE ? GROUP BY remito", `${anio}-%`);
+    let maxSecuencia = 0;
+    filas.forEach(f => {
+      const remito = String(f.remito || '');
+      if (remito.length === 10 && remito.includes('-')) {
+        const seq = parseInt(remito.substring(5));
+        if (!isNaN(seq) && seq > maxSecuencia) maxSecuencia = seq;
+      }
+    });
+    return `${anio}-${String(maxSecuencia + 1).padStart(5, '0')}`;
+  }
+
+  function resetCarritoDespacho() {
+    carritoDespacho = []; despArticuloBuscado = ''; despSugerencias = []; despArticuloSel = null;
+    despCantidadTxt = ''; despDestino = ''; despRecibio = ''; despFecha = hoyStr();
+    despRemito = calcularProximoRemitoDespacho();
+  }
+
+  function abrirModalDespacho() {
+    resetCarritoDespacho();
+    modalDespacho.classList.add('show');
+    renderCarritoDespacho();
+  }
+  function cerrarModalDespacho() { modalDespacho.classList.remove('show'); resetCarritoDespacho(); }
+  btnCerrarModalDespacho.addEventListener('click', cerrarModalDespacho);
+
+  function renderCarritoDespacho() {
+    const cuerpo = document.getElementById('cuerpoModalDespacho');
+    cuerpo.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-card">
+          <div class="form-card-titulo">🔍 Buscar Artículo</div>
+          <input type="text" id="despBuscador" class="buscador-catalogo" placeholder="Código o descripción..." value="${escapeHtml(despArticuloBuscado)}" ${despArticuloSel ? 'disabled' : ''} />
+          
+          <div id="contenedorSugerencias">
+            ${renderHTMLSugerencias()}
+          </div>
+
+          ${despArticuloSel ? `
+            <div class="articulo-elegido" style="margin-top:8px;">
+              <div>
+                <div class="nombre">${escapeHtml(despArticuloSel.articulo)}</div>
+                <div class="stock">${escapeHtml(despArticuloSel.descripcion || '')} · Disponible: ${n1(despArticuloSel.stock_actual)} ${escapeHtml(despArticuloSel.unidad || '')}</div>
+              </div>
+              <button type="button" class="btn-mini" id="despQuitarArt">QUITAR</button>
+            </div>
+            <div class="modal-group" style="margin-top:12px;">
+              <label>Cantidad a Despachar (${escapeHtml(despArticuloSel.unidad || 'U')})</label>
+              <input type="number" id="despCantidad" class="modal-input" step="0.01" min="0.01" value="${escapeHtml(despCantidadTxt)}" />
+            </div>
+            <div style="margin-top:12px;">
+              <button class="btn-secundario" id="despAgregarItem" style="width:100%; justify-content:center;">AGREGAR AL REMITO</button>
+            </div>
+          ` : ''}
+        </div>
+
+        ${carritoDespacho.length > 0 ? `
+          <div class="form-card-titulo">🧾 Artículos en este remito (${carritoDespacho.length})</div>
+          ${carritoDespacho.map((item, idx) => `
+            <div class="renglon-carrito">
+              <div class="info">${escapeHtml(item.articulo)}<small>${escapeHtml(item.descripcion || '')} · Cantidad: ${n1(item.cantidad)} ${escapeHtml(item.unidad || '')}</small></div>
+              <button type="button" class="btn-mini" data-quitar-idx="${idx}">QUITAR</button>
+            </div>
+          `).join('')}
+        ` : ''}
+
+        <div class="form-card">
+          <div class="form-card-titulo">🚚 Datos del Despacho</div>
+          <div class="modal-row-grid tres">
+            <div class="modal-group"><label>Fecha</label><input type="date" id="despFechaInput" class="modal-input" value="${despFecha}" /></div>
+            <div class="modal-group"><label>N° Remito (auto)</label><input type="text" class="modal-input" value="${escapeHtml(despRemito)}" disabled /></div>
+            <div class="modal-group"><label>Destino</label><input type="text" id="despDestinoInput" class="modal-input" value="${escapeHtml(despDestino)}" placeholder="Ej: TALLER, CAMPO NORTE" /></div>
+          </div>
+          <div class="modal-group" style="margin-top:12px;">
+            <label>Quién Retira</label>
+            <input type="text" id="despRecibioInput" class="modal-input" list="listPersonasGlobal" value="${escapeHtml(despRecibio)}" placeholder="Nombre de la persona" />
+          </div>
+          <div style="margin-top:16px;">
+            <button class="btn-global-add" id="despConfirmar" style="width:100%; justify-content:center; height:44px;">DESPACHAR Y GENERAR REMITO</button>
+          </div>
+        </div>
+      </div>
+    `;
+    wireCarritoDespacho();
+  }
+
+  function renderHTMLSugerencias() {
+    if (!despArticuloSel && despSugerencias.length > 0) {
+      return `
+        <div class="sugerencias-lista">
+          ${despSugerencias.map(s => `
+            <div class="sugerencia-item" data-art="${escapeHtml(s.articulo)}">
+              <div class="art">${escapeHtml(s.articulo)} — ${escapeHtml(s.descripcion || '')}</div>
+              <div class="meta">${escapeHtml(s.sub_rubro || s.rubro || 'GENERAL')} · Stock disponible: ${n1(s.stock_actual)} ${escapeHtml(s.unidad || '')}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    return '';
+  }
+
+  function wireCarritoDespacho() {
+    const buscador = document.getElementById('despBuscador');
+    if (buscador) {
+      buscador.addEventListener('input', (e) => {
+        despArticuloBuscado = e.target.value;
+        if (!despArticuloBuscado.trim()) { despSugerencias = []; renderCarritoDespacho(); return; }
+        despSugerencias = q(`
+          SELECT cat.articulo, cat.rubro, cat.sub_rubro, cat.descripcion, cat.descripcion1, cat.unidad
+          FROM local_i_insumos_catalogo cat
+          WHERE cat.articulo LIKE ? OR cat.descripcion LIKE ? OR cat.descripcion1 LIKE ?
+          LIMIT 8
+        `, `%${despArticuloBuscado}%`, `%${despArticuloBuscado}%`, `%${despArticuloBuscado}%`);
+        despSugerencias.forEach(s => { s.stock_actual = stockNetoDeArticulo(s.articulo); });
+        renderCarritoDespacho();
+      });
+      buscador.focus();
+    }
+    document.querySelectorAll('.sugerencia-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const art = despSugerencias.find(s => s.articulo === el.dataset.art);
+        if (art) { despArticuloSel = art; despArticuloBuscado = art.articulo; despSugerencias = []; despCantidadTxt = ''; }
+        renderCarritoDespacho();
+      });
+    });
+    const btnQuitarArt = document.getElementById('despQuitarArt');
+    if (btnQuitarArt) btnQuitarArt.addEventListener('click', () => { despArticuloSel = null; despArticuloBuscado = ''; despCantidadTxt = ''; renderCarritoDespacho(); });
+
+    const inputCant = document.getElementById('despCantidad');
+    if (inputCant) inputCant.addEventListener('input', (e) => { despCantidadTxt = e.target.value; });
+
+    const btnAdd = document.getElementById('despAgregarItem');
+    if (btnAdd) btnAdd.addEventListener('click', () => {
+      const cant = parseFloat(despCantidadTxt) || 0;
+      if (!despArticuloSel || cant <= 0) return lanzarToast('Ingresá una cantidad válida.', 'warning');
+      if (cant > (parseFloat(despArticuloSel.stock_actual) || 0)) return lanzarToast('La cantidad supera el stock disponible.', 'warning');
+      carritoDespacho.push({ articulo: despArticuloSel.articulo, descripcion: despArticuloSel.descripcion, cantidad: cant, unidad: despArticuloSel.unidad });
+      despArticuloSel = null; despArticuloBuscado = ''; despCantidadTxt = '';
+      renderCarritoDespacho();
+    });
+
+    document.querySelectorAll('[data-quitar-idx]').forEach(btn => {
+      btn.addEventListener('click', () => { carritoDespacho.splice(parseInt(btn.dataset.quitarIdx), 1); renderCarritoDespacho(); });
+    });
+
+    const inputFecha = document.getElementById('despFechaInput');
+    if (inputFecha) inputFecha.addEventListener('input', (e) => { despFecha = e.target.value; });
+    const inputDestino = document.getElementById('despDestinoInput');
+    if (inputDestino) inputDestino.addEventListener('input', (e) => { despDestino = e.target.value; });
+    const inputRecibio = document.getElementById('despRecibioInput');
+    if (inputRecibio) inputRecibio.addEventListener('input', (e) => { despRecibio = e.target.value; });
+
+    const btnConfirmar = document.getElementById('despConfirmar');
+    if (btnConfirmar) btnConfirmar.addEventListener('click', procesarDespacho);
+  }
+
+  function procesarDespacho() {
+    if (carritoDespacho.length === 0) return lanzarToast('Agregá al menos un artículo al remito.', 'warning');
+    if (!despDestino.trim() || !despRecibio.trim()) return lanzarToast('Completá destino y quién retira.', 'warning');
+    if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+
+    const fecha = despFecha || hoyStr();
+    const remito = despRemito;
+    const destino = despDestino.trim().toUpperCase();
+    const recibio = despRecibio.trim().toUpperCase();
+    const currentYear = new Date().getFullYear();
+
+    try {
+      const ejecutar = db.transaction(() => {
+        carritoDespacho.forEach(item => {
+          const cat = qGet('SELECT * FROM local_i_insumos_catalogo WHERE articulo = ? LIMIT 1', item.articulo);
+          const rubro = cat ? String(cat.rubro || 'SIN RUBRO').toUpperCase() : 'SIN RUBRO';
+          const subRubro = cat ? String(cat.sub_rubro || 'SIN SUBRUBRO').toUpperCase() : 'SIN SUBRUBRO';
+          const esAgro = esRubroAgroquimico(rubro, subRubro);
+
+          const nextMovId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+          const tokenMov = generarToken();
+
+          qRun(`
+            INSERT INTO local_i_insumos_movimientos
+              (id, reg_local, reg_ing, fecha, despacho, recibio, articulo, descripcion, tc, ti, cantidad,
+               imp_uni_usd, cotizacion, fec_venc, estado, deposito_origen, destino, remito, sub_rubro, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `, nextMovId, tokenMov, 'PAÑOL', fecha, operarioName, recibio, item.articulo,
+             'DESPACHO DE PAÑOL', '0', '0', -item.cantidad, 0, 1, 'S/V', 'DESPACHADO', 'PAÑOL', destino, remito, subRubro);
+
+          if (!esAgro) {
+            const nextDetId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_detalle') || {}).maxI || 0) + 1;
+            qRun(`
+              INSERT INTO local_i_insumos_detalle
+                (id, reg_local, reg_ingr, reg_egreso, articulo, articulo_rubro, art_subrubro, cantidad, imp_uni,
+                 cotizacion, imp_uni_usd, ubicación, operario, campaña, centro_costo, unidad_negocio, ciclo_contable, tc, ti, sincronizado)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+            `, nextDetId, generarToken(), 'PAÑOL', tokenMov, item.articulo, rubro, subRubro, -item.cantidad,
+               0, 1, 0, 'PAÑOL', operarioName, String(currentYear), destino, destino, String(currentYear), 0, 0);
+          }
+        });
+      });
+      ejecutar();
+
+      lanzarToast(`Remito N° ${remito} generado correctamente.`);
+      cerrarModalDespacho();
+      despachoRemitoSel = remito;
+      renderizarTab();
+    } catch (e) { lanzarToast('Error al despachar: ' + e.message, 'error'); }
+  }
+
+  function abrirModalDarBaja() {
+    const catalogo = q(`SELECT articulo, descripcion, descripcion1, unidad FROM local_i_insumos_catalogo ORDER BY articulo ASC`);
+
+    const fields = `
+      <div class="modal-group">
+        <label>Artículo a dar de baja</label>
+        <select id="mBajaArticulo" class="modal-select">
+          <option value="">-- Seleccionar del catálogo --</option>
+          ${catalogo.map(c => `<option value="${escapeHtml(c.articulo)}">${escapeHtml(c.articulo)} — ${escapeHtml([c.descripcion, c.descripcion1].filter(Boolean).join(' '))}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-group"><label>Fecha</label><input type="date" id="mBajaFecha" class="modal-input" value="${hoyStr()}" /></div>
+      <div class="modal-group"><label>Cantidad a dar de baja</label><input type="number" id="mBajaCantidad" class="modal-input" step="0.01" min="0.01" /></div>
+      <div class="modal-group"><label>Motivo</label><input type="text" id="mBajaMotivo" class="modal-input" placeholder="Ej: Vencido, rotura, merma..." /></div>
+    `;
+
+    openMiniModal('🗑️ Dar de Baja de Stock', 'Ajuste de inventario por pérdida, rotura o vencimiento', fields, () => {
+      const art = document.getElementById('mBajaArticulo').value;
+      const fecha = document.getElementById('mBajaFecha').value || hoyStr();
+      const cant = parseFloat(document.getElementById('mBajaCantidad').value) || 0;
+      const motivo = document.getElementById('mBajaMotivo').value.trim().toUpperCase();
+
+      if (!art || cant <= 0) return lanzarToast('Seleccioná un artículo y una cantidad válida.', 'warning');
+
+      const stockDisponible = stockNetoDeArticulo(art);
+      if (cant > stockDisponible) return lanzarToast(`La cantidad supera el stock disponible (${n1(stockDisponible)}).`, 'warning');
+      if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+
+      try {
+        const nextMovId = ((qGet('SELECT MAX(CAST(id AS INTEGER)) as maxI FROM local_i_insumos_movimientos') || {}).maxI || 0) + 1;
+        const tokenMov = generarToken();
+
+        qRun(`
+          INSERT INTO local_i_insumos_movimientos
+            (id, reg_local, fecha, despacho, recibio, articulo, descripcion, cantidad, estado, deposito_origen, remito, sincronizado)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,0)
+        `, nextMovId, tokenMov, fecha, operarioName, operarioName, art, motivo || 'BAJA DE STOCK', -cant, 'BAJA', 'PAÑOL', 'BAJA-' + tokenMov.slice(0, 8));
+
+        lanzarToast(`Baja de ${n1(cant)} registrada para ${art}.`);
+        closeMiniModal();
+        renderizarTab();
+      } catch (e) { lanzarToast('Error al registrar la baja: ' + e.message, 'error'); }
+    }, true);
+  }
+
+  // =========================================================================
+  // TAB 4: STOCK
+  // =========================================================================
+  let stockCache = [];
+  let stockRubroFiltro = null;
+  let stockQuery = '';
+
+  function obtenerStockPanol() {
+    return q(`
+      WITH articulos_todos AS (
+        SELECT articulo FROM local_i_insumos_catalogo WHERE articulo IS NOT NULL
+        UNION
+        SELECT articulo FROM local_i_insumosingresos WHERE articulo IS NOT NULL
+        UNION
+        SELECT articulo FROM local_i_insumos_detalle WHERE articulo IS NOT NULL
+        UNION
+        SELECT articulo FROM local_i_insumos_movimientos WHERE articulo IS NOT NULL
+      )
+      SELECT
+        at.articulo as articulo,
+        cat.descripcion, cat.descripcion1, cat.unidad,
+        COALESCE(cat.rubro, 'SIN CATÁLOGO') as rubro,
+        COALESCE(cat.sub_rubro, 'SIN CATÁLOGO') as sub_rubro,
+        IFNULL(ing.stock_inicial, 0) as stock_inicial,
+        IFNULL(ing.ingresos, 0) as ingresos,
+        CASE
+          WHEN UPPER(IFNULL(cat.rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+            OR UPPER(IFNULL(cat.sub_rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+          THEN IFNULL(sal_mov.salidas, 0)
+          ELSE IFNULL(sal_det.salidas, 0)
+        END as salidas,
+        IFNULL(dev.devoluciones, 0) as devoluciones,
+        IFNULL(baja.bajas, 0) as bajas,
+        (
+          IFNULL(ing.stock_inicial, 0) + IFNULL(ing.ingresos, 0)
+          - (CASE
+              WHEN UPPER(IFNULL(cat.rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+                OR UPPER(IFNULL(cat.sub_rubro,'')) IN ('AGROQUÍMICO','AGROQUÍMICOS','AGROQUIMICO','AGROQUIMICOS')
+              THEN IFNULL(sal_mov.salidas, 0)
+              ELSE IFNULL(sal_det.salidas, 0)
+            END)
+          + IFNULL(dev.devoluciones, 0)
+          - IFNULL(baja.bajas, 0)
+        ) as stock_neto
+      FROM articulos_todos at
+      LEFT JOIN local_i_insumos_catalogo cat ON cat.articulo = at.articulo
+      LEFT JOIN (
+        SELECT articulo,
+          SUM(CASE WHEN UPPER(TRIM(IFNULL(proveedor,''))) = 'STOCK INICIAL' THEN cantidad ELSE 0 END) as stock_inicial,
+          SUM(CASE WHEN UPPER(TRIM(IFNULL(proveedor,''))) != 'STOCK INICIAL' THEN cantidad ELSE 0 END) as ingresos
+        FROM local_i_insumosingresos
+        GROUP BY articulo
+      ) ing ON ing.articulo = at.articulo
+      LEFT JOIN (
+        SELECT articulo, SUM(ABS(cantidad)) as salidas
+        FROM local_i_insumos_movimientos
+        WHERE UPPER(estado) = 'DESPACHADO'
+        GROUP BY articulo
+      ) sal_mov ON sal_mov.articulo = at.articulo
+      LEFT JOIN (
+        SELECT articulo, SUM(ABS(cantidad)) as salidas
+        FROM local_i_insumos_detalle
+        WHERE cantidad < 0
+        GROUP BY articulo
+      ) sal_det ON sal_det.articulo = at.articulo
+      LEFT JOIN (
+        SELECT articulo, SUM(cantidad) as devoluciones
+        FROM local_i_insumos_movimientos
+        WHERE UPPER(estado) = 'DEVOLUCION'
+        GROUP BY articulo
+      ) dev ON dev.articulo = at.articulo
+      LEFT JOIN (
+        SELECT articulo, SUM(ABS(cantidad)) as bajas
+        FROM local_i_insumos_movimientos
+        WHERE UPPER(estado) = 'BAJA'
+        GROUP BY articulo
+      ) baja ON baja.articulo = at.articulo
+      ORDER BY at.articulo ASC
+    `);
+  }
+
+  function filasStockHTML(filtrados) {
+    if (filtrados.length === 0) return `<tr><td colspan="10" style="text-align:center; padding:40px; color:var(--color-text-secondary);">No se encontraron artículos con ese criterio.</td></tr>`;
+    return filtrados.map(a => {
+      const neto = parseFloat(a.stock_neto) || 0;
+      const clase = neto > 0 ? 'positivo' : (neto < 0 ? 'negativo' : 'cero');
+      return `
+        <tr>
+          <td><div class="art-codigo">${escapeHtml(a.articulo)}</div></td>
+          <td><span class="badge-rubro-sm">${escapeHtml(a.rubro || 'SIN RUBRO')}</span></td>
+          <td><span class="badge-subrubro-sm">${escapeHtml(a.sub_rubro || 'GENERAL')}</span></td>
+          <td><div class="art-desc">${escapeHtml([a.descripcion, a.descripcion1].filter(Boolean).join(' ') || 'Sin descripción')}</div></td>
+          <td class="col-num num-ing">${n1(a.stock_inicial)}</td>
+          <td class="col-num num-ing">${n1(a.ingresos)}</td>
+          <td class="col-num num-sal">${n1(a.salidas)}</td>
+          <td class="col-num num-dev">${n1(a.devoluciones)}</td>
+          <td class="col-num num-baja">${n1(a.bajas)}</td>
+          <td class="col-num"><span class="num-neto ${clase}">${n1(neto)} ${escapeHtml(a.unidad || '')}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function filtrarStockCache() {
+    const query = stockQuery.trim().toLowerCase();
+    return stockCache.filter(a => {
+      const coincideRubro = !stockRubroFiltro || String(a.rubro || 'SIN RUBRO').trim().toUpperCase() === stockRubroFiltro;
+      const coincideBusqueda = !query
+        || String(a.articulo || '').toLowerCase().includes(query)
+        || String(a.descripcion || '').toLowerCase().includes(query)
+        || String(a.descripcion1 || '').toLowerCase().includes(query);
+      return coincideRubro && coincideBusqueda;
+    });
+  }
+
+  function actualizarTablaStock() {
+    const tbody = document.getElementById('tbodyStock');
+    if (tbody) tbody.innerHTML = filasStockHTML(filtrarStockCache());
+  }
+
+  function renderStock() {
+    stockCache = obtenerStockPanol();
+    const rubros = Array.from(new Set(stockCache.map(a => String(a.rubro || 'SIN RUBRO').trim().toUpperCase()))).sort();
+
+    const conStock = stockCache.filter(a => (parseFloat(a.stock_neto) || 0) > 0).length;
+    const enCero = stockCache.filter(a => (parseFloat(a.stock_neto) || 0) === 0).length;
+    const negativos = stockCache.filter(a => (parseFloat(a.stock_neto) || 0) < 0).length;
+
+    contenedorDinamico.innerHTML = `
+      <div class="kpi-strip">
+        <div class="kpi-card"><div class="kpi-icon tono-pan">📦</div><div><div class="kpi-valor">${stockCache.length}</div><div class="kpi-label">Artículos en Catálogo</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon tono-verde">✅</div><div><div class="kpi-valor">${conStock}</div><div class="kpi-label">Con Stock Disponible</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon tono-gris">⬜</div><div><div class="kpi-valor">${enCero}</div><div class="kpi-label">En Cero</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon tono-rojo">⚠️</div><div><div class="kpi-valor">${negativos}</div><div class="kpi-label">A Regularizar</div></div></div>
+      </div>
+
+      <input type="text" id="buscadorStock" class="buscador-catalogo" placeholder="Buscar código o descripción..." style="margin-bottom:12px;" value="${escapeHtml(stockQuery)}" />
+
+      <div class="rubro-chip-wrap">
+        <button type="button" class="rubro-chip ${!stockRubroFiltro ? 'selected' : ''}" data-rubro="">TODOS (${stockCache.length})</button>
+        ${rubros.map(r => {
+          const cnt = stockCache.filter(a => String(a.rubro || 'SIN RUBRO').trim().toUpperCase() === r).length;
+          return `<button type="button" class="rubro-chip ${stockRubroFiltro === r ? 'selected' : ''}" data-rubro="${escapeHtml(r)}">${escapeHtml(r)} (${cnt})</button>`;
+        }).join('')}
+      </div>
+
+      <div class="tabla-stock-contenedor">
+        <table class="tabla-stock">
+          <thead>
+            <tr>
+              <th>INSUMO</th><th>RUBRO</th><th>SUB RUBRO</th><th>DESCRIPCIÓN</th>
+              <th style="text-align:center;">STOCK INICIAL</th>
+              <th style="text-align:center;">INGRESOS</th>
+              <th style="text-align:center;">SALIDAS</th><th style="text-align:center;">DEVOLUCIONES</th>
+              <th style="text-align:center;">BAJAS</th><th style="text-align:center;">STOCK</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyStock">${filasStockHTML(filtrarStockCache())}</tbody>
+        </table>
+      </div>
+    `;
+
+    document.getElementById('buscadorStock').addEventListener('input', (e) => {
+      stockQuery = e.target.value;
+      actualizarTablaStock();
+    });
+    document.querySelectorAll('.rubro-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        stockRubroFiltro = chip.dataset.rubro || null;
+        document.querySelectorAll('.rubro-chip').forEach(c => c.classList.toggle('selected', c === chip));
+        actualizarTablaStock();
+      });
+    });
+  }
+
+  // =========================================================================
+  // EXPORTACIÓN PROFESIONAL · EXCEL + PDF
+  // =========================================================================
+  const PIE_INSTITUCIONAL = 'Sistemas de Gestion Agrosoft J&L - Chimpay R.N. - Contacto jsosa190585@gmail.com';
+  const EMPRESA_RAZON = 'GORDON STERN DIEGO SEBASTIAN GARY';
+  const EMPRESA_DOMICILIO = 'Gobernador Tello 140 · Choele Choel, Río Negro · CUIT 20-24155794-5';
+  const RGB_PAN = [55, 71, 79];
+  const RGB_PAN_DARK = [30, 42, 48];
+  const ARGB_PAN = 'FF37474F';
+
+  const CODE128_PATRONES = [
+    '212222','222122','222221','121223','121322','131222','122213','122312','132212','221213',
+    '221312','231212','112232','122132','122231','113222','123122','123221','223211','221132',
+    '221231','213212','223112','312131','311222','321122','321221','312212','322112','322211',
+    '212123','212321','232121','111323','131123','131321','112313','132113','132311','211313',
+    '231113','231311','112133','112331','132131','113123','113321','133121','313121','211331',
+    '231131','213113','213311','213131','311123','311321','331121','312113','312311','332111',
+    '314111','221411','431111','111224','111422','121124','121421','141122','141221','112214',
+    '112412','122114','122411','142112','142211','241211','221114','413111','241112','134111',
+    '111242','121142','121241','114212','124112','124211','411212','421112','421211','212141',
+    '214121','412121','111143','111341','131141','114113','114311','411113','411311','113141',
+    '114131','311141','411131','211412','211214','211232','2331112'
+  ];
+
+  function code128Modulos(texto) {
+    const limpio = String(texto == null ? '' : texto).replace(/[^\x20-\x7E]/g, '').slice(0, 40) || ' ';
+    const valores = [];
+    for (let i = 0; i < limpio.length; i++) valores.push(limpio.charCodeAt(i) - 32);
+
+    let suma = 104;
+    valores.forEach((v, i) => { suma += v * (i + 1); });
+    const indices = [104].concat(valores, [suma % 103, 106]);
+
+    const trama = indices.map(i => CODE128_PATRONES[i]).join('');
+    const elementos = [];
+    let totalModulos = 0;
+    for (let i = 0; i < trama.length; i++) {
+      const ancho = parseInt(trama.charAt(i), 10);
+      elementos.push({ barra: i % 2 === 0, ancho: ancho });
+      totalModulos += ancho;
+    }
+    return { elementos: elementos, totalModulos: totalModulos, texto: limpio };
+  }
+
+  function dibujarCodigoBarrasPdf(doc, texto, x, y, ancho, alto) {
+    const cb = code128Modulos(texto);
+    const modulo = ancho / cb.totalModulos;
+    doc.setFillColor(0, 0, 0);
+    let cursor = x;
+    cb.elementos.forEach(el => {
+      const w = el.ancho * modulo;
+      if (el.barra) doc.rect(cursor, y, w, alto, 'F');
+      cursor += w;
+    });
+    doc.setFont('courier', 'normal'); doc.setFontSize(6.4); doc.setTextColor(60, 60, 60);
+    doc.text(cb.texto, x + ancho / 2, y + alto + 2.6, { align: 'center' });
+  }
+
+  function codigoBarrasPngBase64(texto, anchoPx, altoPx) {
+    try {
+      const cb = code128Modulos(texto);
+      const lienzo = document.createElement('canvas');
+      lienzo.width = anchoPx; lienzo.height = altoPx;
+      const ctx = lienzo.getContext('2d');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, anchoPx, altoPx);
+      const modulo = anchoPx / cb.totalModulos;
+      const altoBarras = altoPx - 13;
+      ctx.fillStyle = '#000000';
+      let cursor = 0;
+      cb.elementos.forEach(el => {
+        const w = el.ancho * modulo;
+        if (el.barra) ctx.fillRect(cursor, 0, w, altoBarras);
+        cursor += w;
+      });
+      ctx.font = '10px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(cb.texto, anchoPx / 2, altoPx - 1);
+      return lienzo.toDataURL('image/png');
+    } catch (e) { return null; }
+  }
+
+  function cargarLogoBase64() {
+    if (!isElectron) return null;
+    try {
+      const fs = require('fs'); const pathMod = require('path');
+      return fs.readFileSync(pathMod.join(__dirname, '../logo.png')).toString('base64');
+    } catch (e) { console.warn('No se pudo cargar logo.png:', e.message); return null; }
+  }
+
+  function generarFolio(prefijo) {
+    return prefijo + '-' + hoyStr().replace(/-/g, '') + '-' + Date.now().toString().slice(-5);
+  }
+
+  function guardarEnDescargas(nombreArchivo, buffer) {
+    const os = require('os'); const pathMod = require('path'); const fs = require('fs');
+    const carpeta = pathMod.join(os.homedir(), 'Downloads');
+    if (!fs.existsSync(carpeta)) fs.mkdirSync(carpeta, { recursive: true });
+    const ruta = pathMod.join(carpeta, nombreArchivo);
+    fs.writeFileSync(ruta, buffer);
+    return ruta;
+  }
+
+  function descripcionCat(cat) {
+    return [cat.descripcion, cat.descripcion1].filter(Boolean).join(' ') || 'Sin descripción';
+  }
+
+  function reporteIngresos() {
+    // ACA ES LO NUEVO: Normalización de tipos en el JOIN con cat.articulo
+    const datos = q(`
+      SELECT ing.fecha, ing.orden_compra, ing.remito, ing.proveedor, ing.articulo, ing.cantidad, ing.recibio,
+             cat.descripcion, cat.descripcion1, cat.unidad
+      FROM local_i_insumosingresos ing
+      LEFT JOIN local_i_insumos_catalogo cat 
+             ON TRIM(CAST(cat.articulo AS TEXT)) = TRIM(CAST(ing.articulo AS TEXT))
+      ORDER BY ing.fecha DESC, CAST(IFNULL(ing.id, 0) AS INTEGER) DESC
+    `);
+
+    let unidades = 0;
+    const remitos = {}; const ordenes = {}; const proveedores = {};
+    datos.forEach(d => {
+      unidades += parseFloat(d.cantidad) || 0;
+      remitos[d.remito || 'S/R'] = 1;
+      ordenes[d.orden_compra || 'S/OC'] = 1;
+      if (d.proveedor) proveedores[d.proveedor] = 1;
+    });
+
+    return {
+      clave: 'INGRESOS',
+      titulo: 'LIBRO DE INGRESOS DE PAÑOL',
+      subtitulo: 'Recepción de mercadería contra órdenes de compra',
+      prefijoFolio: 'ING',
+      archivo: 'Panol_Ingresos',
+      hoja: 'Ingresos de Pañol',
+      columnas: [
+        { header: 'FECHA', key: 'fecha', mm: 22, xl: 13 },
+        { header: 'ORDEN N°', key: 'orden', mm: 20, xl: 12, halign: 'center' },
+        { header: 'REMITO', key: 'remito', mm: 30, xl: 18 },
+        { header: 'PROVEEDOR', key: 'proveedor', mm: 45, xl: 28 },
+        { header: 'ARTÍCULO', key: 'articulo', mm: 28, xl: 18 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', mm: 58, xl: 38 },
+        { header: 'CANTIDAD', key: 'cantidad', mm: 20, xl: 12, halign: 'center', numero: true },
+        { header: 'UN.', key: 'unidad', mm: 14, xl: 8, halign: 'center' },
+        { header: 'RECIBIÓ', key: 'recibio', mm: 34, xl: 22 }
+      ],
+      filas: datos.map(d => ({
+        fecha: d.fecha || '-',
+        orden: d.orden_compra || 'S/OC',
+        remito: d.remito || 'S/R',
+        proveedor: d.proveedor || 'S/PROVEEDOR',
+        articulo: d.articulo || '-',
+        descripcion: descripcionCat(d),
+        cantidad: Number(n1(d.cantidad)),
+        unidad: d.unidad || 'U',
+        recibio: d.recibio || '-'
+      })),
+      resumen: [
+        { label: 'Registros de ingreso', valor: String(datos.length) },
+        { label: 'Unidades ingresadas', valor: n1(unidades) },
+        { label: 'Remitos distintos', valor: String(Object.keys(remitos).length) },
+        { label: 'Órdenes involucradas', valor: String(Object.keys(ordenes).length) },
+        { label: 'Proveedores', valor: String(Object.keys(proveedores).length) }
+      ],
+      firmas: ['Responsable de Pañol', 'Control Administrativo']
+    };
+  }
+
+  function reporteDespachos() {
+    // ACA ES LO NUEVO: Se amplían los estados admitidos (EGRESO, SALIDA, DESPACHADO, DEVOLUCION, etc.)
+    // y se limpian espacios en el JOIN con TRIM/CAST
+    const datos = q(`
+      SELECT m.fecha, IFNULL(NULLIF(m.remito,''), m.despacho) as nro_remito, m.destino, m.recibio, m.despacho,
+             m.articulo, m.cantidad, m.estado, m.descripcion as observacion,
+             cat.descripcion, cat.descripcion1, cat.unidad
+      FROM local_i_insumos_movimientos m
+      LEFT JOIN local_i_insumos_catalogo cat 
+             ON TRIM(CAST(cat.articulo AS TEXT)) = TRIM(CAST(m.articulo AS TEXT))
+      WHERE UPPER(TRIM(IFNULL(m.estado, ''))) IN ('DESPACHADO', 'DEVOLUCION', 'EGRESO', 'SALIDA', 'ENTREGA', 'ACTIVO')
+         OR m.estado IS NULL 
+         OR TRIM(m.estado) = ''
+      ORDER BY m.fecha DESC, CAST(IFNULL(m.id, 0) AS INTEGER) DESC
+    `);
+
+    let despachadas = 0, devueltas = 0;
+    const remitos = {}; const personas = {};
+    datos.forEach(d => {
+      const cant = Math.abs(parseFloat(d.cantidad) || 0);
+      const est = String(d.estado || '').toUpperCase().trim();
+      if (est === 'DEVOLUCION') {
+        devueltas += cant;
+      } else {
+        despachadas += cant;
+      }
+      remitos[d.nro_remito || 'S/N'] = 1;
+      if (d.recibio) personas[d.recibio] = 1;
+    });
+
+    return {
+      clave: 'DESPACHOS',
+      titulo: 'LIBRO DE DESPACHOS DE PAÑOL',
+      subtitulo: 'Entregas de herramientas e insumos al personal y devoluciones',
+      prefijoFolio: 'DES',
+      archivo: 'Panol_Despachos',
+      hoja: 'Despachos de Pañol',
+      columnas: [
+        { header: 'FECHA', key: 'fecha', mm: 22, xl: 13 },
+        { header: 'REMITO N°', key: 'remito', mm: 26, xl: 16 },
+        { header: 'DESTINO', key: 'destino', mm: 36, xl: 24 },
+        { header: 'RETIRÓ', key: 'recibio', mm: 36, xl: 24 },
+        { header: 'ARTÍCULO', key: 'articulo', mm: 26, xl: 18 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', mm: 56, xl: 38 },
+        { header: 'CANTIDAD', key: 'cantidad', mm: 20, xl: 12, halign: 'center', numero: true },
+        { header: 'UN.', key: 'unidad', mm: 13, xl: 8, halign: 'center' },
+        { header: 'ESTADO', key: 'estado', mm: 26, xl: 16, halign: 'center' },
+        { header: 'ENTREGÓ', key: 'entrego', mm: 30, xl: 20 }
+      ],
+      filas: datos.map(d => {
+        const est = String(d.estado || '').toUpperCase().trim();
+        const esDev = est === 'DEVOLUCION';
+        const cant = Math.abs(parseFloat(d.cantidad) || 0);
+        return {
+          fecha: d.fecha || '-',
+          remito: d.nro_remito || 'S/N',
+          destino: d.destino || '—',
+          recibio: d.recibio || '—',
+          articulo: d.articulo || '-',
+          descripcion: descripcionCat(d),
+          cantidad: Number(n1(esDev ? cant : -cant)),
+          unidad: d.unidad || 'U',
+          estado: d.estado ? d.estado.toUpperCase() : 'DESPACHADO',
+          entrego: d.despacho || '—'
+        };
+      }),
+      resumen: [
+        { label: 'Movimientos', valor: String(datos.length) },
+        { label: 'Unidades despachadas', valor: n1(despachadas) },
+        { label: 'Unidades devueltas', valor: n1(devueltas) },
+        { label: 'Salida neta', valor: n1(despachadas - devueltas) },
+        { label: 'Remitos emitidos', valor: String(Object.keys(remitos).length) },
+        { label: 'Personas distintas', valor: String(Object.keys(personas).length) }
+      ],
+      firmas: ['Responsable de Pañol', 'Jefe de Operaciones']
+    };
+  }
+
+  function reporteStock() {
+    const datos = obtenerStockPanol();
+    let neto = 0;
+    let conStock = 0, enCero = 0, negativos = 0;
+    datos.forEach(a => {
+      const v = parseFloat(a.stock_neto) || 0;
+      neto += v;
+      if (v > 0) conStock++; else if (v < 0) negativos++; else enCero++;
+    });
+
+    return {
+      clave: 'STOCK',
+      titulo: 'INVENTARIO DE EXISTENCIAS DE PAÑOL',
+      subtitulo: 'Stock físico por artículo con detalle de movimientos acumulados',
+      prefijoFolio: 'STK',
+      archivo: 'Panol_Stock',
+      hoja: 'Stock de Pañol',
+      columnas: [
+        { header: 'ARTÍCULO', key: 'articulo', mm: 26, xl: 18 },
+        { header: 'RUBRO', key: 'rubro', mm: 30, xl: 20 },
+        { header: 'SUB RUBRO', key: 'subrubro', mm: 30, xl: 20 },
+        { header: 'DESCRIPCIÓN', key: 'descripcion', mm: 54, xl: 38 },
+        { header: 'ST. INICIAL', key: 'inicial', mm: 19, xl: 12, halign: 'center', numero: true },
+        { header: 'INGRESOS', key: 'ingresos', mm: 19, xl: 12, halign: 'center', numero: true },
+        { header: 'SALIDAS', key: 'salidas', mm: 18, xl: 12, halign: 'center', numero: true },
+        { header: 'DEVOL.', key: 'devoluciones', mm: 18, xl: 12, halign: 'center', numero: true },
+        { header: 'BAJAS', key: 'bajas', mm: 17, xl: 10, halign: 'center', numero: true },
+        { header: 'STOCK NETO', key: 'neto', mm: 22, xl: 14, halign: 'right', numero: true, destacada: true },
+        { header: 'UN.', key: 'unidad', mm: 13, xl: 8, halign: 'center' }
+      ],
+      filas: datos.map(a => ({
+        articulo: a.articulo || '-',
+        rubro: a.rubro || 'SIN RUBRO',
+        subrubro: a.sub_rubro || 'GENERAL',
+        descripcion: [a.descripcion, a.descripcion1].filter(Boolean).join(' ') || 'Sin descripción',
+        inicial: Number(n1(a.stock_inicial)),
+        ingresos: Number(n1(a.ingresos)),
+        salidas: Number(n1(a.salidas)),
+        devoluciones: Number(n1(a.devoluciones)),
+        bajas: Number(n1(a.bajas)),
+        neto: Number(n1(a.stock_neto)),
+        unidad: a.unidad || 'U'
+      })),
+      resumen: [
+        { label: 'Artículos relevados', valor: String(datos.length) },
+        { label: 'Con stock disponible', valor: String(conStock) },
+        { label: 'En cero', valor: String(enCero) },
+        { label: 'A regularizar (negativos)', valor: String(negativos) },
+        { label: 'Stock neto total', valor: n1(neto) }
+      ],
+      firmas: ['Responsable de Pañol', 'Auditoría / Administración']
+    };
+  }
+
+  function construirReporte(clave) {
+    if (clave === 'INGRESOS') return reporteIngresos();
+    if (clave === 'DESPACHOS') return reporteDespachos();
+    return reporteStock();
+  }
+
+  function exportarReportePdf(rep) {
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margen = 12;
+      const ALTO_HEADER = 40;
+      const ALTO_PIE = 16;
+
+      const folio = generarFolio(rep.prefijoFolio);
+      const emitido = new Date().toLocaleString('es-AR');
+      const logoBase64 = cargarLogoBase64();
+
+      function dibujarEncabezado(data) {
+        const pagina = data && data.pageNumber ? data.pageNumber : 1;
+
+        doc.setFillColor(RGB_PAN[0], RGB_PAN[1], RGB_PAN[2]);
+        doc.rect(0, 0, pageW, 3, 'F');
+        doc.setFillColor(248, 249, 249);
+        doc.rect(0, 3, pageW, ALTO_HEADER - 3, 'F');
+
+        if (logoBase64) {
+          try { doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, 7, 20, 20); } catch (e) {}
+        } else {
+          doc.setDrawColor(200, 205, 208); doc.setLineWidth(0.3);
+          doc.roundedRect(margen, 7, 20, 20, 2, 2, 'D');
+        }
+
+        const xTexto = margen + 25;
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(RGB_PAN_DARK[0], RGB_PAN_DARK[1], RGB_PAN_DARK[2]);
+        doc.text('GORDON GESTIÓN · PAÑOL', xTexto, 13.5);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(98, 107, 116);
+        doc.text(EMPRESA_RAZON, xTexto, 18.4);
+        doc.setFontSize(7.2);
+        doc.text(EMPRESA_DOMICILIO, xTexto, 22.4);
+
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(RGB_PAN[0], RGB_PAN[1], RGB_PAN[2]);
+        doc.text(rep.titulo, xTexto, 28.6);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.4); doc.setTextColor(120, 128, 135);
+        doc.text(rep.subtitulo, xTexto, 32.6);
+
+        const anchoCb = 66;
+        const xCb = pageW - margen - anchoCb;
+        dibujarCodigoBarrasPdf(doc, folio, xCb, 7, anchoCb, 11);
+
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.2); doc.setTextColor(98, 107, 116);
+        doc.text('Emitido: ' + emitido, pageW - margen, 26, { align: 'right' });
+        doc.text('Operario: ' + operarioName, pageW - margen, 30, { align: 'right' });
+        doc.text('Registros: ' + rep.filas.length + '   ·   Hoja ' + pagina, pageW - margen, 34, { align: 'right' });
+
+        doc.setDrawColor(RGB_PAN[0], RGB_PAN[1], RGB_PAN[2]); doc.setLineWidth(0.5);
+        doc.line(margen, ALTO_HEADER - 2, pageW - margen, ALTO_HEADER - 2);
+      }
+
+      const cols = rep.columnas;
+      const columnStyles = {};
+      cols.forEach((c, i) => {
+        columnStyles[i] = { cellWidth: c.mm, halign: c.halign || 'left' };
+        if (c.destacada) { columnStyles[i].fontStyle = 'bold'; columnStyles[i].textColor = RGB_PAN_DARK; }
+      });
+
+      autoTable(doc, {
+        startY: ALTO_HEADER + 4,
+        margin: { left: margen, right: margen, top: ALTO_HEADER + 4, bottom: ALTO_PIE + 6 },
+        head: [cols.map(c => c.header)],
+        body: rep.filas.map(f => cols.map(c => {
+          const v = f[c.key];
+          return c.numero ? n1(v) : String(v == null ? '' : v);
+        })),
+        headStyles: { fillColor: RGB_PAN, textColor: 255, fontSize: 7.6, fontStyle: 'bold', halign: 'center', valign: 'middle' },
+        styles: { fontSize: 7.4, cellPadding: 2, lineColor: [222, 226, 230], lineWidth: 0.12, overflow: 'linebreak', valign: 'middle' },
+        alternateRowStyles: { fillColor: [247, 248, 249] },
+        columnStyles: columnStyles,
+        theme: 'grid',
+        didDrawPage: dibujarEncabezado
+      });
+
+      let y = ((doc.lastAutoTable && doc.lastAutoTable.finalY) || ALTO_HEADER + 4) + 8;
+      const altoBloque = 46;
+      if (y + altoBloque > pageH - ALTO_PIE) {
+        doc.addPage();
+        dibujarEncabezado({ pageNumber: doc.internal.getNumberOfPages() });
+        y = ALTO_HEADER + 8;
+      }
+
+      const anchoPanel = pageW - margen * 2;
+      doc.setFillColor(248, 249, 249); doc.setDrawColor(222, 226, 230); doc.setLineWidth(0.25);
+      doc.roundedRect(margen, y, anchoPanel, 22, 2, 2, 'FD');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(RGB_PAN[0], RGB_PAN[1], RGB_PAN[2]);
+      doc.text('RESUMEN DEL INFORME', margen + 5, y + 6);
+
+      const porFila = Math.min(rep.resumen.length, 6);
+      const anchoItem = (anchoPanel - 10) / porFila;
+      rep.resumen.forEach((r, i) => {
+        const xi = margen + 5 + anchoItem * i;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8); doc.setTextColor(120, 128, 135);
+        doc.text(String(r.label).toUpperCase(), xi, y + 12.5);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(RGB_PAN_DARK[0], RGB_PAN_DARK[1], RGB_PAN_DARK[2]);
+        doc.text(String(r.valor), xi, y + 18.5);
+      });
+
+      const yFirma = y + 40;
+      doc.setDrawColor(98, 107, 116); doc.setLineWidth(0.25);
+      doc.line(margen + 20, yFirma, margen + 90, yFirma);
+      doc.line(pageW - margen - 90, yFirma, pageW - margen - 20, yFirma);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); doc.setTextColor(98, 107, 116);
+      doc.text(rep.firmas[0], margen + 55, yFirma + 4.5, { align: 'center' });
+      doc.text(rep.firmas[1], pageW - margen - 55, yFirma + 4.5, { align: 'center' });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setDrawColor(222, 226, 230); doc.setLineWidth(0.2);
+        doc.line(margen, pageH - 11.5, pageW - margen, pageH - 11.5);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.setTextColor(98, 107, 116);
+        doc.text(PIE_INSTITUCIONAL, margen, pageH - 7);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.text('Folio ' + folio + '  ·  Página ' + i + ' de ' + totalPaginas, pageW - margen, pageH - 7, { align: 'right' });
+      }
+
+      const nombre = rep.archivo + '_' + hoyStr() + '.pdf';
+      guardarEnDescargas(nombre, Buffer.from(doc.output('arraybuffer')));
+      lanzarToast('PDF guardado en Descargas: ' + nombre);
+    } catch (err) {
+      console.error(err);
+      lanzarToast('Error al generar el PDF: ' + err.message, 'error');
+    }
+  }
+
+  async function exportarReporteExcel(rep) {
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Pañol';
+      wb.created = new Date();
+
+      const ws = wb.addWorksheet(rep.hoja.slice(0, 31), {
+        views: [{ state: 'frozen', ySplit: 5 }],
+        pageSetup: {
+          orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+          paperSize: 9, margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.6, header: 0.2, footer: 0.3 }
+        }
+      });
+
+      const cols = rep.columnas;
+      ws.columns = cols.map(c => ({ header: c.header, key: c.key, width: c.xl }));
+      rep.filas.forEach(f => ws.addRow(f));
+
+      ws.spliceRows(1, 0, [], [], [], []);
+      const nCols = cols.length;
+      const folio = generarFolio(rep.prefijoFolio);
+
+      ws.getRow(1).height = 34;
+      ws.getRow(2).height = 16;
+      ws.getRow(3).height = 15;
+      ws.getRow(4).height = 15;
+
+      ws.mergeCells(1, 2, 1, nCols);
+      ws.mergeCells(2, 2, 2, nCols);
+      ws.mergeCells(3, 2, 3, nCols);
+      ws.mergeCells(4, 2, 4, nCols);
+
+      const cTitulo = ws.getCell(1, 2);
+      cTitulo.value = 'GORDON GESTIÓN · PAÑOL — ' + rep.titulo;
+      cTitulo.font = { bold: true, size: 15, color: { argb: 'FF1E2A30' } };
+      cTitulo.alignment = { vertical: 'middle', horizontal: 'left' };
+
+      const cSub = ws.getCell(2, 2);
+      cSub.value = rep.subtitulo;
+      cSub.font = { italic: true, size: 10, color: { argb: 'FF626B74' } };
+      cSub.alignment = { vertical: 'middle', horizontal: 'left' };
+
+      const cEmpresa = ws.getCell(3, 2);
+      cEmpresa.value = EMPRESA_RAZON + ' — ' + EMPRESA_DOMICILIO;
+      cEmpresa.font = { size: 9, color: { argb: 'FF626B74' } };
+      cEmpresa.alignment = { vertical: 'middle', horizontal: 'left' };
+
+      const cMeta = ws.getCell(4, 2);
+      cMeta.value = 'Folio: ' + folio + '   ·   Emitido: ' + new Date().toLocaleString('es-AR') +
+                    '   ·   Operario: ' + operarioName + '   ·   Registros: ' + rep.filas.length;
+      cMeta.font = { bold: true, size: 9, color: { argb: 'FF37474F' } };
+      cMeta.alignment = { vertical: 'middle', horizontal: 'left' };
+
+      const logoBase64 = cargarLogoBase64();
+      if (logoBase64) {
+        try {
+          const idLogo = wb.addImage({ base64: 'data:image/png;base64,' + logoBase64, extension: 'png' });
+          ws.addImage(idLogo, { tl: { col: 0.15, row: 0.1 }, ext: { width: 76, height: 76 }, editAs: 'oneCell' });
+        } catch (e) { console.warn('Logo no incrustado en Excel:', e.message); }
+      }
+
+      const cbBase64 = codigoBarrasPngBase64(folio, 420, 62);
+      if (cbBase64) {
+        try {
+          const idCb = wb.addImage({ base64: cbBase64, extension: 'png' });
+          ws.addImage(idCb, { tl: { col: Math.max(nCols - 3, 1), row: 0.15 }, ext: { width: 240, height: 46 }, editAs: 'oneCell' });
+        } catch (e) { console.warn('Código de barras no incrustado:', e.message); }
+      }
+
+      const filaHead = ws.getRow(5);
+      filaHead.height = 24;
+      filaHead.eachCell({ includeEmpty: true }, cell => {
+        cell.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ARGB_PAN } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FF1E2A30' } } };
+      });
+
+      const primeraFila = 6;
+      const ultimaFila = primeraFila + rep.filas.length - 1;
+      for (let r = primeraFila; r <= ultimaFila; r++) {
+        const fila = ws.getRow(r);
+        cols.forEach((c, i) => {
+          const cell = fila.getCell(i + 1);
+          cell.alignment = { vertical: 'middle', horizontal: c.halign || 'left', wrapText: false };
+          cell.font = { size: 9.5, bold: !!c.destacada };
+          cell.border = {
+            top: { style: 'hair', color: { argb: 'FFDEE2E6' } },
+            bottom: { style: 'hair', color: { argb: 'FFDEE2E6' } }
+          };
+          if (c.numero) cell.numFmt = '#,##0.0';
+        });
+        if ((r - primeraFila) % 2 === 1) {
+          fila.eachCell({ includeEmpty: true }, cell => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7F8F9' } };
+          });
+        }
+      }
+
+      if (rep.filas.length > 0) {
+        const filaTot = ws.getRow(ultimaFila + 2);
+        filaTot.height = 20;
+        cols.forEach((c, i) => {
+          const cell = filaTot.getCell(i + 1);
+          if (i === 0) cell.value = 'TOTALES';
+          else if (c.numero) cell.value = { formula: `SUM(${cell.address.replace(/\d+$/, '')}${primeraFila}:${cell.address.replace(/\d+$/, '')}${ultimaFila})` };
+          cell.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E2A30' } };
+          cell.alignment = { vertical: 'middle', horizontal: c.halign || 'left' };
+          if (c.numero) cell.numFmt = '#,##0.0';
+        });
+      }
+
+      const wsRes = wb.addWorksheet('Resumen');
+      wsRes.columns = [{ header: 'INDICADOR', key: 'label', width: 34 }, { header: 'VALOR', key: 'valor', width: 20 }];
+      wsRes.getRow(1).eachCell(cell => {
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ARGB_PAN } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+      wsRes.getRow(1).height = 22;
+      rep.resumen.forEach(r => wsRes.addRow({ label: r.label, valor: r.valor }));
+      wsRes.addRow({});
+      wsRes.addRow({ label: 'Folio', valor: folio });
+      wsRes.addRow({ label: 'Emitido', valor: new Date().toLocaleString('es-AR') });
+      wsRes.addRow({ label: 'Operario', valor: operarioName });
+
+      ws.autoFilter = { from: { row: 5, column: 1 }, to: { row: Math.max(ultimaFila, 5), column: nCols } };
+      const pieXls = '&L&"Arial,Bold"&8' + PIE_INSTITUCIONAL + '&R&8Folio ' + folio + ' · Página &P de &N';
+      ws.headerFooter = { oddFooter: pieXls, evenFooter: pieXls };
+      wsRes.headerFooter = { oddFooter: pieXls, evenFooter: pieXls };
+      ws.pageSetup.printTitlesRow = '5:5';
+
+      const nombre = rep.archivo + '_' + hoyStr() + '.xlsx';
+      const buffer = await wb.xlsx.writeBuffer();
+      guardarEnDescargas(nombre, Buffer.from(buffer));
+      lanzarToast('Excel guardado en Descargas: ' + nombre);
+    } catch (err) {
+      console.error(err);
+      lanzarToast('Error al generar el Excel: ' + err.message, 'error');
+    }
+  }
+
+  function abrirModalExportacion(clave) {
+    if (!isElectron) return lanzarToast('La exportación solo está disponible en la app de escritorio.', 'warning');
+    if (!db) return lanzarToast('Sin conexión a la base local.', 'error');
+
+    let rep;
+    try { rep = construirReporte(clave); }
+    catch (e) { console.error(e); return lanzarToast('No se pudieron leer los datos: ' + e.message, 'error'); }
+
+    if (!rep.filas.length) return lanzarToast('No hay registros para exportar en esta solapa.', 'warning');
+
+    const fields = `
+      <div class="export-resumen-box">
+        <b>${escapeHtml(rep.titulo)}</b><br>
+        ${rep.filas.length} registro(s) · ${rep.resumen.map(r => `${escapeHtml(r.label)}: <b>${escapeHtml(r.valor)}</b>`).join(' · ')}
+      </div>
+      <div class="modal-group">
+        <label>Elegí el formato de salida</label>
+        <div class="export-formato-grid">
+          <div class="export-opcion-card excel" id="cardExportExcel">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <div class="tit">EXCEL (.xlsx)</div>
+            <div class="desc">Planilla con membrete, logo, código de barras, totales y hoja de resumen.</div>
+          </div>
+          <div class="export-opcion-card pdf" id="cardExportPdf">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path></svg>
+            <div class="tit">PDF (A4 apaisado)</div>
+            <div class="desc">Informe con logo 2x2 cm, código de barras en cada hoja, firmas y pie institucional.</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10.5px; color:var(--color-text-secondary); font-weight:600; text-align:center;">
+        El archivo se guarda automáticamente en la carpeta <b>Descargas</b>.
+      </div>
+    `;
+
+    openMiniModal('⬇️ Exportar ' + rep.hoja, 'Documento institucional con folio y código de barras', fields, null, true);
+
+    document.getElementById('cardExportExcel').addEventListener('click', () => {
+      closeMiniModal();
+      lanzarToast('Generando planilla de Excel...', 'warning');
+      setTimeout(() => exportarReporteExcel(rep), 60);
+    });
+    document.getElementById('cardExportPdf').addEventListener('click', () => {
+      closeMiniModal();
+      lanzarToast('Generando informe PDF...', 'warning');
+      setTimeout(() => exportarReportePdf(rep), 60);
+    });
+  }
+
+  // =========================================================================
+  // ARRANQUE
+  // =========================================================================
+  renderizarTab();
+})();
+</script>
+</body>
+</html>

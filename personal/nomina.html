@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Nómina y Legajos</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="../utilidades.js"></script>
+
+<style>
+  :root {
+    --color-bg: #F4F5F8;
+    --color-surface: #FFFFFF;
+    --color-text: #1A1E29;
+    --color-text-secondary: #5B6172;
+    --color-accent: #3949AB;
+    --color-accent-dark: #26327A;
+    --color-accent-soft: rgba(57, 73, 171, 0.08);
+    --color-border: #D9DBE3;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; font-family: var(--font-family); background: var(--color-bg); color: var(--color-text); overflow: hidden; }
+
+  /* BARRA SUPERIOR */
+  .top-system-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #FFFFFF; padding: 12px 40px; border-bottom: 1px solid var(--color-border); height: 55px;
+  }
+  .user-access-info { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .system-datetime { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-parametros { display: flex; height: calc(100vh - 55px); overflow: hidden; }
+
+  /* BARRA LATERAL IZQUIERDA */
+  .sidebar { width: 220px; background: #FFFFFF; border-right: 1px solid var(--color-border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+  .sidebar-header { margin-bottom: 25px; }
+
+  .btn-volver {
+    display: flex; align-items: center; gap: 8px; background: #FFFDE7; border: 1px solid #FBC02D;
+    padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; color: #F57F17;
+    cursor: pointer; transition: all 0.2s ease; width: fit-content; box-shadow: 0 2px 4px rgba(251, 192, 45, 0.15);
+  }
+  .btn-volver:hover { background: #FFF9C4; border-color: #F9A825; color: #E65100; transform: translateY(-1px); }
+
+  .btn-volver:active, .btn-nav-lateral:active, .btn-global-add:active, .modal-btn:active,
+  .btn-sync-top:active, .btn-excel:active, .btn-pdf:active, .btn-accion-fila:active {
+    background-color: #FFFDE7 !important; border-color: #FBC02D !important;
+    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important; transform: scale(0.98);
+  }
+
+  .sidebar-titulo { font-size: 14px; font-weight: 700; margin-top: 20px; color: var(--color-accent-dark); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+
+  .btn-nav-lateral {
+    display: flex; align-items: center; gap: 10px; background: transparent; border: 1px solid transparent;
+    padding: 12px 14px; border-radius: var(--radius-md); cursor: pointer; text-align: left; font-family: inherit;
+    font-size: 12px; font-weight: 700; color: var(--color-text-secondary); transition: all 0.2s ease;
+  }
+  .btn-nav-lateral:hover { background: var(--color-accent-soft); color: var(--color-accent-dark); }
+  .btn-nav-lateral.active { background: var(--color-accent-soft); color: var(--color-accent-dark); border-color: var(--color-accent); box-shadow: 0 4px 12px rgba(57, 73, 171, 0.05); }
+
+  /* CONTENIDO CENTRAL */
+  .main-content { flex-grow: 1; padding: 28px 36px; display: flex; flex-direction: column; overflow-y: auto; }
+  .seccion-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; gap: 12px; flex-wrap: wrap; }
+  .seccion-titulo { font-size: 24px; font-weight: 700; margin: 0; color: var(--color-accent-dark); }
+
+  .btn-global-add {
+    background: var(--color-accent); color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
+    font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 10px rgba(57, 73, 171, 0.15); transition: all 0.2s ease;
+  }
+  .btn-global-add:hover { background: var(--color-accent-dark); }
+
+  .btn-excel { background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.15); transition: all 0.2s ease; }
+  .btn-excel:hover { background: #0A5C30; }
+  .btn-pdf { background: #B91C1C; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.15); transition: all 0.2s ease; }
+  .btn-pdf:hover { background: #991515; }
+
+  .btn-sync-top { background: #E8EAF6; color: #26327A; border: 1px solid rgba(38,50,122,0.3); border-radius: var(--radius-md); padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
+  .btn-sync-top:hover { background: #C5CAE9; }
+
+  /* KPI */
+  .grid-metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .card-metrica { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  .card-metrica .label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-metrica .val { font-size: 26px; font-weight: 700; color: var(--color-text); margin-top: 6px; }
+  .card-metrica .val.highlight { color: var(--color-accent); }
+  .card-metrica .val.warn { color: #B8862A; }
+
+  /* TABLA */
+  .columna-split { display: flex; flex-direction: column; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .columna-header-sticky { padding: 16px 20px; background: #F8F9FB; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+  .columna-header-sticky h4 { margin: 0; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .tabla-interna-fila { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .tabla-interna-fila th { text-align: left; font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; padding: 12px 14px; background: #ECEFF1; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+  .tabla-interna-fila td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); color: var(--color-text); font-weight: 500; font-size: 12px; }
+  .tabla-interna-fila tbody tr:hover { background-color: var(--color-accent-soft); }
+
+  .badge-estado { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; display: inline-block; border: 1px solid rgba(30, 107, 76, 0.2); }
+  .badge-estado.activo { background: rgba(16, 124, 65, 0.1); color: #107C41; border-color: rgba(16,124,65,0.2); }
+  .badge-estado.inactivo { background: rgba(185, 28, 28, 0.08); color: #B91C1C; border-color: rgba(185,28,28,0.2); }
+
+  .vista-vacia { text-align: center; padding: 30px 20px; color: var(--color-text-secondary); font-size: 13px; }
+
+  .grupo-acciones-fila { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn-accion-fila {
+    background: var(--color-accent-soft); color: var(--color-accent-dark); border: 1px solid var(--color-border);
+    border-radius: 8px; padding: 5px 9px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+  }
+  .btn-accion-fila:hover { background: var(--color-accent); color: #FFFFFF; border-color: var(--color-accent); }
+  .btn-accion-fila.danger:hover { background: #B91C1C; border-color: #B91C1C; }
+  .btn-accion-fila.success:hover { background: #107C41; border-color: #107C41; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 600px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); border: 1px solid var(--color-border); transform: translateY(-15px); transition: transform 0.2s ease; }
+  .modal-overlay.show .modal-box { transform: translateY(0); }
+  .modal-header { margin-bottom: 16px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--color-accent-dark); margin: 0; }
+  .modal-subtitle { font-size: 12px; color: var(--color-text-secondary); margin: 4px 0 0; }
+  .modal-body { max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+  .modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .modal-group label { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; }
+  .modal-input { width: 100%; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 13px; background: #FAFAFA; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .modal-btn { border-radius: var(--radius-md); padding: 9px 16px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+  .modal-btn.cancel { background: transparent; border-color: var(--color-border); color: var(--color-text-secondary); }
+  .modal-btn.save { background: var(--color-accent); color: #FFFFFF; }
+
+  /* TOAST */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .toast-card { pointer-events: auto; background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 18px; display: flex; align-items: center; gap: 12px; width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: translateX(120%); transition: all 0.3s ease; }
+  .toast-card.show { transform: translateX(0); }
+  .toast-card.success { border-left: 4px solid #107C41; background: #F1F9F4; color: #0A5C30; }
+  .toast-card.error { border-left: 4px solid #C62828; background: #FFEBEE; color: #B71C1C; }
+  .toast-card.warning { border-left: 4px solid #B8862A; background: #FFF8E1; color: #8A6A1E; }
+</style>
+</head>
+<body>
+
+  <div class="toast-container" id="toastContenedor"></div>
+
+  <!-- BARRA SUPERIOR -->
+  <div class="top-system-bar">
+    <div class="user-access-info">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Módulo de <span class="highlight" style="color:var(--color-accent); font-weight:700;">Personal / RRHH</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div class="system-datetime" id="topDateTime">CARGANDO FECHA...</div>
+      <button class="btn-sync-top" id="btnSincronizar">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar
+      </button>
+    </div>
+  </div>
+
+  <div class="layout-parametros">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-volver" id="btnVolver">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Volver
+        </button>
+        <div class="sidebar-titulo">Personal</div>
+      </div>
+
+      <div class="sidebar-menu">
+        <button class="btn-nav-lateral active" data-filtro="activo">
+          <span>✅</span> Personal Activo
+        </button>
+        <button class="btn-nav-lateral" data-filtro="todos">
+          <span>👥</span> Personal Total
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTENIDO CENTRAL -->
+    <div class="main-content">
+      <div class="seccion-header">
+        <h1 class="seccion-titulo" id="seccionTitulo">Personal Activo</h1>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-excel" id="btnExportExcel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            Excel
+          </button>
+          <button class="btn-pdf" id="btnExportPdf">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            PDF
+          </button>
+          <button class="btn-global-add" id="btnNuevoEmpleado">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nuevo Empleado
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="grid-metricas">
+        <div class="card-metrica">
+          <span class="label">Personal Activo</span>
+          <span class="val highlight" id="lblKpiActivos">0</span>
+        </div>
+        <div class="card-metrica">
+          <span class="label">Personal Total (Histórico)</span>
+          <span class="val" id="lblKpiTotal">0</span>
+        </div>
+        <div class="card-metrica">
+          <span class="label">Activos sin Valorizar</span>
+          <span class="val warn" id="lblKpiSinValorizar">0</span>
+        </div>
+      </div>
+
+      <div id="contenedorDinamico" class="columna-split" style="flex-grow:1;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO (alta / edición / valorización / historial) -->
+  <div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Título</h3>
+        <p class="modal-subtitle" id="modalSubtitle"></p>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" id="modalBtnCancel">Cancelar</button>
+        <button class="modal-btn save" id="modalBtnSave">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function() {
+  const isElectron = typeof require === 'function';
+  let db = null;
+  let path = null;
+
+  if (isElectron) {
+    try {
+      path = require('path');
+      const Database = require('better-sqlite3');
+      db = new Database(require('../db_path.js').DB_PATH);
+ } catch (e) { console.error('Error iniciando BBDD:', e); }
+  }
+
+  let filtroActual = 'activo';
+
+  const btnVolver = document.getElementById('btnVolver');
+  const contenedorDinamico = document.getElementById('contenedorDinamico');
+  const seccionTitulo = document.getElementById('seccionTitulo');
+  const toastContenedor = document.getElementById('toastContenedor');
+
+  const customModal = document.getElementById('customModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSubtitle = document.getElementById('modalSubtitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalBtnCancel = document.getElementById('modalBtnCancel');
+  const modalBtnSave = document.getElementById('modalBtnSave');
+
+  document.getElementById('topDateTime').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function n2(v) { return (Math.round((parseFloat(v) || 0) * 100) / 100).toFixed(2); }
+  function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function generarToken() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let resultado = '';
+    for (let i = 0; i < 10; i++) resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    return resultado;
+  }
+  // Resta un día a una fecha "YYYY-MM-DD" (para cerrar un período de historial
+  // justo antes de que arranque el siguiente, sin que se pisen fechas).
+  function diaAnterior(fechaStr) {
+    const d = new Date(fechaStr + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function lanzarNotificacionFlotante(mensaje, tipo = 'success') {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = `toast-card ${tipo}`;
+    let icono = tipo === 'success' ? '✅' : (tipo === 'warning' ? '⚠️' : '❌');
+    tarjeta.innerHTML = `<div style="font-size:16px;">${icono}</div><div style="font-size:12px; font-weight:700;">${mensaje}</div>`;
+    toastContenedor.appendChild(tarjeta);
+    setTimeout(() => tarjeta.classList.add('show'), 10);
+    setTimeout(() => { tarjeta.classList.remove('show'); setTimeout(() => tarjeta.remove(), 300); }, 3800);
+  }
+
+  let modalSaveHandler = null;
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, saveLabel) {
+    modalTitle.textContent = title;
+    modalSubtitle.textContent = subtitle || '';
+    modalBody.innerHTML = fieldsHtml;
+    customModal.classList.add('show');
+    modalSaveHandler = onSave;
+    modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
+    modalBtnSave.textContent = saveLabel || 'Guardar';
+    modalBtnCancel.textContent = onSave ? 'Cancelar' : 'Cerrar';
+  }
+  function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
+  modalBtnCancel.addEventListener('click', closeMiniModal);
+  modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
+
+  btnVolver.addEventListener('click', () => {
+    if (typeof window.renderizar === 'function' && window.sesionActual) {
+      window.renderizar(window.sesionActual);
+    } else {
+      window.location.href = 'menu_personal.html';
+    }
+  });
+
+  document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-nav-lateral').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filtroActual = btn.dataset.filtro;
+      seccionTitulo.textContent = filtroActual === 'activo' ? 'Personal Activo' : 'Personal Total (Histórico)';
+      renderizarTabla();
+    });
+  });
+
+  const btnSincronizar = document.getElementById('btnSincronizar');
+  btnSincronizar.addEventListener('click', async () => {
+    btnSincronizar.classList.add('syncing');
+    btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+    if (isElectron) {
+      try {
+        const { subirCambiosLocales } = require('../subir.js');
+        const { sincronizarTodo } = require('../sincronizacion.js');
+        await subirCambiosLocales();
+        await sincronizarTodo();
+        lanzarNotificacionFlotante('¡Sincronización bidireccional exitosa!', 'success');
+      } catch (err) {
+        console.error(err);
+        lanzarNotificacionFlotante('Error de sincronización: ' + err.message, 'error');
+      } finally {
+        btnSincronizar.classList.remove('syncing');
+        btnSincronizar.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar`;
+        renderizarTabla();
+      }
+    } else {
+      setTimeout(() => {
+        btnSincronizar.classList.remove('syncing');
+        btnSincronizar.innerHTML = `Sincronizar`;
+        lanzarNotificacionFlotante('Sincronización simulada en entorno de pruebas.', 'success');
+      }, 800);
+    }
+  });
+
+  // =========================================================================
+  // LISTADO PRINCIPAL
+  // =========================================================================
+  function obtenerListado() {
+    if (!db) return [];
+    const filtroSql = filtroActual === 'activo' ? "WHERE n.estado = 'ACTIVO'" : '';
+    try {
+      return db.prepare(`
+        SELECT n.*,
+          (SELECT h.importe_hora FROM local_p_personal_historial h WHERE h.legajo = n.legajo ORDER BY h.fecha_desde DESC LIMIT 1) as importe_vigente,
+          (SELECT h.forma_pago FROM local_p_personal_historial h WHERE h.legajo = n.legajo ORDER BY h.fecha_desde DESC LIMIT 1) as forma_pago_vigente,
+          (SELECT h.fecha_desde FROM local_p_personal_historial h WHERE h.legajo = n.legajo ORDER BY h.fecha_desde DESC LIMIT 1) as vigente_desde
+        FROM local_p_nomina_personal n
+        ${filtroSql}
+        ORDER BY n.apellido ASC, n.nombre ASC
+      `).all();
+    } catch(e) { console.error(e); return []; }
+  }
+
+  function renderizarKPIs() {
+    if (!db) return;
+    try {
+      const activos = db.prepare("SELECT COUNT(*) as c FROM local_p_nomina_personal WHERE estado = 'ACTIVO'").get().c;
+      const total = db.prepare("SELECT COUNT(*) as c FROM local_p_nomina_personal").get().c;
+      const sinValorizar = db.prepare(`
+        SELECT COUNT(*) as c FROM local_p_nomina_personal n
+        WHERE n.estado = 'ACTIVO' AND NOT EXISTS (SELECT 1 FROM local_p_personal_historial h WHERE h.legajo = n.legajo)
+      `).get().c;
+      document.getElementById('lblKpiActivos').textContent = activos;
+      document.getElementById('lblKpiTotal').textContent = total;
+      document.getElementById('lblKpiSinValorizar').textContent = sinValorizar;
+    } catch(e) { console.error(e); }
+  }
+
+  function renderizarTabla() {
+    const registros = obtenerListado();
+    renderizarKPIs();
+
+    contenedorDinamico.innerHTML = `
+      <div class="columna-header-sticky">
+        <h4>Legajos (${registros.length})</h4>
+      </div>
+      <div style="overflow:auto; flex-grow:1;">
+        <table class="tabla-interna-fila">
+          <thead>
+            <tr>
+              <th>LEGAJO</th>
+              <th>NOMBRE COMPLETO</th>
+              <th>DNI</th>
+              <th>LABOR / SECTOR</th>
+              <th>CATEGORÍA</th>
+              <th>F. INGRESO</th>
+              <th style="text-align:center;">$/HORA VIGENTE</th>
+              <th style="text-align:center;">ESTADO</th>
+              <th style="text-align:center;">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${registros.map(r => `
+              <tr>
+                <td style="font-weight:700; color:var(--color-accent-dark);">${r.legajo}</td>
+                <td><strong>${escapeHtml(r.nombre_completo || (r.apellido + ', ' + r.nombre))}</strong></td>
+                <td>${r.dni || '—'}</td>
+                <td>${escapeHtml(r.labor || '—')} <span style="color:var(--color-text-secondary);">(${escapeHtml(r.sector || '—')})</span></td>
+                <td>${escapeHtml(r.categoria || '—')}</td>
+                <td>📅 ${r.fecha_ingreso || '—'}</td>
+                <td style="text-align:center; font-weight:700; color:#107C41;">${r.importe_vigente ? '$' + n2(r.importe_vigente) : '<span style="color:#B8862A;">SIN DATO</span>'}</td>
+                <td style="text-align:center;"><span class="badge-estado ${r.estado === 'ACTIVO' ? 'activo' : 'inactivo'}">${r.estado || 'ACTIVO'}</span></td>
+                <td>
+                  <div class="grupo-acciones-fila">
+                    <button class="btn-accion-fila" onclick="window.editarEmpleado('${r.legajo}')">✏️ Editar</button>
+                    <button class="btn-accion-fila" onclick="window.verHistorial('${r.legajo}')">📜 Historial</button>
+                    <button class="btn-accion-fila success" onclick="window.valorizarLegajo('${r.legajo}')">💰 Valorizar</button>
+                    <button class="btn-accion-fila ${r.estado === 'ACTIVO' ? 'danger' : 'success'}" onclick="window.cambiarEstadoLegajo('${r.legajo}', '${r.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO'}')">${r.estado === 'ACTIVO' ? '🔒 Dar de Baja' : '🔓 Reactivar'}</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+            ${registros.length === 0 ? '<tr><td colspan="9" class="vista-vacia">Sin personal registrado en este listado.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // ALTA / EDICIÓN DE EMPLEADO
+  // =========================================================================
+  function camposEmpleado(p) {
+    const v = (x) => x === null || x === undefined ? '' : x;
+    return `
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Legajo ${p ? '(no editable)' : ''}</label><input type="text" id="fLegajo" class="modal-input" value="${v(p && p.legajo)}" placeholder="Ej. 1024" ${p ? 'disabled style="background:#ECEFF1; color:var(--color-text-secondary);"' : ''} /></div>
+        <div class="modal-group"><label>DNI</label><input type="number" id="fDni" class="modal-input" value="${v(p && p.dni)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Apellido</label><input type="text" id="fApellido" class="modal-input" value="${v(p && p.apellido)}" /></div>
+        <div class="modal-group"><label>Nombre</label><input type="text" id="fNombre" class="modal-input" value="${v(p && p.nombre)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>CUIL</label><input type="text" id="fCuil" class="modal-input" value="${v(p && p.cuil)}" /></div>
+        <div class="modal-group"><label>Sexo</label>
+          <select id="fSexo" class="modal-input">
+            <option value="">—</option>
+            <option value="M" ${p && p.sexo === 'M' ? 'selected' : ''}>Masculino</option>
+            <option value="F" ${p && p.sexo === 'F' ? 'selected' : ''}>Femenino</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Fecha de Ingreso</label><input type="date" id="fFechaIngreso" class="modal-input" value="${v(p && p.fecha_ingreso) || hoyStr()}" /></div>
+        <div class="modal-group"><label>Categoría</label><input type="text" id="fCategoria" class="modal-input" value="${v(p && p.categoria)}" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Labor</label><input type="text" id="fLabor" class="modal-input" value="${v(p && p.labor)}" /></div>
+        <div class="modal-group"><label>Sector</label><input type="text" id="fSector" class="modal-input" value="${v(p && p.sector)}" /></div>
+      </div>
+      <div class="modal-group"><label>Centro de Costo</label><input type="text" id="fCentroCosto" class="modal-input" value="${v(p && p.centro_costo)}" /></div>
+    `;
+  }
+
+  document.getElementById('btnNuevoEmpleado').addEventListener('click', () => {
+    openMiniModal('Nuevo Empleado', 'Alta de legajo en la nómina', camposEmpleado(null), () => {
+      const legajo = document.getElementById('fLegajo').value.trim();
+      const apellido = document.getElementById('fApellido').value.trim();
+      const nombre = document.getElementById('fNombre').value.trim();
+
+      if (!legajo || !apellido || !nombre) return lanzarNotificacionFlotante('Legajo, apellido y nombre son obligatorios.', 'error');
+      if (!db) return lanzarNotificacionFlotante('Base de datos no disponible.', 'error');
+
+      try {
+        const yaExiste = db.prepare('SELECT legajo FROM local_p_nomina_personal WHERE legajo = ?').get(legajo);
+        if (yaExiste) return lanzarNotificacionFlotante('Ya existe un legajo con ese número.', 'error');
+
+        db.prepare(`
+          INSERT INTO local_p_nomina_personal (legajo, apellido, nombre, dni, cuil, fecha_ingreso, labor, sector, centro_costo, estado, sexo, reg_local, categoria, nombre_completo, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', ?, ?, ?, ?, 0)
+        `).run(
+          legajo, apellido, nombre,
+          document.getElementById('fDni').value.trim() || null,
+          document.getElementById('fCuil').value.trim(),
+          document.getElementById('fFechaIngreso').value,
+          document.getElementById('fLabor').value.trim(),
+          document.getElementById('fSector').value.trim(),
+          document.getElementById('fCentroCosto').value.trim(),
+          document.getElementById('fSexo').value,
+          generarToken(),
+          document.getElementById('fCategoria').value.trim(),
+          `${apellido}, ${nombre}`
+        );
+
+        lanzarNotificacionFlotante('Empleado dado de alta con éxito.', 'success');
+        closeMiniModal();
+        renderizarTabla();
+      } catch(e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+    }, 'Guardar Alta');
+  });
+
+  window.editarEmpleado = function(legajo) {
+    if (!db) return;
+    const p = db.prepare('SELECT * FROM local_p_nomina_personal WHERE legajo = ?').get(legajo);
+    if (!p) return lanzarNotificacionFlotante('No se encontró el legajo.', 'error');
+
+    openMiniModal(`Editar Legajo # ${legajo}`, 'Todos los datos son editables salvo el número de legajo', camposEmpleado(p), () => {
+      const apellido = document.getElementById('fApellido').value.trim();
+      const nombre = document.getElementById('fNombre').value.trim();
+      if (!apellido || !nombre) return lanzarNotificacionFlotante('Apellido y nombre son obligatorios.', 'error');
+
+      try {
+        db.prepare(`
+          UPDATE local_p_nomina_personal SET
+            apellido = ?, nombre = ?, dni = ?, cuil = ?, fecha_ingreso = ?, labor = ?, sector = ?,
+            centro_costo = ?, sexo = ?, categoria = ?, nombre_completo = ?, sincronizado = 0
+          WHERE legajo = ?
+        `).run(
+          apellido, nombre,
+          document.getElementById('fDni').value.trim() || null,
+          document.getElementById('fCuil').value.trim(),
+          document.getElementById('fFechaIngreso').value,
+          document.getElementById('fLabor').value.trim(),
+          document.getElementById('fSector').value.trim(),
+          document.getElementById('fCentroCosto').value.trim(),
+          document.getElementById('fSexo').value,
+          document.getElementById('fCategoria').value.trim(),
+          `${apellido}, ${nombre}`,
+          legajo
+        );
+
+        lanzarNotificacionFlotante('Datos del legajo actualizados.', 'success');
+        closeMiniModal();
+        renderizarTabla();
+      } catch(e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+    }, 'Guardar Cambios');
+  };
+
+  // =========================================================================
+  // CAMBIO DE ESTADO (alta / baja de la relación laboral)
+  // =========================================================================
+  window.cambiarEstadoLegajo = async function(legajo, nuevoEstado) {
+    if (!db) return;
+    const accion = nuevoEstado === 'ACTIVO' ? 'reactivar' : 'dar de baja a';
+    const ok = await GordonConfirm({
+      titulo: 'Cambio de estado',
+      mensaje: `¿Confirmás ${accion} el legajo ${legajo}?`,
+      tipo: nuevoEstado === 'ACTIVO' ? 'info' : 'advertencia',
+      textoOk: 'Confirmar'
+    });
+    if (!ok) return;
+
+    try {
+      db.prepare("UPDATE local_p_nomina_personal SET estado = ?, sincronizado = 0 WHERE legajo = ?").run(nuevoEstado, legajo);
+      lanzarNotificacionFlotante(`Legajo ${legajo} ahora está ${nuevoEstado}.`, 'success');
+      renderizarTabla();
+    } catch(e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+  };
+
+  // =========================================================================
+  // HISTORIAL DEL LEGAJO (solo lectura)
+  // =========================================================================
+  window.verHistorial = function(legajo) {
+    if (!db) return;
+    let filas = [];
+    try {
+      filas = db.prepare('SELECT * FROM local_p_personal_historial WHERE legajo = ? ORDER BY fecha_desde DESC').all(legajo);
+    } catch(e) { console.error(e); }
+
+    const cuerpo = `
+      <div style="overflow-x:auto;">
+        <table class="tabla-interna-fila">
+          <thead>
+            <tr>
+              <th>DESDE</th>
+              <th>HASTA</th>
+              <th style="text-align:center;">$/HORA</th>
+              <th style="text-align:center;">JORNAL</th>
+              <th>FORMA DE PAGO</th>
+              <th>CENTRO DE COSTO</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filas.map(f => `
+              <tr>
+                <td style="font-weight:700; color:var(--color-accent-dark);">📅 ${f.fecha_desde || '—'}</td>
+                <td>${f.fecha_hasta ? '📅 ' + f.fecha_hasta : '<span class="badge-estado activo">VIGENTE</span>'}</td>
+                <td style="text-align:center; font-weight:700; color:#107C41;">${f.importe_hora ? '$' + n2(f.importe_hora) : '—'}</td>
+                <td style="text-align:center;">${f.jornal ? '$' + n2(f.jornal) : '—'}</td>
+                <td>${escapeHtml(f.forma_pago || '—')}</td>
+                <td>${escapeHtml(f.centro_costo || '—')}</td>
+              </tr>
+            `).join('')}
+            ${filas.length === 0 ? '<tr><td colspan="6" class="vista-vacia">Este legajo todavía no tiene ninguna valorización cargada.</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    openMiniModal(`Historial Laboral · Legajo ${legajo}`, 'Períodos de valorización salarial de este empleado', cuerpo, null);
+  };
+
+  // =========================================================================
+  // VALORIZACIÓN DE LEGAJO (nuevo período salarial)
+  // =========================================================================
+  window.valorizarLegajo = function(legajo) {
+    if (!db) return;
+    const empleado = db.prepare('SELECT * FROM local_p_nomina_personal WHERE legajo = ?').get(legajo);
+    if (!empleado) return lanzarNotificacionFlotante('No se encontró el legajo.', 'error');
+
+    const fields = `
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Vigente Desde</label><input type="date" id="vFechaDesde" class="modal-input" value="${hoyStr()}" /></div>
+        <div class="modal-group"><label>Forma de Pago</label>
+          <select id="vFormaPago" class="modal-input">
+            <option value="POR HORA">Por Hora</option>
+            <option value="JORNAL">Jornal</option>
+            <option value="MENSUAL">Mensual</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Importe por Hora</label><input type="number" step="0.01" id="vImporteHora" class="modal-input" placeholder="0.00" /></div>
+        <div class="modal-group"><label>Jornal</label><input type="number" step="0.01" id="vJornal" class="modal-input" placeholder="0.00" /></div>
+      </div>
+      <div class="modal-grid-2">
+        <div class="modal-group"><label>Recargo Hora 50% (auto)</label><input type="number" step="0.01" id="vImpHs50" class="modal-input" placeholder="0.00" /></div>
+        <div class="modal-group"><label>Recargo Hora 100% (auto)</label><input type="number" step="0.01" id="vImpHs100" class="modal-input" placeholder="0.00" /></div>
+      </div>
+      <div class="modal-group"><label>Centro de Costo</label><input type="text" id="vCentroCosto" class="modal-input" value="${escapeHtml(empleado.centro_costo || '')}" /></div>
+    `;
+
+    openMiniModal(`Valorizar Legajo · ${empleado.nombre_completo || legajo}`, 'Se cierra automáticamente el período anterior (si existía) y arranca uno nuevo', fields, () => {
+      const fechaDesde = document.getElementById('vFechaDesde').value;
+      const importeHora = parseFloat(document.getElementById('vImporteHora').value) || 0;
+      const jornal = parseFloat(document.getElementById('vJornal').value) || 0;
+
+      if (!fechaDesde) return lanzarNotificacionFlotante('Ingresá la fecha de vigencia.', 'error');
+      if (!importeHora && !jornal) return lanzarNotificacionFlotante('Ingresá al menos el importe por hora o el jornal.', 'error');
+
+      const impHs50 = parseFloat(document.getElementById('vImpHs50').value) || (importeHora * 1.5);
+      const impHs100 = parseFloat(document.getElementById('vImpHs100').value) || (importeHora * 2);
+      const formaPago = document.getElementById('vFormaPago').value;
+      const centroCosto = document.getElementById('vCentroCosto').value.trim();
+
+      try {
+        // Cierra el período abierto anterior (si lo hay) justo un día antes de
+        // que arranque el nuevo, para que nunca se solapen dos vigencias.
+        const abierto = db.prepare(`
+          SELECT * FROM local_p_personal_historial
+          WHERE legajo = ? AND (fecha_hasta IS NULL OR fecha_hasta = '')
+          ORDER BY fecha_desde DESC LIMIT 1
+        `).get(legajo);
+
+        if (abierto && abierto.fecha_desde && abierto.fecha_desde < fechaDesde) {
+          db.prepare(`UPDATE local_p_personal_historial SET fecha_hasta = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?`)
+            .run(diaAnterior(fechaDesde), abierto.id, abierto.reg_local);
+        }
+
+        const maxId = db.prepare('SELECT COALESCE(MAX(id), 0) as maxId FROM local_p_personal_historial').get().maxId;
+
+        db.prepare(`
+          INSERT INTO local_p_personal_historial
+            (id, reg_local, legajo, nombre_completo, dni, fecha_desde, fecha_hasta, importe_hora, forma_pago, pago_mes, centro_costo, negocio, jornal, imp_hs_50, imp_hs_100, sincronizado)
+          VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+        `).run(
+          maxId + 1, Date.now(), legajo, empleado.nombre_completo, empleado.dni,
+          fechaDesde, importeHora, formaPago, jornal * 22 /* aprox. jornales/mes, ajustable */,
+          centroCosto, empleado.centro_costo || null, jornal, impHs50, impHs100
+        );
+
+        lanzarNotificacionFlotante('Legajo valorizado correctamente.', 'success');
+        closeMiniModal();
+        renderizarTabla();
+      } catch(e) { console.error(e); lanzarNotificacionFlotante(e.message, 'error'); }
+    }, 'Valorizar');
+  };
+
+  // =========================================================================
+  // EXPORTACIÓN A EXCEL Y PDF
+  // =========================================================================
+  async function guardarLibroEnDescargas(wb, nombreArchivo) {
+    const os = require('os'); const fs = require('fs');
+    const carpetaDescargas = path.join(os.homedir(), 'Downloads');
+    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    const rutaFinal = path.join(carpetaDescargas, nombreArchivo);
+    await wb.xlsx.writeFile(rutaFinal);
+    return rutaFinal;
+  }
+  function crearHojaEstilizada(wb, nombre, columnas, filas) {
+    const ws = wb.addWorksheet(nombre.slice(0, 31));
+    ws.columns = columnas;
+    const headerRow = ws.getRow(1);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3949AB' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+    headerRow.height = 22;
+    filas.forEach(f => ws.addRow(f));
+    return ws;
+  }
+
+  document.getElementById('btnExportExcel').addEventListener('click', async () => {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const registros = obtenerListado();
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
+
+    try {
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Gordon Gestión · Personal';
+      crearHojaEstilizada(wb, 'Nomina', [
+        { header: 'LEGAJO', key: 'legajo', width: 12 }, { header: 'APELLIDO Y NOMBRE', key: 'nombre', width: 28 },
+        { header: 'DNI', key: 'dni', width: 12 }, { header: 'LABOR', key: 'labor', width: 18 },
+        { header: 'SECTOR', key: 'sector', width: 18 }, { header: 'CATEGORÍA', key: 'categoria', width: 16 },
+        { header: 'F. INGRESO', key: 'ingreso', width: 14 }, { header: '$/HORA VIGENTE', key: 'importe', width: 16 },
+        { header: 'ESTADO', key: 'estado', width: 12 }
+      ], registros.map(r => ({
+        legajo: r.legajo, nombre: r.nombre_completo || `${r.apellido}, ${r.nombre}`, dni: r.dni,
+        labor: r.labor, sector: r.sector, categoria: r.categoria, ingreso: r.fecha_ingreso,
+        importe: r.importe_vigente ? Number(n2(r.importe_vigente)) : null, estado: r.estado
+      })));
+      const nombre = `Personal_${filtroActual}_${hoyStr()}.xlsx`;
+      await guardarLibroEnDescargas(wb, nombre);
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+  });
+
+  document.getElementById('btnExportPdf').addEventListener('click', () => {
+    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    const registros = obtenerListado();
+    if (registros.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
+
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+      const fs = require('fs'); const os = require('os');
+
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const margen = 15;
+      let cursorY = 14;
+
+      try {
+        const logoBase64 = fs.readFileSync(path.join(__dirname, '../logo.png')).toString('base64');
+        doc.addImage('data:image/png;base64,' + logoBase64, 'PNG', margen, cursorY, 20, 20);
+      } catch (e) { console.error('No se pudo cargar logo.png:', e.message); }
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(38, 50, 122);
+      doc.text('GORDON GESTIÓN · AGROSOFT J&L', margen + 26, cursorY + 5);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(91, 97, 114);
+      doc.text(filtroActual === 'activo' ? 'Listado de Personal Activo' : 'Listado de Personal Total', margen + 26, cursorY + 11);
+
+      cursorY += 24;
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: margen, right: margen },
+        head: [['Legajo', 'Apellido y Nombre', 'DNI', 'Labor / Sector', 'Categoría', 'F. Ingreso', '$/Hora', 'Estado']],
+        body: registros.map(r => [
+          r.legajo, r.nombre_completo || `${r.apellido}, ${r.nombre}`, r.dni || '—',
+          `${r.labor || '—'} / ${r.sector || '—'}`, r.categoria || '—', r.fecha_ingreso || '—',
+          r.importe_vigente ? '$' + n2(r.importe_vigente) : 'S/D', r.estado || 'ACTIVO'
+        ]),
+        headStyles: { fillColor: [57, 73, 171], textColor: 255, fontSize: 9 },
+        styles: { fontSize: 8 },
+        theme: 'striped'
+      });
+
+      const totalPaginas = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPaginas; i++) {
+        doc.setPage(i);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+        doc.text(`Generado el ${new Date().toLocaleString('es-AR')}`, margen, doc.internal.pageSize.getHeight() - 8);
+        doc.text(`Página ${i} de ${totalPaginas}`, doc.internal.pageSize.getWidth() - margen, doc.internal.pageSize.getHeight() - 8, { align: 'right' });
+      }
+
+      const carpetaDescargas = path.join(os.homedir(), 'Downloads');
+      if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
+      const nombre = `Personal_${filtroActual}_${hoyStr()}.pdf`;
+      fs.writeFileSync(path.join(carpetaDescargas, nombre), Buffer.from(doc.output('arraybuffer')));
+      lanzarNotificacionFlotante(`¡PDF guardado en Descargas: ${nombre}!`, 'success');
+    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el PDF: ' + err.message, 'error'); }
+  });
+
+  // Carga inicial
+  renderizarTabla();
+})();
+</script>
+</body>
+</html>

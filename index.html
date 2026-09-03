@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Ícono para pestaña normal del navegador -->
+<link rel="icon" type="image/png" href="../logo.png">
+<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
+
+<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
+<link rel="apple-touch-icon" href="../logo.png">
+
+<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gordon Gestión · Ingreso</title>
+<style>
+  :root {
+    --color-bg: #F3F5F1;
+    --color-surface: #FFFFFF;
+    --color-text: #1B231D;
+    --color-text-secondary: #5F6B62;
+    --color-accent: #1E6B4C;
+    --color-accent-dark: #123F2C;
+    --color-gold: #B8862A;
+    --color-danger: #C0483C;
+    --color-danger-soft: rgba(192, 72, 60, 0.08);
+    --color-border: rgba(27, 35, 29, 0.10);
+    --radius-lg: 22px;
+    --radius-md: 12px;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    font-family: var(--font-family);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    background-image: repeating-linear-gradient(
+      100deg,
+      rgba(30, 107, 76, 0.05) 0px,
+      rgba(30, 107, 76, 0.05) 1.5px,
+      transparent 1.5px,
+      transparent 38px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .tarjeta-login {
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 60px rgba(20, 30, 24, 0.14), 0 2px 10px rgba(20, 30, 24, 0.05);
+    padding: 44px 36px 30px;
+    text-align: center;
+    animation: aparecer 0.5s ease;
+  }
+
+  @keyframes aparecer {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .tarjeta-login.shake { animation: sacudir 0.4s ease; }
+
+  @keyframes sacudir {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+  }
+
+  .logo-badge {
+    width: 2cm;
+    height: 2cm;
+    margin: 0 auto 20px;
+    border-radius: 0.5cm;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .logo-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: inherit;
+  }
+
+  h1 {
+    font-size: 21px;
+    font-weight: 650;
+    margin: 0 0 2px;
+    letter-spacing: -0.2px;
+  }
+
+  .subtitulo {
+    margin: 0 0 28px;
+    font-size: 13.5px;
+    color: var(--color-text-secondary);
+  }
+
+  .campo { text-align: left; margin-bottom: 16px; }
+
+  .campo label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .campo input {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 15px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: #FAFAF8;
+    color: var(--color-text);
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .campo input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(30, 107, 76, 0.15);
+  }
+
+  .input-password-wrap { position: relative; }
+  .input-password-wrap input { padding-right: 56px; }
+
+  .btn-toggle-pass {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 7px 9px;
+    color: var(--color-accent-dark);
+    border-radius: 8px;
+  }
+  .btn-toggle-pass:hover { background: rgba(30, 107, 76, 0.08); }
+
+  .mensaje-error {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+    font-size: 13px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .btn-ingresar {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .btn-ingresar:hover { background: var(--color-accent-dark); }
+  .btn-ingresar:active { transform: scale(0.98); }
+  .btn-ingresar:disabled { opacity: 0.7; cursor: default; }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: girar 0.7s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  .pie {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .indicador-conexion {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #b7b7ac;
+  }
+  .indicador-conexion.online { background: #3E9B5E; }
+  .indicador-conexion.offline { background: var(--color-gold); }
+
+  .btn-ingresar:focus-visible,
+  .btn-toggle-pass:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <form class="tarjeta-login" id="formLogin" autocomplete="on">
+    <div class="logo-badge">
+      <img src="logo.png" alt="Logo AgroSoft J&L" />
+    </div>
+
+    <h1>Gordon Gestión</h1>
+    <p class="subtitulo">Sistema de Gestión Agrícola</p>
+
+    <div class="campo">
+      <label for="usuario">Usuario</label>
+      <input type="text" id="usuario" name="usuario" autocomplete="username" placeholder="tu.usuario" required />
+    </div>
+
+    <div class="campo">
+      <label for="password">Contraseña</label>
+      <div class="input-password-wrap">
+        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+        <button type="button" class="btn-toggle-pass" id="btnTogglePass" tabindex="-1">Ver</button>
+      </div>
+    </div>
+
+    <div class="mensaje-error" id="mensajeError" hidden></div>
+
+    <button type="submit" class="btn-ingresar" id="btnIngresar">
+      <span class="texto-btn">Ingresar</span>
+      <span class="spinner" id="spinner" hidden></span>
+    </button>
+
+    <div class="pie">
+      <span class="indicador-conexion" id="indicadorConexion"></span>
+      <span id="textoConexion">Verificando conexión…</span>
+    </div>
+  </form>
+
+<script>
+(function () {
+  const electronDisponible = typeof require === 'function';
+  let auth = null;
+
+  if (electronDisponible) {
+    try {
+      auth = require('./auth.js');
+    } catch (e) {
+      console.warn('No se pudo cargar auth.js:', e.message);
+    }
+  }
+
+  /* Auto-login si ya existe una sesión guardada. Única fuente de verdad:
+     la sesión persistida en SQLite (auth.obtenerSesionActiva), la misma
+     que consulta menu_central.html. localStorage solo se usa como
+     respaldo cuando no hay Electron disponible (vista previa en navegador),
+     para no generar un desacuerdo entre ambas páginas. */
+  try {
+    let sesionValida = false;
+
+    if (auth && typeof auth.obtenerSesionActiva === 'function') {
+      sesionValida = !!auth.obtenerSesionActiva();
+    } else if (localStorage.getItem('sesion_activa')) {
+      sesionValida = true;
+    }
+
+    if (sesionValida) {
+      window.location.href = './menu_central.html';
+      return;
+    }
+  } catch (e) {
+    console.warn('Error al verificar auto-login:', e);
+  }
+
+  const form = document.getElementById('formLogin');
+  const usuarioInput = document.getElementById('usuario');
+  const passwordInput = document.getElementById('password');
+  const btnIngresar = document.getElementById('btnIngresar');
+  const textoBtn = btnIngresar.querySelector('.texto-btn');
+  const spinner = document.getElementById('spinner');
+  const mensajeError = document.getElementById('mensajeError');
+  const btnTogglePass = document.getElementById('btnTogglePass');
+  const indicadorConexion = document.getElementById('indicadorConexion');
+  const textoConexion = document.getElementById('textoConexion');
+
+  function actualizarIndicadorConexion() {
+    const online = navigator.onLine;
+    indicadorConexion.classList.toggle('online', online);
+    indicadorConexion.classList.toggle('offline', !online);
+    textoConexion.textContent = online ? 'Conectado' : 'Sin conexión — se intentará el acceso local';
+  }
+  window.addEventListener('online', actualizarIndicadorConexion);
+  window.addEventListener('offline', actualizarIndicadorConexion);
+  actualizarIndicadorConexion();
+
+  btnTogglePass.addEventListener('click', () => {
+    const esPassword = passwordInput.type === 'password';
+    passwordInput.type = esPassword ? 'text' : 'password';
+    btnTogglePass.textContent = esPassword ? 'Ocultar' : 'Ver';
+  });
+
+  const MENSAJES = {
+    datos_incompletos: 'Completá usuario y contraseña.',
+    credenciales_invalidas: 'Usuario o contraseña incorrectos.',
+    sin_conexion_primera_vez:
+      'Sin conexión y sin acceso previo guardado en este equipo. Conectate a internet para el primer ingreso.',
+  };
+
+  function mostrarError(texto) {
+    mensajeError.textContent = texto;
+    mensajeError.hidden = false;
+    form.classList.remove('shake');
+    void form.offsetWidth;
+    form.classList.add('shake');
+  }
+
+  function ocultarError() {
+    mensajeError.hidden = true;
+  }
+
+  function mostrarCargando(cargando) {
+    btnIngresar.disabled = cargando;
+    textoBtn.hidden = cargando;
+    spinner.hidden = !cargando;
+  }
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    ocultarError();
+
+    const usuario = usuarioInput.value.trim();
+    const password = passwordInput.value;
+
+    mostrarCargando(true);
+    try {
+      let resultado;
+
+      if (auth && typeof auth.iniciarSesion === 'function') {
+        resultado = await auth.iniciarSesion(usuario, password);
+      } else {
+        await new Promise((r) => setTimeout(r, 900));
+        resultado = usuario && password 
+          ? { ok: true, usuario: { usuario: usuario, rol: 'admin', nombre_completo: 'Usuario Demo' } } 
+          : { ok: false, motivo: 'datos_incompletos' };
+      }
+
+      if (resultado.ok) {
+        if (!auth) {
+          // Modo demo (sin Electron): no hay SQLite disponible, usamos localStorage.
+          const sesionUsuario = resultado.usuario || { usuario: usuario, rol: 'operario' };
+          localStorage.setItem('sesion_activa', JSON.stringify(sesionUsuario));
+        }
+
+        window.location.href = './menu_central.html';
+      } else {
+        mostrarError(MENSAJES[resultado.motivo] || 'No se pudo iniciar sesión.');
+      }
+    } catch (error) {
+      console.error(error);
+      mostrarError('Ocurrió un error inesperado. Probá de nuevo.');
+    } finally {
+      mostrarCargando(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>
