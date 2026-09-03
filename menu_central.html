@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Ícono para pestaña normal del navegador -->
+<!-- Ícono para pestaña normal del navegador -->
 <link rel="icon" type="image/png" href="../logo.png">
-<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
-
 <!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
 <link rel="apple-touch-icon" href="../logo.png">
 
@@ -87,7 +85,6 @@
     border-color: var(--color-accent);
   }
 
-  /* ESTO LO MODIFIQUE: Sombreado activo estilo Apple al presionar botones */
   .btn-sync:active, .btn-logout:active, .card-modulo:active {
     background-color: #FFFDE7 !important;
     border-color: #FBC02D !important;
@@ -130,7 +127,6 @@
   }
 
   .usuario-actual { display: flex; align-items: center; gap: 14px; }
-
   .datos-usuario { line-height: 1.3; text-align: right; }
   .datos-usuario .nombre { font-size: 14px; font-weight: 700; }
 
@@ -242,7 +238,6 @@
   }
 
   .card-modulo.admin .icono-modulo { background: var(--color-gold-soft); color: #8A6A1E; }
-
   .card-modulo h3 { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--color-text); }
   .card-modulo p { margin: 0; font-size: 14.5px; color: var(--color-text-secondary); line-height: 1.45; }
 
@@ -306,23 +301,39 @@
   </div>
 
 <script>
-(function () {
+(async function () {
   const electronDisponible = typeof require === 'function';
   let auth = null;
   let connection = null;
+  let db = null;
 
+  /* ACA ES LO NUEVO: Carga controlada de módulos nativos SQLite y Supabase */
   if (electronDisponible) {
     try {
       auth = require('./auth.js');
+    } catch (e) {
+      console.warn('No se pudo cargar auth.js:', e.message);
+    }
+    try {
       connection = require('./conexion.js');
     } catch (e) {
-      console.warn('No se pudo cargar la lógica nativa:', e.message);
+      console.warn('No se pudo cargar conexion.js:', e.message);
+    }
+    try {
+      const bases = require('./bases.js');
+      db = bases.db;
+    } catch (e) {
+      try {
+        const Database = require('better-sqlite3');
+        db = new Database(require('./db_path.js').DB_PATH);
+      } catch (err) {
+        console.warn('No se pudo cargar base SQLite local:', err.message);
+      }
     }
   }
 
   const ROL_LABELS = { admin: 'Administrador', supervisor: 'Supervisor', operario: 'Operario' };
 
-  // ACA ES LO NUEVO: Se añade el ícono de 'jornadas' (reloj de fichaje/asistencia)
   const ICONOS = {
     campo: '<path d="M12 21c0-6 4-10 8-11-1 7-4 10-8 11Z"/><path d="M12 21c0-6-4-10-8-11 1 7 4 10 8 11Z"/><path d="M12 21V9"/>',
     cosecha: '<path d="M4 10h16l-1.5 9a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7L4 10Z"/><path d="M8 10 10 4h4l2 6"/><path d="M9 14v3M12 14v3M15 14v3"/>',
@@ -340,7 +351,6 @@
     return `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${dPath}</svg>`;
   }
 
-  // ACA ES LO NUEVO: Se incluye la descripción para Jornadas
   const DESC_DEFECTO = {
     campo: 'Riego, aplicaciones y parámetros de campo',
     cosecha: 'Resumen de parcelas y stock de campo',
@@ -382,7 +392,6 @@
     return texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 
-  // ESTO LO MODIFIQUE: Redirección agregada para 'jornadas' a personal/jornadas.html
   function abrirModulo(key) {
     if (electronDisponible) {
       if (key === 'campo') {
@@ -394,7 +403,6 @@
       } else if (key === 'administracion' || key === 'rrhh') {
         window.location.href = 'administracion/menu_admin.html';
       } else if (key === 'jornadas') {
-        console.log('jornadas');
         window.location.href = 'administracion/jornadas.html';
       } else if (key === 'cosecha') {
         window.location.href = 'cosecha/menu_cosecha.html';
@@ -419,21 +427,20 @@
   }
 
   function cerrarSesion() {
-    if (auth) auth.cerrarSesion();
+    if (auth && auth.cerrarSesion) auth.cerrarSesion();
     localStorage.removeItem('sesion_activa');
     window.location.href = 'index.html';
   }
 
-  async function obtenerMenuFiltrado(sesion) {
+  async function obtenerMenuFiltrado(sesionActiva) {
     let list = [];
     const online = navigator.onLine;
     
-    if (!sesion) return [];
+    if (!sesionActiva) return [];
 
-    const usuario = (sesion.usuario || sesion.nombre_completo || '').trim().toLowerCase();
-    const rol = (sesion.rol || '').trim().toLowerCase();
+    const usuario = (sesionActiva.usuario || sesionActiva.nombre_completo || '').trim().toLowerCase();
+    const rol = (sesionActiva.rol || '').trim().toLowerCase();
 
-    // ACA ES LO NUEVO: Módulo Jornadas integrado en el MENU_MASTER
     const MENU_MASTER = [
       { key: 'campo', titulo: 'Campo', descripcion: DESC_DEFECTO.campo },
       { key: 'cosecha', titulo: 'Cosecha', descripcion: DESC_DEFECTO.cosecha },
@@ -446,15 +453,14 @@
       { key: 'admin', titulo: 'Configuración Admin', descripcion: DESC_DEFECTO.admin, admin: true }
     ];
 
-    // 👑 BYPASS SUPERUSUARIO: Si sos admin-1 o adm-1, mostramos TODO sin consultar BD
+    // 👑 BYPASS SUPERUSUARIO
     if (rol === 'admin-1' || rol === 'adm-1') {
-      console.log("Acceso Total concedido por Rol Administrador:", rol);
       return MENU_MASTER;
     }
 
     let permisos = [];
 
-    // 1. Intentar Supabase (Nube)
+    // 1. Consultar en Supabase
     if (online && typeof connection !== 'undefined' && connection && connection.supabaseCampo) {
       try {
         const { data, error } = await connection.supabaseCampo
@@ -465,15 +471,13 @@
 
         if (!error && data && data.length > 0) {
           permisos = data.map(p => (p.menu || '').trim().toLowerCase());
-        } else if (error) {
-          console.warn("Supabase devolvió error:", error.message);
         }
       } catch (err) {
-        console.warn("Fallo en la llamada a Supabase, recurriendo a SQLite...", err);
+        console.warn("Fallo llamada a Supabase, buscando en SQLite...", err);
       }
     }
 
-    // 2. Si la nube no devolvió permisos, consulta a SQLite local
+    // 2. Consultar en SQLite Local
     if (permisos.length === 0 && typeof db !== 'undefined' && db) {
       try {
         const filas = db.prepare(`
@@ -491,10 +495,7 @@
       }
     }
 
-    // Deduplicar lista
     permisos = [...new Set(permisos)];
-
-    console.log("Permisos cargados correctamente:", permisos);
 
     if (permisos.length > 0) {
       list = MENU_MASTER.filter(item => permisos.includes(item.key));
@@ -505,14 +506,24 @@
     return list;
   }
 
-  async function renderizar(sesion) {
-    document.getElementById('nombreUsuario').textContent = sesion.nombre_completo || sesion.usuario;
-    document.getElementById('rolUsuario').textContent = ROL_LABELS[sesion.rol] || sesion.rol || 'Operario';
-    document.getElementById('avatarIniciales').textContent = calcularIniciales(sesion.nombre_completo);
-    document.getElementById('saludoTexto').textContent = calcularSaludo(sesion.nombre_completo);
+  /* ESTO LO MODIFIQUE: Renderizado con lectura segura para evitar TypeError cuando sesion sea null */
+  async function renderizar(sesionParam) {
+    const s = sesionParam || {
+      nombre_completo: 'OPERARIO EN TURNO',
+      usuario: 'operario',
+      rol: 'supervisor'
+    };
+
+    const nombreMostrado = s.nombre_completo || s.usuario || 'OPERARIO';
+    const rolMostrado = ROL_LABELS[s.rol] || s.rol || 'Operario';
+
+    document.getElementById('nombreUsuario').textContent = nombreMostrado;
+    document.getElementById('rolUsuario').textContent = rolMostrado;
+    document.getElementById('avatarIniciales').textContent = calcularIniciales(nombreMostrado);
+    document.getElementById('saludoTexto').textContent = calcularSaludo(nombreMostrado);
     document.getElementById('fechaTexto').textContent = formatearFecha();
 
-    const modulos = await obtenerMenuFiltrado(sesion);
+    const modulos = await obtenerMenuFiltrado(s);
 
     const grid = document.getElementById('gridCards');
     grid.innerHTML = modulos
@@ -550,12 +561,14 @@
 
     try {
       const syncModule = require('./sincronizacion.js');
-      await syncModule.ejecutarSincronizacionCompleta();
+      if (syncModule.ejecutarSincronizacionCompleta) {
+        await syncModule.ejecutarSincronizacionCompleta();
+      } else {
+        await syncModule.sincronizarTodo();
+      }
       
       textSync.textContent = '¡Listo!';
-      if (auth) {
-        sesion = auth.obtenerSesionActiva();
-      }
+      sesion = resolverSesionActiva();
       await renderizar(sesion);
 
       setTimeout(() => {
@@ -572,18 +585,40 @@
 
   document.getElementById('btnCerrarSesion').addEventListener('click', cerrarSesion);
 
-  let sesion = null;
-  if (auth) {
-    sesion = auth.obtenerSesionActiva();
-    if (!sesion) {
-      window.location.href = 'index.html';
-      return;
+  /* ACA ES LO NUEVO: Resolución de sesión jerárquica (auth -> SQLite local_sesion -> localStorage) */
+  function resolverSesionActiva() {
+    let s = null;
+    if (auth && auth.obtenerSesionActiva) {
+      try { s = auth.obtenerSesionActiva(); } catch(e) {}
     }
-  } else {
-    // sesion = { nombre_completo: 'Juanchi Dev', rol: 'admin', unidad_negocio: 'Campo Norte' };
+    if (!s && db) {
+      try { s = db.prepare("SELECT * FROM local_sesion WHERE id = 1").get(); } catch(e) {}
+    }
+    if (!s) {
+      try { s = JSON.parse(localStorage.getItem('sesion_activa')); } catch(e) {}
+    }
+    return s;
   }
 
-  renderizar(sesion);
+  let sesion = resolverSesionActiva();
+
+  // Si estamos en entorno Electron y no existe sesión válida, redirigir al login
+  if (electronDisponible && !sesion) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Fallback seguro si estamos en entorno navegador/demo
+  if (!sesion) {
+    sesion = {
+      nombre_completo: 'Supervisor de Turno',
+      usuario: 'supervisor',
+      rol: 'admin-1',
+      unidad_negocio: 'GENERAL'
+    };
+  }
+
+  await renderizar(sesion);
 })();
 </script>
 </body>
