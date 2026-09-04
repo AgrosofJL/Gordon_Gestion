@@ -1,14 +1,13 @@
 // auth.js
 const { supabaseCampo } = require('./conexion.js');
-const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const { DB_PATH } = require('./db_path.js');
 const db = new Database(DB_PATH);
 
-const { subirCambiosLocales } = require('./subir.js');
-const { bajarDatosRemotos } = require('./bajar.js');
+// ESTO LO MODIFIQUE: Se importa el orquestador unificado real
+const { ejecutarSincronizacionCompleta } = require('./sincronizacion.js');
 
-// 1. INICIALIZACIÓN DE TABLAS LOCALES (Estructuras necesarias)
+// 1. INICIALIZACIÓN DE TABLAS LOCALES
 db.prepare(`
   CREATE TABLE IF NOT EXISTS local_sesion (
     id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -21,6 +20,7 @@ db.prepare(`
   )
 `).run();
 
+// ESTO LO MODIFIQUE: Esquema coincidente con bases.js (password TEXT, activo INTEGER/TEXT flexible)
 db.prepare(`
   CREATE TABLE IF NOT EXISTS local_usuarios (
     id INTEGER PRIMARY KEY,
@@ -28,20 +28,23 @@ db.prepare(`
     nombre_completo TEXT,
     rol TEXT,
     unidad_negocio TEXT,
-    password_hash TEXT,
-    activo INTEGER,
+    password TEXT,
+    activo INTEGER DEFAULT 1,
     actualizado_en TEXT
   )
 `).run();
 
-// Sincronización completa (Subida + Bajada)
+// Sincronización completa (Subida + Bajada + Bajas)
 async function sincronizarTodo() {
   try {
-    console.log("Iniciando sincronización...");
-    await ejecutarSincronizacionCompleta();
+    console.log("Iniciando sincronización post-login...");
+    /* ESTO LO MODIFIQUE: Llamada segura al orquestador importado */
+    if (typeof ejecutarSincronizacionCompleta === 'function') {
+      await ejecutarSincronizacionCompleta();
+    }
     console.log("Sincronización finalizada con éxito.");
   } catch (e) {
-    console.error("Error en el proceso de sincronización:", e);
+    console.error("Error en el proceso de sincronización:", e.message);
   }
 }
 
@@ -63,8 +66,8 @@ function registrarSesionLocal(datosUsuario, modo) {
 
   stmt.run(
     datosUsuario.usuario,
-    datosUsuario.nombre_completo,
-    datosUsuario.rol,
+    datosUsuario.nombre_completo || datosUsuario.usuario,
+    datosUsuario.rol || 'operario',
     datosUsuario.unidad_negocio || 'General',
     modo,
     new Date().toISOString()
@@ -72,96 +75,96 @@ function registrarSesionLocal(datosUsuario, modo) {
 }
 
 async function iniciarSesion(usuario, password) {
-  const online = navigator.onLine;
+  const userClean = String(usuario || '').trim();
+  const passClean = String(password || '').trim();
+
+  if (!userClean || !passClean) {
+    return { ok: false, motivo: 'datos_incompletos' };
+  }
+
+  const online = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
   // --- FLUJO ONLINE ---
-  if (online) {
+  if (online && supabaseCampo) {
     try {
-      // 1. Validar contra Supabase (sys_usuarios)
+      /* ESTO LO MODIFIQUE: Búsqueda tolerante a mayúsculas/minúsculas y activo numérico o texto */
       const { data, error } = await supabaseCampo
         .from('sys_usuarios')
         .select('*')
-        .eq('usuario', usuario)
-        .eq('activo', 'ACTIVO')
-        .single();
+        .ilike('usuario', userClean)
+        .limit(1);
 
-      if (error || !data) {
-        return { ok: false, motivo: 'credenciales_invalidas' };
+      if (!error && data && data.length > 0) {
+        const usuarioRemoto = data[0];
+
+        // Validar si el usuario está activo (soporta 1, '1', 'ACTIVO' o true)
+        const estadoActivo = String(usuarioRemoto.activo || '').toUpperCase();
+        const esActivo = estadoActivo === '1' || estadoActivo === 'ACTIVO' || estadoActivo === 'TRUE';
+
+        if (!esActivo) {
+          return { ok: false, motivo: 'credenciales_invalidas' };
+        }
+
+        // Comparar contraseña en texto plano
+        if (String(usuarioRemoto.password || '').trim() !== passClean) {
+          return { ok: false, motivo: 'credenciales_invalidas' };
+        }
+
+        // Guardar o actualizar copia en SQLite local
+        db.prepare(`
+          INSERT INTO local_usuarios (id, usuario, nombre_completo, rol, unidad_negocio, password, activo, actualizado_en)
+          VALUES (?, ?, ?, ?, ?, ?, 1, ?)
+          ON CONFLICT(usuario) DO UPDATE SET
+            nombre_completo = excluded.nombre_completo,
+            rol = excluded.rol,
+            unidad_negocio = excluded.unidad_negocio,
+            password = excluded.password,
+            activo = 1,
+            actualizado_en = excluded.actualizado_en
+        `).run(
+          usuarioRemoto.id,
+          usuarioRemoto.usuario,
+          usuarioRemoto.nombre_completo || usuarioRemoto.usuario,
+          usuarioRemoto.rol,
+          usuarioRemoto.unidad_negocio || 'General',
+          usuarioRemoto.password,
+          new Date().toISOString()
+        );
+
+        // Guardar sesión activa en SQLite (local_sesion id = 1)
+        registrarSesionLocal(usuarioRemoto, 'online');
+
+        // Sincronización en segundo plano sin trabar la navegación
+        sincronizarTodo().catch(err => console.error("Error en sincronización post-login:", err));
+
+        return { ok: true, usuario: usuarioRemoto };
       }
-
-      // 2. Comparar contraseña en texto plano (según la captura de tu BD)
-      if (data.password !== password) {
-        return { ok: false, motivo: 'credenciales_invalidas' };
-      }
-
-      // 3. Guardar/Actualizar copia en local_usuarios
-      db.prepare(`
-        INSERT INTO local_usuarios (id, usuario, nombre_completo, rol, unidad_negocio, password, activo, actualizado_en)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(usuario) DO UPDATE SET
-          nombre_completo = excluded.nombre_completo,
-          rol = excluded.rol,
-          unidad_negocio = excluded.unidad_negocio,
-          password = excluded.password,
-          activo = excluded.activo,
-          actualizado_en = excluded.actualizado_en
-      `).run(
-        data.id, data.usuario, data.nombre_completo, data.rol, 
-        data.unidad_negocio || 'General', data.password, data.activo, new Date().toISOString()
-      );
-
-      // 4. Guardar sesión activa en SQLite (local_sesion) y sessionStorage
-      registrarSesionLocal(data, 'online');
-
-      sessionStorage.setItem('usuarioSesion', JSON.stringify({
-        id: data.id, 
-        usuario: data.usuario, 
-        nombre_completo: data.nombre_completo,
-        rol: data.rol, 
-        unidad_negocio: data.unidad_negocio || 'General'
-      }));
-
-      // DISPARAR SINCRONIZACIÓN EN SEGUNDO PLANO
-      sincronizarTodo().catch(err => console.error("Error en sincronización post-login:", err));
-
-      return { ok: true, usuario: data };
-
     } catch (err) {
-      console.warn("Fallo de conexión Supabase, intentando modo offline...", err);
+      console.warn("Fallo en consulta remota a Supabase, intentando modo offline...", err.message);
     }
   }
 
-  // --- FALLBACK OFFLINE ---
+  // --- FALLBACK OFFLINE (SQLITE LOCAL) ---
   try {
+    /* ESTO LO MODIFIQUE: Búsqueda flexible en local_usuarios sin colgar si activo es 1 o 'ACTIVO' */
     const localUser = db.prepare(`
       SELECT * FROM local_usuarios 
-      WHERE usuario = ? AND activo = 'ACTIVO'
-    `).get(usuario);
+      WHERE LOWER(TRIM(usuario)) = LOWER(TRIM(?))
+        AND (activo = 1 OR UPPER(CAST(activo AS TEXT)) = 'ACTIVO' OR activo IS NULL)
+    `).get(userClean);
 
     if (!localUser) {
       const totalLocales = db.prepare("SELECT COUNT(*) as cant FROM local_usuarios").get().cant;
       return { ok: false, motivo: totalLocales === 0 ? 'sin_conexion_primera_vez' : 'credenciales_invalidas' };
     }
 
-    // Validación de clave local en texto plano
-    if (localUser.password !== password) {
+    // Validación de clave local
+    if (String(localUser.password || '').trim() !== passClean) {
       return { ok: false, motivo: 'credenciales_invalidas' };
     }
 
-    // Guardar sesión activa en SQLite (local_sesion) y sessionStorage
+    // Persistir sesión activa en SQLite (local_sesion id = 1)
     registrarSesionLocal(localUser, 'offline');
-
-    sessionStorage.setItem('usuarioSesion', JSON.stringify({
-      id: localUser.id, 
-      usuario: localUser.usuario, 
-      nombre_completo: localUser.nombre_completo,
-      rol: localUser.rol, 
-      unidad_negocio: localUser.unidad_negocio
-    }));
-
-    if (navigator.onLine) {
-      sincronizarTodo().catch(err => console.error("Error en sincronización offline recuperada:", err));
-    }
 
     return { ok: true, usuario: localUser, offline: true };
 
@@ -172,24 +175,22 @@ async function iniciarSesion(usuario, password) {
 }
 
 function obtenerSesionActiva() {
-  // Primero intentamos leer de la BD local SQLite
   try {
     const sesionLocal = db.prepare('SELECT * FROM local_sesion WHERE id = 1').get();
-    if (sesionLocal) return sesionLocal;
+    if (sesionLocal && sesionLocal.usuario) {
+      return sesionLocal;
+    }
   } catch (e) {
-    console.warn("No se pudo leer local_sesion, recurriendo a sessionStorage:", e);
+    console.warn("No se pudo leer local_sesion:", e.message);
   }
-
-  const sesionStr = sessionStorage.getItem('usuarioSesion');
-  return sesionStr ? JSON.parse(sesionStr) : null;
+  return null;
 }
 
 function cerrarSesion() {
-  sessionStorage.removeItem('usuarioSesion');
   try {
     db.prepare('DELETE FROM local_sesion WHERE id = 1').run();
   } catch (e) {
-    console.error("Error al limpiar la sesión local:", e);
+    console.error("Error al limpiar la sesión local:", e.message);
   }
 }
 

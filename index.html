@@ -273,33 +273,57 @@
   </form>
 
 <script>
+
 (function () {
   const electronDisponible = typeof require === 'function';
   let auth = null;
+  let db = null;
+  let connection = null;
 
+  // ACA ES LO NUEVO: Resolución robusta de rutas para Electron compilado
   if (electronDisponible) {
-    try {
-      auth = require('./auth.js');
-    } catch (e) {
-      console.warn('No se pudo cargar auth.js:', e.message);
+    const rutasPosiblesAuth = ['./auth.js', '../auth.js', './src/auth.js', '../src/auth.js'];
+    for (const r of rutasPosiblesAuth) {
+      try {
+        auth = require(r);
+        if (auth) break;
+      } catch (e) {}
+    }
+
+    const rutasPosiblesBases = ['./bases.js', '../bases.js', './src/bases.js', '../src/bases.js'];
+    for (const r of rutasPosiblesBases) {
+      try {
+        const b = require(r);
+        if (b && b.db) { db = b.db; break; }
+      } catch (e) {}
+    }
+
+    const rutasPosiblesConexion = ['./conexion.js', '../conexion.js', './src/conexion.js', '../src/conexion.js'];
+    for (const r of rutasPosiblesConexion) {
+      try {
+        connection = require(r);
+        if (connection) break;
+      } catch (e) {}
     }
   }
 
-  /* Auto-login si ya existe una sesión guardada. Única fuente de verdad:
-     la sesión persistida en SQLite (auth.obtenerSesionActiva), la misma
-     que consulta menu_central.html. localStorage solo se usa como
-     respaldo cuando no hay Electron disponible (vista previa en navegador),
-     para no generar un desacuerdo entre ambas páginas. */
+  // Auto-login si ya existe una sesión guardada
   try {
-    let sesionValida = false;
+    let sesionActiva = null;
 
     if (auth && typeof auth.obtenerSesionActiva === 'function') {
-      sesionValida = !!auth.obtenerSesionActiva();
-    } else if (localStorage.getItem('sesion_activa')) {
-      sesionValida = true;
+      sesionActiva = auth.obtenerSesionActiva();
+    } else if (db) {
+      try {
+        sesionActiva = db.prepare("SELECT * FROM local_sesion WHERE id = 1").get();
+      } catch (e) {}
+    } else {
+      try {
+        sesionActiva = JSON.parse(localStorage.getItem('sesion_activa'));
+      } catch (e) {}
     }
 
-    if (sesionValida) {
+    if (sesionActiva && (sesionActiva.usuario || sesionActiva.nombre_completo)) {
       window.location.href = './menu_central.html';
       return;
     }
@@ -337,8 +361,7 @@
   const MENSAJES = {
     datos_incompletos: 'Completá usuario y contraseña.',
     credenciales_invalidas: 'Usuario o contraseña incorrectos.',
-    sin_conexion_primera_vez:
-      'Sin conexión y sin acceso previo guardado en este equipo. Conectate a internet para el primer ingreso.',
+    sin_conexion_primera_vez: 'Sin conexión previa guardada en este equipo. Conectate a internet para el primer ingreso.',
   };
 
   function mostrarError(texto) {
@@ -364,31 +387,94 @@
     ocultarError();
 
     const usuario = usuarioInput.value.trim();
-    const password = passwordInput.value;
+    const password = passwordInput.value.trim();
+
+    if (!usuario || !password) {
+      return mostrarError(MENSAJES.datos_incompletos);
+    }
 
     mostrarCargando(true);
-    try {
-      let resultado;
 
+    try {
+      let resultado = { ok: false, motivo: 'credenciales_invalidas' };
+
+      // 1. Primer intento: auth.js
       if (auth && typeof auth.iniciarSesion === 'function') {
         resultado = await auth.iniciarSesion(usuario, password);
-      } else {
-        await new Promise((r) => setTimeout(r, 900));
-        resultado = usuario && password 
-          ? { ok: true, usuario: { usuario: usuario, rol: 'admin', nombre_completo: 'Usuario Demo' } } 
-          : { ok: false, motivo: 'datos_incompletos' };
+      }
+      
+      // 2. Segundo intento: SQLite directo en local_usuarios (si auth.js no cargó)
+      if (!resultado.ok && db) {
+        try {
+          const uRow = db.prepare(`
+            SELECT * FROM local_usuarios 
+            WHERE LOWER(TRIM(usuario)) = LOWER(TRIM(?)) AND activo = 1
+          `).get(usuario);
+
+          if (uRow && (uRow.password === password || uRow.password == null)) {
+            resultado = {
+              ok: true,
+              usuario: {
+                id: uRow.id,
+                usuario: uRow.usuario,
+                nombre_completo: uRow.nombre_completo || uRow.usuario,
+                rol: uRow.rol || 'admin-1',
+                unidad_negocio: uRow.unidad_negocio || 'GENERAL'
+              }
+            };
+
+            // Graba la sesión activa en SQLite (id = 1)
+            db.prepare(`
+              INSERT OR REPLACE INTO local_sesion (id, usuario, nombre_completo, rol, unidad_negocio, modo, iniciado_en)
+              VALUES (1, ?, ?, ?, ?, 'LOCAL', datetime('now', 'localtime'))
+            `).run(
+              resultado.usuario.usuario,
+              resultado.usuario.nombre_completo,
+              resultado.usuario.rol,
+              resultado.usuario.unidad_negocio
+            );
+          }
+        } catch (eSql) {
+          console.warn('Error en validación directa SQLite:', eSql.message);
+        }
       }
 
-      if (resultado.ok) {
-        if (!auth) {
-          // Modo demo (sin Electron): no hay SQLite disponible, usamos localStorage.
-          const sesionUsuario = resultado.usuario || { usuario: usuario, rol: 'operario' };
-          localStorage.setItem('sesion_activa', JSON.stringify(sesionUsuario));
-        }
+      // 3. Tercer intento: Supabase directo (cuando estés en Safari PWA sin Electron)
+      if (!resultado.ok && !electronDisponible && navigator.onLine && connection && connection.supabaseCampo) {
+        try {
+          const { data, error } = await connection.supabaseCampo
+            .from('usuarios')
+            .select('*')
+            .ilike('usuario', usuario)
+            .eq('activo', 1)
+            .limit(1);
 
+          if (!error && data && data.length > 0) {
+            const uRemoto = data[0];
+            if (uRemoto.password === password || uRemoto.password == null) {
+              resultado = {
+                ok: true,
+                usuario: {
+                  id: uRemoto.id,
+                  usuario: uRemoto.usuario,
+                  nombre_completo: uRemoto.nombre_completo || uRemoto.usuario,
+                  rol: uRemoto.rol || 'admin-1',
+                  unidad_negocio: uRemoto.unidad_negocio || 'GENERAL'
+                }
+              };
+            }
+          }
+        } catch (eSup) {
+          console.warn('Error en validación Supabase web:', eSup.message);
+        }
+      }
+
+      if (resultado.ok && resultado.usuario) {
+        // Guarda en localStorage para compatibilidad con Safari y el menú
+        localStorage.setItem('sesion_activa', JSON.stringify(resultado.usuario));
         window.location.href = './menu_central.html';
       } else {
-        mostrarError(MENSAJES[resultado.motivo] || 'No se pudo iniciar sesión.');
+        mostrarError(MENSAJES[resultado.motivo] || 'Usuario o contraseña incorrectos.');
       }
     } catch (error) {
       console.error(error);
