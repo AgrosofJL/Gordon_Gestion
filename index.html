@@ -4,7 +4,7 @@
   <!-- Ícono para pestaña normal del navegador -->
 <link rel="icon" type="image/png" href="../logo.png">
 <!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
 <link rel="apple-touch-icon" href="../logo.png">
 
@@ -402,22 +402,33 @@
       if (auth && typeof auth.iniciarSesion === 'function') {
         resultado = await auth.iniciarSesion(usuario, password);
       } 
-      // Caso 2: En Safari / Web puro consulta directamente Supabase
-      else if (connection && connection.supabaseCampo) {
-        const { data, error } = await connection.supabaseCampo
-          .from('sys_usuarios')
-          .select('*')
-          .ilike('usuario', usuario)
-          .limit(1);
+      // Caso 2: En Safari / Web puro (GitHub Pages) consulta directamente con el cliente CDN de Supabase
+      else {
+        try {
+          // Reemplaza con tus datos reales de Supabase (los mismos de tu conexion.js)
+          const SUPABASE_URL = 'https://TU_PROYECTO.supabase.co';
+          const SUPABASE_KEY = 'TU_ANON_KEY_PUBLICA';
 
-        if (!error && data && data.length > 0) {
-          const u = data[0];
-          const activoTxt = String(u.activo || '').toUpperCase();
-          const esActivo = activoTxt === '1' || activoTxt === 'ACTIVO' || activoTxt === 'TRUE';
-          
-          if (esActivo && String(u.password || '').trim() === password) {
-            resultado = { ok: true, usuario: u };
+          if (window.supabase) {
+            const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            const { data, error } = await clienteWeb
+              .from('sys_usuarios')
+              .select('*')
+              .ilike('usuario', usuario)
+              .limit(1);
+
+            if (!error && data && data.length > 0) {
+              const u = data[0];
+              const activoTxt = String(u.activo || '').toUpperCase();
+              const esActivo = activoTxt === '1' || activoTxt === 'ACTIVO' || activoTxt === 'TRUE';
+              
+              if (esActivo && String(u.password || '').trim() === password) {
+                resultado = { ok: true, usuario: u };
+              }
+            }
           }
+        } catch (errWeb) {
+          console.error("Error en consulta web de Supabase:", errWeb);
         }
       }
 
