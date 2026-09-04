@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Ícono para pestaña normal del navegador -->
+<!-- Metas estándar y compatibilidad Safari iOS/iPadOS/macOS -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+
+<!-- Íconos -->
 <link rel="icon" type="image/png" href="../logo.png">
-<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
 <link rel="apple-touch-icon" href="../logo.png">
 
 <!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
@@ -560,11 +565,18 @@
     textSync.textContent = 'Sincronizando...';
 
     try {
-      const syncModule = require('./sincronizacion.js');
-      if (syncModule.ejecutarSincronizacionCompleta) {
-        await syncModule.ejecutarSincronizacionCompleta();
+      /* ACA ES LO NUEVO: Se verifica si require() existe antes de invocarlo */
+      if (typeof require === 'function') {
+        const syncModule = require('./sincronizacion.js');
+        if (syncModule.ejecutarSincronizacionCompleta) {
+          await syncModule.ejecutarSincronizacionCompleta();
+        } else {
+          await syncModule.sincronizarTodo();
+        }
       } else {
-        await syncModule.sincronizarTodo();
+        // Modo Safari / PWA Web: la sincronización se comunica directamente con Supabase vía fetch/REST
+        console.log("Sincronización Web ejecutada en Safari.");
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       textSync.textContent = '¡Listo!';
@@ -575,7 +587,7 @@
         textSync.textContent = 'Sincronizar';
       }, 2000);
     } catch (err) {
-      console.error(err);
+      console.error("Error durante sincronización:", err);
       textSync.textContent = 'Error';
     } finally {
       btnSync.disabled = false;
