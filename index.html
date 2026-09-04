@@ -390,95 +390,58 @@
     const password = passwordInput.value.trim();
 
     if (!usuario || !password) {
-      return mostrarError(MENSAJES.datos_incompletos);
+      return mostrarError('Completá usuario y contraseña.');
     }
 
     mostrarCargando(true);
 
     try {
-      let resultado = { ok: false, motivo: 'credenciales_invalidas' };
+      let resultado = { ok: false };
 
-      // 1. Primer intento: auth.js
+      // Caso 1: En Electron llama a auth.js (que consulta Supabase e inserta en SQLite)
       if (auth && typeof auth.iniciarSesion === 'function') {
         resultado = await auth.iniciarSesion(usuario, password);
-      }
-      
-      // 2. Segundo intento: SQLite directo en local_usuarios (si auth.js no cargó)
-      if (!resultado.ok && db) {
-        try {
-          const uRow = db.prepare(`
-            SELECT * FROM local_usuarios 
-            WHERE LOWER(TRIM(usuario)) = LOWER(TRIM(?)) AND activo = 1
-          `).get(usuario);
+      } 
+      // Caso 2: En Safari / Web puro consulta directamente Supabase
+      else if (connection && connection.supabaseCampo) {
+        const { data, error } = await connection.supabaseCampo
+          .from('sys_usuarios')
+          .select('*')
+          .ilike('usuario', usuario)
+          .limit(1);
 
-          if (uRow && (uRow.password === password || uRow.password == null)) {
-            resultado = {
-              ok: true,
-              usuario: {
-                id: uRow.id,
-                usuario: uRow.usuario,
-                nombre_completo: uRow.nombre_completo || uRow.usuario,
-                rol: uRow.rol || 'admin-1',
-                unidad_negocio: uRow.unidad_negocio || 'GENERAL'
-              }
-            };
-
-            // Graba la sesión activa en SQLite (id = 1)
-            db.prepare(`
-              INSERT OR REPLACE INTO local_sesion (id, usuario, nombre_completo, rol, unidad_negocio, modo, iniciado_en)
-              VALUES (1, ?, ?, ?, ?, 'LOCAL', datetime('now', 'localtime'))
-            `).run(
-              resultado.usuario.usuario,
-              resultado.usuario.nombre_completo,
-              resultado.usuario.rol,
-              resultado.usuario.unidad_negocio
-            );
+        if (!error && data && data.length > 0) {
+          const u = data[0];
+          const activoTxt = String(u.activo || '').toUpperCase();
+          const esActivo = activoTxt === '1' || activoTxt === 'ACTIVO' || activoTxt === 'TRUE';
+          
+          if (esActivo && String(u.password || '').trim() === password) {
+            resultado = { ok: true, usuario: u };
           }
-        } catch (eSql) {
-          console.warn('Error en validación directa SQLite:', eSql.message);
         }
       }
 
-      // 3. Tercer intento: Supabase directo (cuando estés en Safari PWA sin Electron)
-      if (!resultado.ok && !electronDisponible && navigator.onLine && connection && connection.supabaseCampo) {
-        try {
-          const { data, error } = await connection.supabaseCampo
-            .from('usuarios')
-            .select('*')
-            .ilike('usuario', usuario)
-            .eq('activo', 1)
-            .limit(1);
-
-          if (!error && data && data.length > 0) {
-            const uRemoto = data[0];
-            if (uRemoto.password === password || uRemoto.password == null) {
-              resultado = {
-                ok: true,
-                usuario: {
-                  id: uRemoto.id,
-                  usuario: uRemoto.usuario,
-                  nombre_completo: uRemoto.nombre_completo || uRemoto.usuario,
-                  rol: uRemoto.rol || 'admin-1',
-                  unidad_negocio: uRemoto.unidad_negocio || 'GENERAL'
-                }
-              };
-            }
-          }
-        } catch (eSup) {
-          console.warn('Error en validación Supabase web:', eSup.message);
-        }
-      }
-
+      // Si Supabase dio OK y tenemos el usuario:
       if (resultado.ok && resultado.usuario) {
-        // Guarda en localStorage para compatibilidad con Safari y el menú
-        localStorage.setItem('sesion_activa', JSON.stringify(resultado.usuario));
+        // Guardamos la sesión real para navegación web y Safari
+        localStorage.setItem('sesion_activa', JSON.stringify({
+          id: resultado.usuario.id,
+          usuario: resultado.usuario.usuario,
+          nombre_completo: resultado.usuario.nombre_completo || resultado.usuario.usuario,
+          rol: resultado.usuario.rol,
+          unidad_negocio: resultado.usuario.unidad_negocio || 'GENERAL'
+        }));
+
         window.location.href = './menu_central.html';
       } else {
-        mostrarError(MENSAJES[resultado.motivo] || 'Usuario o contraseña incorrectos.');
+        const msj = resultado.motivo === 'usuario_inactivo' 
+          ? 'El usuario se encuentra inactivo.' 
+          : 'Usuario o contraseña incorrectos.';
+        mostrarError(msj);
       }
     } catch (error) {
       console.error(error);
-      mostrarError('Ocurrió un error inesperado. Probá de nuevo.');
+      mostrarError('Ocurrió un error al conectar con el servidor.');
     } finally {
       mostrarCargando(false);
     }
