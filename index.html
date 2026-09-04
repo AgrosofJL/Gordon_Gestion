@@ -403,15 +403,20 @@
         resultado = await auth.iniciarSesion(usuario, password);
       } 
       // Caso 2: En Safari / Web puro (GitHub Pages) consulta directamente con el cliente CDN de Supabase
+      // Caso 2: En Safari / Web puro (GitHub Pages) consulta directamente con Supabase
       else {
         try {
-          // Reemplaza con tus datos reales de Supabase (los mismos de tu conexion.js)
-          const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
-          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+          // Reutilizamos el cliente global si ya fue declarado, o lo creamos una sola vez de forma segura
+          if (window.supabase && !window._supabaseWebClient) {
+            const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+            window._supabaseWebClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+              auth: { persistSession: false } // Evita conflictos de almacenamiento múltiple
+            });
+          }
 
-          if (window.supabase) {
-            const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            const { data, error } = await clienteWeb
+          if (window._supabaseWebClient) {
+            const { data, error } = await window._supabaseWebClient
               .from('sys_usuarios')
               .select('*')
               .ilike('usuario', usuario)
