@@ -409,7 +409,7 @@
       if (auth && typeof auth.iniciarSesion === 'function') {
         resultado = await auth.iniciarSesion(usuario, password);
       } 
-      // Caso 2: En Safari / Web puro (GitHub Pages) consulta directamente con Supabase
+      // Caso 2: En Safari / Web puro (GitHub Pages)
       else {
         try {
           if (window.supabase && !window._supabaseWebClient) {
@@ -421,31 +421,33 @@
           }
 
           if (window._supabaseWebClient) {
-            // Consulta a la tabla usuarios con columnas reales operario y pass
+            // Buscamos en la tabla 'usuarios' por la columna 'operario'
             const { data, error } = await window._supabaseWebClient
               .from('usuarios')
               .select('*')
               .ilike('operario', usuario)
               .limit(1);
 
+            console.log("[LOGIN WEB] Respuesta Supabase:", { data, error });
+
             if (error) {
-              console.error("[WEB AUTH] Error Supabase:", error);
+              console.error("[LOGIN WEB] Error Supabase:", error);
             }
 
             if (!error && data && data.length > 0) {
               const u = data[0];
-              const estadoTxt = String(u.estado || '').toUpperCase();
-              const estaActivo = estadoTxt === 'ACTIVO' || estadoTxt === '1' || estadoTxt === 'TRUE';
+              const estadoTxt = String(u.estado || '').toUpperCase().trim();
+              const estaActivo = estadoTxt === 'ACTIVO' || estadoTxt === '1' || estadoTxt === 'TRUE' || estadoTxt === '';
 
               if (!estaActivo) {
                 resultado = { ok: false, motivo: 'usuario_inactivo' };
               } else if (String(u.pass || '').trim() === password) {
-                // Validación aprobada en la web
                 resultado = {
                   ok: true,
                   usuario: {
                     id: u.id,
                     usuario: u.operario,
+                    operario: u.operario,
                     nombre_completo: u.operario,
                     rol: u.rol || 'operario',
                     correo: u.correo || '',
@@ -453,37 +455,30 @@
                   }
                 };
 
-                // Descargar permisos correspondientes del usuario
+                // ESTO LO MODIFIQUE: Los permisos se bajan en segundo plano sin interrumpir el login si falla RLS
                 try {
-                  const { data: permisosData, error: errorPermisos } = await window._supabaseWebClient
+                  const { data: permisosData } = await window._supabaseWebClient
                     .from('sys_permisos_usuario')
                     .select('*')
                     .ilike('usuario', u.operario);
 
-                  const permisos = (!errorPermisos && permisosData) ? permisosData : [];
-                  localStorage.setItem('permisos_usuario', JSON.stringify(permisos));
-                } catch (errP) {
-                  console.warn("No se pudieron cargar permisos remotos:", errP);
-                  localStorage.setItem('permisos_usuario', JSON.stringify([]));
+                  if (permisosData) {
+                    localStorage.setItem('permisos_usuario', JSON.stringify(permisosData));
+                  }
+                } catch (ePermisos) {
+                  console.warn("No se pudieron cargar permisos remotos:", ePermisos);
                 }
               }
             }
           }
         } catch (errWeb) {
-          console.error("Error en consulta web de Supabase:", errWeb);
+          console.error("Error en consulta web:", errWeb);
         }
       }
 
-      // Redirección con sesión guardada
+      // Si las credenciales fueron correctas:
       if (resultado.ok && resultado.usuario) {
-        localStorage.setItem('sesion_activa', JSON.stringify({
-          id: resultado.usuario.id,
-          usuario: resultado.usuario.usuario,
-          nombre_completo: resultado.usuario.nombre_completo,
-          rol: resultado.usuario.rol,
-          unidad_negocio: resultado.usuario.unidad_negocio || 'GENERAL'
-        }));
-
+        localStorage.setItem('sesion_activa', JSON.stringify(resultado.usuario));
         window.location.href = './menu_central.html';
       } else {
         const msj = resultado.motivo === 'usuario_inactivo' 
