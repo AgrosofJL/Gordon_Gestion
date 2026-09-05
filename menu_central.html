@@ -398,29 +398,25 @@
     return texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 
+  /* ESTO LO MODIFIQUE: Rutas unificadas para PC y Web */
   function abrirModulo(key) {
-    if (electronDisponible) {
-      if (key === 'campo') window.location.href = 'campo/menu_campo.html';
-      else if (key === 'insumos') window.location.href = 'insumos/menu_insumos.html';
-      else if (key === 'empaque') window.location.href = 'empaque/menu_empaque.html';
-      else if (key === 'administracion' || key === 'rrhh') window.location.href = 'administracion/menu_admin.html';
-      else if (key === 'jornadas') window.location.href = 'administracion/jornadas.html';
-      else if (key === 'cosecha') window.location.href = 'cosecha/menu_cosecha.html';
-      else if (key === 'labores') window.location.href = 'maquinaria/maquinaria.html';
-      else if (key === 'panol') window.location.href = 'pañol/pañolero.html';
-      else if (key === 'admin') window.location.href = 'conf/configuracion.html';
-      else alert('Redirigiendo a: ' + key);
+    const RUTAS = {
+      campo: 'campo/menu_campo.html',
+      cosecha: 'cosecha/menu_cosecha.html',
+      insumos: 'insumos/menu_insumos.html',
+      empaque: 'empaque/menu_empaque.html',
+      labores: 'maquinaria/maquinaria.html',
+      jornadas: 'administracion/jornadas.html',
+      administracion: 'administracion/menu_admin.html',
+      rrhh: 'administracion/menu_admin.html',
+      panol: 'pañol/pañolero.html',
+      admin: 'conf/configuracion.html'
+    };
+
+    if (RUTAS[key]) {
+      window.location.href = RUTAS[key];
     } else {
-      if (key === 'jornadas') window.location.href = 'administracion/jornadas.html';
-      else if (key === 'administracion' || key === 'rrhh') window.location.href = 'administracion/menu_admin.html';
-      else if (key === 'campo') window.location.href = 'campo/menu_campo.html';
-      else if (key === 'cosecha') window.location.href = 'cosecha/menu_cosecha.html';
-      else if (key === 'insumos') window.location.href = 'insumos/menu_insumos.html';
-      else if (key === 'empaque') window.location.href = 'empaque/menu_empaque.html';
-      else if (key === 'labores') window.location.href = 'maquinaria/maquinaria.html';
-      else if (key === 'panol') window.location.href = 'pañol/pañolero.html';
-      else if (key === 'admin') window.location.href = 'conf/configuracion.html';
-      else alert('Módulo: ' + key);
+      console.warn('Módulo no configurado:', key);
     }
   }
 
