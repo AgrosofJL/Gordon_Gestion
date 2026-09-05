@@ -1,262 +1,268 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Metas estándar y compatibilidad Safari iOS/iPadOS/macOS -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gordon Gestión · Menú Principal</title>
 
-<!-- Íconos -->
-<link rel="icon" type="image/png" href="./logo.png">
-<link rel="apple-touch-icon" href="./logo.png">
+  <!-- Metas estándar y compatibilidad Safari iOS/iPadOS/macOS -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gordon Gestión">
 
-<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gordon Gestión · Menú Principal</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Íconos con ruta relativa al repositorio -->
+  <link rel="icon" type="image/png" href="./logo.png">
+  <link rel="shortcut icon" type="image/png" href="./logo.png">
+  <link rel="apple-touch-icon" href="./logo.png">
 
-<!-- Cliente CDN de Supabase para entorno Web -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Tipografía del sistema -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
-<style>
-  :root {
-    --color-bg: #F3F5F1;
-    --color-surface: #FFFFFF;
-    --color-text: #1B231D;
-    --color-text-secondary: #5F6B62;
-    --color-accent: #1E6B4C;
-    --color-accent-dark: #123F2C;
-    --color-accent-soft: rgba(30, 107, 76, 0.10);
-    --color-gold: #B8862A;
-    --color-gold-soft: rgba(184, 134, 42, 0.14);
-    --color-danger: #C0483C;
-    --color-border: rgba(27, 35, 29, 0.10);
-    --radius-lg: 24px;
-    --radius-md: 14px;
-    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  }
+  <!-- Cliente CDN de Supabase para entorno Web -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
+  <!-- ESTO LO MODIFIQUE: Importamos la lista única de tablas compartida -->
+  <script src="./tablas_lista.js"></script>
+  <script src="./sincronizacion.js"></script>
 
-  body {
-    font-family: var(--font-family);
-    background: var(--color-bg);
-    color: var(--color-text);
-    -webkit-font-smoothing: antialiased;
-  }
+  <style>
+    :root {
+      --color-bg: #F3F5F1;
+      --color-surface: #FFFFFF;
+      --color-text: #1B231D;
+      --color-text-secondary: #5F6B62;
+      --color-accent: #1E6B4C;
+      --color-accent-dark: #123F2C;
+      --color-accent-soft: rgba(30, 107, 76, 0.10);
+      --color-gold: #B8862A;
+      --color-gold-soft: rgba(184, 134, 42, 0.14);
+      --color-danger: #C0483C;
+      --color-border: rgba(27, 35, 29, 0.10);
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
 
-  .barra-superior {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 44px;
-    background-color: rgba(255, 255, 255, 0.78);
-    background-image: repeating-linear-gradient(
-      100deg,
-      rgba(30, 107, 76, 0.035) 0px,
-      rgba(30, 107, 76, 0.035) 1.5px,
-      transparent 1.5px,
-      transparent 38px
-    );
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--color-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
 
-  /* Botón Sync */
-  .btn-sync {
-    background: #fff;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 9px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: var(--color-text-secondary);
-    font-size: 13px;
-    font-weight: 700;
-  }
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg);
+      color: var(--color-text);
+      -webkit-font-smoothing: antialiased;
+    }
 
-  .btn-sync:hover {
-    background: var(--color-accent-soft);
-    color: var(--color-accent-dark);
-    border-color: var(--color-accent);
-  }
+    .barra-superior {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 44px;
+      background-color: rgba(255, 255, 255, 0.78);
+      background-image: repeating-linear-gradient(
+        100deg,
+        rgba(30, 107, 76, 0.035) 0px,
+        rgba(30, 107, 76, 0.035) 1.5px,
+        transparent 1.5px,
+        transparent 38px
+      );
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-  .btn-sync:active, .btn-logout:active, .card-modulo:active {
-    background-color: #FFFDE7 !important;
-    border-color: #FBC02D !important;
-    box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
-    transform: scale(0.98);
-  }
+    /* Botón Sync */
+    .btn-sync {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 9px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-  .btn-sync:disabled {
-    opacity: 0.6;
-    cursor: wait;
-  }
+    .btn-sync:hover {
+      background: var(--color-accent-soft);
+      color: var(--color-accent-dark);
+      border-color: var(--color-accent);
+    }
 
-  .rotating {
-    animation: girar 1s linear infinite;
-  }
+    .btn-sync:active, .btn-logout:active, .card-modulo:active {
+      background-color: #FFFDE7 !important;
+      border-color: #FBC02D !important;
+      box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
+      transform: scale(0.98);
+    }
 
-  @keyframes girar {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+    .btn-sync:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
 
-  .marca {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: -0.1px;
-  }
+    .rotating {
+      animation: girar 1s linear infinite;
+    }
 
-  .marca .icono-marca {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: var(--color-accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+    @keyframes girar {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
 
-  .usuario-actual { display: flex; align-items: center; gap: 14px; }
-  .datos-usuario { line-height: 1.3; text-align: right; }
-  .datos-usuario .nombre { font-size: 14px; font-weight: 700; }
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.1px;
+    }
 
-  .rol-badge {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--color-accent-dark);
-    background: var(--color-accent-soft);
-    padding: 2px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
+    .marca .icono-marca {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--color-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
+    .usuario-actual { display: flex; align-items: center; gap: 14px; }
+    .datos-usuario { line-height: 1.3; text-align: right; }
+    .datos-usuario .nombre { font-size: 14px; font-weight: 700; }
 
-  .btn-logout {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 1px solid var(--color-border);
-    background: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-secondary);
-    transition: background 0.15s ease, color 0.15s ease;
-    flex-shrink: 0;
-  }
-  .btn-logout:hover { background: rgba(192, 72, 60, 0.08); color: var(--color-danger); }
+    .rol-badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--color-accent-dark);
+      background: var(--color-accent-soft);
+      padding: 2px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
 
-  .contenido {
-    padding: 40px 44px 60px;
-    max-width: 1280px;
-    margin: 0 auto;
-  }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
 
-  .saludo h1 {
-    font-size: 30px;
-    font-weight: 700;
-    margin: 0 0 6px;
-    letter-spacing: -0.3px;
-  }
-  .saludo p { margin: 0; color: var(--color-text-secondary); font-size: 15px; font-weight: 500; }
+    .btn-logout {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .btn-logout:hover { background: rgba(192, 72, 60, 0.08); color: var(--color-danger); }
 
-  .grid-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 22px;
-    margin-top: 36px;
-  }
+    .contenido {
+      padding: 40px 44px 60px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
 
-  .card-modulo {
-    background: var(--color-surface);
-    border: 1.2px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 32px 26px;
-    text-align: left;
-    cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    box-shadow: 0 2px 6px rgba(20, 30, 24, 0.03);
-    opacity: 0;
-    animation: entrar 0.45s ease forwards;
-    font-family: inherit;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 200px;
-    width: 100%;
-  }
+    .saludo h1 {
+      font-size: 30px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: -0.3px;
+    }
+    .saludo p { margin: 0; color: var(--color-text-secondary); font-size: 15px; font-weight: 500; }
 
-  @keyframes entrar {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 36px;
+    }
 
-  .card-modulo:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 22px 45px rgba(20, 30, 24, 0.12);
-    border-color: var(--color-accent);
-  }
+    .card-modulo {
+      background: var(--color-surface);
+      border: 1.2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 32px 26px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      box-shadow: 0 2px 6px rgba(20, 30, 24, 0.03);
+      opacity: 0;
+      animation: entrar 0.45s ease forwards;
+      font-family: inherit;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 200px;
+      width: 100%;
+    }
 
-  .icono-modulo {
-    width: 55px;
-    height: 55px;
-    border-radius: 16px;
-    background: var(--color-accent-soft);
-    color: var(--color-accent-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-shrink: 0;
-  }
+    @keyframes entrar {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-  .card-modulo.admin .icono-modulo { background: var(--color-gold-soft); color: #8A6A1E; }
-  .card-modulo h3 { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--color-text); }
-  .card-modulo p { margin: 0; font-size: 14.5px; color: var(--color-text-secondary); line-height: 1.45; }
+    .card-modulo:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 22px 45px rgba(20, 30, 24, 0.12);
+      border-color: var(--color-accent);
+    }
 
-  .card-modulo:focus-visible,
-  .btn-logout:focus-visible,
-  .btn-sync:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
+    .icono-modulo {
+      width: 55px;
+      height: 55px;
+      border-radius: 16px;
+      background: var(--color-accent-soft);
+      color: var(--color-accent-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
 
-  @media (max-width: 640px) {
-    .barra-superior, .contenido { padding-left: 20px; padding-right: 20px; }
-  }
-</style>
+    .card-modulo.admin .icono-modulo { background: var(--color-gold-soft); color: #8A6A1E; }
+    .card-modulo h3 { margin: 0 0 6px; font-size: 19px; font-weight: 700; color: var(--color-text); }
+    .card-modulo p { margin: 0; font-size: 14.5px; color: var(--color-text-secondary); line-height: 1.45; }
+
+    .card-modulo:focus-visible,
+    .btn-logout:focus-visible,
+    .btn-sync:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .barra-superior, .contenido { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -278,7 +284,7 @@
       </div>
       <div class="avatar" id="avatarIniciales">—</div>
       
-      <!-- Botón Sync -->
+      <!-- Botón Sync en esquina superior derecha -->
       <button class="btn-sync" id="btnSync">
         <svg id="iconSync" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
@@ -405,7 +411,6 @@
       else if (key === 'admin') window.location.href = 'conf/configuracion.html';
       else alert('Redirigiendo a: ' + key);
     } else {
-      // Rutas para la Web (GitHub Pages / Safari)
       if (key === 'jornadas') window.location.href = 'administracion/jornadas.html';
       else if (key === 'administracion' || key === 'rrhh') window.location.href = 'administracion/menu_admin.html';
       else if (key === 'campo') window.location.href = 'campo/menu_campo.html';
@@ -444,7 +449,7 @@
       { key: 'admin', titulo: 'Configuración Admin', descripcion: DESC_DEFECTO.admin, admin: true }
     ];
 
-    // ESTO LO MODIFIQUE: Bypass para cualquier rol de tipo Administrador
+    // Bypass para cualquier rol de tipo Administrador
     if (rol === 'admin' || rol === 'admin-1' || rol === 'adm-1' || rol === 'administrador') {
       return MENU_MASTER;
     }
@@ -485,8 +490,7 @@
       } catch (e) {}
     }
 
-    // 3. Fallback Web en vivo: Consultar directo a Supabase si no estaban en caché
-    // 3. Fallback Web en vivo:
+    // 3. Fallback Web en vivo: Consultar directo a Supabase
     if (permisos.length === 0 && window.supabase) {
       try {
         if (!window._supabaseSyncClient) {
@@ -518,12 +522,10 @@
 
     permisos = [...new Set(permisos)];
 
-    // Si encontramos permisos asignados, filtramos el catálogo; de lo contrario mostramos los básicos
     if (permisos.length > 0) {
       return MENU_MASTER.filter(item => permisos.includes(item.key));
     }
 
-    // Si no hubo coincidencias devuelve los predeterminados según rol
     return MENU_MASTER.filter(item => item.key === 'campo' || item.key === 'cosecha');
   }
 
@@ -563,6 +565,9 @@
   const iconSync = document.getElementById('iconSync');
   const textSync = document.getElementById('textSync');
 
+  // ==========================================================================
+  // BOTÓN DE SINCRONIZACIÓN DINÁMICO (Lee de tablas_lista.js automáticamente)
+  // ==========================================================================
   btnSync.addEventListener('click', async () => {
     if (!navigator.onLine) {
       alert("No tenés conexión a internet.");
@@ -574,6 +579,7 @@
     textSync.textContent = 'Sincronizando...';
 
     try {
+      // CASO 1: En la PC (Electron con SQLite)
       if (typeof require === 'function') {
         const syncModule = require('./sincronizacion.js');
         if (syncModule.ejecutarSincronizacionCompleta) {
@@ -581,32 +587,66 @@
         } else {
           await syncModule.sincronizarTodo();
         }
-      } else {
-        // En Safari / Web refrescamos los permisos directamente desde Supabase
+      } 
+      // CASO 2: En Safari / Web puro (GitHub Pages -> LocalStorage)
+      else {
         const sesionActual = resolverSesionActiva();
-        if (sesionActual && window.supabase) {
-          // ESTO LO MODIFIQUE: Reutilizar instancia única y desactivar almacenamiento GoTrue redundante
-          if (!window._supabaseSyncClient) {
-            const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
-            window._supabaseSyncClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-              auth: {
-                persistSession: false,
-                autoRefreshToken: false,
-                detectSessionInUrl: false
-              }
-            });
+        const listaTablas = window.TABLAS_CONFIG || [];
+
+        if (sesionActual && window.supabase && listaTablas.length > 0) {
+          
+          const P1_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+          const P1_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+          const P2_URL = 'https://whiwwfqabpkukamcowbg.supabase.co';
+          const P2_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoaXd3ZnFhYnBrdWthbWNvd2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NTI3MDgsImV4cCI6MjA5MzQyODcwOH0.XK-pOH-LuKOoekko6mAoefd6jxAdk5lUdpeuMyzLde4';
+
+          const opcionesCliente = {
+            auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+          };
+
+          if (!window._clientCampo) {
+            window._clientCampo = window.supabase.createClient(P1_URL, P1_KEY, opcionesCliente);
+          }
+          if (!window._clientCosecha) {
+            window._clientCosecha = window.supabase.createClient(P2_URL, P2_KEY, opcionesCliente);
           }
 
+          // 1. Refrescar permisos del usuario
           const uNombre = sesionActual.usuario || sesionActual.operario;
+          try {
+            const { data: permisos } = await window._clientCampo
+              .from('sys_permisos_usuario')
+              .select('*')
+              .ilike('usuario', uNombre);
 
-          const { data, error } = await window._supabaseSyncClient
-            .from('sys_permisos_usuario')
-            .select('*')
-            .ilike('usuario', uNombre);
+            if (permisos) {
+              localStorage.setItem('permisos_usuario', JSON.stringify(permisos));
+            }
+          } catch (ePerm) {
+            console.warn("Fallo permisos en sincronización web:", ePerm);
+          }
 
-          if (!error && data) {
-            localStorage.setItem('permisos_usuario', JSON.stringify(data));
+          // 2. ESTO LO MODIFIQUE: Itera directamente sobre window.TABLAS_CONFIG
+          for (const t of listaTablas) {
+            try {
+              textSync.textContent = `Descargando ${t.remoto}...`;
+              const clienteTarget = t.proyecto === 'campo' ? window._clientCampo : window._clientCosecha;
+
+              const { data, error } = await clienteTarget
+                .from(t.remoto)
+                .select('*')
+                .limit(1000);
+
+              if (!error && data) {
+                // Siempre debe mostrar del detalle el estado activo si aplica
+                localStorage.setItem(t.local, JSON.stringify(data));
+                console.log(`✓ [WEB SYNC] ${t.local} sincronizada (${data.length} filas)`);
+              } else if (error) {
+                console.warn(`Error al bajar ${t.remoto}:`, error.message);
+              }
+            } catch (errTabla) {
+              console.error(`Fallo al procesar ${t.remoto}:`, errTabla.message);
+            }
           }
         }
       }
@@ -646,7 +686,7 @@
 
   let sesion = resolverSesionActiva();
 
-  // ACA ES LO NUEVO: Si no hay sesión válida, volver estrictamente al login
+  // Si no hay sesión válida, volver al login
   if (!sesion || (!sesion.usuario && !sesion.operario && !sesion.nombre_completo)) {
     window.location.href = 'index.html';
     return;
