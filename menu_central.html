@@ -8,17 +8,17 @@
 <meta name="apple-mobile-web-app-title" content="Gordon Gestión">
 
 <!-- Íconos -->
-<link rel="icon" type="image/png" href="../logo.png">
-<link rel="apple-touch-icon" href="../logo.png">
+<link rel="icon" type="image/png" href="./logo.png">
+<link rel="apple-touch-icon" href="./logo.png">
 
 <!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gordon Gestión · Menú Principal</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<!-- Cliente CDN de Supabase para entorno Web -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   :root {
@@ -312,18 +312,9 @@
   let connection = null;
   let db = null;
 
-  /* ACA ES LO NUEVO: Carga controlada de módulos nativos SQLite y Supabase */
   if (electronDisponible) {
-    try {
-      auth = require('./auth.js');
-    } catch (e) {
-      console.warn('No se pudo cargar auth.js:', e.message);
-    }
-    try {
-      connection = require('./conexion.js');
-    } catch (e) {
-      console.warn('No se pudo cargar conexion.js:', e.message);
-    }
+    try { auth = require('./auth.js'); } catch (e) {}
+    try { connection = require('./conexion.js'); } catch (e) {}
     try {
       const bases = require('./bases.js');
       db = bases.db;
@@ -331,13 +322,17 @@
       try {
         const Database = require('better-sqlite3');
         db = new Database(require('./db_path.js').DB_PATH);
-      } catch (err) {
-        console.warn('No se pudo cargar base SQLite local:', err.message);
-      }
+      } catch (err) {}
     }
   }
 
-  const ROL_LABELS = { admin: 'Administrador', supervisor: 'Supervisor', operario: 'Operario' };
+  const ROL_LABELS = { 
+    'admin': 'Administrador', 
+    'admin-1': 'Administrador', 
+    'adm-1': 'Administrador', 
+    'supervisor': 'Supervisor', 
+    'operario': 'Operario' 
+  };
 
   const ICONOS = {
     campo: '<path d="M12 21c0-6 4-10 8-11-1 7-4 10-8 11Z"/><path d="M12 21c0-6-4-10-8-11 1 7 4 10 8 11Z"/><path d="M12 21V9"/>',
@@ -399,51 +394,42 @@
 
   function abrirModulo(key) {
     if (electronDisponible) {
-      if (key === 'campo') {
-        window.location.href = 'campo/menu_campo.html';
-      } else if (key === 'insumos') {
-        window.location.href = 'insumos/menu_insumos.html';
-      } else if (key === 'empaque') {
-        window.location.href = 'empaque/menu_empaque.html';
-      } else if (key === 'administracion' || key === 'rrhh') {
-        window.location.href = 'administracion/menu_admin.html';
-      } else if (key === 'jornadas') {
-        window.location.href = 'administracion/jornadas.html';
-      } else if (key === 'cosecha') {
-        window.location.href = 'cosecha/menu_cosecha.html';
-      } else if (key === 'labores') {
-        window.location.href = 'maquinaria/maquinaria.html';
-      } else if (key === 'panol') {
-        window.location.href = 'pañol/pañolero.html';
-      } else if (key === 'admin') {
-        window.location.href = 'conf/configuracion.html';
-      } else {
-        alert('Redirigiendo a: ' + key);
-      }
+      if (key === 'campo') window.location.href = 'campo/menu_campo.html';
+      else if (key === 'insumos') window.location.href = 'insumos/menu_insumos.html';
+      else if (key === 'empaque') window.location.href = 'empaque/menu_empaque.html';
+      else if (key === 'administracion' || key === 'rrhh') window.location.href = 'administracion/menu_admin.html';
+      else if (key === 'jornadas') window.location.href = 'administracion/jornadas.html';
+      else if (key === 'cosecha') window.location.href = 'cosecha/menu_cosecha.html';
+      else if (key === 'labores') window.location.href = 'maquinaria/maquinaria.html';
+      else if (key === 'panol') window.location.href = 'pañol/pañolero.html';
+      else if (key === 'admin') window.location.href = 'conf/configuracion.html';
+      else alert('Redirigiendo a: ' + key);
     } else {
-      if (key === 'jornadas') {
-        window.location.href = 'administracion/jornadas.html';
-      } else if (key === 'administracion' || key === 'rrhh') {
-        window.location.href = 'administracion/menu_admin.html';
-      } else {
-        alert('Vista previa del módulo "' + key + '".');
-      }
+      // Rutas para la Web (GitHub Pages / Safari)
+      if (key === 'jornadas') window.location.href = 'administracion/jornadas.html';
+      else if (key === 'administracion' || key === 'rrhh') window.location.href = 'administracion/menu_admin.html';
+      else if (key === 'campo') window.location.href = 'campo/menu_campo.html';
+      else if (key === 'cosecha') window.location.href = 'cosecha/menu_cosecha.html';
+      else if (key === 'insumos') window.location.href = 'insumos/menu_insumos.html';
+      else if (key === 'empaque') window.location.href = 'empaque/menu_empaque.html';
+      else if (key === 'labores') window.location.href = 'maquinaria/maquinaria.html';
+      else if (key === 'panol') window.location.href = 'pañol/pañolero.html';
+      else if (key === 'admin') window.location.href = 'conf/configuracion.html';
+      else alert('Módulo: ' + key);
     }
   }
 
   function cerrarSesion() {
     if (auth && auth.cerrarSesion) auth.cerrarSesion();
     localStorage.removeItem('sesion_activa');
+    localStorage.removeItem('permisos_usuario');
     window.location.href = 'index.html';
   }
 
   async function obtenerMenuFiltrado(sesionActiva) {
-    let list = [];
-    const online = navigator.onLine;
-    
     if (!sesionActiva) return [];
 
-    const usuario = (sesionActiva.usuario || sesionActiva.nombre_completo || '').trim().toLowerCase();
+    const usuario = (sesionActiva.usuario || sesionActiva.operario || sesionActiva.nombre_completo || '').trim().toLowerCase();
     const rol = (sesionActiva.rol || '').trim().toLowerCase();
 
     const MENU_MASTER = [
@@ -458,32 +444,15 @@
       { key: 'admin', titulo: 'Configuración Admin', descripcion: DESC_DEFECTO.admin, admin: true }
     ];
 
-    // 👑 BYPASS SUPERUSUARIO
-    if (rol === 'admin-1' || rol === 'adm-1') {
+    // ESTO LO MODIFIQUE: Bypass para cualquier rol de tipo Administrador
+    if (rol === 'admin' || rol === 'admin-1' || rol === 'adm-1' || rol === 'administrador') {
       return MENU_MASTER;
     }
 
     let permisos = [];
 
-    // 1. Consultar en Supabase
-    if (online && typeof connection !== 'undefined' && connection && connection.supabaseCampo) {
-      try {
-        const { data, error } = await connection.supabaseCampo
-          .from('sys_permisos_usuario')
-          .select('menu, estado')
-          .or(`usuario.ilike."${usuario}",rol.ilike."${rol}"`)
-          .eq('estado', 1);
-
-        if (!error && data && data.length > 0) {
-          permisos = data.map(p => (p.menu || '').trim().toLowerCase());
-        }
-      } catch (err) {
-        console.warn("Fallo llamada a Supabase, buscando en SQLite...", err);
-      }
-    }
-
-    // 2. Consultar en SQLite Local
-    if (permisos.length === 0 && typeof db !== 'undefined' && db) {
+    // 1. Caso Electron (SQLite Local)
+    if (electronDisponible && db) {
       try {
         const filas = db.prepare(`
           SELECT DISTINCT LOWER(TRIM(menu)) AS menu 
@@ -500,26 +469,57 @@
       }
     }
 
-    permisos = [...new Set(permisos)];
-
-    if (permisos.length > 0) {
-      list = MENU_MASTER.filter(item => permisos.includes(item.key));
-    } else {
-      list = MENU_MASTER.filter(item => item.key === 'campo');
+    // 2. Caso Safari / Web puro: Consultar permisos guardados en localStorage
+    if (permisos.length === 0) {
+      try {
+        const cached = localStorage.getItem('permisos_usuario');
+        if (cached) {
+          const lista = JSON.parse(cached);
+          permisos = lista
+            .filter(p => {
+              const est = String(p.estado || '').toUpperCase();
+              return est === '1' || est === 'ACTIVO' || est === 'TRUE';
+            })
+            .map(p => (p.menu || '').trim().toLowerCase());
+        }
+      } catch (e) {}
     }
 
-    return list;
+    // 3. Fallback Web en vivo: Consultar directo a Supabase si no estaban en caché
+    if (permisos.length === 0 && window.supabase) {
+      try {
+        const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+        const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const { data, error } = await clienteWeb
+          .from('sys_permisos_usuario')
+          .select('menu, estado')
+          .or(`usuario.ilike."${usuario}",rol.ilike."${rol}"`)
+          .eq('estado', 1);
+
+        if (!error && data && data.length > 0) {
+          permisos = data.map(p => (p.menu || '').trim().toLowerCase());
+          localStorage.setItem('permisos_usuario', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.warn("Error consultando permisos en Supabase Web:", err);
+      }
+    }
+
+    permisos = [...new Set(permisos)];
+
+    // Si encontramos permisos asignados, filtramos el catálogo; de lo contrario mostramos los básicos
+    if (permisos.length > 0) {
+      return MENU_MASTER.filter(item => permisos.includes(item.key));
+    }
+
+    // Si no hubo coincidencias devuelve los predeterminados según rol
+    return MENU_MASTER.filter(item => item.key === 'campo' || item.key === 'cosecha');
   }
 
-  /* ESTO LO MODIFIQUE: Renderizado con lectura segura para evitar TypeError cuando sesion sea null */
-  async function renderizar(sesionParam) {
-    const s = sesionParam || {
-      nombre_completo: 'OPERARIO EN TURNO',
-      usuario: 'operario',
-      rol: 'supervisor'
-    };
-
-    const nombreMostrado = s.nombre_completo || s.usuario || 'OPERARIO';
+  async function renderizar(s) {
+    const nombreMostrado = s.nombre_completo || s.usuario || s.operario || 'OPERARIO';
     const rolMostrado = ROL_LABELS[s.rol] || s.rol || 'Operario';
 
     document.getElementById('nombreUsuario').textContent = nombreMostrado;
@@ -565,7 +565,6 @@
     textSync.textContent = 'Sincronizando...';
 
     try {
-      /* ACA ES LO NUEVO: Se verifica si require() existe antes de invocarlo */
       if (typeof require === 'function') {
         const syncModule = require('./sincronizacion.js');
         if (syncModule.ejecutarSincronizacionCompleta) {
@@ -574,9 +573,21 @@
           await syncModule.sincronizarTodo();
         }
       } else {
-        // Modo Safari / PWA Web: la sincronización se comunica directamente con Supabase vía fetch/REST
-        console.log("Sincronización Web ejecutada en Safari.");
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // En Safari / Web refrescamos los permisos directamente desde Supabase
+        const sesionActual = resolverSesionActiva();
+        if (sesionActual && window.supabase) {
+          const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+          const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          const uNombre = sesionActual.usuario || sesionActual.operario;
+
+          const { data } = await clienteWeb
+            .from('sys_permisos_usuario')
+            .select('*')
+            .ilike('usuario', uNombre);
+
+          if (data) localStorage.setItem('permisos_usuario', JSON.stringify(data));
+        }
       }
       
       textSync.textContent = '¡Listo!';
@@ -597,7 +608,7 @@
 
   document.getElementById('btnCerrarSesion').addEventListener('click', cerrarSesion);
 
-  /* ACA ES LO NUEVO: Resolución de sesión jerárquica (auth -> SQLite local_sesion -> localStorage) */
+  // Resolución de sesión jerárquica
   function resolverSesionActiva() {
     let s = null;
     if (auth && auth.obtenerSesionActiva) {
@@ -614,20 +625,10 @@
 
   let sesion = resolverSesionActiva();
 
-  // Si estamos en entorno Electron y no existe sesión válida, redirigir al login
-  if (electronDisponible && !sesion) {
+  // ACA ES LO NUEVO: Si no hay sesión válida, volver estrictamente al login
+  if (!sesion || (!sesion.usuario && !sesion.operario && !sesion.nombre_completo)) {
     window.location.href = 'index.html';
     return;
-  }
-
-  // Fallback seguro si estamos en entorno navegador/demo
-  if (!sesion) {
-    sesion = {
-      nombre_completo: 'Supervisor de Turno',
-      usuario: 'supervisor',
-      rol: 'admin-1',
-      unidad_negocio: 'GENERAL'
-    };
   }
 
   await renderizar(sesion);

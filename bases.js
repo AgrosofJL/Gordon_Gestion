@@ -1186,41 +1186,30 @@ function migrarDatosLegajoALegajoDatos() {
   } catch(e) { console.error('Error migrando datos de legajo a local_p_legajo_datos:', e); }
 }
 
+// bases.js
+
 function obtenerProximoID(nombreTabla, nombreCampo = 'id') {
+  // ACA ES LO NUEVO: Cálculo estricto Max + 1
   const result = db.prepare(`SELECT MAX(${nombreCampo}) AS maximo FROM ${nombreTabla}`).get();
   return (result.maximo || 0) + 1;
 }
- 
 
- 
-/**
- * Genera un ID alfanumérico aleatorio de 10 caracteres.
- * Utiliza letras mayúsculas, minúsculas y números (base 62).
- * @returns {string} ID de 10 dígitos para reg_local
- */
 function generarRegLocal() {
   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let resultado = '';
   const longitud = 10;
-  
   for (let i = 0; i < longitud; i++) {
     const indiceRandom = Math.floor(Math.random() * caracteres.length);
     resultado += caracteres.charAt(indiceRandom);
   }
-  
   return resultado;
 }
- 
-
-
-
 
 // Inicializar base de datos
 inicializarTablasLocales();
 actualizarEsquemaLegajoPersonal();
 migrarDatosLegajoALegajoDatos();
 
- 
 module.exports = {
   db,
   obtenerProximoID,

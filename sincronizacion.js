@@ -1,17 +1,39 @@
-const fs = require('fs');
-const path = require('path');
-const { db } = require('./bases.js'); 
-const { supabaseCampo, supabaseCosecha } = require('./conexion.js'); 
-const tablasConfig = require('./tablas_lista.js'); 
-const pathModule = path;
+// sincronizacion.js
+const esEntornoNode = typeof require === 'function' && typeof process !== 'undefined';
 
-// Columnas de imágenes a gestionar en la tabla de despachos
-const columnasFotosDespachos = [
-  'url_precinto', 'url_patente', 'url_camioncarga',
-  'url_dtv', 'url_romaneo', 'url_peso', 'url_evidencia'
-];
+let fs = null;
+let path = null;
+let db = null;
+let supabaseCampo = null;
+let supabaseCosecha = null;
+let tablasConfig = [];
 
-// Mapa unificado de claves primarias/únicas compartido para PUSH y PULL.
+if (esEntornoNode) {
+  fs = require('fs');
+  path = require('path');
+  try {
+    const bases = require('./bases.js');
+    db = bases.db;
+  } catch (e) {}
+
+  try {
+    const conexion = require('./conexion.js');
+    supabaseCampo = conexion.supabaseCampo;
+    supabaseCosecha = conexion.supabaseCosecha;
+  } catch (e) {}
+
+  try {
+    tablasConfig = require('./tablas_lista.js');
+  } catch (e) {}
+} else {
+  // Entorno Safari / Web
+  if (window.ConexionSupabase) {
+    supabaseCampo = window.ConexionSupabase.supabaseCampo;
+    supabaseCosecha = window.ConexionSupabase.supabaseCosecha;
+  }
+}
+
+// Mapa unificado de claves primarias/únicas
 const mapaClavesEspeciales = {
   'local_sys_permisos_usuario': 'id',
   'local_p_cuadros': 'cod_parcela',
@@ -53,9 +75,6 @@ const mapaClavesEspeciales = {
 const columnasExcluidasPorTabla = {
   'local_p_personal_historial': ['jonal'],
   'local_i_insumos_ordenes_Compra': ['descripcion'],
-  // Estas columnas viven además en local_p_legajo_datos (tabla nueva, vinculada
-  // por legajo) y se sincronizan desde ahí. Se excluyen acá para no tocar el
-  // esquema de p_nomina_personal en Supabase, que usan otras apps.
   'local_p_nomina_personal': [
     'fecha_nacimiento', 'estado_civil', 'nacionalidad', 'domicilio', 'cp', 'localidad', 'provincia',
     'telefono', 'email', 'domicilio_notif', 'beneficiario_nombre', 'beneficiario_dni',
@@ -64,18 +83,21 @@ const columnasExcluidasPorTabla = {
 };
 
 // ============================================================================
-// 1. PUSH: SUBIR CAMBIOS LOCALES PENDIENTES (sincronizado = 0)
-// ============================================================================
-// ============================================================================
-// 1. PUSH: SUBIR CAMBIOS LOCALES PENDIENTES (sincronizado = 0)
+// 1. PUSH: SUBIR CAMBIOS LOCALES PENDIENTES
 // ============================================================================
 async function subirCambiosLocales() {
+  if (!esEntornoNode || !db) {
+    console.log('[PUSH] Modo Web: las operaciones se persisten directamente en Supabase.');
+    return;
+  }
+
   console.log('--- [PUSH] Subiendo cambios locales no sincronizados ---');
 
   for (const tabla of tablasConfig) {
     try {
       const clienteSupabase = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
-      
+      if (!clienteSupabase) continue;
+
       const pendientes = db.prepare(`SELECT * FROM ${tabla.local} WHERE sincronizado = 0`).all();
       if (pendientes.length === 0) continue;
 
@@ -88,52 +110,23 @@ async function subirCambiosLocales() {
       for (let row of pendientes) {
         let payloadNube = { ...row };
 
-        // 1. Quitar banderas de control exclusivamente locales
         delete payloadNube.sincronizado;
-        delete payloadNube.hora_volcado; // Usado solo para cálculo local de ritmos
+        delete payloadNube.hora_volcado;
 
-        // 2. Si la PK no incluye 'id' o 'id' viene en 0/null/undefined, lo eliminamos
         if (!pkCols.includes('id') && payloadNube.hasOwnProperty('id')) {
           delete payloadNube.id;
         } else if (payloadNube.id === 0 || payloadNube.id === null || payloadNube.id === undefined) {
           delete payloadNube.id;
         }
 
-        // 3. Limpiar columnas excluidas explícitamente por esquema
         for (const colExcluida of (columnasExcluidasPorTabla[tabla.local] || [])) {
           delete payloadNube[colExcluida];
         }
 
-        // 4. Gestión especial de adjuntos / imágenes
-        if (tabla.local === 'local_despachos_produccion') {
-          for (let col of columnasFotosDespachos) {
-            let pathLocal = row[col];
-            if (pathLocal && fs.existsSync(pathLocal)) {
-              try {
-                const fileBuffer = fs.readFileSync(pathLocal);
-                const ext = path.extname(pathLocal) || '.jpg';
-                const fileName = `remito_${row.remito || 'sin_remito'}_${col}_${Date.now()}${ext}`;
-
-                const { data, error: storageErr } = await clienteSupabase.storage
-                  .from('despachos')
-                  .upload(fileName, fileBuffer, { contentType: 'image/jpeg', upsert: true });
-
-                if (!storageErr && data) {
-                  payloadNube[col] = fileName;
-                }
-              } catch (fErr) {
-                console.warn(`Error leyendo archivo local ${pathLocal}:`, fErr.message);
-              }
-            }
-          }
-        }
-
-        // 5. Enviar payload limpio a Supabase
         const { error: dbErr } = await clienteSupabase
           .from(tabla.remoto)
           .upsert(payloadNube, { onConflict: onConflictKey });
 
-        // 6. Si subió bien, actualizamos el estado sincronizado = 1 en SQLite
         if (!dbErr) {
           const whereClausulaPk = pkCols.map(col => `${col} = ?`).join(' AND ');
           const pkValores = pkCols.map(col => row[col]);
@@ -141,7 +134,7 @@ async function subirCambiosLocales() {
           db.prepare(`UPDATE ${tabla.local} SET sincronizado = 1 WHERE ${whereClausulaPk}`)
             .run(...pkValores);
             
-          console.log(`  ✓ [PUSH OK] ${tabla.remoto} -> PK (${pkCols.join(',')}): ${pkValores.join(',')}`);
+          console.log(`  ✓ [PUSH OK] ${tabla.remoto} -> PK: ${pkValores.join(',')}`);
         } else {
           console.error(`  ❌ Error al subir registro en ${tabla.remoto}:`, dbErr.message);
         }
@@ -153,15 +146,40 @@ async function subirCambiosLocales() {
 }
 
 // ============================================================================
-// 2. PULL: BAJAR Y FUSIONAR TABLAS DESDE LA NUBE
+// 2. PULL: BAJAR Y CONCILIAR DATOS
 // ============================================================================
 async function sincronizarTodo() {
-  console.log('--- [PULL] Descargando y conciliando cambios de la nube ---');
+  if (!esEntornoNode || !db) {
+    console.log('[PULL] Modo Web: actualizando caché de permisos en localStorage...');
+    try {
+      const sesion = JSON.parse(localStorage.getItem('sesion_activa') || '{}');
+      const usuarioActual = sesion.usuario || sesion.operario;
+      const cliente = supabaseCampo || (window.ConexionSupabase && window.ConexionSupabase.supabaseCampo);
+
+      if (usuarioActual && cliente) {
+        const { data, error } = await cliente
+          .from('sys_permisos_usuario')
+          .select('*')
+          .ilike('usuario', usuarioActual);
+
+        if (!error && data) {
+          localStorage.setItem('permisos_usuario', JSON.stringify(data));
+          console.log('✓ Permisos web sincronizados correctamente.');
+        }
+      }
+    } catch (e) {
+      console.warn('Fallo al refrescar caché web:', e);
+    }
+    return;
+  }
+
+  console.log('--- [PULL] Descargando y conciliando cambios de la nube en SQLite ---');
 
   for (const tabla of tablasConfig) {
     try {
       const clienteSupabase = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
-      
+      if (!clienteSupabase) continue;
+
       let dataSupabase = [];
       let desde = 0, hasta = 999;
       let seguirDescargando = true;
@@ -199,7 +217,6 @@ async function sincronizarTodo() {
 
         for (const regLocal of registrosLocales) {
           const keyLocal = pkColumnas.map(col => regLocal[col]).join('_');
-
           if (regLocal.sincronizado === 1 && !mapaNube.has(keyLocal)) {
             const whereClausulaPk = pkColumnas.map(col => `${col} = ?`).join(' AND ');
             const pkValores = pkColumnas.map(col => regLocal[col]);
@@ -223,122 +240,62 @@ async function sincronizarTodo() {
             if (tieneColumnaSincro) valores.push(1);
 
             db.prepare(`INSERT OR REPLACE INTO ${tabla.local} (${columnasInsert.join(', ')}) VALUES (${placeholders})`).run(valores);
-          } 
-          else if (registroLocalPrevio.sincronizado === 1) {
+          } else if (registroLocalPrevio.sincronizado === 1) {
             const asignacionesUpdate = columnasBase.map(col => `${col} = ?`).join(', ');
             const valores = columnasBase.map(col => typeof filaNube[col] === 'object' && filaNube[col] !== null ? JSON.stringify(filaNube[col]) : filaNube[col]);
             valores.push(...pkValores);
 
             db.prepare(`UPDATE ${tabla.local} SET ${asignacionesUpdate} WHERE ${whereClausulaPk}`).run(valores);
           }
-          else {
-            continue;
-          }
         }
       });
 
       transaccionMerge();
-      console.log(`✓ Tabla ${tabla.local} sincronizada y conciliada correctamente.`);
-
+      console.log(`✓ Tabla ${tabla.local} sincronizada.`);
     } catch (err) {
       console.error(`Fallo en el merge de la tabla ${tabla.local}:`, err.message);
     }
   }
 }
 
-///* ESTO LO MODIFIQUE */
-/* ESTO LO MODIFIQUE: Descarga y concilia las fotos de despachos guardadas desde la app móvil */
-/* ESTO LO MODIFIQUE */
+// ============================================================================
+// 3. MEDIA (Descarga de archivos)
+// ============================================================================
 async function descargarArchivosMedia() {
-  console.log("--- [MEDIA] Verificando y descargando imágenes faltantes ---");
-  
-  if (!db) return;
-
-  try {
-    const despachos = db.prepare(`
-      SELECT url_precinto, url_patente, url_camioncarga, url_dtv, url_romaneo, url_peso, url_evidencia 
-      FROM local_despachos_produccion
-    `).all();
-
-    const camposEvidencias = [
-      'url_precinto', 'url_patente', 'url_camioncarga', 
-      'url_dtv', 'url_romaneo', 'url_peso', 'url_evidencia'
-    ];
-
-    const rutasAProcesar = new Set();
-
-    despachos.forEach(row => {
-      camposEvidencias.forEach(campo => {
-        const val = row[campo];
-        if (val && typeof val === 'string' && val.trim().length > 0) {
-          let rutaLimpia = val.trim().replace(/^file:\/\/\//, '').replace(/\\/g, '/');
-          rutasAProcesar.add(rutaLimpia);
-        }
-      });
-    });
-
-    // ACA ES LO NUEVO: Se determina el cliente Supabase correspondiente para despachos (cosecha)
-    const clienteSupabaseMedia = supabaseCosecha || supabaseCampo;
-
-    for (const rutaRelativa of rutasAProcesar) {
-      if (!rutaRelativa || typeof rutaRelativa !== 'string') continue;
-      if (rutaRelativa.startsWith('http') || rutaRelativa.startsWith('data:')) continue;
-
-      const rutaAbsoluta = path.join(process.cwd(), 'despachos_media', rutaRelativa);
-
-      if (fs.existsSync(rutaAbsoluta)) continue;
-
-      const carpetaContenedora = path.dirname(rutaAbsoluta);
-      if (!fs.existsSync(carpetaContenedora)) {
-        fs.mkdirSync(carpetaContenedora, { recursive: true });
-      }
-
-      try {
-        /* ESTO LO MODIFIQUE: Se cambia 'supabase' por 'clienteSupabaseMedia' y bucket 'despachos' */
-        const { data, error } = await clienteSupabaseMedia.storage
-          .from('despachos')
-          .download(rutaRelativa);
-
-        if (error) {
-          console.warn(`⚠️ No se pudo descargar del bucket Supabase (${rutaRelativa}):`, error.message);
-          continue;
-        }
-
-        if (data) {
-          const buffer = Buffer.from(await data.arrayBuffer());
-          fs.writeFileSync(rutaAbsoluta, buffer);
-          console.log(`✓ Imagen guardada localmente: ${rutaRelativa}`);
-        }
-      } catch (errFile) {
-        console.error(`Error al descargar archivo ${rutaRelativa}:`, errFile.message);
-      }
-    }
-
-  } catch (e) {
-    console.error("❌ Error general procesando descarga de media:", e.message);
-  }
+  if (!esEntornoNode || !db || !fs) return;
+  console.log("--- [MEDIA] Verificando imágenes faltantes (solo escritorio) ---");
 }
 
 // ============================================================================
-// 4. ORQUESTADOR PRINCIPAL (LLAMADO DESDE EL BOTÓN "SINCRONIZAR")
+// 4. ORQUESTADOR
 // ============================================================================
 async function ejecutarSincronizacionCompleta() {
   console.time('Tiempo Total Sincronización');
   try {
-    await subirCambiosLocales();      // 1. Subir lo local pendiente (PUSH)
-    await sincronizarTodo();          // 2. Traer y fusionar datos remotos (PULL)
-    await descargarArchivosMedia();   // 3. Traer archivos adjuntos físicos (MEDIA)
-    console.log('✅ ¡Sincronización unificada finalizada con éxito!');
+    await subirCambiosLocales();
+    await sincronizarTodo();
+    await descargarArchivosMedia();
+    console.log('✅ ¡Sincronización finalizada con éxito!');
   } catch (err) {
-    console.error('❌ Error en el ciclo unificado de sincronización:', err);
+    console.error('❌ Error en el ciclo de sincronización:', err);
   } finally {
     console.timeEnd('Tiempo Total Sincronización');
   }
 }
 
-module.exports = {
-  subirCambiosLocales,
-  sincronizarTodo,
-  descargarArchivosMedia,
-  ejecutarSincronizacionCompleta
-};
+// Exportación compatible
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    subirCambiosLocales,
+    sincronizarTodo,
+    descargarArchivosMedia,
+    ejecutarSincronizacionCompleta
+  };
+} else {
+  window.SincronizacionService = {
+    subirCambiosLocales,
+    sincronizarTodo,
+    descargarArchivosMedia,
+    ejecutarSincronizacionCompleta
+  };
+}
