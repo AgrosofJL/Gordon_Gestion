@@ -18,89 +18,78 @@ async function iniciarSesion(usuario, password) {
   // =========================================================================
   // PASO 1: VALIDAR PRIMERO CONTRA SUPABASE (NUBE)
   // =========================================================================
-  if (online && supabaseCampo) {
-    try {
-      console.log(`[AUTH] Consultando usuario '${userClean}' en Supabase...`);
-      
-      const { data, error } = await supabaseCampo
-        .from('sys_usuarios')
-        .select('*')
-        .ilike('usuario', userClean)
-        .limit(1);
+  /* ESTO LO MODIFIQUE: auth.js consultando la tabla 'usuarios' con 'operario' y 'pass' */
+if (online && supabaseCampo) {
+  try {
+    const { data, error } = await supabaseCampo
+      .from('usuarios')
+      .select('*')
+      .ilike('operario', userClean)
+      .limit(1);
 
-      if (!error && data && data.length > 0) {
-        const uRemoto = data[0];
+    if (!error && data && data.length > 0) {
+      const uRemoto = data[0];
 
-        // Validar si el usuario está activo (soporta 1, '1', 'ACTIVO' o true)
-        const estadoActivo = String(uRemoto.activo || '').toUpperCase();
-        const esActivo = estadoActivo === '1' || estadoActivo === 'ACTIVO' || estadoActivo === 'TRUE';
+      const estadoTxt = String(uRemoto.estado || '').toUpperCase();
+      const esActivo = estadoTxt === 'ACTIVO' || estadoTxt === '1' || estadoTxt === 'TRUE';
 
-        if (!esActivo) {
-          return { ok: false, motivo: 'usuario_inactivo' };
-        }
+      if (!esActivo) {
+        return { ok: false, motivo: 'usuario_inactivo' };
+      }
 
-        // Comparar contraseña
-        if (String(uRemoto.password || '').trim() !== passClean) {
-          return { ok: false, motivo: 'credenciales_invalidas' };
-        }
-
-        // =====================================================================
-        // PASO 2: TODO OK -> INSERTAR / ACTUALIZAR EN SQLITE LOCAL
-        // =====================================================================
-        console.log(`[AUTH] Credenciales válidas. Guardando copia en SQLite...`);
-        
-        db.prepare(`
-          INSERT INTO local_usuarios (id, usuario, nombre_completo, rol, unidad_negocio, password, activo, actualizado_en)
-          VALUES (?, ?, ?, ?, ?, ?, 1, ?)
-          ON CONFLICT(usuario) DO UPDATE SET
-            id = excluded.id,
-            nombre_completo = excluded.nombre_completo,
-            rol = excluded.rol,
-            unidad_negocio = excluded.unidad_negocio,
-            password = excluded.password,
-            activo = 1,
-            actualizado_en = excluded.actualizado_en
-        `).run(
-          uRemoto.id,
-          uRemoto.usuario,
-          uRemoto.nombre_completo || uRemoto.usuario,
-          uRemoto.rol,
-          uRemoto.unidad_negocio || 'General',
-          uRemoto.password,
-          new Date().toISOString()
-        );
-
-        // PASO 3: GRABAR SESIÓN ACTIVA (id = 1) PARA EL MENÚ
-        db.prepare(`
-          INSERT INTO local_sesion (id, usuario, nombre_completo, rol, unidad_negocio, modo, iniciado_en)
-          VALUES (1, ?, ?, ?, ?, 'online', datetime('now', 'localtime'))
-          ON CONFLICT(id) DO UPDATE SET
-            usuario = excluded.usuario,
-            nombre_completo = excluded.nombre_completo,
-            rol = excluded.rol,
-            unidad_negocio = excluded.unidad_negocio,
-            modo = excluded.modo,
-            iniciado_en = excluded.iniciado_en
-        `).run(
-          uRemoto.usuario,
-          uRemoto.nombre_completo || uRemoto.usuario,
-          uRemoto.rol,
-          uRemoto.unidad_negocio || 'General'
-        );
-
-        // PASO 4: SINCRONIZACIÓN EN SEGUNDO PLANO (Bajar permisos y maestros)
-        if (typeof ejecutarSincronizacionCompleta === 'function') {
-          ejecutarSincronizacionCompleta().catch(e => console.warn('Sincronización post-login en progreso...', e.message));
-        }
-
-        return { ok: true, usuario: uRemoto };
-      } else {
+      if (String(uRemoto.pass || '').trim() !== passClean) {
         return { ok: false, motivo: 'credenciales_invalidas' };
       }
-    } catch (err) {
-      console.warn("[AUTH] Falló la consulta remota a Supabase, probando respaldo local...", err.message);
+
+      // Guardar en base SQLite local
+      db.prepare(`
+        INSERT INTO local_usuarios (id, usuario, nombre_completo, rol, unidad_negocio, password, activo, actualizado_en)
+        VALUES (?, ?, ?, ?, 'General', ?, 1, ?)
+        ON CONFLICT(usuario) DO UPDATE SET
+          id = excluded.id,
+          nombre_completo = excluded.nombre_completo,
+          rol = excluded.rol,
+          password = excluded.password,
+          activo = 1,
+          actualizado_en = excluded.actualizado_en
+      `).run(
+        uRemoto.id,
+        uRemoto.operario,
+        uRemoto.operario,
+        uRemoto.rol,
+        uRemoto.pass,
+        new Date().toISOString()
+      );
+
+      db.prepare(`
+        INSERT INTO local_sesion (id, usuario, nombre_completo, rol, unidad_negocio, modo, iniciado_en)
+        VALUES (1, ?, ?, ?, 'General', 'online', datetime('now', 'localtime'))
+        ON CONFLICT(id) DO UPDATE SET
+          usuario = excluded.usuario,
+          nombre_completo = excluded.nombre_completo,
+          rol = excluded.rol,
+          modo = excluded.modo,
+          iniciado_en = excluded.iniciado_en
+      `).run(
+        uRemoto.operario,
+        uRemoto.operario,
+        uRemoto.rol
+      );
+
+      return { 
+        ok: true, 
+        usuario: { 
+          id: uRemoto.id, 
+          usuario: uRemoto.operario, 
+          nombre_completo: uRemoto.operario, 
+          rol: uRemoto.rol 
+        } 
+      };
     }
+  } catch (err) {
+    console.warn("[AUTH] Error consultando Supabase:", err.message);
   }
+}
 
   // =========================================================================
   // FALLBACK OFFLINE: SOLO SI NO HAY INTERNET O SUPABASE NO RESPONDIÓ

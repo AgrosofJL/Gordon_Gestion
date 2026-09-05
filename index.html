@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Gordon Gestión">
-
+ 
   <!-- Íconos con ruta relativa dentro del repositorio -->
   <link rel="icon" type="image/png" href="./logo.png">
   <link rel="apple-touch-icon" href="./logo.png">
@@ -421,19 +421,37 @@
           }
 
           if (window._supabaseWebClient) {
+            // ACA ES LO NUEVO: Consulta a la tabla 'usuarios' con las columnas reales 'operario' y 'pass'
             const { data, error } = await window._supabaseWebClient
-              .from('sys_usuarios')
+              .from('usuarios')
               .select('*')
-              .ilike('usuario', usuario)
+              .ilike('operario', usuario)
               .limit(1);
+
+            if (error) {
+              console.error("[WEB AUTH] Error Supabase:", error);
+            }
 
             if (!error && data && data.length > 0) {
               const u = data[0];
-              const activoTxt = String(u.activo || '').toUpperCase();
-              const esActivo = activoTxt === '1' || activoTxt === 'ACTIVO' || activoTxt === 'TRUE';
-              
-              if (esActivo && String(u.password || '').trim() === password) {
-                resultado = { ok: true, usuario: u };
+              const estadoTxt = String(u.estado || '').toUpperCase();
+              const estaActivo = estadoTxt === 'ACTIVO' || estadoTxt === '1' || estadoTxt === 'TRUE';
+
+              if (!estaActivo) {
+                resultado = { ok: false, motivo: 'usuario_inactivo' };
+              } else if (String(u.pass || '').trim() === password) {
+                // En la web se hace bypass de device()
+                resultado = {
+                  ok: true,
+                  usuario: {
+                    id: u.id,
+                    usuario: u.operario,
+                    nombre_completo: u.operario,
+                    rol: u.rol || 'operario',
+                    correo: u.correo || '',
+                    unidad_negocio: 'GENERAL'
+                  }
+                };
               }
             }
           }
@@ -442,12 +460,11 @@
         }
       }
 
-      // Si Supabase dio OK y tenemos el usuario:
       if (resultado.ok && resultado.usuario) {
         localStorage.setItem('sesion_activa', JSON.stringify({
           id: resultado.usuario.id,
           usuario: resultado.usuario.usuario,
-          nombre_completo: resultado.usuario.nombre_completo || resultado.usuario.usuario,
+          nombre_completo: resultado.usuario.nombre_completo,
           rol: resultado.usuario.rol,
           unidad_negocio: resultado.usuario.unidad_negocio || 'GENERAL'
         }));

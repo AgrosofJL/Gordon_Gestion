@@ -1,21 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- Ícono para pestaña normal del navegador -->
-<link rel="icon" type="image/png" href="../logo.png">
-<!-- Alternativa con el .ico: <link rel="shortcut icon" href="../icono.ico"> -->
-
-<!-- Ícono oficial para Safari (Agregar a pantalla de inicio en iPhone/iPad/Mac) -->
-<link rel="apple-touch-icon" href="../logo.png">
-
-<!-- Metas para que Safari lo abra como App nativa en pantalla completa -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Gordon Gestión">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gordon Gestión · Riego</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -32,6 +21,7 @@
     --color-riego-soft: rgba(30, 96, 145, 0.10);
     --radius-lg: 16px;
     --radius-md: 12px;
+    --radius-sm: 8px;
     --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
@@ -69,7 +59,7 @@
   .btn-volver:active, .btn-nav-lateral:active, .card-item:active, .renglon-card:active,
   .btn-accion:active, .btn-global-add:active, .btn-lista-add:active, .modal-btn:active,
   .tabla-interna-fila tbody tr:active, .btn-opcion-menu:active, .btn-sync-top:active,
-  .btn-excel:active, .chip-preset:active, .informe-card:active, .card-dia-agrupado:active {
+  .btn-excel:active, .chip-preset:active, .informe-card:active, .card-dia-agrupado:active, .btn-mini-card:active {
     background-color: #FFFDE7 !important; border-color: #FBC02D !important;
     box-shadow: inset 0 3px 8px rgba(251, 192, 45, 0.25), 0 2px 4px rgba(0,0,0,0.05) !important;
     transform: scale(0.98);
@@ -107,8 +97,6 @@
     box-shadow: 0 4px 12px rgba(30, 96, 145, 0.2); transition: all 0.2s ease; letter-spacing: 0.5px;
   }
   .btn-global-add:hover { background: var(--color-riego-dark); transform: translateY(-1px); }
-  .btn-global-add.cancel-mode { background: #78909C; }
-  .btn-global-add.cancel-mode:hover { background: #546E7A; }
 
   .btn-excel {
     background: #107C41; color: #FFFFFF; border: none; border-radius: var(--radius-md); padding: 10px 18px;
@@ -176,7 +164,7 @@
   .btn-accion.edit:hover { background: #FFFDE7; border-color: #FFF176; color: #F57F17; }
   .btn-accion.delete:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
 
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease; }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1800; opacity: 0; transition: opacity 0.2s ease; }
   .modal-overlay.show { display: flex; opacity: 1; }
   .modal-box { background: #FFFFFF; border-radius: var(--radius-lg); padding: 28px; width: 100%; max-width: 540px; box-shadow: 0 24px 50px rgba(0, 0, 0, 0.18); border: 1px solid var(--color-border); transform: translateY(-20px); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
   .modal-overlay.show .modal-box { transform: translateY(0); }
@@ -186,9 +174,8 @@
   .modal-body { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; padding-right: 4px; }
   .modal-group { display: flex; flex-direction: column; gap: 5px; }
   .modal-group label { font-size: 11px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; }
-  .modal-input:focus, .modal-select:focus { outline: none; border-color: var(--color-riego); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-riego-soft); }
-  .modal-input:disabled { opacity: 0.6; cursor: not-allowed; }
+  .modal-input, .modal-select { width: 100%; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--color-border); font-family: inherit; font-size: 14px; background: #FAFAFA; transition: all 0.15s ease; outline: none; }
+  .modal-input:focus, .modal-select:focus { border-color: var(--color-riego); background: #FFFFFF; box-shadow: 0 0 0 3px var(--color-riego-soft); }
   .modal-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
   .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: auto; }
@@ -197,6 +184,8 @@
   .modal-btn.cancel:hover { background: #F5F5F5; }
   .modal-btn.save { background: var(--color-riego); color: #FFFFFF; }
   .modal-btn.save:hover { background: var(--color-riego-dark); }
+  .modal-btn.danger { background: #C62828; color: #FFFFFF; }
+  .modal-btn.danger:hover { background: #B71C1C; }
 
   .vista-vacia { text-align: center; padding: 40px 20px; color: var(--color-text-secondary); font-size: 13px; }
 
@@ -208,27 +197,14 @@
   .toast-card.warning { border-left: 5px solid #F57C00; background: #FFF3E0; color: #E65100; }
 
   .seccion-scroll { overflow-y: auto; flex-grow: 1; padding-right: 4px; }
-
   .consola-card { background: rgba(255,255,255,0.85); border: 1px solid var(--color-border); border-radius: 22px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.02); }
   .consola-card-titulo { font-size: 11px; font-weight: 800; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
 
-  .total-mm-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: 10px; border-top: 1px dashed var(--color-border); }
-  .total-mm-label { font-size: 9px; font-weight: 800; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-  .total-mm-value { font-size: 16px; font-weight: 900; color: var(--color-riego); }
-
   .grid-riego-compacto { grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)) !important; gap: 10px !important; }
-  .riego-card-mini { padding: 12px !important; border-radius: var(--radius-md) !important; }
+  .riego-card-mini { padding: 12px !important; border-radius: var(--radius-md) !important; min-height: unset !important; }
   .riego-card-mini .card-item-header { margin-bottom: 8px; gap: 6px; }
   .riego-card-mini .card-item-header h4 { font-size: 12px; line-height: 1.2; }
-  .riego-card-mini .card-icon-wrapper { padding: 5px; }
-  .riego-card-mini .card-info-box { gap: 3px; padding: 6px 8px; }
-  .riego-card-mini .card-info-line { font-size: 10px; gap: 6px; }
-  .riego-card-mini .modal-row-grid { gap: 6px; }
-  .riego-card-mini .modal-group label { font-size: 9px; letter-spacing: 0.3px; }
   .riego-card-mini .modal-input { padding: 6px 8px; font-size: 12px; }
-  .riego-card-mini .total-mm-row { padding-top: 6px; margin-top: 8px; }
-  .riego-card-mini .total-mm-value { font-size: 13px; }
-  .riego-card-mini .badge-estado { font-size: 9px; padding: 3px 7px; }
 
   .masivo-cuadros-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px;
@@ -265,7 +241,7 @@
   .chart-tooltip { position: fixed; pointer-events: none; background: #1A211C; color: #FFFFFF; padding: 7px 11px; border-radius: 8px; font-size: 11px; line-height: 1.4; box-shadow: 0 8px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(4px); transition: opacity 0.12s ease; z-index: 3000; white-space: nowrap; }
   .chart-tooltip.show { opacity: 1; }
 
-  .oc-split-container { display: grid; grid-template-columns: 300px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
+  .oc-split-container { display: grid; grid-template-columns: 320px 1fr; gap: 16px; flex-grow: 1; overflow: hidden; }
   .oc-master-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
   .oc-master-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
@@ -274,19 +250,25 @@
   .btn-mes-nav:hover { background: var(--color-riego); color: #FFFFFF; }
   .oc-mes-label { font-size: 11px; font-weight: 800; color: var(--color-riego-dark); text-transform: uppercase; letter-spacing: 0.4px; min-width: 78px; text-align: center; }
 
-  .oc-card-item { background: #F7FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; }
+  .oc-card-item {
+    background: #F7FAFC; border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: 10px 12px; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
   .oc-card-item:hover { border-color: var(--color-riego); background: #FFFFFF; }
   .oc-card-item.active { border-color: var(--color-riego); background: var(--color-riego-soft); box-shadow: 0 2px 6px rgba(30, 96, 145, 0.12); }
 
+  .btn-mini-card { border: 1px solid var(--color-border); background: #FFFFFF; border-radius: 6px; padding: 4px 6px; font-size: 11px; cursor: pointer; transition: all 0.15s ease; color: var(--color-text-secondary); }
+  .btn-mini-card:hover { transform: translateY(-1px); }
+  .btn-mini-card.del:hover { background: #FFEBEE; border-color: #FFCDD2; color: #C62828; }
+
   .oc-card-num { font-size: 12px; font-weight: 800; color: var(--color-riego-dark); }
   .oc-card-prov { font-size: 11px; font-weight: 700; color: var(--color-text); margin-top: 2px; }
-  .oc-card-date { font-size: 10px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 
   .oc-detail-panel { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; overflow-y: auto; gap: 14px; }
 
   .tabla-oc-items { width: 100%; border-collapse: collapse; margin-top: 4px; }
   .tabla-oc-items th { background: var(--color-riego-dark); color: #FFFFFF; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 9px 10px; text-align: left; }
-  .tabla-oc-items td { padding: 9px 10px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--color-border); }
+  .tabla-oc-items td { padding: 9px 10px; font-size: 11.5px; font-weight: 600; border-bottom: 1px solid var(--color-border); }
   .tabla-oc-items tr:last-child td { border-bottom: none; }
 
   .modal-box-ancho { background: #FFFFFF; border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 760px; max-height: 88vh; overflow-y: auto; border: 1px solid var(--color-border); box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: apareceModalRiego 0.18s ease; }
@@ -342,6 +324,7 @@
         <button class="btn-nav-lateral" data-seccion="informes">INFORMES</button>
         <button class="btn-nav-lateral" data-seccion="estadisticas">ESTADÍSTICAS</button>
       </div>
+      <div style="margin-top:auto; font-size:10px; font-weight:bold; color:var(--color-text-secondary); text-align:center;">AGROSOFT J&L</div>
     </div>
 
     <div class="main-content">
@@ -425,6 +408,10 @@
     if (!db) return null;
     try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
   }
+  function qRun(sql, ...args) {
+    if (!db) return { changes: 0 };
+    try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
+  }
 
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
@@ -504,18 +491,26 @@
   }
 
   let modalSaveHandler = null;
-  function openMiniModal(title, subtitle, fieldsHtml, onSave) {
+  function openMiniModal(title, subtitle, fieldsHtml, onSave, isDanger = false) {
     modalTitle.textContent = title; modalSubtitle.textContent = subtitle;
     modalBody.innerHTML = fieldsHtml; customModal.classList.add('show');
     modalSaveHandler = onSave;
     modalBtnSave.style.display = onSave ? 'inline-block' : 'none';
-    modalBtnSave.textContent = 'Guardar';
-    modalBtnSave.style.background = 'var(--color-riego)';
+    modalBtnSave.textContent = isDanger ? 'Sí, Eliminar' : 'Guardar';
+    modalBtnSave.className = isDanger ? 'modal-btn danger' : 'modal-btn save';
   }
   function closeMiniModal() { customModal.classList.remove('show'); modalBody.innerHTML = ''; modalSaveHandler = null; }
   modalBtnCancel.addEventListener('click', closeMiniModal);
   modalBtnSave.addEventListener('click', () => { if (modalSaveHandler) modalSaveHandler(); });
   window.closeMiniModal = closeMiniModal;
+
+  function solicitarConfirmacion(titulo, mensaje, accionConfirmar) {
+    const html = `<div style="font-size:13px; color:var(--color-text); line-height:1.4; padding:6px 0;">${mensaje}</div>`;
+    openMiniModal(titulo, 'Confirmación de seguridad', html, () => {
+      closeMiniModal();
+      accionConfirmar();
+    }, true);
+  }
 
   function botonExcelHTML(onclickCall, titulo) {
     return `
@@ -534,31 +529,33 @@
 
   btnVolver.addEventListener('click', () => { window.location.href = 'menu_campo.html'; });
 
+  /* ESTO LO MODIFIQUE */
   btnSincronizarTodo.addEventListener('click', async () => {
     btnSincronizarTodo.classList.add('syncing');
-    btnSincronizarTodo.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...`;
+    btnSincronizarTodo.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...';
+    
     if (isElectron) {
       try {
         const { ejecutarSincronizacionCompleta } = require('../sincronizacion.js');
         await ejecutarSincronizacionCompleta();
-        lanzarNotificacionFlotante('¡Sincronización bidireccional exitosa con Hosting de Agrosoft J&L!', 'success');
+        lanzarNotificacionFlotante("¡Sincronización y conciliación completa exitosa!", "success");
       } catch (err) {
         console.error(err);
-        lanzarNotificacionFlotante('Error de sincronización: ' + err.message, 'error');
+        lanzarNotificacionFlotante("Error de sincronización: " + err.message, "error");
       } finally {
         btnSincronizarTodo.classList.remove('syncing');
-        btnSincronizarTodo.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Todo`;
-        cargarMaestrosRiego();
+        btnSincronizarTodo.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Todo';
         cargarSeccion();
       }
     } else {
       setTimeout(() => {
         btnSincronizarTodo.classList.remove('syncing');
-        btnSincronizarTodo.innerHTML = `Sincronizar Todo`;
-        lanzarNotificacionFlotante('Sincronización simulada en entorno de pruebas.', 'warning');
+        btnSincronizarTodo.innerHTML = "Sincronizar Todo";
+        lanzarNotificacionFlotante("Sincronización simulada en entorno web.", "warning");
       }, 1000);
     }
   });
+
 
   document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
     btn.addEventListener('click', () => irASeccion(btn.dataset.seccion));
@@ -632,13 +629,108 @@
     return q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
   }
 
+  /* ACA ES LO NUEVO: Funciones de resolución e índice de cascada de riego */
   let indiceCascadaRiego = null;
   function obtenerIndiceCascada() {
     if (!indiceCascadaRiego) indiceCascadaRiego = construirIndiceCascadaRiego();
     return indiceCascadaRiego;
   }
 
-  /* ESTO LO MODIFIQUE: Colapso por sesión y consolidación exacta de horas y mm */
+  function construirIndiceCascadaRiego() {
+    const marcos = q('SELECT * FROM local_p_marcos_plantacion');
+    const cuadros = q('SELECT * FROM local_p_cuadros');
+    const inventario = q("SELECT cod_marco, cuadro, variedad FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO'");
+
+    const marcoPorCodigo = {}, marcosPorCodParcela = {}, marcosPorNombreCuadro = {};
+    const cuadroPorCodParcela = {}, parcelaPorNombre = {};
+    const variedadesPorCodMarco = {}, variedadesPorCuadroInv = {}, codMarcosPorCuadroInv = {};
+
+    const pushUnico = (obj, clave, valor) => {
+      if (!clave) return;
+      if (!obj[clave]) obj[clave] = [];
+      if (!obj[clave].includes(valor)) obj[clave].push(valor);
+    };
+
+    marcos.forEach(m => {
+      marcoPorCodigo[String(m.cod_marco)] = m;
+      pushUnico(marcosPorCodParcela, String(m.cod_parcela), m.cod_marco);
+      pushUnico(marcosPorNombreCuadro, String(m.cuadro || '').trim().toUpperCase(), m.cod_marco);
+    });
+    cuadros.forEach(c => {
+      cuadroPorCodParcela[String(c.cod_parcela)] = c;
+      const k = String(c.nombre || '').trim().toUpperCase();
+      if (k) parcelaPorNombre[k] = c;
+    });
+    inventario.forEach(i => {
+      const cuadroKey = String(i.cuadro || '').trim().toUpperCase();
+      const variedad = String(i.variedad || '').trim();
+      pushUnico(codMarcosPorCuadroInv, cuadroKey, i.cod_marco);
+      if (variedad && variedad !== '-') {
+        pushUnico(variedadesPorCodMarco, String(i.cod_marco), variedad);
+        pushUnico(variedadesPorCuadroInv, cuadroKey, variedad);
+      }
+    });
+
+    return {
+      marcoPorCodigo, marcosPorCodParcela, marcosPorNombreCuadro,
+      cuadroPorCodParcela, parcelaPorNombre,
+      variedadesPorCodMarco, variedadesPorCuadroInv, codMarcosPorCuadroInv
+    };
+  }
+
+  function resolverCascadaRiego(idx, registro) {
+    const clave = String(registro.parcela || '').trim().toUpperCase();
+    let codMarcos = [];
+    let variedades = [];
+
+    if (idx.codMarcosPorCuadroInv[clave]) {
+      codMarcos = idx.codMarcosPorCuadroInv[clave];
+      variedades = (idx.variedadesPorCuadroInv[clave] || []).slice();
+    } else if (idx.parcelaPorNombre[clave]) {
+      codMarcos = idx.marcosPorCodParcela[String(idx.parcelaPorNombre[clave].cod_parcela)] || [];
+    } else if (idx.marcosPorNombreCuadro[clave]) {
+      codMarcos = idx.marcosPorNombreCuadro[clave];
+    }
+
+    if (variedades.length === 0) {
+      codMarcos.forEach(cm => (idx.variedadesPorCodMarco[String(cm)] || []).forEach(v => {
+        if (!variedades.includes(v)) variedades.push(v);
+      }));
+    }
+
+    const marcoRef = codMarcos.length ? (idx.marcoPorCodigo[String(codMarcos[0])] || {}) : {};
+    const cuadroMadre = marcoRef.cod_parcela != null
+      ? (idx.cuadroPorCodParcela[String(marcoRef.cod_parcela)] || {})
+      : (idx.parcelaPorNombre[clave] || {});
+
+    return {
+      codMarco: codMarcos.length ? codMarcos.join(' / ') : '—',
+      marco: marcoRef.cuadro || '—',
+      parcelaMarco: marcoRef.nombre_parcela || '—',
+      zona: marcoRef.nombre_zona || '—',
+      turno: marcoRef.turno == null ? '' : marcoRef.turno,
+      cuadroMadre: cuadroMadre.nombre || '—',
+      sector: cuadroMadre.sector || '—',
+      variedad: variedades.length ? variedades.join(' / ') : (String(registro.variedad || '').trim() || '—')
+    };
+  }
+
+  /* ACA ES LO NUEVO: Cálculo consolidado de horas sin duplicar subsectores */
+  function calcularHorasRegadas(registros) {
+    const bloques = {};
+    registros.forEach(r => {
+      const h = parseFloat(r.horas) || 0;
+      const clave = [
+        n1(h),
+        String(r.comentario == null ? '' : r.comentario).trim().toUpperCase(),
+        String(r.tipo_riego || '').trim().toUpperCase()
+      ].join('||');
+      bloques[clave] = h;
+    });
+    const valores = Object.values(bloques);
+    return { horas: valores.reduce((a, b) => a + b, 0), regadas: valores.length };
+  }
+
   function colapsarRegistrosRiego(registros, dimExtraFn) {
     const idx = obtenerIndiceCascada();
     const mapa = {};
@@ -694,6 +786,9 @@
     });
   }
 
+  // =========================================================================
+  // 1. REGAR — DÍAS DEL MES, SESIONES EXACTAS Y DETALLE
+  // =========================================================================
   let diaSeleccionadoRegar = null;
   let mesRegarBase = hoyStr().substring(0, 7);
 
@@ -730,11 +825,11 @@
 
     headerAccion.innerHTML = `
       <button class="btn-sync-top" id="btnCargaMasivaRiego" title="Cargar riego a varios cuadros a la vez">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         CARGAR MASIVO
       </button>
       <button class="btn-global-add" id="btnNuevoRiegoForm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         + REGAR
       </button>
     `;
@@ -742,6 +837,41 @@
     document.getElementById('btnCargaMasivaRiego').addEventListener('click', () => window.abrirModalRiegoMasivo());
 
     renderSplitRegar();
+  }
+
+  /* ESTO LO MODIFIQUE: Consolidación limpia de sesiones de riego (12 hs * 4 mm = 48 mm) */
+  function compilarGruposDelDia(registros) {
+    const mapaSesiones = {};
+
+    registros.forEach(r => {
+      const cuadro = extraerCuadroBase(r.parcela);
+      const fecha = String(r.fecha || '').trim();
+      const comentario = String(r.comentario == null ? '' : r.comentario).trim();
+      const horas = parseFloat(r.horas) || 0;
+      const lamina = parseFloat(r.lamina) || 0;
+      const sup = parseFloat(r.sup_riego) || 0;
+
+      const claveSesion = [fecha, cuadro.toUpperCase(), comentario.toUpperCase(), n1(horas), n1(lamina)].join('||');
+
+      if (!mapaSesiones[claveSesion]) {
+        mapaSesiones[claveSesion] = {
+          fecha: fecha,
+          periodo: r.periodo || fecha.replace(/-/g, '').substring(0, 6),
+          cuadro: cuadro,
+          variedad: r.variedad || '—',
+          comentario: comentario,
+          horas: horas,
+          lamina: lamina,
+          mm: lamina * horas,
+          sup: 0,
+          registros: []
+        };
+      }
+      mapaSesiones[claveSesion].sup += sup;
+      mapaSesiones[claveSesion].registros.push(r);
+    });
+
+    return Object.values(mapaSesiones).sort((a, b) => a.cuadro.localeCompare(b.cuadro, 'es', { numeric: true }));
   }
 
   function renderSplitRegar() {
@@ -753,16 +883,20 @@
       if (!filasPorFecha[f]) filasPorFecha[f] = [];
       filasPorFecha[f].push(r);
     });
+
     const resumenDias = Object.keys(filasPorFecha).sort((a, b) => b.localeCompare(a)).map(fecha => {
       const registros = filasPorFecha[fecha];
       const grupos = compilarGruposDelDia(registros);
-      const rh = calcularHorasRegadas(registros);
+      const horasTotales = grupos.reduce((acc, g) => acc + g.horas, 0);
+      const mmTotales = grupos.reduce((acc, g) => acc + g.mm, 0);
+
       return {
         fecha: fecha,
         cantidad_cuadros: grupos.length,
-        total_mm: grupos.reduce((a, g) => a + g.mm, 0),
-        horas: rh.horas,
-        regadas: rh.regadas
+        total_mm: mmTotales,
+        horas: horasTotales,
+        regadas: grupos.length,
+        registrosCount: registros.length
       };
     });
 
@@ -783,12 +917,14 @@
             </div>
           </div>
           <div style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:6px;">
-            ${resumenDias.length === 0 ? '<div class="vista-vacia">Sin riegos registrados este mes.<br><br>Presioná <strong>+ REGAR</strong> para cargar una planilla.</div>' : ''}
+            ${resumenDias.length === 0 ? '<div class="vista-vacia">Sin riegos en este mes.<br><br>Presioná <strong>+ REGAR</strong> para cargar una planilla.</div>' : ''}
             ${resumenDias.map(d => `
               <div class="oc-card-item ${diaSeleccionadoRegar === d.fecha ? 'active' : ''}" data-fecha-sel="${d.fecha}">
-                <div class="oc-card-num">${formatFechaLarga(d.fecha)}</div>
-                <div class="oc-card-prov">${d.cantidad_cuadros} cuadro(s) · ${n1(d.horas)} hs · ${d.regadas} regada(s)</div>
-                <div class="oc-card-date"><span>Lámina aplicada</span><strong style="color:var(--color-riego);">${n1(d.total_mm)} mm</strong></div>
+                <div style="flex-grow:1; min-width:0;">
+                  <div class="oc-card-num">${formatFechaLarga(d.fecha)}</div>
+                  <div class="oc-card-prov">${d.cantidad_cuadros} cuadro(s) · <b style="color:var(--color-riego);">${n1(d.horas)} hs</b> · <b style="color:#2E7D32;">${n1(d.total_mm)} mm</b></div>
+                </div>
+                <button type="button" class="btn-mini-card del" onclick="event.stopPropagation(); window.eliminarDiaCompletoRiego('${d.fecha}', ${d.registrosCount})" title="Eliminar todos los riegos de este día">🗑️</button>
               </div>
             `).join('')}
           </div>
@@ -806,79 +942,59 @@
     document.getElementById('btnMesSiguienteRegar').addEventListener('click', () => { mesRegarBase = mesSumar(mesRegarBase, 1); diaSeleccionadoRegar = null; renderSplitRegar(); });
   }
 
-  let gruposDiaRiego = [];
-
-  function calcularHorasRegadas(registros) {
-    const bloques = {};
-    registros.forEach(r => {
-      const h = parseFloat(r.horas) || 0;
-      const clave = [
-        n1(h),
-        String(r.comentario == null ? '' : r.comentario).trim().toUpperCase(),
-        String(r.tipo_riego || '').trim().toUpperCase()
-      ].join('||');
-      bloques[clave] = h;
-    });
-    const valores = Object.values(bloques);
-    return { horas: valores.reduce((a, b) => a + b, 0), regadas: valores.length };
-  }
-
-  function compilarGruposDelDia(registros) {
-    const mapa = {};
-    colapsarRegistrosRiego(registros).forEach(f => {
-      const clave = (f.fecha + '||' + f.cuadro + '||' + f.variedad + '||' + f.comentario).toUpperCase();
-      if (!mapa[clave]) {
-        mapa[clave] = {
-          fecha: f.fecha, periodo: f.periodo, cuadro: f.cuadro, variedad: f.variedad, comentario: f.comentario,
-          horasSum: 0, totalMmSum: 0, cantRegistros: 0, sup: 0, laminas: [], registros: []
-        };
+  window.eliminarDiaCompletoRiego = function(fecha, cantidadRegistros) {
+    solicitarConfirmacion(
+      'Eliminar Jornada de Riego',
+      `¿Deseas eliminar <strong>TODOS</strong> los riegos del día <strong>${formatFechaLarga(fecha)}</strong>?<br><br>Se borrarán permanentemente <strong>${cantidadRegistros} registro(s)</strong> de la base local y se replicará en la nube.`,
+      () => {
+        try {
+          qRun('DELETE FROM local_r_campo_riego WHERE fecha = ?', fecha);
+          lanzarNotificacionFlotante(`Se eliminaron todos los riegos del ${fecha}.`, 'success');
+          diaSeleccionadoRegar = null;
+          renderSplitRegar();
+        } catch(e) {
+          lanzarNotificacionFlotante('Error: ' + e.message, 'error');
+        }
       }
-      const g = mapa[clave];
-      g.horasSum += f.horasSum;
-      g.totalMmSum += f.totalMmSum;
-      g.cantRegistros += f.registros.length;
-      g.sup = Math.max(g.sup, f.sup);
-      if (f.lamina > 0) g.laminas.push(f.lamina);
-      g.registros.push(...f.registros);
-    });
+    );
+  };
 
-    return Object.values(mapa).map(g => {
-      const cant = g.cantRegistros || 1;
-      const riegos = cant / 4;
-      const horas = g.horasSum / 4;
-      const mm = g.totalMmSum / 4;
-      return {
-        fecha: g.fecha, periodo: g.periodo, cuadro: g.cuadro, variedad: g.variedad, comentario: g.comentario,
-        registros: g.registros, cantRegistros: cant,
-        riegos: riegos,
-        horas: horas,
-        mm: mm,
-        sup: g.sup,
-        lamina: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
-        mmHa: g.sup > 0 ? mm / g.sup : 0
-      };
-    });
-  }
+  let gruposDiaRiego = [];
 
   function renderDetalleDiaRiegoHTML(fecha) {
     gruposDiaRiego = [];
-    if (!fecha) return '<div class="vista-vacia">Seleccioná un día del mes para ver el detalle.</div>';
+    if (!fecha) return '<div class="vista-vacia">Seleccioná un día del mes para ver el detalle de los riegos aplicados.</div>';
 
     const riegosDelDia = q('SELECT * FROM local_r_campo_riego WHERE fecha = ? ORDER BY id DESC', fecha);
     if (riegosDelDia.length === 0) return '<div class="vista-vacia">No hay registros para este día.</div>';
 
     gruposDiaRiego = compilarGruposDelDia(riegosDelDia);
 
+    const totalHsDia = gruposDiaRiego.reduce((a, g) => a + g.horas, 0);
+    const totalMmDia = gruposDiaRiego.reduce((a, g) => a + g.mm, 0);
+
     return `
-      <div style="overflow-x:auto; flex-grow:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--color-riego); padding-bottom:8px; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--color-riego-dark);">${formatFechaLarga(fecha)}</div>
+          <div style="font-size:11px; color:var(--color-text-secondary); font-weight:600;">RESUMEN CONSOLIDADO POR CUADRO Y SESIÓN DE RIEGO</div>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <span style="font-size:11.5px; font-weight:800; color:var(--color-riego-dark); background:#E3F0FA; padding:4px 10px; border-radius:12px;">⏱️ ${n1(totalHsDia)} HS TOTALES</span>
+          <span style="font-size:11.5px; font-weight:800; color:#1B5E20; background:#E8F5E9; padding:4px 10px; border-radius:12px;">💧 ${n1(totalMmDia)} MM TOTALES</span>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; flex-grow:1; margin-top:4px;">
         <table class="tabla-oc-items">
           <thead>
             <tr>
               <th>FECHA</th>
-              <th>PARCELA</th>
-              <th style="text-align:right;">HORA</th>
-              <th style="text-align:center;">RIEGOS</th>
-              <th style="text-align:right;">MM</th>
+              <th>PARCELA / CUADRO</th>
+              <th style="text-align:center;">LÁMINA (mm/h)</th>
+              <th style="text-align:center;">HORAS</th>
+              <th style="text-align:right;">TOTAL APLICADO</th>
+              <th style="text-align:center;">SUP (HA)</th>
               <th>COMENTARIO</th>
               <th style="text-align:right;">ACCIONES</th>
             </tr>
@@ -886,20 +1002,17 @@
           <tbody>
             ${gruposDiaRiego.map((g, i) => `
               <tr>
-                <td>${escapeHtml(formatFechaCorta(g.fecha))}</td>
-                <td><b>${escapeHtml(g.cuadro)}</b></td>
-                <td style="text-align:right;">${n1(g.horas)}</td>
-                <td style="text-align:center;">${n1(g.riegos)}</td>
-                <td style="text-align:right; font-weight:800; color:var(--color-riego-dark);">${n1(g.mm)} mm</td>
+                <td>📅 ${escapeHtml(formatFechaCorta(g.fecha))}</td>
+                <td><strong style="color:var(--color-riego-dark); font-size:12px;">${escapeHtml(g.cuadro)}</strong></td>
+                <td style="text-align:center; color:var(--color-text-secondary);">${n1(g.lamina)} mm/h</td>
+                <td style="text-align:center; font-weight:800; color:var(--color-text);">${n1(g.horas)} hs</td>
+                <td style="text-align:right; font-weight:900; color:#1B5E20; font-size:12px;">${n1(g.mm)} mm</td>
+                <td style="text-align:center;">${n2(g.sup)} ha</td>
                 <td>${escapeHtml(g.comentario || '—')}</td>
                 <td style="text-align:right;">
-                  <div class="acciones-wrapper" style="justify-content:flex-end;">
-                    <button class="btn-accion edit" onclick="window.modalEditarGrupoRiego(${i})" title="Editar los ${g.registros.length} registro(s) del grupo">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    </button>
-                    <button class="btn-accion delete" onclick="window.modalEliminarGrupoRiego(${i})" title="Eliminar los ${g.registros.length} registro(s) del grupo">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
+                  <div class="acciones-wrapper">
+                    <button type="button" class="btn-accion edit" onclick="window.modalEditarGrupoRiego(${i})" title="Editar horas y lámina (se recalcula)">✏️</button>
+                    <button type="button" class="btn-accion delete" onclick="window.modalEliminarGrupoRiego(${i})" title="Eliminar este riego">🗑️</button>
                   </div>
                 </td>
               </tr>
@@ -913,54 +1026,74 @@
   window.modalEditarGrupoRiego = function(idx) {
     const g = gruposDiaRiego[idx];
     if (!g) return lanzarNotificacionFlotante('No se encontró el grupo.', 'error');
+
     const fields = `
       <div class="modal-row-grid">
-        <div class="modal-group"><label>Horas</label><input type="number" id="editGrupoHoras" class="modal-input" step="0.1" min="0" value="${n1(g.horas)}" /></div>
-        <div class="modal-group"><label>Lámina</label><input type="number" id="editGrupoLamina" class="modal-input" step="0.1" min="0" value="${n1(g.lamina)}" /></div>
+        <div class="modal-group"><label>Horas de Riego</label><input type="number" id="editGrupoHoras" class="modal-input" step="0.1" min="0" value="${n1(g.horas)}" /></div>
+        <div class="modal-group"><label>Lámina (mm/h)</label><input type="number" id="editGrupoLamina" class="modal-input" step="0.1" min="0" value="${n1(g.lamina)}" /></div>
       </div>
-      <div class="modal-group"><label>Comentario</label><input type="text" id="editGrupoComentario" class="modal-input" value="${escapeHtml(g.registros[0].comentario || '')}" /></div>
-      <p style="font-size:12px; color:var(--color-text-secondary); margin:4px 0 0;">Se aplica a los <strong>${g.registros.length}</strong> registro(s) del grupo.</p>
+      <div id="editPreviewTotalMm" style="font-size:12px; font-weight:800; color:var(--color-riego); margin-top:4px;">
+        Total Calculado: ${n1(g.horas * g.lamina)} mm
+      </div>
+      <div class="modal-group" style="margin-top:6px;"><label>Comentario</label><input type="text" id="editGrupoComentario" class="modal-input" value="${escapeHtml(g.comentario || '')}" /></div>
+      <p style="font-size:11px; color:var(--color-text-secondary); margin:4px 0 0;">Se actualizarán automáticamente los <strong>${g.registros.length}</strong> sub-sectores de la parcela.</p>
     `;
-    openMiniModal('Editar Riego Agrupado', `${g.cuadro} · ${g.variedad}`, fields, () => {
+
+    openMiniModal('✏️ Editar Riego', `${g.cuadro} · ${g.fecha}`, fields, () => {
       const nh = parseFloat(document.getElementById('editGrupoHoras').value);
       const nl = parseFloat(document.getElementById('editGrupoLamina').value);
       const nc = document.getElementById('editGrupoComentario').value;
       if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
       if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+
       try {
+        const nuevoTotal = nl * nh;
         const txn = db.transaction(() => {
           g.registros.forEach(r => {
-            const nuevoTotal = nl * nh;
             db.prepare('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?')
               .run(nh, nl, nuevoTotal, nc, r.id, r.reg_local);
           });
         });
         txn();
-        lanzarNotificacionFlotante(`${g.registros.length} registro(s) actualizado(s).`, 'success');
+        lanzarNotificacionFlotante(`Riego actualizado: ${nh} hs × ${nl} mm/h = ${nuevoTotal.toFixed(1)} mm.`, 'success');
         closeMiniModal();
         renderSplitRegar();
       } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
     });
+
+    setTimeout(() => {
+      const inpH = document.getElementById('editGrupoHoras');
+      const inpL = document.getElementById('editGrupoLamina');
+      const prev = document.getElementById('editPreviewTotalMm');
+      function recalc() {
+        const h = parseFloat(inpH.value) || 0;
+        const l = parseFloat(inpL.value) || 0;
+        prev.textContent = `Total Calculado: ${(h * l).toFixed(1)} mm`;
+      }
+      inpH.addEventListener('input', recalc);
+      inpL.addEventListener('input', recalc);
+    }, 100);
   };
 
   window.modalEliminarGrupoRiego = function(idx) {
     const g = gruposDiaRiego[idx];
     if (!g) return lanzarNotificacionFlotante('No se encontró el grupo.', 'error');
-    const fields = `<p style="font-size:14px; color:var(--color-text-secondary);">¿Eliminar los <strong>${g.registros.length}</strong> registro(s) de <strong>${escapeHtml(g.cuadro)} · ${escapeHtml(g.variedad)}</strong>? Esta acción no se puede deshacer.</p>`;
-    openMiniModal('Eliminar Riego Agrupado', 'Confirmar eliminación', fields, () => {
-      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
-      try {
-        const txn = db.transaction(() => {
-          g.registros.forEach(r => {
-            db.prepare('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?').run(r.id, r.reg_local);
+    solicitarConfirmacion(
+      'Eliminar Riego',
+      `¿Deseas eliminar el riego de <strong>${escapeHtml(g.cuadro)}</strong> (${n1(g.horas)} hs · ${n1(g.mm)} mm)?<br>Esta acción borrará sus ${g.registros.length} sub-registros asociados.`,
+      () => {
+        try {
+          const txn = db.transaction(() => {
+            g.registros.forEach(r => {
+              db.prepare('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?').run(r.id, r.reg_local);
+            });
           });
-        });
-        txn();
-        lanzarNotificacionFlotante(`${g.registros.length} registro(s) eliminado(s).`, 'success');
-        closeMiniModal();
-        renderSplitRegar();
-      } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
-    });
+          txn();
+          lanzarNotificacionFlotante(`Riego de ${g.cuadro} eliminado con éxito.`, 'success');
+          renderSplitRegar();
+        } catch(e) { lanzarNotificacionFlotante(e.message, 'error'); }
+      }
+    );
   };
 
   function resetFormularioRiegoState() {
@@ -990,7 +1123,7 @@
         <div class="consola-card-titulo">Comentario Operativo Global (se impacta en todo el bloque)</div>
         <input type="text" id="comentarioGlobalInput" class="modal-input" placeholder="Ej: Riego general post-lluvia, verificar compuertas..." value="${escapeHtml(comentarioGlobalTexto)}" />
 
-        <div class="modal-row-grid" style="margin-top:14px;">
+        <div class="modal-row-grid" style="margin-top:10px;">
           <div class="modal-group">
             <label>Fecha de Riego</label>
             <input type="date" id="fechaRiegoInput" class="modal-input" value="${fechaRiegoTexto}" />
@@ -1004,7 +1137,7 @@
           </div>
         </div>
 
-        <div class="modal-row-grid" style="margin-top:12px;">
+        <div class="modal-row-grid" style="margin-top:10px;">
           <div class="modal-group">
             <label style="color:var(--color-riego);">⏱️ Horas Globales (aplica a todo el bloque)</label>
             <input type="number" id="horasGlobalesInput" class="modal-input" min="0" step="0.1" placeholder="0.0" value="${escapeHtml(horasGlobalesTexto)}" />
@@ -1017,9 +1150,9 @@
 
       <div id="gridFilasRiegoContainer">${construirGrillaFilasHTML()}</div>
 
-      <div style="margin-top:18px;">
-        <button class="btn-global-add" id="btnGuardarRiego" style="width:100%; justify-content:center; height:44px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <div style="margin-top:16px;">
+        <button class="btn-global-add" id="btnGuardarRiego" style="width:100%; justify-content:center; height:42px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           GUARDAR PLANILLA
         </button>
       </div>
@@ -1171,20 +1304,13 @@
 
   function riegoCardHTML(fila, idx) {
     return `
-      <div class="card-item riego-card riego-card-mini">
-        <div class="card-item-header">
-          <div style="display:flex; align-items:center; gap:7px; min-width:0;">
-            <div class="card-icon-wrapper" style="color:var(--color-riego); background:var(--color-riego-soft);">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
-            </div>
-            <h4>${escapeHtml(fila.cuadro)}</h4>
-          </div>
-          <span class="badge-estado activo" style="background:var(--color-riego-soft); color:var(--color-riego-dark); border-color:rgba(30,96,145,0.2);">${supTalCual(fila.supAcumulada)} ha</span>
+      <div class="card-item riego-card-mini">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h4 style="margin:0; font-size:12px; font-weight:800; color:var(--color-riego-dark);">${escapeHtml(fila.cuadro)}</h4>
+          <span class="badge-estado activo">${supTalCual(fila.supAcumulada)} ha</span>
         </div>
-        <div class="card-info-box" style="margin-bottom:8px;">
-          <div class="card-info-line"><span>Válvula:</span><strong>${escapeHtml(fila.valvula)}</strong></div>
-          <div class="card-info-line"><span>Variedad:</span><strong>${escapeHtml(fila.variedad)}</strong></div>
-          <div class="card-info-line"><span>Sup:</span><strong>${supTalCual(fila.supAcumulada)} ha</strong></div>
+        <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:6px;">
+          Válvula: <b>${escapeHtml(fila.valvula)}</b> | Var: <b>${escapeHtml(fila.variedad)}</b>
         </div>
         <div class="modal-row-grid">
           <div class="modal-group">
@@ -1196,13 +1322,9 @@
             <input type="number" id="filaLamina_${idx}" class="modal-input" min="0" step="0.1" value="${escapeHtml(fila.lamina)}" />
           </div>
         </div>
-        <div class="total-mm-row">
-          <span class="total-mm-label">Total Aplicado</span>
-          <span class="total-mm-value" id="filaTotalMm_${idx}">${n1(fila.totalMm)} mm</span>
-        </div>
-        <div class="total-mm-row" style="border-top:none; padding-top:0; margin-top:2px;">
-          <span class="total-mm-label">MM x HA</span>
-          <span class="total-mm-label" id="filaMmHa_${idx}" style="color:var(--color-riego); font-size:11px;">${n2(fila.supAcumulada > 0 ? fila.totalMm / fila.supAcumulada : 0)}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; padding-top:6px; border-top:1px dashed var(--color-border);">
+          <span style="font-size:9.5px; font-weight:700; color:var(--color-text-secondary);">TOTAL:</span>
+          <span style="font-size:13px; font-weight:900; color:var(--color-riego);" id="filaTotalMm_${idx}">${n1(fila.totalMm)} mm</span>
         </div>
       </div>
     `;
@@ -1225,11 +1347,8 @@
   function recomputeRowDOM(idx) {
     const fila = tablaFilasBulk[idx];
     fila.totalMm = (parseFloat(fila.lamina) || 0) * (parseFloat(fila.horas) || 0);
-    const sup = fila.supAcumulada || 0;
     const span = document.getElementById('filaTotalMm_' + idx);
     if (span) span.textContent = n1(fila.totalMm) + ' mm';
-    const spanHa = document.getElementById('filaMmHa_' + idx);
-    if (spanHa) spanHa.textContent = n2(sup > 0 ? fila.totalMm / sup : 0);
   }
 
   function inyectarValoresGlobalesAlBloqueDOM(valor) {
@@ -1297,7 +1416,7 @@
       procesados = insertarBloqueRiego(filasValidas, fecha, comentarioGlobalTexto, modalidad, turnoSeleccionado);
     } catch (e) {
       console.error(e);
-      return lanzarNotificacionFlotante('Error crítico al guardar el volcado de riego: ' + e.message, 'error');
+      return lanzarNotificacionFlotante('Error al guardar el riego: ' + e.message, 'error');
     }
 
     lanzarNotificacionFlotante(`Planilla guardada: ${procesados} cuadro(s) regado(s) correctamente.`, 'success');
@@ -1308,6 +1427,9 @@
     renderSplitRegar();
   }
 
+  // =========================================================================
+  // CARGA MASIVA
+  // =========================================================================
   let masivoFecha = hoyStr();
   let masivoHoras = '';
   let masivoComentario = '';
@@ -1366,13 +1488,13 @@
 
   function construirListaCuadrosMasivoHTML() {
     const lista = cuadrosFiltradosMasivo();
-    if (lista.length === 0) return '<div class="vista-vacia" style="grid-column:1/-1;">No hay cuadros que coincidan con los filtros seleccionados.</div>';
+    if (lista.length === 0) return '<div class="vista-vacia" style="grid-column:1/-1;">No hay cuadros que coincidan con los filtros.</div>';
     return lista.map(c => {
       const nombre = String(c.nombre || '').trim();
       const sel = masivoSeleccion.has(nombre);
       const casc = resumenCascadaCuadros[String(c.cod_parcela)];
       const detalle = casc
-        ? `${supTalCual(casc.sup)} ha · ${casc.marcos} marco(s) · ${casc.grupos} reg.`
+        ? `${supTalCual(casc.sup)} ha · ${casc.marcos} marco(s)`
         : 'Sin inventario activo';
       return `
         <div class="cuadro-pick ${sel ? 'sel' : ''}" data-cuadro="${escapeHtml(nombre)}">
@@ -1396,7 +1518,7 @@
     if (!cuerpo) return;
 
     cuerpo.innerHTML = `
-      <div class="consola-card" style="margin-bottom:14px;">
+      <div class="consola-card" style="margin-bottom:12px;">
         <div class="modal-row-grid">
           <div class="modal-group">
             <label>Fecha de Riego</label>
@@ -1408,7 +1530,7 @@
           </div>
         </div>
 
-        <div class="modal-row-grid" style="margin-top:12px;">
+        <div class="modal-row-grid" style="margin-top:10px;">
           <div class="modal-group">
             <label>Modalidad de Carga</label>
             <select id="masivoModalidadSelect" class="modal-select">
@@ -1425,27 +1547,27 @@
           </div>
         </div>
 
-        <div class="modal-group" style="margin-top:12px;">
+        <div class="modal-group" style="margin-top:10px;">
           <label>Comentario</label>
           <input type="text" id="masivoComentarioInput" class="modal-input" placeholder="Ej: Riego general de turno completo..." value="${escapeHtml(masivoComentario)}" />
         </div>
       </div>
 
       <div class="consola-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
           <div class="consola-card-titulo" style="margin:0;">Cuadros · <span id="masivoContador">${masivoSeleccion.size}</span> seleccionado(s)</div>
-          <div style="display:flex; gap:8px;">
+          <div style="display:flex; gap:6px;">
             <button type="button" class="chip-preset" id="btnMasivoTodos">Seleccionar todos</button>
             <button type="button" class="chip-preset" id="btnMasivoNinguno">Limpiar</button>
           </div>
         </div>
-        <input type="text" id="masivoBuscarInput" class="modal-input" placeholder="Buscar cuadro o sector..." value="${escapeHtml(masivoBusqueda)}" style="margin-bottom:10px;" />
+        <input type="text" id="masivoBuscarInput" class="modal-input" placeholder="Buscar cuadro o sector..." value="${escapeHtml(masivoBusqueda)}" style="margin-bottom:8px;" />
         <div class="masivo-cuadros-grid" id="masivoCuadrosGrid">${construirListaCuadrosMasivoHTML()}</div>
       </div>
 
-      <div style="margin-top:16px;">
-        <button class="btn-global-add" id="btnGuardarMasivo" style="width:100%; justify-content:center; height:44px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <div style="margin-top:14px;">
+        <button class="btn-global-add" id="btnGuardarMasivo" style="width:100%; justify-content:center; height:40px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           GUARDAR RIEGO MASIVO
         </button>
       </div>
@@ -1579,13 +1701,10 @@
       procesados = insertarBloqueRiego(filas, fecha, masivoComentario, masivoModalidad, masivoTurnoSeleccionado);
     } catch (e) {
       console.error(e);
-      return lanzarNotificacionFlotante('Error crítico al guardar la carga masiva: ' + e.message, 'error');
+      return lanzarNotificacionFlotante('Error al guardar: ' + e.message, 'error');
     }
 
     lanzarNotificacionFlotante(`Carga masiva guardada: ${seleccionados.length} cuadro(s) · ${procesados} registro(s) de riego.`, 'success');
-    if (sinInventario.length > 0) {
-      lanzarNotificacionFlotante(`Sin inventario ACTIVO (se cargó la superficie del cuadro): ${sinInventario.join(', ')}`, 'warning');
-    }
     window.cerrarModalRiegoMasivo();
 
     diaSeleccionadoRegar = fecha;
@@ -1593,6 +1712,9 @@
     if (seccionActual === 'regar') renderSplitRegar(); else cargarSeccion();
   }
 
+  // =========================================================================
+  // 2. HISTORIAL
+  // =========================================================================
   let histDesde = sumarDiasStr(hoyStr(), -7);
   let histHasta = hoyStr();
   let fechasDesplegadas = {};
@@ -1647,15 +1769,16 @@
       <div class="historial-fecha-card ${isOpen ? 'open' : ''}" data-fecha="${escapeHtml(fecha)}">
         <div class="historial-fecha-header">
           <div style="display:flex; align-items:center; gap:12px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             <div>
               <div class="historial-fecha-titulo">${escapeHtml(tituloFecha)}</div>
-              <div class="historial-fecha-sub">${registros.length} registro(s) · ${n1(resumenHoras.horas)} hs · ${resumenHoras.regadas} regada(s)</div>
+              <div class="historial-fecha-sub">${registros.length} sub-registros · ${n1(resumenHoras.horas)} hs · ${n1(totalMm)} mm totales</div>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
             <span class="badge-estado activo">${n1(totalMm)} mm</span>
-            <svg class="historial-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <button type="button" class="btn-mini-card del" onclick="event.stopPropagation(); window.eliminarDiaCompletoRiego('${fecha}', ${registros.length});" title="Eliminar este día completo">🗑️</button>
+            <svg class="historial-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </div>
         </div>
         ${isOpen ? `<div class="historial-fecha-body">${registros.map(r => historialRegistroCardHTML(r)).join('')}</div>` : ''}
@@ -1673,11 +1796,9 @@
           <div class="renglon-info-block"><span class="label">Válvula</span><span class="value">${escapeHtml(r.valvula || '—')}</span></div>
           <div class="renglon-info-block"><span class="label">Variedad</span><span class="value">${escapeHtml(r.variedad || '—')}</span></div>
           <div class="renglon-info-block"><span class="label">Sup</span><span class="value">${supTalCual(supRegistro)} ha</span></div>
-          <div class="renglon-info-block"><span class="label">Horas</span><span class="value">${n1(r.horas)}</span></div>
-          <div class="renglon-info-block"><span class="label">Lámina</span><span class="value">${n1(r.lamina)}</span></div>
+          <div class="renglon-info-block"><span class="label">Horas</span><span class="value">${n1(r.horas)} hs</span></div>
+          <div class="renglon-info-block"><span class="label">Lámina</span><span class="value">${n1(r.lamina)} mm/h</span></div>
           <div class="renglon-info-block"><span class="label">Total</span><span class="value" style="color:var(--color-riego); font-weight:800;">${n1(mmRegistro)} mm</span></div>
-          <div class="renglon-info-block"><span class="label">MM x HA</span><span class="value">${n2(supRegistro > 0 ? mmRegistro / supRegistro : 0)}</span></div>
-          <div class="renglon-info-block"><span class="label">Estado</span><span class="badge-estado activo">ACTIVO</span></div>
         </div>
         <div class="acciones-wrapper">
           <button class="btn-accion edit" onclick="window.modalEditarRiego(${r.id}, '${escapeAttr(r.reg_local)}')" title="Editar">
@@ -1697,7 +1818,7 @@
     const fields = `
       <div class="modal-row-grid">
         <div class="modal-group"><label>Horas</label><input type="number" id="editRiegoHoras" class="modal-input" step="0.1" min="0" value="${n1(row.horas)}" /></div>
-        <div class="modal-group"><label>Lámina</label><input type="number" id="editRiegoLamina" class="modal-input" step="0.1" min="0" value="${n1(row.lamina)}" /></div>
+        <div class="modal-group"><label>Lámina (mm/h)</label><input type="number" id="editRiegoLamina" class="modal-input" step="0.1" min="0" value="${n1(row.lamina)}" /></div>
       </div>
       <div class="modal-group"><label>Comentario</label><input type="text" id="editRiegoComentario" class="modal-input" value="${escapeHtml(row.comentario || '')}" /></div>
     `;
@@ -1705,7 +1826,7 @@
       const nh = parseFloat(document.getElementById('editRiegoHoras').value);
       const nl = parseFloat(document.getElementById('editRiegoLamina').value);
       const nc = document.getElementById('editRiegoComentario').value;
-      if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
+      if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores válidos.', 'warning');
       const nuevoTotal = nl * nh;
       try {
         qRun('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?', nh, nl, nuevoTotal, nc, id, regLocal);
@@ -1717,30 +1838,28 @@
   };
 
   window.modalEliminarRiego = function(id, regLocal) {
-    const fields = `<p style="font-size:14px; color:var(--color-text-secondary);">¿Eliminar este registro de riego? Esta acción no se puede deshacer.</p>`;
-    openMiniModal('Eliminar Registro', 'Confirmar eliminación', fields, () => {
+    solicitarConfirmacion('Eliminar Registro', '¿Eliminar este registro individual de riego?', () => {
       try {
         qRun('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?', id, regLocal);
         lanzarNotificacionFlotante('Registro eliminado.', 'success');
-        closeMiniModal(); 
         if (seccionActual === 'regar') renderRegar(); else renderHistorial();
       } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
     });
   };
 
+  // =========================================================================
+  // 3. INFORMES
+  // =========================================================================
   const REPORTES_RIEGO = [
-    { key: 'cuadro', titulo: 'Por Cuadro / Parcela', desc: 'Totales de riego consolidados por cuadro físico regado.', etiqueta: f => f.cuadro, icono: 'cuadro' },
+    { key: 'cuadro', titulo: 'Por Cuadro / Parcela', desc: 'Totales consolidados por cuadro físico regado.', etiqueta: f => f.cuadro, icono: 'cuadro' },
     { key: 'cultivo', titulo: 'Por Cultivo y Variedad', desc: 'Consumo hídrico agrupado por cultivo y variedad.', etiqueta: f => `${f.cultivo} · ${f.variedad}`, icono: 'cultivo' },
     { key: 'valvula', titulo: 'Por Válvula de Riego', desc: 'Horas y milímetros aplicados por válvula operada.', etiqueta: f => f.dim, dim: r => r.valvula, icono: 'valvula' },
     { key: 'operario', titulo: 'Por Operario', desc: 'Actividad de riego registrada por cada operario.', etiqueta: f => f.usuario, icono: 'operario' },
     { key: 'modalidad', titulo: 'Manual vs Automatizado', desc: 'Comparativo entre modalidades de riego aplicadas.', etiqueta: f => f.tipo_riego, icono: 'modalidad' }
   ];
 
-  /* ESTO LO MODIFIQUE / ACA ES LO NUEVO:
-     Consolidación en informes por sesión de riego para no multiplicar horas ni milímetros al desmenuzar por subsectores */
   function agregarInformeRiego(registros, rep) {
     if (rep.key === 'cuadro') {
-      // Consolidación única por sesión en cada cuadro
       const mapaSesiones = {};
       registros.forEach(r => {
         const cuadro = extraerCuadroBase(r.parcela);
@@ -1789,8 +1908,7 @@
         horas: g.horas,
         mm: g.mm,
         sup: g.sup,
-        lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
-        mmHa: g.sup > 0 ? g.mm / g.sup : 0
+        lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0
       })).sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es', { numeric: true, sensitivity: 'base' }));
     }
 
@@ -1813,8 +1931,7 @@
       horas: g.horasSum,
       mm: g.mm,
       sup: g.sup,
-      lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0,
-      mmHa: g.sup > 0 ? g.mm / g.sup : 0
+      lamina_prom: g.laminas.length ? g.laminas.reduce((a, b) => a + b, 0) / g.laminas.length : 0
     })).sort((a, b) => b.mm - a.mm);
   }
 
@@ -1842,14 +1959,14 @@
           ${REPORTES_RIEGO.map(r => `
             <div class="card-item" onclick="window.abrirInforme('${r.key}')">
               <div class="card-item-header">
-                <div style="display:flex; align-items:center; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
                   <div class="card-icon-wrapper" style="color:var(--color-riego); background:var(--color-riego-soft);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONOS_INFORME[r.icono] || ICONOS_INFORME.cuadro}</svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONOS_INFORME[r.icono] || ICONOS_INFORME.cuadro}</svg>
                   </div>
                   <h4>${r.titulo}</h4>
                 </div>
               </div>
-              <p class="informe-card-desc">${r.desc}</p>
+              <p style="font-size:11px; color:var(--color-text-secondary); line-height:1.4; margin:0;">${r.desc}</p>
             </div>
           `).join('')}
         </div>
@@ -1892,7 +2009,6 @@
               <th style="text-align:center;">HORAS</th>
               <th style="text-align:center;">LÁMINA PROM.</th>
               <th style="text-align:center;">SUP (HA)</th>
-              <th style="text-align:center;">MM X HA</th>
               <th>TOTAL MM</th>
             </tr>
           </thead>
@@ -1903,10 +2019,9 @@
                 <tr>
                   <td><strong>${escapeHtml(f.etiqueta || '—')}</strong></td>
                   <td style="text-align:center;">${n1(f.riegos)}</td>
-                  <td style="text-align:center;">${n1(f.horas)}</td>
-                  <td style="text-align:center;">${n2(f.lamina_prom)}</td>
-                  <td style="text-align:center;">${n2(f.sup)}</td>
-                  <td style="text-align:center;">${n2(f.mmHa)}</td>
+                  <td style="text-align:center;">${n1(f.horas)} hs</td>
+                  <td style="text-align:center;">${n1(f.lamina_prom)} mm/h</td>
+                  <td style="text-align:center;">${n2(f.sup)} ha</td>
                   <td>
                     <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--color-riego-dark);"><span>${n1(f.mm)} mm</span></div>
                     <div class="sparkbar-track"><div class="sparkbar-fill" style="width:${pct}%;"></div></div>
@@ -1923,11 +2038,11 @@
   window.abrirInforme = function(key) { informeActivo = key; renderInformes(); };
   window.cerrarInforme = function() { informeActivo = null; renderInformes(); };
 
+  // =========================================================================
+  // 4. ESTADÍSTICAS
+  // =========================================================================
   let statsDesde = sumarDiasStr(hoyStr(), -14);
   let statsHasta = hoyStr();
-  let ultimoStatsKpi = null;
-  let ultimoStatsSerie = [];
-  let ultimoStatsCultivo = [];
 
   function renderEstadisticas() {
     seccionTitulo.textContent = 'Estadísticas de Riego';
@@ -1963,11 +2078,8 @@
       horas: totalHoras,
       regadas: totalRegadas,
       mm: colapsadosRango.reduce((a, f) => a + f.mm, 0),
-      sup: colapsadosRango.reduce((a, f) => a + f.sup, 0),
-      prom: 0
+      sup: colapsadosRango.reduce((a, f) => a + f.sup, 0)
     };
-    kpi.prom = colapsadosRango.length ? kpi.mm / colapsadosRango.length : 0;
-    kpi.mmHa = kpi.sup > 0 ? kpi.mm / kpi.sup : 0;
 
     const serieDiaria = Object.keys(porFecha).sort().map(fecha => ({
       fecha: fecha, mm: porFecha[fecha].mm, horas: porFecha[fecha].horas, riegos: porFecha[fecha].riegos
@@ -1982,49 +2094,37 @@
     });
     const porCultivo = Object.values(mapaCultivo).sort((a, b) => b.horas - a.horas).slice(0, 8);
 
-    ultimoStatsKpi = kpi; ultimoStatsSerie = serieDiaria; ultimoStatsCultivo = porCultivo;
-
     contenedorDinamico.innerHTML = `
       <div class="seccion-scroll">
         ${construirFiltroFechasHTML('stats', statsDesde, statsHasta)}
 
         <div class="kpi-grid">
           ${kpiTileHTML('riegos', 'Riegos Registrados', n1(kpi.riegos), 'var(--color-riego)', 'var(--color-riego-soft)')}
-          ${kpiTileHTML('horas', `Horas de Riego · ${kpi.regadas || 0} regada(s)`, n1(kpi.horas) + ' hs', '#E65100', 'rgba(230,81,0,0.1)')}
+          ${kpiTileHTML('horas', `Horas de Riego`, n1(kpi.horas) + ' hs', '#E65100', 'rgba(230,81,0,0.1)')}
           ${kpiTileHTML('mm', 'MM Acumulados', n1(kpi.mm) + ' mm', 'var(--color-accent)', 'var(--color-accent-soft)')}
           ${kpiTileHTML('sup', 'Sup. Regada', n2(kpi.sup) + ' ha', '#6A1B9A', 'rgba(106,27,154,0.08)')}
-          ${kpiTileHTML('prom', 'MM x HA', n2(kpi.mmHa) + ' mm/ha', '#00838F', 'rgba(0,131,143,0.08)')}
         </div>
 
-        <div style="display:flex; gap:20px; flex-wrap:wrap;">
-          <div class="chart-card" style="flex:1; min-width:320px;">
+        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+          <div class="chart-card" style="flex:1; min-width:300px;">
             <h4>Milímetros Aplicados por Día</h4>
-            <div class="chart-svg-holder">${renderBarChartSVG(serieDiaria, { labelKey: 'fecha', valueKey: 'mm', color: '#1E6091', formatLabel: formatFechaCorta, formatValue: v => n1(v) + ' mm' })}</div>
+            <div>${renderBarChartSVG(serieDiaria, { labelKey: 'fecha', valueKey: 'mm', color: '#1E6091', formatLabel: formatFechaCorta, formatValue: v => n1(v) + ' mm' })}</div>
           </div>
-          <div class="chart-card" style="flex:1; min-width:320px;">
+          <div class="chart-card" style="flex:1; min-width:300px;">
             <h4>Horas de Riego por Cultivo</h4>
-            <div class="chart-svg-holder">${renderBarChartSVG(porCultivo, { labelKey: 'cultivo', valueKey: 'horas', color: '#1E6B4C', formatValue: v => n1(v) + ' hs' })}</div>
+            <div>${renderBarChartSVG(porCultivo, { labelKey: 'cultivo', valueKey: 'horas', color: '#1E6B4C', formatValue: v => n1(v) + ' hs' })}</div>
           </div>
         </div>
-
-        <div style="margin-top:20px;">${tablaSerieDiariaHTML(serieDiaria)}</div>
       </div>
     `;
     wireFiltroFechas('stats');
   }
 
   function kpiTileHTML(key, label, value, colorVar, colorSoftVar) {
-    const iconos = {
-      riegos: '<path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/>',
-      horas: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
-      mm: '<path d="M16 3H8a2 2 0 0 0-2 2v14l6-3 6 3V5a2 2 0 0 0-2-2z"/>',
-      sup: '<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>',
-      prom: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'
-    };
     return `
       <div class="kpi-tile">
         <div class="kpi-icon" style="color:${colorVar}; background:${colorSoftVar};">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconos[key] || iconos.riegos}</svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>
         </div>
         <div>
           <div class="kpi-value">${value}</div>
@@ -2034,105 +2134,29 @@
     `;
   }
 
-  function tablaSerieDiariaHTML(serie) {
-    if (serie.length === 0) return '<div class="vista-vacia">Sin datos en el rango seleccionado.</div>';
-    const maxMm = Math.max(...serie.map(s => parseFloat(s.mm) || 0), 0.0001);
-    return `
-      <div class="tabla-interna-fila wrapper">
-        <table class="tabla-interna-fila">
-          <thead>
-            <tr><th>FECHA</th><th style="text-align:center;">RIEGOS</th><th style="text-align:center;">HORAS</th><th>MM TOTALES</th></tr>
-          </thead>
-          <tbody>
-            ${serie.slice().reverse().map(s => {
-              const pct = Math.max(4, Math.round((parseFloat(s.mm) || 0) / maxMm * 100));
-              return `
-                <tr>
-                  <td><strong>${escapeHtml(formatFechaCorta(s.fecha))}</strong> <span style="color:var(--color-text-secondary); font-weight:400;">${escapeHtml(s.fecha)}</span></td>
-                  <td style="text-align:center;">${n1(s.riegos)}</td>
-                  <td style="text-align:center;">${n1(s.horas)}</td>
-                  <td>
-                    <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--color-riego-dark);"><span>${n1(s.mm)} mm</span></div>
-                    <div class="sparkbar-track"><div class="sparkbar-fill" style="width:${pct}%;"></div></div>
-                  </td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  function calcularNiceMax(v) {
-    if (v <= 0) return 1;
-    const exp = Math.floor(Math.log10(v));
-    const base = Math.pow(10, exp);
-    const norm = v / base;
-    let niceNorm;
-    if (norm <= 1) niceNorm = 1; else if (norm <= 2) niceNorm = 2; else if (norm <= 5) niceNorm = 5; else niceNorm = 10;
-    return niceNorm * base;
-  }
-  function formatearNumeroCorto(v) {
-    if (v >= 1000) return (v / 1000).toFixed(1) + 'k';
-    return String(Math.round(v * 10) / 10);
-  }
-  function pathBarraRedondeada(x, y, w, h, r) {
-    if (h <= 0.5) { const baseline = y + h; return `M${x},${baseline} L${x + w},${baseline} Z`; }
-    r = Math.min(r, w / 2, h);
-    return `M${x},${y + h} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} L${x + w},${y + h} Z`;
-  }
-
   function renderBarChartSVG(rows, opts) {
-    if (!rows || rows.length === 0) return '<div class="vista-vacia" style="padding:30px 0;">Sin datos en el rango seleccionado.</div>';
-    const W = 620, H = 210, padL = 40, padR = 10, padT = 14, padB = 30;
+    if (!rows || rows.length === 0) return '<div class="vista-vacia" style="padding:20px 0;">Sin datos en el rango.</div>';
+    const W = 580, H = 190, padL = 36, padR = 10, padT = 12, padB = 26;
     const plotW = W - padL - padR, plotH = H - padT - padB;
     const values = rows.map(r => Number(r[opts.valueKey]) || 0);
-    const niceMax = calcularNiceMax(Math.max(...values, 0.0001));
+    const maxVal = Math.max(...values, 0.001);
     const n = rows.length;
     const slot = plotW / n;
-    const barW = Math.min(24, Math.max(6, slot - 6));
-
-    let grid = '';
-    for (let s = 0; s <= 3; s++) {
-      const gy = padT + plotH - (plotH * s / 3);
-      const gv = niceMax * s / 3;
-      grid += `<line x1="${padL}" y1="${gy}" x2="${W - padR}" y2="${gy}" stroke="#E1E0D9" stroke-width="1"/>`;
-      grid += `<text x="${padL - 8}" y="${gy + 3}" font-size="9" fill="#898781" text-anchor="end">${formatearNumeroCorto(gv)}</text>`;
-    }
+    const barW = Math.min(22, Math.max(5, slot - 5));
 
     let bars = '', labels = '';
-    const showEvery = n <= 10 ? 1 : Math.ceil(n / 10);
     rows.forEach((r, i) => {
       const val = Number(r[opts.valueKey]) || 0;
       const x = padL + i * slot + (slot - barW) / 2;
-      const h = plotH * (val / niceMax);
+      const h = plotH * (val / maxVal);
       const y = padT + (plotH - h);
-      const path = pathBarraRedondeada(x, y, barW, h, 4);
       const labelRaw = opts.formatLabel ? opts.formatLabel(r[opts.labelKey]) : String(r[opts.labelKey] == null ? '—' : r[opts.labelKey]);
-      const valorTexto = opts.formatValue ? opts.formatValue(val) : String(val);
-      const tooltipHtml = `<strong>${escapeHtml(labelRaw)}</strong><br>${escapeHtml(valorTexto)}`;
-      const tooltipAttr = escapeAttr(tooltipHtml);
-      bars += `<path d="${path}" fill="${opts.color}" rx="4" onmousemove="window.moverTooltipChart(event, '${tooltipAttr}')" onmouseenter="window.moverTooltipChart(event, '${tooltipAttr}')" onmouseleave="window.ocultarTooltipChart()"></path>`;
-      if (i % showEvery === 0) {
-        const lblShort = labelRaw.length > 9 ? labelRaw.slice(0, 8) + '…' : labelRaw;
-        labels += `<text x="${x + barW / 2}" y="${H - 10}" font-size="9" fill="#556358" text-anchor="middle">${escapeHtml(lblShort)}</text>`;
-      }
+      bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="3" fill="${opts.color}"></rect>`;
+      labels += `<text x="${x + barW / 2}" y="${H - 8}" font-size="8.5" fill="#556358" text-anchor="middle">${escapeHtml(labelRaw.slice(0, 7))}</text>`;
     });
 
-    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:200px;">${grid}${bars}${labels}</svg>`;
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:180px;">${bars}${labels}</svg>`;
   }
-
-  window.moverTooltipChart = function(evt, htmlTexto) {
-    const tt = document.getElementById('chartTooltip');
-    tt.innerHTML = htmlTexto;
-    tt.style.left = (evt.clientX + 16) + 'px';
-    tt.style.top = (evt.clientY + 12) + 'px';
-    tt.classList.add('show');
-  };
-  window.ocultarTooltipChart = function() {
-    document.getElementById('chartTooltip').classList.remove('show');
-  };
 
   function construirFiltroFechasHTML(prefix, desde, hasta) {
     return `
@@ -2140,44 +2164,47 @@
         <div class="filtro-fechas-chips">
           <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',7)">Últimos 7 días</button>
           <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',30)">Últimos 30 días</button>
-          <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}',90)">Últimos 90 días</button>
           <button type="button" class="chip-preset" onclick="window.aplicarPresetFechas('${prefix}','mes')">Este mes</button>
         </div>
-        <div class="filtro-fechas-inputs">
-          <div class="modal-group"><label>Desde</label><input type="date" id="${prefix}Desde" class="modal-input" value="${desde}" /></div>
-          <div class="modal-group"><label>Hasta</label><input type="date" id="${prefix}Hasta" class="modal-input" value="${hasta}" /></div>
-          <button type="button" class="btn-sync-top" id="${prefix}BtnAplicar">Aplicar Rango</button>
+        <div style="display:flex; align-items:flex-end; gap:8px;">
+          <div class="modal-group"><label>Desde</label><input type="date" id="${prefix}Desde" class="modal-input" value="${desde}" style="padding:5px 8px;" /></div>
+          <div class="modal-group"><label>Hasta</label><input type="date" id="${prefix}Hasta" class="modal-input" value="${hasta}" style="padding:5px 8px;" /></div>
+          <button type="button" class="btn-sync-top" id="${prefix}BtnAplicar">Filtrar</button>
         </div>
       </div>
     `;
   }
+
   function wireFiltroFechas(prefix) {
     const btn = document.getElementById(prefix + 'BtnAplicar');
     if (btn) btn.addEventListener('click', () => window.aplicarFiltroFechas(prefix));
   }
+
   function setFechasEstado(prefix, d, h) {
     if (prefix === 'hist') { histDesde = d; histHasta = h; }
     else if (prefix === 'inf') { infDesde = d; infHasta = h; }
     else if (prefix === 'stats') { statsDesde = d; statsHasta = h; }
   }
+
   function rerenderSeccionActual() {
     if (seccionActual === 'historial') renderHistorial();
     else if (seccionActual === 'informes') renderInformes();
     else if (seccionActual === 'estadisticas') renderEstadisticas();
   }
+
   window.aplicarPresetFechas = function(prefix, dias) {
     const hasta = hoyStr();
     const desde = dias === 'mes' ? primerDiaMesStr() : sumarDiasStr(hoyStr(), -dias);
     setFechasEstado(prefix, desde, hasta);
     rerenderSeccionActual();
   };
+
   window.aplicarFiltroFechas = function(prefix) {
     const dEl = document.getElementById(prefix + 'Desde');
     const hEl = document.getElementById(prefix + 'Hasta');
     if (!dEl || !hEl) return;
     const d = dEl.value, h = hEl.value;
-    if (!d || !h) return lanzarNotificacionFlotante('Seleccioná ambas fechas.', 'warning');
-    if (d > h) return lanzarNotificacionFlotante('El rango de fechas es inválido.', 'warning');
+    if (!d || !h || d > h) return lanzarNotificacionFlotante('Rango inválido.', 'warning');
     setFechasEstado(prefix, d, h);
     rerenderSeccionActual();
   };
@@ -2187,72 +2214,14 @@
     const pathMod = require('path');
     const fs = require('fs');
     const carpetaDescargas = pathMod.join(os.homedir(), 'Downloads');
-    try { if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true }); } catch (e) {}
+    if (!fs.existsSync(carpetaDescargas)) fs.mkdirSync(carpetaDescargas, { recursive: true });
     const rutaFinal = pathMod.join(carpetaDescargas, nombreArchivo);
     await wb.xlsx.writeFile(rutaFinal);
     return rutaFinal;
   }
 
-  function generarGraficoPNGEnCanvas(datos, titulo, labelKey, valueKey, colorHex) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 750;
-    canvas.height = 380;
-    const ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#123A57';
-    ctx.font = 'bold 18px Roboto, sans-serif';
-    ctx.fillText(titulo, 40, 38);
-
-    if (!datos || datos.length === 0) return canvas.toDataURL('image/png');
-
-    const maxVal = Math.max(...datos.map(d => Number(d[valueKey]) || 0), 1);
-    const paddingLeft = 55, paddingBottom = 55, paddingTop = 65, paddingRight = 35;
-    const chartWidth = canvas.width - paddingLeft - paddingRight;
-    const chartHeight = canvas.height - paddingTop - paddingBottom;
-    const gap = chartWidth / datos.length;
-    const barWidth = Math.min(42, Math.max(12, gap * 0.55));
-
-    ctx.strokeStyle = '#E2E8F0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = paddingTop + chartHeight - (chartHeight * (i / 4));
-      const val = (maxVal * (i / 4)).toFixed(1);
-      ctx.beginPath(); ctx.moveTo(paddingLeft, y); ctx.lineTo(canvas.width - paddingRight, y); ctx.stroke();
-      ctx.fillStyle = '#718096'; ctx.font = '11px Roboto, sans-serif'; ctx.textAlign = 'right';
-      ctx.fillText(val, paddingLeft - 8, y + 4);
-    }
-
-    datos.forEach((item, idx) => {
-      const x = paddingLeft + (idx * gap) + (gap - barWidth) / 2;
-      const val = Number(item[valueKey]) || 0;
-      const h = (val / maxVal) * chartHeight;
-      const y = paddingTop + chartHeight - h;
-
-      ctx.fillStyle = colorHex || '#1E6091';
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(x, y, barWidth, h, [5, 5, 0, 0]);
-      else ctx.rect(x, y, barWidth, h);
-      ctx.fill();
-
-      ctx.fillStyle = '#1A211C';
-      ctx.font = 'bold 11px Roboto, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(val.toFixed(1), x + barWidth / 2, Math.max(paddingTop + 12, y - 6));
-
-      ctx.fillStyle = '#4A5568';
-      ctx.font = '10px Roboto, sans-serif';
-      const lbl = String(item[labelKey] || '');
-      ctx.fillText(lbl.length > 12 ? lbl.slice(0, 10) + '..' : lbl, x + barWidth / 2, paddingTop + chartHeight + 18);
-    });
-
-    return canvas.toDataURL('image/png');
-  }
-
   function crearHojaEstilizada(wb, nombre, columnas, filas) {
-    const ws = wb.addWorksheet(sanitizarNombreHoja(nombre));
+    const ws = wb.addWorksheet(nombre.replace(/[*?:\\\/\[\]]/g, '-').slice(0, 31));
     ws.columns = columnas;
     const headerRow = ws.getRow(1);
     headerRow.eachCell(cell => {
@@ -2260,159 +2229,21 @@
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E6091' } };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
     });
-    headerRow.height = 24;
+    headerRow.height = 22;
     filas.forEach(f => ws.addRow(f));
     return ws;
   }
 
-  async function agregarPestanaGraficosEnExcel(wb, colapsados) {
-    const wsGraf = wb.addWorksheet('Gráficos y Resumen');
-
-    const resumenParcela = {};
-    colapsados.forEach(f => {
-      const p = f.cuadro;
-      if (!resumenParcela[p]) resumenParcela[p] = { parcela: p, horas: 0, mm: 0 };
-      resumenParcela[p].horas += f.horas;
-      resumenParcela[p].mm += f.mm;
-    });
-    const listaParcelas = Object.values(resumenParcela).sort((a, b) => b.mm - a.mm);
-
-    wsGraf.columns = [
-      { header: 'PARCELA', key: 'parcela', width: 22 },
-      { header: 'HORAS TOTALES', key: 'horas', width: 18 },
-      { header: 'TOTAL MM', key: 'mm', width: 18 }
-    ];
-
-    const hRow = wsGraf.getRow(1);
-    hRow.eachCell(cell => {
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF104630' } };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-    });
-    hRow.height = 24;
-
-    listaParcelas.forEach(p => {
-      wsGraf.addRow({
-        parcela: p.parcela,
-        horas: Number(n1(p.horas)),
-        mm: Number(n1(p.mm))
-      });
-    });
-
-    const chartPng1 = generarGraficoPNGEnCanvas(listaParcelas, 'Total Milímetros Aplicados por Parcela', 'parcela', 'mm', '#1E6091');
-    const imageId1 = wb.addImage({ base64: chartPng1, extension: 'png' });
-    wsGraf.addImage(imageId1, {
-      tl: { col: 4, row: 1 },
-      ext: { width: 620, height: 310 }
-    });
-
-    const chartPng2 = generarGraficoPNGEnCanvas(listaParcelas, 'Total Horas de Riego por Parcela', 'parcela', 'horas', '#1E6B4C');
-    const imageId2 = wb.addImage({ base64: chartPng2, extension: 'png' });
-    wsGraf.addImage(imageId2, {
-      tl: { col: 4, row: 18 },
-      ext: { width: 620, height: 310 }
-    });
-  }
-
-  function construirIndiceCascadaRiego() {
-    const marcos = q('SELECT * FROM local_p_marcos_plantacion');
-    const cuadros = q('SELECT * FROM local_p_cuadros');
-    const inventario = q("SELECT cod_marco, cuadro, variedad FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO'");
-
-    const marcoPorCodigo = {}, marcosPorCodParcela = {}, marcosPorNombreCuadro = {};
-    const cuadroPorCodParcela = {}, parcelaPorNombre = {};
-    const variedadesPorCodMarco = {}, variedadesPorCuadroInv = {}, codMarcosPorCuadroInv = {};
-
-    const pushUnico = (obj, clave, valor) => {
-      if (!clave) return;
-      if (!obj[clave]) obj[clave] = [];
-      if (!obj[clave].includes(valor)) obj[clave].push(valor);
-    };
-
-    marcos.forEach(m => {
-      marcoPorCodigo[String(m.cod_marco)] = m;
-      pushUnico(marcosPorCodParcela, String(m.cod_parcela), m.cod_marco);
-      pushUnico(marcosPorNombreCuadro, String(m.cuadro || '').trim().toUpperCase(), m.cod_marco);
-    });
-    cuadros.forEach(c => {
-      cuadroPorCodParcela[String(c.cod_parcela)] = c;
-      const k = String(c.nombre || '').trim().toUpperCase();
-      if (k) parcelaPorNombre[k] = c;
-    });
-    inventario.forEach(i => {
-      const cuadroKey = String(i.cuadro || '').trim().toUpperCase();
-      const variedad = String(i.variedad || '').trim();
-      pushUnico(codMarcosPorCuadroInv, cuadroKey, i.cod_marco);
-      if (variedad && variedad !== '-') {
-        pushUnico(variedadesPorCodMarco, String(i.cod_marco), variedad);
-        pushUnico(variedadesPorCuadroInv, cuadroKey, variedad);
-      }
-    });
-
-    return {
-      marcoPorCodigo, marcosPorCodParcela, marcosPorNombreCuadro,
-      cuadroPorCodParcela, parcelaPorNombre,
-      variedadesPorCodMarco, variedadesPorCuadroInv, codMarcosPorCuadroInv
-    };
-  }
-
-  function resolverCascadaRiego(idx, registro) {
-    const clave = String(registro.parcela || '').trim().toUpperCase();
-    let codMarcos = [];
-    let variedades = [];
-
-    if (idx.codMarcosPorCuadroInv[clave]) {
-      codMarcos = idx.codMarcosPorCuadroInv[clave];
-      variedades = (idx.variedadesPorCuadroInv[clave] || []).slice();
-    } else if (idx.parcelaPorNombre[clave]) {
-      codMarcos = idx.marcosPorCodParcela[String(idx.parcelaPorNombre[clave].cod_parcela)] || [];
-    } else if (idx.marcosPorNombreCuadro[clave]) {
-      codMarcos = idx.marcosPorNombreCuadro[clave];
-    }
-
-    if (variedades.length === 0) {
-      codMarcos.forEach(cm => (idx.variedadesPorCodMarco[String(cm)] || []).forEach(v => {
-        if (!variedades.includes(v)) variedades.push(v);
-      }));
-    }
-
-    const marcoRef = codMarcos.length ? (idx.marcoPorCodigo[String(codMarcos[0])] || {}) : {};
-    const cuadroMadre = marcoRef.cod_parcela != null
-      ? (idx.cuadroPorCodParcela[String(marcoRef.cod_parcela)] || {})
-      : (idx.parcelaPorNombre[clave] || {});
-
-    return {
-      codMarco: codMarcos.length ? codMarcos.join(' / ') : '—',
-      marco: marcoRef.cuadro || '—',
-      parcelaMarco: marcoRef.nombre_parcela || '—',
-      zona: marcoRef.nombre_zona || '—',
-      turno: marcoRef.turno == null ? '' : marcoRef.turno,
-      cuadroMadre: cuadroMadre.nombre || '—',
-      sector: cuadroMadre.sector || '—',
-      variedad: variedades.length ? variedades.join(' / ') : (String(registro.variedad || '').trim() || '—')
-    };
-  }
-
-  function sanitizarNombreHoja(nombre) {
-    if (!nombre) return 'Hoja1';
-    return String(nombre)
-      .replace(/[*?:\\\/\[\]]/g, '-')
-      .trim()
-      .slice(0, 31);
-  }
-
   window.exportarHistorialExcel = async function() {
-    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    if (!isElectron) return lanzarNotificacionFlotante('Solo disponible en la app de escritorio.', 'warning');
     const filas = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, id ASC', histDesde, histHasta);
-    if (filas.length === 0) return lanzarNotificacionFlotante('No hay registros para exportar en el rango.', 'warning');
+    if (filas.length === 0) return lanzarNotificacionFlotante('No hay registros en el rango.', 'warning');
     try {
       const ExcelJS = require('exceljs');
       const wb = new ExcelJS.Workbook();
       wb.creator = 'Gordon Gestión · Riego';
 
-      const colapsados = colapsarRegistrosRiego(filas)
-        .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') || a.cuadro.localeCompare(b.cuadro));
-
+      const colapsados = colapsarRegistrosRiego(filas);
       crearHojaEstilizada(wb, 'Riego', [
         { header: 'periodo', key: 'periodo', width: 14 },
         { header: 'Fecha', key: 'fecha', width: 16 },
@@ -2429,16 +2260,15 @@
         total_mm: Number(n1(f.mm))
       })));
 
-      await agregarPestanaGraficosEnExcel(wb, colapsados);
-
       const nombre = `Exportacion_Riego_${histDesde}_a_${histHasta}.xlsx`;
       await guardarLibroEnDescargas(wb, nombre);
       lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
-    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
+    } catch (err) { console.error(err); lanzarNotificacionFlotante(err.message, 'error'); }
   };
 
+  /* ESTO LO MODIFIQUE: Exportación en Excel detallada fecha por fecha, sin columna MM x HA */
   window.exportarInformeExcel = async function(key) {
-    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+    if (!isElectron) return lanzarNotificacionFlotante('Solo disponible en la app de escritorio.', 'warning');
     const filasRango = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, id ASC', infDesde, infHasta);
     if (filasRango.length === 0) return lanzarNotificacionFlotante('No hay datos para exportar.', 'warning');
 
@@ -2450,7 +2280,6 @@
       let filasExcelDetalladas = [];
 
       if (key === 'cuadro') {
-        // Consolidación de sesiones fecha por fecha para cada cuadro
         const mapaFechaCuadro = {};
         filasRango.forEach(r => {
           const fecha = String(r.fecha || '').trim();
@@ -2461,7 +2290,6 @@
           const lamina = parseFloat(r.lamina) || 0;
           const sup = parseFloat(r.sup_riego) || 0;
 
-          // Clave única por cada día y sesión de riego del cuadro
           const claveSesion = [fecha, cuadro.toUpperCase(), comentario.toUpperCase(), n1(horas), n1(lamina)].join('||');
 
           if (!mapaFechaCuadro[claveSesion]) {
@@ -2479,10 +2307,8 @@
           mapaFechaCuadro[claveSesion].sup += sup;
         });
 
-        // Orden cronológico y por nombre de cuadro
         filasExcelDetalladas = Object.values(mapaFechaCuadro).sort((a, b) => 
           a.fecha.localeCompare(b.fecha) || a.parcela.localeCompare(b.parcela, 'es', { numeric: true })
-        // ESTO LO MODIFIQUE
         ).map(f => ({
           periodo: f.periodo,
           fecha: f.fecha,
@@ -2494,8 +2320,6 @@
           comentario: f.comentario || '—'
         }));
 
-        // Hoja 1: Detalle fecha por fecha
-        // ESTO LO MODIFIQUE
         crearHojaEstilizada(wb, 'Riego Detallado', [
           { header: 'periodo', key: 'periodo', width: 14 },
           { header: 'Fecha', key: 'fecha', width: 16 },
@@ -2508,10 +2332,7 @@
         ], filasExcelDetalladas);
 
       } else {
-        // Para otros conceptos (operario, cultivo, etc.) colapsa manteniendo fecha por fecha
-        const colapsados = colapsarRegistrosRiego(filasRango)
-          .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || '') || a.cuadro.localeCompare(b.cuadro));
-
+        const colapsados = colapsarRegistrosRiego(filasRango);
         crearHojaEstilizada(wb, 'Riego Detallado', [
           { header: 'periodo', key: 'periodo', width: 14 },
           { header: 'Fecha', key: 'fecha', width: 16 },
@@ -2529,21 +2350,17 @@
         })));
       }
 
-      // Hoja 2: Gráficos y resumen acumulado del período
-      const colapsadosBase = colapsarRegistrosRiego(filasRango);
-      await agregarPestanaGraficosEnExcel(wb, colapsadosBase);
-
       const nombre = `Informe_Riego_${key}_${infDesde}_a_${infHasta}.xlsx`;
       await guardarLibroEnDescargas(wb, nombre);
-      lanzarNotificacionFlotante(`¡Excel generado fecha por fecha: ${nombre}!`, 'success');
+      lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
     } catch (err) { 
       console.error(err); 
-      lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); 
+      lanzarNotificacionFlotante(err.message, 'error'); 
     }
-};
+  };
 
-window.exportarEstadisticasExcel = async function() {
-    if (!isElectron) return lanzarNotificacionFlotante('La exportación solo está disponible en la app de escritorio.', 'warning');
+  window.exportarEstadisticasExcel = async function() {
+    if (!isElectron) return lanzarNotificacionFlotante('Solo disponible en la app de escritorio.', 'warning');
     try {
       const ExcelJS = require('exceljs');
       const wb = new ExcelJS.Workbook();
@@ -2568,13 +2385,11 @@ window.exportarEstadisticasExcel = async function() {
         total_mm: Number(n1(f.mm))
       })));
 
-      await agregarPestanaGraficosEnExcel(wb, colapsados);
-
       const nombre = `Estadisticas_Riego_${statsDesde}_a_${statsHasta}.xlsx`;
       await guardarLibroEnDescargas(wb, nombre);
       lanzarNotificacionFlotante(`¡Excel guardado en Descargas: ${nombre}!`, 'success');
-    } catch (err) { console.error(err); lanzarNotificacionFlotante('Error al generar el Excel: ' + err.message, 'error'); }
-};
+    } catch (err) { console.error(err); lanzarNotificacionFlotante(err.message, 'error'); }
+  };
 
   document.getElementById('topDateTime').textContent = new Date()
     .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
