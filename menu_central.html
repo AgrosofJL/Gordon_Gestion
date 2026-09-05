@@ -486,13 +486,22 @@
     }
 
     // 3. Fallback Web en vivo: Consultar directo a Supabase si no estaban en caché
+    // 3. Fallback Web en vivo:
     if (permisos.length === 0 && window.supabase) {
       try {
-        const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
-        const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        if (!window._supabaseSyncClient) {
+          const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+          window._supabaseSyncClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+              detectSessionInUrl: false
+            }
+          });
+        }
 
-        const { data, error } = await clienteWeb
+        const { data, error } = await window._supabaseSyncClient
           .from('sys_permisos_usuario')
           .select('menu, estado')
           .or(`usuario.ilike."${usuario}",rol.ilike."${rol}"`)
@@ -576,17 +585,29 @@
         // En Safari / Web refrescamos los permisos directamente desde Supabase
         const sesionActual = resolverSesionActiva();
         if (sesionActual && window.supabase) {
-          const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
-          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
-          const clienteWeb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          // ESTO LO MODIFIQUE: Reutilizar instancia única y desactivar almacenamiento GoTrue redundante
+          if (!window._supabaseSyncClient) {
+            const SUPABASE_URL = 'https://zcmyglespedhcppgxwpg.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc';
+            window._supabaseSyncClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+              auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+              }
+            });
+          }
+
           const uNombre = sesionActual.usuario || sesionActual.operario;
 
-          const { data } = await clienteWeb
+          const { data, error } = await window._supabaseSyncClient
             .from('sys_permisos_usuario')
             .select('*')
             .ilike('usuario', uNombre);
 
-          if (data) localStorage.setItem('permisos_usuario', JSON.stringify(data));
+          if (!error && data) {
+            localStorage.setItem('permisos_usuario', JSON.stringify(data));
+          }
         }
       }
       
