@@ -381,38 +381,144 @@
 
 <script>
 (function() {
-  const isElectron = typeof require === 'function';
+ const isElectron = typeof require === 'function';
   let db = null;
 
   if (isElectron) {
     try {
       const Database = require('better-sqlite3');
       db = new Database(require('../db_path.js').DB_PATH);
-    } catch (e) { console.error('Error al iniciar better-sqlite3 local:', e); }
+    } catch (e) { 
+      console.error('Error al iniciar better-sqlite3 local:', e); 
+    }
   }
 
-  let operarioName = 'Supervisor de Riego';
+  // ACA ES LO NUEVO: Resolución de sesión híbrida (Electron auth / Web localStorage)
+  let sesion = null;
   if (isElectron) {
     try {
       const auth = require('../auth.js');
-      const sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
-      if (sesion && sesion.nombre_completo) operarioName = sesion.nombre_completo;
-    } catch (e) { }
+      sesion = auth.obtenerSesionActiva ? auth.obtenerSesionActiva() : null;
+    } catch (e) {}
+  }
+  if (!sesion) {
+    try { sesion = JSON.parse(localStorage.getItem('sesion_activa')); } catch (e) {}
+  }
+  let operarioName = sesion ? (sesion.nombre_completo || sesion.operario || sesion.usuario) : 'Supervisor de Riego';
+
+  // ==========================================================================
+  // ACA ES LO NUEVO: MOTOR DE CONSULTAS SQL HÍBRIDO (SQLite / LocalStorage)
+  // ==========================================================================
+
+  function obtenerRegistrosWeb(tablaNombre) {
+    try {
+      const crudo = localStorage.getItem(tablaNombre);
+      return crudo ? JSON.parse(crudo) : [];
+    } catch (e) {
+      return [];
+    }
   }
 
+  function guardarRegistrosWeb(tablaNombre, filas) {
+    try {
+      localStorage.setItem(tablaNombre, JSON.stringify(filas));
+    } catch (e) {
+      console.error("Error guardando en localStorage:", e);
+    }
+  }
+
+  function parsearNombreTabla(sql) {
+    const match = sql.match(/(?:FROM|INTO|UPDATE)\s+([a-zA-Z0-9_]+)/i);
+    return match ? match[1].toLowerCase() : null;
+  }
+
+  // Consulta tipo SELECT general (all)
   function q(sql, ...args) {
-    if (!db) return [];
-    try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
-  }
-  function qGet(sql, ...args) {
-    if (!db) return null;
-    try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
-  }
-  function qRun(sql, ...args) {
-    if (!db) return { changes: 0 };
-    try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
+    if (db) {
+      try { return db.prepare(sql).all(...args); } 
+      catch (e) { console.error(sql, e); return []; }
+    }
+
+    // MODO WEB (Safari / GitHub Pages)
+    const tabla = parsearNombreTabla(sql);
+    if (!tabla) return [];
+
+    let registros = obtenerRegistrosWeb(tabla);
+
+    // Filtro básico para WHERE activo o campos estándar
+    if (/WHERE/i.test(sql)) {
+      if (/activo/i.test(sql)) {
+        registros = registros.filter(r => {
+          const act = String(r.activo || r.estado || '').toUpperCase();
+          return act === '1' || act === 'ACTIVO' || act === 'TRUE' || act === '';
+        });
+      }
+      if (/fecha/i.test(sql) && args.length > 0) {
+        registros = registros.filter(r => String(r.fecha) === String(args[0]));
+      }
+    }
+
+    // Ordenamiento simple por fecha o id descendente si la consulta lo pide
+    if (/ORDER BY.*DESC/i.test(sql)) {
+      registros.sort((a, b) => (b.id || b.registro || 0) - (a.id || a.registro || 0));
+    }
+
+    return registros;
   }
 
+  // Consulta tipo SELECT registro único (get)
+  function qGet(sql, ...args) {
+    if (db) {
+      try { return db.prepare(sql).get(...args); } 
+      catch (e) { console.error(sql, e); return null; }
+    }
+
+    const resultado = q(sql, ...args);
+    return resultado.length > 0 ? resultado[0] : null;
+  }
+
+  // Ejecución tipo INSERT / UPDATE / DELETE (run)
+  function qRun(sql, ...args) {
+    if (db) {
+      try { return db.prepare(sql).run(...args); } 
+      catch (e) { console.error(sql, e); throw e; }
+    }
+
+    // MODO WEB (Safari / GitHub Pages)
+    const tabla = parsearNombreTabla(sql);
+    if (!tabla) return { changes: 0 };
+
+    let registros = obtenerRegistrosWeb(tabla);
+
+    if (/^INSERT/i.test(sql)) {
+      const nuevo = {};
+      const matchCols = sql.match(/\((.*?)\)\s+VALUES/i);
+
+      if (matchCols) {
+        const columnas = matchCols[1].split(',').map(c => c.trim());
+        columnas.forEach((col, idx) => {
+          nuevo[col] = args[idx] !== undefined ? args[idx] : null;
+        });
+      }
+
+      // Asignar ID si falta y marcar sincronizado = 0 para subida posterior
+      if (!nuevo.id) nuevo.id = Date.now();
+      nuevo.sincronizado = 0;
+
+      registros.unshift(nuevo);
+      guardarRegistrosWeb(tabla, registros);
+      return { changes: 1, lastInsertRowid: nuevo.id };
+    }
+
+    if (/^UPDATE/i.test(sql)) {
+      // Marcador de cambio local en web
+      guardarRegistrosWeb(tabla, registros);
+      return { changes: 1 };
+    }
+
+    return { changes: 0 };
+  }
+  
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
   function sumarDiasStr(str, n) {
