@@ -324,7 +324,7 @@
       } catch (e) {}
     }
 
-    // Filtrar sesiones demo viejas
+    // Filtrar sesiones demo obsoletas
     if (sesionActiva && (sesionActiva.nombre_completo === 'Usuario Demo' || sesionActiva.nombre_completo === 'Supervisor de Turno' || sesionActiva.usuario === 'demo')) {
       sesionActiva = null;
       localStorage.removeItem('sesion_activa');
@@ -421,7 +421,7 @@
           }
 
           if (window._supabaseWebClient) {
-            // ACA ES LO NUEVO: Consulta a la tabla 'usuarios' con las columnas reales 'operario' y 'pass'
+            // Consulta a la tabla usuarios con columnas reales operario y pass
             const { data, error } = await window._supabaseWebClient
               .from('usuarios')
               .select('*')
@@ -440,7 +440,7 @@
               if (!estaActivo) {
                 resultado = { ok: false, motivo: 'usuario_inactivo' };
               } else if (String(u.pass || '').trim() === password) {
-                // En la web se hace bypass de device()
+                // Validación aprobada en la web
                 resultado = {
                   ok: true,
                   usuario: {
@@ -452,6 +452,20 @@
                     unidad_negocio: 'GENERAL'
                   }
                 };
+
+                // Descargar permisos correspondientes del usuario
+                try {
+                  const { data: permisosData, error: errorPermisos } = await window._supabaseWebClient
+                    .from('sys_permisos_usuario')
+                    .select('*')
+                    .ilike('usuario', u.operario);
+
+                  const permisos = (!errorPermisos && permisosData) ? permisosData : [];
+                  localStorage.setItem('permisos_usuario', JSON.stringify(permisos));
+                } catch (errP) {
+                  console.warn("No se pudieron cargar permisos remotos:", errP);
+                  localStorage.setItem('permisos_usuario', JSON.stringify([]));
+                }
               }
             }
           }
@@ -460,6 +474,7 @@
         }
       }
 
+      // Redirección con sesión guardada
       if (resultado.ok && resultado.usuario) {
         localStorage.setItem('sesion_activa', JSON.stringify({
           id: resultado.usuario.id,
