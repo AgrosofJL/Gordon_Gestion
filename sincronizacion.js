@@ -7,90 +7,38 @@ let db = null;
 let supabaseCampo = null;
 let supabaseCosecha = null;
 let tablasConfig = [];
-
-// ============================================================================
-// CONFIGURACIÓN DE TABLAS (Universal: Node y Navegador)
-// ============================================================================
-const TABLAS_DEFECTO = [
-  { local: 'local_sys_permisos_usuario', remoto: 'sys_permisos_usuario', proyecto: 'campo' },
-  { local: 'local_p_cuadros', remoto: 'p_cuadros', proyecto: 'campo' },
-  { local: 'local_p_cultivo', remoto: 'p_cultivo', proyecto: 'campo' },
-  { local: 'local_p_inventario_plantacion', remoto: 'p_inventario_plantacion', proyecto: 'campo' },
-  { local: 'local_p_marcos_plantacion', remoto: 'p_marcos_plantacion', proyecto: 'campo' },
-  { local: 'local_p_variedades', remoto: 'p_variedades', proyecto: 'campo' },
-  { local: 'local_p_nomina_personal', remoto: 'p_nomina_personal', proyecto: 'campo' },
-  { local: 'local_p_legajo_datos', remoto: 'p_legajo_datos', proyecto: 'campo' },
-  { local: 'local_p_macro_labores', remoto: 'p_macro_labores', proyecto: 'campo' },
-  { local: 'local_p_tipo_control_aplicaciones', remoto: 'p_tipo_control_aplicaciones', proyecto: 'campo' },
-  { local: 'local_p_aplicacionesOrdenes', remoto: 'p_aplicacionesOrdenes', proyecto: 'campo' },
-  { local: 'local_p_recetas_aplicaciones', remoto: 'p_recetas_aplicaciones', proyecto: 'campo' },
-  { local: 'local_i_insumos_rubros', remoto: 'i_insumos_rubros', proyecto: 'campo' },
-  { local: 'local_i_insumos_subrubros', remoto: 'i_insumos_subrubros', proyecto: 'campo' },
-  { local: 'local_i_insumos_catalogo', remoto: 'i_insumos_catalogo', proyecto: 'campo' },
-  { local: 'local_i_insumos_detalle', remoto: 'i_insumos_detalle', proyecto: 'campo' },
-  { local: 'local_i_insumos_movimientos', remoto: 'i_insumos_movimientos', proyecto: 'campo' },
-  { local: 'local_i_insumosingresos', remoto: 'i_insumosingresos', proyecto: 'campo' },
-  { local: 'local_c_consumos_combustibles', remoto: 'c_consumos_combustibles', proyecto: 'campo' },
-  { local: 'local_m_labores_maquinaria', remoto: 'm_labores_maquinaria', proyecto: 'campo' },
-  { local: 'local_p_personal_historial', remoto: 'p_personal_historial', proyecto: 'campo' },
-  { local: 'local_p_normas_conducta', remoto: 'p_normas_conducta', proyecto: 'campo' },
-  { local: 'local_p_personal_sanciones', remoto: 'p_personal_sanciones', proyecto: 'campo' },
-  { local: 'local_r_campo_riego', remoto: 'r_campo_riego', proyecto: 'campo' },
-  { local: 'local_r_jornada_trabajo', remoto: 'r_jornada_trabajo', proyecto: 'campo' },
-  { local: 'local_r_mantenimiento_maquinaria', remoto: 'r_mantenimiento_maquinaria', proyecto: 'campo' },
-  // Proyecto Cosecha
-  { local: 'local_cosecha', remoto: 'cosecha', proyecto: 'cosecha' },
-  { local: 'local_descarte', remoto: 'descarte', proyecto: 'cosecha' },
-  { local: 'local_p_calibre', remoto: 'p_calibre', proyecto: 'cosecha' },
-  { local: 'local_p_categoria', remoto: 'p_categoria', proyecto: 'cosecha' },
-  { local: 'local_p_clientes', remoto: 'p_clientes', proyecto: 'cosecha' },
-  { local: 'local_p_embalaje', remoto: 'p_embalaje', proyecto: 'cosecha' },
-  { local: 'local_p_productores', remoto: 'p_productores', proyecto: 'cosecha' },
-  { local: 'local_paletizado', remoto: 'paletizado', proyecto: 'cosecha' },
-  { local: 'local_despachos_produccion', remoto: 'despachos_produccion', proyecto: 'cosecha' },
-  { local: 'local_detalle_recepcion', remoto: 'detalle_recepcion', proyecto: 'cosecha' }
-];
+let pathModule = null;
 
 if (esEntornoNode) {
   fs = require('fs');
   path = require('path');
+  pathModule = path;
   try {
     const bases = require('./bases.js');
     db = bases.db;
   } catch (e) {}
-
   try {
     const conexion = require('./conexion.js');
     supabaseCampo = conexion.supabaseCampo;
     supabaseCosecha = conexion.supabaseCosecha;
   } catch (e) {}
-
   try {
     tablasConfig = require('./tablas_lista.js');
-  } catch (e) {
-    tablasConfig = TABLAS_DEFECTO;
-  }
+  } catch (e) {}
 } else {
-  // Entorno Web (Safari / GitHub Pages)
-  tablasConfig = TABLAS_DEFECTO;
-
-  // Credenciales directas en cliente Web sin persistencia conflictiva
-  const P1_URL = "https://zcmyglespedhcppgxwpg.supabase.co";
-  const P1_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjbXlnbGVzcGVkaGNwcGd4d3BnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxODI1MTUsImV4cCI6MjA5NTc1ODUxNX0.ouoVoCa5smtHJpTRDMN1dx9dx2qLkoE0qDL5Ug9Dowc";
-  const P2_URL = "https://whiwwfqabpkukamcowbg.supabase.co";
-  const P2_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoaXd3ZnFhYnBrdWthbWNvd2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4NTI3MDgsImV4cCI6MjA5MzQyODcwOH0.XK-pOH-LuKOoekko6mAoefd6jxAdk5lUdpeuMyzLde4";
-
-  if (window.supabase) {
-    supabaseCampo = window.supabase.createClient(P1_URL, P1_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-    });
-    supabaseCosecha = window.supabase.createClient(P2_URL, P2_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-    });
-  }
+  // Entorno Web (Safari / Chrome / GitHub Pages)
+  tablasConfig = window.TABLAS_CONFIG || [];
+  supabaseCampo = window._clientCampo;
+  supabaseCosecha = window._clientCosecha;
 }
 
-// Mapa unificado de claves primarias
+// Columnas de imágenes a gestionar en la tabla de despachos
+const columnasFotosDespachos = [
+  'url_precinto', 'url_patente', 'url_camioncarga',
+  'url_dtv', 'url_romaneo', 'url_peso', 'url_evidencia'
+];
+
+// Mapa unificado de claves primarias/únicas compartido para PUSH y PULL.
 const mapaClavesEspeciales = {
   'local_sys_permisos_usuario': 'id',
   'local_p_cuadros': 'cod_parcela',
@@ -115,7 +63,6 @@ const mapaClavesEspeciales = {
   'local_m_labores_maquinaria': ['id', 'reg_local'],
   'local_p_personal_historial': ['id', 'reg_local'],
   'local_p_normas_conducta': ['id', 'reg_local'],
-  'local_p_personal_sanciones': ['id', 'reg_local'],
   'local_r_campo_riego': ['id', 'reg_local'],
   'local_r_jornada_trabajo': ['id', 'reg_local'],
   'local_r_mantenimiento_maquinaria': ['id', 'reg_local'],
@@ -141,22 +88,122 @@ const columnasExcluidasPorTabla = {
 };
 
 // ============================================================================
-// 1. PUSH: SUBIR CAMBIOS LOCALES PENDIENTES
+// 0. DELETE: REPLICAR ELIMINACIONES EN SUPABASE
 // ============================================================================
-async function subirCambiosLocales() {
-  if (!esEntornoNode || !db) {
-    console.log('[PUSH] Modo Web: las operaciones se persisten directamente en Supabase.');
+async function procesarEliminacionesLocales() {
+  console.log('--- [DELETE] Replicando bajas locales en la nube ---');
+
+  // CASO A: Entorno Escritorio (SQLite)
+  if (esEntornoNode && db) {
+    const existeTabla = db.prepare(`
+      SELECT name FROM sqlite_master WHERE type='table' AND name='local_eliminaciones_pendientes'
+    `).get();
+    
+    if (!existeTabla) return;
+
+    const bajas = db.prepare(`SELECT * FROM local_eliminaciones_pendientes ORDER BY id ASC`).all();
+    if (bajas.length === 0) return;
+
+    for (const baja of bajas) {
+      try {
+        const clienteSupabase = baja.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
+        let query = clienteSupabase.from(baja.tabla_remota).delete();
+
+        if (baja.columna_pk.includes(',')) {
+          let filtros = {};
+          try { filtros = JSON.parse(baja.valor_pk); } catch(e) { continue; }
+          for (const [col, val] of Object.entries(filtros)) {
+            query = query.eq(col, val);
+          }
+        } else {
+          query = query.eq(baja.columna_pk, baja.valor_pk);
+        }
+
+        const { error } = await query;
+        if (!error) {
+          db.prepare(`DELETE FROM local_eliminaciones_pendientes WHERE id = ?`).run(baja.id);
+          console.log(`  ✓ [DELETE OK] ${baja.tabla_remota} -> ${baja.columna_pk} = ${baja.valor_pk}`);
+        } else {
+          console.error(`  ❌ Error al eliminar en ${baja.tabla_remota}:`, error.message);
+        }
+      } catch (err) {
+        console.error(`Error procesando baja ${baja.id}:`, err.message);
+      }
+    }
     return;
   }
 
+  // CASO B: Entorno Web (LocalStorage)
+  try {
+    const cola = JSON.parse(localStorage.getItem('local_eliminados_pendientes') || '[]');
+    if (cola.length === 0) return;
+
+    if (!supabaseCampo && window._clientCampo) supabaseCampo = window._clientCampo;
+    if (!supabaseCosecha && window._clientCosecha) supabaseCosecha = window._clientCosecha;
+
+    const pendientesRestantes = [];
+    for (const item of cola) {
+      const clienteSupabase = item.proyecto === 'cosecha' ? supabaseCosecha : supabaseCampo;
+      if (!clienteSupabase) {
+        pendientesRestantes.push(item);
+        continue;
+      }
+
+      let query = clienteSupabase.from(item.tabla_remota).delete();
+      if (item.columna_pk.includes(',')) {
+        let filtros = {};
+        try { filtros = JSON.parse(item.valor_pk); } catch(e) { continue; }
+        for (const [col, val] of Object.entries(filtros)) {
+          query = query.eq(col, val);
+        }
+      } else {
+        query = query.eq(item.columna_pk, item.valor_pk);
+      }
+
+      const { error } = await query;
+      if (!error) {
+        console.log(`  ✓ [DELETE WEB OK] ${item.tabla_remota} -> ${item.columna_pk} = ${item.valor_pk}`);
+      } else {
+        console.error(`  ❌ Error al eliminar en Web (${item.tabla_remota}):`, error.message);
+        pendientesRestantes.push(item);
+      }
+    }
+    localStorage.setItem('local_eliminados_pendientes', JSON.stringify(pendientesRestantes));
+  } catch (e) {
+    console.error("Error procesando eliminaciones en Web:", e);
+  }
+}
+
+// ============================================================================
+// 1. PUSH: SUBIR CAMBIOS LOCALES PENDIENTES (sincronizado = 0)
+// ============================================================================
+async function subirCambiosLocales() {
   console.log('--- [PUSH] Subiendo cambios locales no sincronizados ---');
+
+  if (!esEntornoNode) {
+    if (!supabaseCampo && window._clientCampo) supabaseCampo = window._clientCampo;
+    if (!supabaseCosecha && window._clientCosecha) supabaseCosecha = window._clientCosecha;
+    if (!tablasConfig || tablasConfig.length === 0) tablasConfig = window.TABLAS_CONFIG || [];
+  }
 
   for (const tabla of tablasConfig) {
     try {
-      const cliente = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
-      if (!cliente) continue;
+      const clienteSupabase = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
+      if (!clienteSupabase) continue;
 
-      const pendientes = db.prepare(`SELECT * FROM ${tabla.local} WHERE sincronizado = 0`).all();
+      let pendientes = [];
+
+      // 1. Obtener registros pendientes locales
+      if (esEntornoNode && db) {
+        pendientes = db.prepare(`SELECT * FROM ${tabla.local} WHERE sincronizado = 0`).all();
+      } else {
+        const crudo = localStorage.getItem(tabla.local);
+        if (crudo) {
+          const todos = JSON.parse(crudo);
+          pendientes = todos.filter(r => r.sincronizado === 0 || r.sincronizado === '0' || r.sincronizado === false);
+        }
+      }
+
       if (pendientes.length === 0) continue;
 
       console.log(`Subiendo ${pendientes.length} registros pendientes de: ${tabla.local}...`);
@@ -181,20 +228,54 @@ async function subirCambiosLocales() {
           delete payloadNube[colExcluida];
         }
 
-        const { error: dbErr } = await cliente
+        // Gestión de archivos adjuntos solo en Node (Escritorio)
+        if (esEntornoNode && fs && tabla.local === 'local_despachos_produccion') {
+          for (let col of columnasFotosDespachos) {
+            let pathLocal = row[col];
+            if (pathLocal && fs.existsSync(pathLocal)) {
+              try {
+                const fileBuffer = fs.readFileSync(pathLocal);
+                const ext = path.extname(pathLocal) || '.jpg';
+                const fileName = `remito_${row.remito || 'sin_remito'}_${col}_${Date.now()}${ext}`;
+
+                const { data, error: storageErr } = await clienteSupabase.storage
+                  .from('despachos')
+                  .upload(fileName, fileBuffer, { contentType: 'image/jpeg', upsert: true });
+
+                if (!storageErr && data) {
+                  payloadNube[col] = fileName;
+                }
+              } catch (fErr) {
+                console.warn(`Error leyendo archivo local ${pathLocal}:`, fErr.message);
+              }
+            }
+          }
+        }
+
+        const { error: dbErr } = await clienteSupabase
           .from(tabla.remoto)
           .upsert(payloadNube, { onConflict: onConflictKey });
 
         if (!dbErr) {
-          const whereClausulaPk = pkCols.map(col => `${col} = ?`).join(' AND ');
           const pkValores = pkCols.map(col => row[col]);
 
-          db.prepare(`UPDATE ${tabla.local} SET sincronizado = 1 WHERE ${whereClausulaPk}`)
-            .run(...pkValores);
+          if (esEntornoNode && db) {
+            const whereClausulaPk = pkCols.map(col => `${col} = ?`).join(' AND ');
+            db.prepare(`UPDATE ${tabla.local} SET sincronizado = 1 WHERE ${whereClausulaPk}`)
+              .run(...pkValores);
+          } else {
+            // Actualizar LocalStorage Web
+            const listaLocal = JSON.parse(localStorage.getItem(tabla.local) || '[]');
+            const index = listaLocal.findIndex(item => pkCols.every(col => String(item[col]) === String(row[col])));
+            if (index !== -1) {
+              listaLocal[index].sincronizado = 1;
+              localStorage.setItem(tabla.local, JSON.stringify(listaLocal));
+            }
+          }
             
-          console.log(`  ✓ [PUSH OK] ${tabla.remoto} -> PK: ${pkValores.join(',')}`);
+          console.log(`   ✓ [PUSH OK] ${tabla.remoto} -> PK (${pkCols.join(',')}): ${pkValores.join(',')}`);
         } else {
-          console.error(`  ❌ Error al subir registro en ${tabla.remoto}:`, dbErr.message);
+          console.error(`   ❌ Error al subir registro en ${tabla.remoto}:`, dbErr.message);
         }
       }
     } catch (err) {
@@ -204,152 +285,190 @@ async function subirCambiosLocales() {
 }
 
 // ============================================================================
-// 2. PULL: BAJAR Y CONCILIAR DATOS (SQLite en PC / LocalStorage en Web)
+// 2. PULL: BAJAR Y FUSIONAR TABLAS DESDE LA NUBE
 // ============================================================================
 async function sincronizarTodo() {
-  // --------------------------------------------------------------------------
-  // CASO A: ENTORNO SAFARI / WEB (GITHUB PAGES)
-  // --------------------------------------------------------------------------
-  if (!esEntornoNode || !db) {
-    console.log('--- [PULL WEB] Descargando todas las tablas a LocalStorage ---');
+  console.log('--- [PULL] Descargando y conciliando cambios de la nube ---');
 
-    for (const tabla of tablasConfig) {
-      try {
-        const cliente = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
-        if (!cliente) continue;
-
-        // Descarga de datos
-        const { data, error } = await cliente
-          .from(tabla.remoto)
-          .select('*')
-          .limit(1000);
-
-        if (!error && data) {
-          // ESTO LO MODIFIQUE: Se guarda cada tabla con su nombre local_xxx en LocalStorage
-          localStorage.setItem(tabla.local, JSON.stringify(data));
-          console.log(`  ✓ [WEB SYNC] ${tabla.local} guardada con ${data.length} registros.`);
-        } else if (error) {
-          console.warn(`  ⚠️ Error al bajar ${tabla.remoto}:`, error.message);
-        }
-      } catch (errWeb) {
-        console.error(`Fallo bajando ${tabla.local} en la web:`, errWeb.message);
-      }
-    }
-
-    // Refrescar permisos específicos
-    try {
-      const sesion = JSON.parse(localStorage.getItem('sesion_activa') || '{}');
-      const usuarioActual = sesion.usuario || sesion.operario;
-      if (usuarioActual && supabaseCampo) {
-        const { data: permisos } = await supabaseCampo
-          .from('sys_permisos_usuario')
-          .select('*')
-          .ilike('usuario', usuarioActual);
-
-        if (permisos) {
-          localStorage.setItem('permisos_usuario', JSON.stringify(permisos));
-        }
-      }
-    } catch (e) {}
-
-    console.log('✅ ¡Sincronización Web completada! Todas las tablas están en LocalStorage.');
-    return;
+  if (!esEntornoNode) {
+    if (!supabaseCampo && window._clientCampo) supabaseCampo = window._clientCampo;
+    if (!supabaseCosecha && window._clientCosecha) supabaseCosecha = window._clientCosecha;
+    if (!tablasConfig || tablasConfig.length === 0) tablasConfig = window.TABLAS_CONFIG || [];
   }
 
-  // --------------------------------------------------------------------------
-  // CASO B: ENTORNO ESCRITORIO (ELECTRON + SQLITE)
-  // --------------------------------------------------------------------------
-  console.log('--- [PULL ESCRITORIO] Descargando y conciliando en SQLite ---');
+  // Desactivar trigger temporal en Escritorio
+  if (esEntornoNode && db) {
+    try { db.prepare(`UPDATE local_sync_estado SET en_pull = 1 WHERE id = 1`).run(); } catch(e) {}
+  }
 
-  for (const tabla of tablasConfig) {
-    try {
-      const cliente = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
-      if (!cliente) continue;
+  try {
+    for (const tabla of tablasConfig) {
+      try {
+        const clienteSupabase = tabla.proyecto === 'campo' ? supabaseCampo : supabaseCosecha;
+        if (!clienteSupabase) continue;
+        
+        let dataSupabase = [];
+        let desde = 0, hasta = 999;
+        let seguirDescargando = true;
 
-      let dataSupabase = [];
-      let desde = 0, hasta = 999;
-      let seguirDescargando = true;
+        while (seguirDescargando) {
+          const { data: chunk, error } = await clienteSupabase
+            .from(tabla.remoto)
+            .select('*')
+            .range(desde, hasta);
 
-      while (seguirDescargando) {
-        const { data: chunk, error } = await cliente
-          .from(tabla.remoto)
-          .select('*')
-          .range(desde, hasta);
+          if (error) throw new Error(`Error en rango ${desde}-${hasta}: ${error.message}`);
 
-        if (error) throw new Error(`Error en rango ${desde}-${hasta}: ${error.message}`);
+          if (chunk && chunk.length > 0) {
+            dataSupabase = dataSupabase.concat(chunk);
+            if (chunk.length < 1000) seguirDescargando = false;
+            else { desde += 1000; hasta += 1000; }
+          } else { seguirDescargando = false; }
+        }
 
-        if (chunk && chunk.length > 0) {
-          dataSupabase = dataSupabase.concat(chunk);
-          if (chunk.length < 1000) seguirDescargando = false;
-          else { desde += 1000; hasta += 1000; }
-        } else { seguirDescargando = false; }
+        let pkColumna = mapaClavesEspeciales[tabla.local] || 'id';
+        const pkColumnas = Array.isArray(pkColumna) ? pkColumna : [pkColumna];
+
+        // ----------------------------------------------------
+        // RAMA A: Escritorio (SQLite)
+        // ----------------------------------------------------
+        if (esEntornoNode && db) {
+          const pragma = db.prepare(`PRAGMA table_info(${tabla.local})`).all();
+          const columnasLocales = pragma.map(col => col.name);
+          const tieneColumnaSincro = columnasLocales.includes('sincronizado');
+
+          const mapaNube = new Map();
+          dataSupabase.forEach(rowNube => {
+            const key = pkColumnas.map(col => rowNube[col]).join('_');
+            mapaNube.set(key, rowNube);
+          });
+
+          const transaccionMerge = db.transaction(() => {
+            const registrosLocales = db.prepare(`SELECT * FROM ${tabla.local}`).all();
+
+            for (const regLocal of registrosLocales) {
+              const keyLocal = pkColumnas.map(col => regLocal[col]).join('_');
+              if (regLocal.sincronizado === 1 && !mapaNube.has(keyLocal)) {
+                const whereClausulaPk = pkColumnas.map(col => `${col} = ?`).join(' AND ');
+                const pkValores = pkColumnas.map(col => regLocal[col]);
+                db.prepare(`DELETE FROM ${tabla.local} WHERE ${whereClausulaPk}`).run(...pkValores);
+              }
+            }
+
+            for (const filaNube of dataSupabase) {
+              const pkValores = pkColumnas.map(col => filaNube[col]);
+              if (pkValores.some(v => v === undefined || v === null)) continue;
+
+              const columnasBase = Object.keys(filaNube).filter(col => columnasLocales.includes(col));
+              const whereClausulaPk = pkColumnas.map(col => `${col} = ?`).join(' AND ');
+              
+              const registroLocalPrevio = db.prepare(`SELECT sincronizado FROM ${tabla.local} WHERE ${whereClausulaPk}`).get(...pkValores);
+
+              if (!registroLocalPrevio) {
+                const columnasInsert = tieneColumnaSincro ? [...columnasBase, 'sincronizado'] : columnasBase;
+                const placeholders = columnasInsert.map(() => '?').join(', ');
+                const valores = columnasBase.map(col => typeof filaNube[col] === 'object' && filaNube[col] !== null ? JSON.stringify(filaNube[col]) : filaNube[col]);
+                if (tieneColumnaSincro) valores.push(1);
+
+                db.prepare(`INSERT OR REPLACE INTO ${tabla.local} (${columnasInsert.join(', ')}) VALUES (${placeholders})`).run(valores);
+              } 
+              else if (registroLocalPrevio.sincronizado === 1) {
+                const asignacionesUpdate = columnasBase.map(col => `${col} = ?`).join(', ');
+                const valores = columnasBase.map(col => typeof filaNube[col] === 'object' && filaNube[col] !== null ? JSON.stringify(filaNube[col]) : filaNube[col]);
+                valores.push(...pkValores);
+
+                db.prepare(`UPDATE ${tabla.local} SET ${asignacionesUpdate} WHERE ${whereClausulaPk}`).run(valores);
+              }
+            }
+          });
+
+          transaccionMerge();
+          console.log(`✓ [SQLite PULL] Tabla ${tabla.local} sincronizada.`);
+        } 
+        // ----------------------------------------------------
+        // RAMA B: Web (LocalStorage)
+        // ----------------------------------------------------
+        else {
+          // Marcamos todos los datos bajados de la nube con sincronizado = 1
+          const datosProcesados = dataSupabase.map(item => ({
+            ...item,
+            sincronizado: 1
+          }));
+          localStorage.setItem(tabla.local, JSON.stringify(datosProcesados));
+          console.log(`✓ [WEB PULL] ${tabla.local} guardada en localStorage (${datosProcesados.length} filas).`);
+        }
+
+      } catch (err) {
+        console.error(`Fallo en el merge de la tabla ${tabla.local}:`, err.message);
       }
-
-      const pragma = db.prepare(`PRAGMA table_info(${tabla.local})`).all();
-      const columnasLocales = pragma.map(col => col.name);
-      const tieneColumnaSincro = columnasLocales.includes('sincronizado');
-
-      let pkColumna = mapaClavesEspeciales[tabla.local] || 'id';
-      const pkColumnas = Array.isArray(pkColumna) ? pkColumna : [pkColumna];
-
-      const mapaNube = new Map();
-      dataSupabase.forEach(rowNube => {
-        const key = pkColumnas.map(col => rowNube[col]).join('_');
-        mapaNube.set(key, rowNube);
-      });
-
-      const transaccionMerge = db.transaction(() => {
-        const registrosLocales = db.prepare(`SELECT * FROM ${tabla.local}`).all();
-
-        for (const regLocal of registrosLocales) {
-          const keyLocal = pkColumnas.map(col => regLocal[col]).join('_');
-          if (regLocal.sincronizado === 1 && !mapaNube.has(keyLocal)) {
-            const whereClausulaPk = pkColumnas.map(col => `${col} = ?`).join(' AND ');
-            const pkValores = pkColumnas.map(col => regLocal[col]);
-            db.prepare(`DELETE FROM ${tabla.local} WHERE ${whereClausulaPk}`).run(...pkValores);
-          }
-        }
-
-        for (const filaNube of dataSupabase) {
-          const pkValores = pkColumnas.map(col => filaNube[col]);
-          if (pkValores.some(v => v === undefined || v === null)) continue;
-
-          const columnasBase = Object.keys(filaNube).filter(col => columnasLocales.includes(col));
-          const whereClausulaPk = pkColumnas.map(col => `${col} = ?`).join(' AND ');
-          
-          const registroLocalPrevio = db.prepare(`SELECT sincronizado FROM ${tabla.local} WHERE ${whereClausulaPk}`).get(...pkValores);
-
-          if (!registroLocalPrevio) {
-            const columnasInsert = tieneColumnaSincro ? [...columnasBase, 'sincronizado'] : columnasBase;
-            const placeholders = columnasInsert.map(() => '?').join(', ');
-            const valores = columnasBase.map(col => typeof filaNube[col] === 'object' && filaNube[col] !== null ? JSON.stringify(filaNube[col]) : filaNube[col]);
-            if (tieneColumnaSincro) valores.push(1);
-
-            db.prepare(`INSERT OR REPLACE INTO ${tabla.local} (${columnasInsert.join(', ')}) VALUES (${placeholders})`).run(valores);
-          } else if (registroLocalPrevio.sincronizado === 1) {
-            const asignacionesUpdate = columnasBase.map(col => `${col} = ?`).join(', ');
-            const valores = columnasBase.map(col => typeof filaNube[col] === 'object' && filaNube[col] !== null ? JSON.stringify(filaNube[col]) : filaNube[col]);
-            valores.push(...pkValores);
-
-            db.prepare(`UPDATE ${tabla.local} SET ${asignacionesUpdate} WHERE ${whereClausulaPk}`).run(valores);
-          }
-        }
-      });
-
-      transaccionMerge();
-      console.log(`✓ Tabla ${tabla.local} sincronizada y conciliada en SQLite.`);
-    } catch (err) {
-      console.error(`Fallo en el merge de la tabla ${tabla.local}:`, err.message);
+    }
+  } finally {
+    if (esEntornoNode && db) {
+      try { db.prepare(`UPDATE local_sync_estado SET en_pull = 0 WHERE id = 1`).run(); } catch(e) {}
     }
   }
 }
 
 // ============================================================================
-// 3. MEDIA (Descarga física de imágenes)
+// 3. MEDIA: DESCARGAR ARCHIVOS ADJUNTOS FALTANTES
 // ============================================================================
 async function descargarArchivosMedia() {
   if (!esEntornoNode || !db || !fs) return;
-  console.log("--- [MEDIA] Verificando imágenes faltantes (solo escritorio) ---");
+  console.log("--- [MEDIA] Verificando y descargando imágenes faltantes ---");
+  
+  try {
+    const despachos = db.prepare(`
+      SELECT url_precinto, url_patente, url_camioncarga, url_dtv, url_romaneo, url_peso, url_evidencia 
+      FROM local_despachos_produccion
+    `).all();
+
+    const camposEvidencias = [
+      'url_precinto', 'url_patente', 'url_camioncarga', 
+      'url_dtv', 'url_romaneo', 'url_peso', 'url_evidencia'
+    ];
+
+    const rutasAProcesar = new Set();
+    despachos.forEach(row => {
+      camposEvidencias.forEach(campo => {
+        const val = row[campo];
+        if (val && typeof val === 'string' && val.trim().length > 0) {
+          let rutaLimpia = val.trim().replace(/^file:\/\/\//, '').replace(/\\/g, '/');
+          rutasAProcesar.add(rutaLimpia);
+        }
+      });
+    });
+
+    const clienteSupabaseMedia = supabaseCosecha || supabaseCampo;
+
+    for (const rutaRelativa of rutasAProcesar) {
+      if (!rutaRelativa || typeof rutaRelativa !== 'string') continue;
+      if (rutaRelativa.startsWith('http') || rutaRelativa.startsWith('data:')) continue;
+
+      const rutaAbsoluta = path.join(process.cwd(), 'despachos_media', rutaRelativa);
+      if (fs.existsSync(rutaAbsoluta)) continue;
+
+      const carpetaContenedora = path.dirname(rutaAbsoluta);
+      if (!fs.existsSync(carpetaContenedora)) {
+        fs.mkdirSync(carpetaContenedora, { recursive: true });
+      }
+
+      try {
+        const { data, error } = await clienteSupabaseMedia.storage
+          .from('despachos')
+          .download(rutaRelativa);
+
+        if (!error && data) {
+          const buffer = Buffer.from(await data.arrayBuffer());
+          fs.writeFileSync(rutaAbsoluta, buffer);
+          console.log(`✓ Imagen guardada localmente: ${rutaRelativa}`);
+        }
+      } catch (errFile) {
+        console.error(`Error al descargar archivo ${rutaRelativa}:`, errFile.message);
+      }
+    }
+  } catch (e) {
+    console.error("❌ Error general procesando descarga de media:", e.message);
+  }
 }
 
 // ============================================================================
@@ -358,30 +477,31 @@ async function descargarArchivosMedia() {
 async function ejecutarSincronizacionCompleta() {
   console.time('Tiempo Total Sincronización');
   try {
-    await subirCambiosLocales();
-    await sincronizarTodo();
-    await descargarArchivosMedia();
-    console.log('✅ ¡Sincronización finalizada con éxito!');
+    await procesarEliminacionesLocales(); // 1. Replicar bajas pendientes
+    await subirCambiosLocales();           // 2. Subir inserts/updates (PUSH)
+    await sincronizarTodo();               // 3. Traer datos remotos (PULL)
+    if (esEntornoNode) {
+      await descargarArchivosMedia();      // 4. Traer adjuntos físicos (Solo PC)
+    }
+    console.log('✅ ¡Sincronización unificada finalizada con éxito!');
   } catch (err) {
-    console.error('❌ Error en el ciclo de sincronización:', err);
+    console.error('❌ Error en el ciclo unificado de sincronización:', err);
   } finally {
     console.timeEnd('Tiempo Total Sincronización');
   }
 }
 
-// Exportación compatible
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    procesarEliminacionesLocales,
     subirCambiosLocales,
     sincronizarTodo,
     descargarArchivosMedia,
     ejecutarSincronizacionCompleta
   };
 } else {
-  window.SincronizacionService = {
-    subirCambiosLocales,
-    sincronizarTodo,
-    descargarArchivosMedia,
-    ejecutarSincronizacionCompleta
-  };
+  window.procesarEliminacionesLocales = procesarEliminacionesLocales;
+  window.subirCambiosLocales = subirCambiosLocales;
+  window.sincronizarTodo = sincronizarTodo;
+  window.ejecutarSincronizacionCompleta = ejecutarSincronizacionCompleta;
 }
