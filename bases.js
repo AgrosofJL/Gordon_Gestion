@@ -1188,21 +1188,45 @@ function migrarDatosLegajoALegajoDatos() {
 
 // bases.js
 
-function obtenerProximoID(nombreTabla, nombreCampo = 'id') {
-  // ACA ES LO NUEVO: Cálculo estricto Max + 1
-  const result = db.prepare(`SELECT MAX(${nombreCampo}) AS maximo FROM ${nombreTabla}`).get();
-  return (result.maximo || 0) + 1;
-}
-
+// ACA ES LO NUEVO: Generador de reg_local sin dependencias de Node
 function generarRegLocal() {
   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let resultado = '';
-  const longitud = 10;
-  for (let i = 0; i < longitud; i++) {
-    const indiceRandom = Math.floor(Math.random() * caracteres.length);
-    resultado += caracteres.charAt(indiceRandom);
+  for (let i = 0; i < 10; i++) {
+    resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
   }
   return resultado;
+}
+
+// ACA ES LO NUEVO: Cálculo estricto Max(campo) + 1 compatible con SQLite y LocalStorage
+function obtenerProximoID(nombreTabla, nombreCampo = 'id') {
+  if (db) {
+    try {
+      const row = db.prepare(`SELECT MAX(${nombreCampo}) AS maximo FROM ${nombreTabla}`).get();
+      return (Number(row && row.maximo) || 0) + 1;
+    } catch (e) {
+      console.warn("Error calculando MAX en SQLite:", e);
+    }
+  }
+
+  // MODO WEB (LocalStorage)
+  try {
+    const raw = localStorage.getItem(nombreTabla);
+    const registros = raw ? JSON.parse(raw) : [];
+    if (registros.length === 0) return 1;
+
+    let maximo = 0;
+    for (const r of registros) {
+      const val = Number(r[nombreCampo]);
+      if (!isNaN(val) && val > maximo) {
+        maximo = val;
+      }
+    }
+    return maximo + 1;
+  } catch (err) {
+    console.error("Error calculando MAX en Web:", err);
+    return 1;
+  }
 }
 
 // Inicializar base de datos
