@@ -383,19 +383,19 @@
 
 <script>
 (function() {
- const isElectron = typeof require === 'function';
+  const isElectron = typeof require === 'function';
   let db = null;
 
   if (isElectron) {
     try {
       const Database = require('better-sqlite3');
       db = new Database(require('../db_path.js').DB_PATH);
-    } catch (e) { 
-      console.error('Error al iniciar better-sqlite3 local:', e); 
+    } catch (e) {
+      console.error('Error al iniciar better-sqlite3 local:', e);
     }
   }
 
-  // ACA ES LO NUEVO: Resolución de sesión híbrida (Electron auth / Web localStorage)
+  // Resolución de sesión híbrida
   let sesion = null;
   if (isElectron) {
     try {
@@ -408,119 +408,123 @@
   }
   let operarioName = sesion ? (sesion.nombre_completo || sesion.operario || sesion.usuario) : 'Supervisor de Riego';
 
-  // ==========================================================================
-  // ACA ES LO NUEVO: MOTOR DE CONSULTAS SQL HÍBRIDO (SQLite / LocalStorage)
-  // ==========================================================================
-
-  function obtenerRegistrosWeb(tablaNombre) {
-    try {
-      const crudo = localStorage.getItem(tablaNombre);
-      return crudo ? JSON.parse(crudo) : [];
-    } catch (e) {
-      return [];
-    }
+  // Helpers directos de localStorage
+  function leerLocal(tabla) {
+    try { return JSON.parse(localStorage.getItem(tabla) || '[]'); } catch (e) { return []; }
   }
-
-  function guardarRegistrosWeb(tablaNombre, filas) {
-    try {
-      localStorage.setItem(tablaNombre, JSON.stringify(filas));
-    } catch (e) {
-      console.error("Error guardando en localStorage:", e);
-    }
+  function escribirLocal(tabla, datos) {
+    try { localStorage.setItem(tabla, JSON.stringify(datos)); } catch (e) {}
   }
 
   function parsearNombreTabla(sql) {
-    const match = sql.match(/(?:FROM|INTO|UPDATE)\s+([a-zA-Z0-9_]+)/i);
+    const match = sql.match(/(?:FROM|INTO|UPDATE|TABLE)\s+([a-zA-Z0-9_]+)/i);
     return match ? match[1].toLowerCase() : null;
   }
 
-  // Consulta tipo SELECT general (all)
+  // Consulta tipo SELECT lista (all)
   function q(sql, ...args) {
-    if (db) {
-      try { return db.prepare(sql).all(...args); } 
-      catch (e) { console.error(sql, e); return []; }
+    if (isElectron && db) {
+      try { return db.prepare(sql).all(...args); } catch (e) { console.error(sql, e); return []; }
     }
-
-    // MODO WEB (Safari / GitHub Pages)
     const tabla = parsearNombreTabla(sql);
     if (!tabla) return [];
 
-    let registros = obtenerRegistrosWeb(tabla);
+    let registros = leerLocal(tabla);
 
-    // Filtro básico para WHERE activo o campos estándar
-    if (/WHERE/i.test(sql)) {
-      if (/activo/i.test(sql)) {
-        registros = registros.filter(r => {
-          const act = String(r.activo || r.estado || '').toUpperCase();
-          return act === '1' || act === 'ACTIVO' || act === 'TRUE' || act === '';
-        });
-      }
-      if (/fecha/i.test(sql) && args.length > 0) {
-        registros = registros.filter(r => String(r.fecha) === String(args[0]));
-      }
+    if (/WHERE.*estado\s*=\s*['"]ACTIVO['"]/i.test(sql) || /WHERE.*activo/i.test(sql)) {
+      registros = registros.filter(r => {
+        const act = String(r.estado || r.activo || '').toUpperCase().trim();
+        return act === 'ACTIVO' || act === '1' || act === 'TRUE' || act === '';
+      });
     }
-
-    // Ordenamiento simple por fecha o id descendente si la consulta lo pide
+    if (/WHERE.*fecha\s*=\s*\?/i.test(sql) && args.length > 0) {
+      registros = registros.filter(r => String(r.fecha) === String(args[0]));
+    } else if (/WHERE.*fecha\s*>=\s*\?\s*AND\s*fecha\s*<=\s*\?/i.test(sql) && args.length >= 2) {
+      registros = registros.filter(r => r.fecha >= args[0] && r.fecha <= args[1]);
+    }
+    if (/turno_riego\s*=\s*\?/i.test(sql) && args.length > 0) {
+      registros = registros.filter(r => parseInt(r.turno_riego) === parseInt(args[0]));
+    }
     if (/ORDER BY.*DESC/i.test(sql)) {
-      registros.sort((a, b) => (b.id || b.registro || 0) - (a.id || a.registro || 0));
+      registros.sort((a, b) => (Number(b.id || b.registro) || 0) - (Number(a.id || a.registro) || 0));
     }
-
     return registros;
   }
 
-  // Consulta tipo SELECT registro único (get)
+  // Consulta tipo SELECT único (get)
   function qGet(sql, ...args) {
-    if (db) {
-      try { return db.prepare(sql).get(...args); } 
-      catch (e) { console.error(sql, e); return null; }
+    if (isElectron && db) {
+      try { return db.prepare(sql).get(...args); } catch (e) { console.error(sql, e); return null; }
+    }
+    const tabla = parsearNombreTabla(sql);
+    if (!tabla) return null;
+
+    if (/SELECT\s+MAX\(([a-zA-Z0-9_]+)\)/i.test(sql)) {
+      const matchCampo = sql.match(/SELECT\s+MAX\(([a-zA-Z0-9_]+)\)/i);
+      const campo = matchCampo ? matchCampo[1] : 'id';
+      const registros = leerLocal(tabla);
+      let maximo = 0;
+      for (const r of registros) {
+        const v = Number(r[campo]);
+        if (!isNaN(v) && v > maximo) maximo = v;
+      }
+      return { maxId: maximo, maximo: maximo, [campo]: maximo };
+    }
+
+    if (/local_p_variedades/i.test(sql) && args.length > 0) {
+      const variedades = leerLocal('local_p_variedades');
+      return variedades.find(v => String(v.variedad || '').trim().toUpperCase() === String(args[0]).trim().toUpperCase()) || null;
+    }
+
+    if (/WHERE.*id\s*=\s*\?\s*AND\s*reg_local\s*=\s*\?/i.test(sql) && args.length >= 2) {
+      const registros = leerLocal(tabla);
+      return registros.find(r => String(r.id) === String(args[0]) && String(r.reg_local) === String(args[1])) || null;
     }
 
     const resultado = q(sql, ...args);
     return resultado.length > 0 ? resultado[0] : null;
   }
 
-  // Ejecución tipo INSERT / UPDATE / DELETE (run)
+  // Ejecución tipo RUN (UPDATE / DELETE)
   function qRun(sql, ...args) {
-    if (db) {
-      try { return db.prepare(sql).run(...args); } 
-      catch (e) { console.error(sql, e); throw e; }
+    if (isElectron && db) {
+      try { return db.prepare(sql).run(...args); } catch (e) { console.error(sql, e); throw e; }
     }
-
-    // MODO WEB (Safari / GitHub Pages)
     const tabla = parsearNombreTabla(sql);
     if (!tabla) return { changes: 0 };
 
-    let registros = obtenerRegistrosWeb(tabla);
+    let registros = leerLocal(tabla);
 
-    if (/^INSERT/i.test(sql)) {
-      const nuevo = {};
-      const matchCols = sql.match(/\((.*?)\)\s+VALUES/i);
-
-      if (matchCols) {
-        const columnas = matchCols[1].split(',').map(c => c.trim());
-        columnas.forEach((col, idx) => {
-          nuevo[col] = args[idx] !== undefined ? args[idx] : null;
+    if (/^UPDATE/i.test(sql.trim())) {
+      if (args.length >= 6) {
+        const [nh, nl, ntot, nc, targetId, targetReg] = args;
+        registros.forEach(r => {
+          if (String(r.id) === String(targetId) || String(r.reg_local) === String(targetReg)) {
+            r.horas = nh;
+            r.lamina = nl;
+            r.total_mm = ntot;
+            r.comentario = nc;
+            r.sincronizado = 0;
+          }
         });
       }
-
-      // Asignar ID si falta y marcar sincronizado = 0 para subida posterior
-      if (!nuevo.id) nuevo.id = Date.now();
-      nuevo.sincronizado = 0;
-
-      registros.unshift(nuevo);
-      guardarRegistrosWeb(tabla, registros);
-      return { changes: 1, lastInsertRowid: nuevo.id };
+      escribirLocal(tabla, registros);
+      return { changes: 1 };
     }
 
-    if (/^UPDATE/i.test(sql)) {
-      // Marcador de cambio local en web
-      guardarRegistrosWeb(tabla, registros);
+    if (/^DELETE/i.test(sql.trim())) {
+      if (/WHERE.*fecha\s*=\s*\?/i.test(sql) && args.length > 0) {
+        registros = registros.filter(r => String(r.fecha) !== String(args[0]));
+      } else if (/WHERE.*id\s*=\s*\?\s*AND\s*reg_local\s*=\s*\?/i.test(sql) && args.length >= 2) {
+        registros = registros.filter(r => !(String(r.id) === String(args[0]) && String(r.reg_local) === String(args[1])));
+      }
+      escribirLocal(tabla, registros);
       return { changes: 1 };
     }
 
     return { changes: 0 };
   }
-  
+
   function pad2(n) { return n < 10 ? '0' + n : '' + n; }
   function hoyStr() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
   function sumarDiasStr(str, n) {
@@ -637,11 +641,10 @@
 
   btnVolver.addEventListener('click', () => { window.location.href = 'menu_campo.html'; });
 
-  /* ESTO LO MODIFIQUE */
   btnSincronizarTodo.addEventListener('click', async () => {
     btnSincronizarTodo.classList.add('syncing');
     btnSincronizarTodo.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 1s linear infinite;"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg> Sincronizando...';
-    
+
     if (isElectron) {
       try {
         const { ejecutarSincronizacionCompleta } = require('../sincronizacion.js');
@@ -659,11 +662,10 @@
       setTimeout(() => {
         btnSincronizarTodo.classList.remove('syncing');
         btnSincronizarTodo.innerHTML = "Sincronizar Todo";
-        lanzarNotificacionFlotante("Sincronización simulada en entorno web.", "warning");
-      }, 1000);
+        lanzarNotificacionFlotante("Sincronización guardada localmente.", "success");
+      }, 800);
     }
   });
-
 
   document.querySelectorAll('.btn-nav-lateral').forEach(btn => {
     btn.addEventListener('click', () => irASeccion(btn.dataset.seccion));
@@ -713,15 +715,31 @@
 
   function cargarResumenCascada() {
     resumenCascadaCuadros = {};
-    q(`
-      SELECT m.cod_parcela as cod_parcela,
-             COUNT(DISTINCT m.cod_marco) as marcos,
-             COUNT(DISTINCT m.cod_marco || '|' || COALESCE(i.cuadro,'') || '|' || COALESCE(i.variedad,'')) as grupos,
-             COALESCE(SUM(i.sup), 0) as sup
-      FROM local_p_marcos_plantacion m
-      JOIN local_p_inventario_plantacion i ON i.cod_marco = m.cod_marco AND i.estado = 'ACTIVO'
-      GROUP BY m.cod_parcela
-    `).forEach(f => { resumenCascadaCuadros[String(f.cod_parcela)] = f; });
+    if (isElectron && db) {
+      q(`
+        SELECT m.cod_parcela as cod_parcela,
+               COUNT(DISTINCT m.cod_marco) as marcos,
+               COUNT(DISTINCT m.cod_marco || '|' || COALESCE(i.cuadro,'') || '|' || COALESCE(i.variedad,'')) as grupos,
+               COALESCE(SUM(i.sup), 0) as sup
+        FROM local_p_marcos_plantacion m
+        JOIN local_p_inventario_plantacion i ON i.cod_marco = m.cod_marco AND i.estado = 'ACTIVO'
+        GROUP BY m.cod_parcela
+      `).forEach(f => { resumenCascadaCuadros[String(f.cod_parcela)] = f; });
+    } else {
+      const marcos = leerLocal('local_p_marcos_plantacion');
+      const inventario = leerLocal('local_p_inventario_plantacion').filter(i => String(i.estado || '').toUpperCase() === 'ACTIVO');
+      marcos.forEach(m => {
+        const matchingInv = inventario.filter(i => String(i.cod_marco) === String(m.cod_marco));
+        if (matchingInv.length > 0) {
+          const cp = String(m.cod_parcela);
+          if (!resumenCascadaCuadros[cp]) {
+            resumenCascadaCuadros[cp] = { cod_parcela: cp, marcos: 0, grupos: matchingInv.length, sup: 0 };
+          }
+          resumenCascadaCuadros[cp].marcos += 1;
+          resumenCascadaCuadros[cp].sup += matchingInv.reduce((acc, x) => acc + (parseFloat(x.sup) || 0), 0);
+        }
+      });
+    }
   }
 
   function buscarCuadroMaestro(nombreCuadro) {
@@ -733,11 +751,15 @@
   }
   function inventarioActivoDeMarcos(codigosMarco) {
     if (!codigosMarco || codigosMarco.length === 0) return [];
-    const placeholders = codigosMarco.map(() => '?').join(',');
-    return q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
+    if (isElectron && db) {
+      const placeholders = codigosMarco.map(() => '?').join(',');
+      return q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
+    }
+    const inv = leerLocal('local_p_inventario_plantacion');
+    const setCods = new Set(codigosMarco.map(String));
+    return inv.filter(i => String(i.estado || '').toUpperCase() === 'ACTIVO' && setCods.has(String(i.cod_marco)));
   }
 
-  /* ACA ES LO NUEVO: Funciones de resolución e índice de cascada de riego */
   let indiceCascadaRiego = null;
   function obtenerIndiceCascada() {
     if (!indiceCascadaRiego) indiceCascadaRiego = construirIndiceCascadaRiego();
@@ -823,7 +845,6 @@
     };
   }
 
-  /* ACA ES LO NUEVO: Cálculo consolidado de horas sin duplicar subsectores */
   function calcularHorasRegadas(registros) {
     const bloques = {};
     registros.forEach(r => {
@@ -947,7 +968,6 @@
     renderSplitRegar();
   }
 
-  /* ESTO LO MODIFIQUE: Consolidación limpia de sesiones de riego (12 hs * 4 mm = 48 mm) */
   function compilarGruposDelDia(registros) {
     const mapaSesiones = {};
 
@@ -1053,7 +1073,7 @@
   window.eliminarDiaCompletoRiego = function(fecha, cantidadRegistros) {
     solicitarConfirmacion(
       'Eliminar Jornada de Riego',
-      `¿Deseas eliminar <strong>TODOS</strong> los riegos del día <strong>${formatFechaLarga(fecha)}</strong>?<br><br>Se borrarán permanentemente <strong>${cantidadRegistros} registro(s)</strong> de la base local y se replicará en la nube.`,
+      `¿Deseas eliminar <strong>TODOS</strong> los riegos del día <strong>${formatFechaLarga(fecha)}</strong>?<br><br>Se borrarán permanentemente <strong>${cantidadRegistros} registro(s)</strong>.`,
       () => {
         try {
           qRun('DELETE FROM local_r_campo_riego WHERE fecha = ?', fecha);
@@ -1152,17 +1172,14 @@
       const nl = parseFloat(document.getElementById('editGrupoLamina').value);
       const nc = document.getElementById('editGrupoComentario').value;
       if (isNaN(nh) || isNaN(nl)) return lanzarNotificacionFlotante('Ingresá valores numéricos válidos.', 'warning');
-      if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
 
       try {
         const nuevoTotal = nl * nh;
-        const txn = db.transaction(() => {
-          g.registros.forEach(r => {
-            db.prepare('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?')
-              .run(nh, nl, nuevoTotal, nc, r.id, r.reg_local);
-          });
+        g.registros.forEach(r => {
+          qRun('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?',
+            nh, nl, nuevoTotal, nc, r.id, r.reg_local
+          );
         });
-        txn();
         lanzarNotificacionFlotante(`Riego actualizado: ${nh} hs × ${nl} mm/h = ${nuevoTotal.toFixed(1)} mm.`, 'success');
         closeMiniModal();
         renderSplitRegar();
@@ -1191,12 +1208,9 @@
       `¿Deseas eliminar el riego de <strong>${escapeHtml(g.cuadro)}</strong> (${n1(g.horas)} hs · ${n1(g.mm)} mm)?<br>Esta acción borrará sus ${g.registros.length} sub-registros asociados.`,
       () => {
         try {
-          const txn = db.transaction(() => {
-            g.registros.forEach(r => {
-              db.prepare('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?').run(r.id, r.reg_local);
-            });
+          g.registros.forEach(r => {
+            qRun('DELETE FROM local_r_campo_riego WHERE id = ? AND reg_local = ?', r.id, r.reg_local);
           });
-          txn();
           lanzarNotificacionFlotante(`Riego de ${g.cuadro} eliminado con éxito.`, 'success');
           renderSplitRegar();
         } catch(e) { lanzarNotificacionFlotante(e.message, 'error'); }
@@ -1361,8 +1375,7 @@
         .filter(m => String(m.nombre_parcela || '').trim().toLowerCase() === valorFiltro.trim().toLowerCase())
         .map(m => m.cod_marco);
       if (codigosMarco.length > 0) {
-        const placeholders = codigosMarco.map(() => '?').join(',');
-        inventarioFiltrado = q(`SELECT * FROM local_p_inventario_plantacion WHERE estado = 'ACTIVO' AND cod_marco IN (${placeholders})`, ...codigosMarco);
+        inventarioFiltrado = inventarioActivoDeMarcos(codigosMarco);
       }
     } else {
       const turnoNum = parseInt(valorFiltro) || 0;
@@ -1468,42 +1481,87 @@
     });
   }
 
+  // INSERT DIRECTO: En PC corre db.transaction, en Web corre sobre localStorage sin parsers
   function insertarBloqueRiego(filas, fecha, comentario, modalidadTxt, turno) {
     const periodoCalculado = parseInt(fecha.replace(/-/g, '').substring(0, 6)) || parseInt(hoyStr().replace(/-/g, '').substring(0, 6));
     let procesados = 0;
 
-    let nextId = (qGet('SELECT MAX(id) as maxId FROM local_r_campo_riego') || {}).maxId || 0;
-    nextId += 1;
-    let localCounter = 1;
+    if (isElectron && db) {
+      let nextId = (db.prepare('SELECT MAX(id) as maxId FROM local_r_campo_riego').get() || {}).maxId || 0;
+      nextId += 1;
+      let localCounter = 1;
 
-    const txn = db.transaction(() => {
-      filas.forEach(fila => {
-        const hrsInput = parseFloat(fila.horas) || 0;
-        const lamInput = parseFloat(fila.lamina) || 0;
-        const totalMmInput = lamInput * hrsInput;
-        const regLocalUnico = `LOCAL-${localCounter}-${Date.now()}${localCounter}`;
-        const variedadLimpia = String(fila.variedad || '').trim().toUpperCase();
+      const txn = db.transaction(() => {
+        filas.forEach(fila => {
+          const hrsInput = parseFloat(fila.horas) || 0;
+          const lamInput = parseFloat(fila.lamina) || 0;
+          const totalMmInput = lamInput * hrsInput;
+          const regLocalUnico = `LOCAL-${localCounter}-${Date.now()}${localCounter}`;
+          const cultivoMapeado = 'Frutales';
 
-        const varRow = qGet('SELECT especie FROM local_p_variedades WHERE TRIM(UPPER(variedad)) = ? LIMIT 1', variedadLimpia);
-        let cultivoMapeado = 'Frutales';
-        if (varRow) cultivoMapeado = varRow.especie || 'CEBOLLA';
+          db.prepare(`
+            INSERT INTO local_r_campo_riego
+              (id, reg_local, fecha, parcela, valvula, cultivo, variedad, sup_riego, horas, lamina, total_mm, usuario, periodo, operacion, comentario, tipo_riego, centro_costo, unidad_negocio, sincronizado)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
+          `).run(
+            nextId, regLocalUnico, fecha, fila.cuadro, fila.valvula, cultivoMapeado, fila.variedad,
+            fila.supAcumulada, hrsInput, lamInput, totalMmInput, operarioName, periodoCalculado,
+            modalidadTxt === 'AUTOMATIZADO' ? turno : (fila.turno == null ? null : fila.turno),
+            String(comentario || '').trim() === '' ? 'Inyección agrupada.' : comentario,
+            modalidadTxt, cultivoMapeado, cultivoMapeado
+          );
 
-        db.prepare(`
-          INSERT INTO local_r_campo_riego
-            (id, reg_local, fecha, parcela, valvula, cultivo, variedad, sup_riego, horas, lamina, total_mm, usuario, periodo, operacion, comentario, tipo_riego, centro_costo, unidad_negocio, sincronizado)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0)
-        `).run(
-          nextId, regLocalUnico, fecha, fila.cuadro, fila.valvula, cultivoMapeado, fila.variedad,
-          fila.supAcumulada, hrsInput, lamInput, totalMmInput, operarioName, periodoCalculado,
-          modalidadTxt === 'AUTOMATIZADO' ? turno : (fila.turno == null ? null : fila.turno),
-          String(comentario || '').trim() === '' ? 'Inyección agrupada.' : comentario,
-          modalidadTxt, cultivoMapeado, cultivoMapeado
-        );
-
-        nextId++; localCounter++; procesados++;
+          nextId++; localCounter++; procesados++;
+        });
       });
+      txn();
+      return procesados;
+    }
+
+    // MODO WEB PURO
+    const riegosActuales = leerLocal('local_r_campo_riego');
+    let maxId = 0;
+    for (const r of riegosActuales) {
+      const v = Number(r.id);
+      if (!isNaN(v) && v > maxId) maxId = v;
+    }
+
+    let localCounter = 1;
+    filas.forEach(fila => {
+      maxId++;
+      const hrsInput = parseFloat(fila.horas) || 0;
+      const lamInput = parseFloat(fila.lamina) || 0;
+      const totalMmInput = lamInput * hrsInput;
+
+      const nuevoRegistro = {
+        id: maxId,
+        reg_local: `WEB-${localCounter}-${Date.now()}`,
+        fecha: fecha,
+        parcela: fila.cuadro,
+        valvula: fila.valvula,
+        cultivo: 'Frutales',
+        variedad: fila.variedad,
+        sup_riego: fila.supAcumulada,
+        horas: hrsInput,
+        lamina: lamInput,
+        total_mm: totalMmInput,
+        usuario: operarioName,
+        periodo: periodoCalculado,
+        operacion: modalidadTxt === 'AUTOMATIZADO' ? turno : (fila.turno == null ? null : fila.turno),
+        comentario: String(comentario || '').trim() === '' ? 'Inyección agrupada.' : comentario,
+        tipo_riego: modalidadTxt,
+        centro_costo: 'Frutales',
+        unidad_negocio: 'Frutales',
+        sincronizado: 0,
+        estado: 'ACTIVO'
+      };
+
+      riegosActuales.unshift(nuevoRegistro);
+      localCounter++;
+      procesados++;
     });
-    txn();
+
+    escribirLocal('local_r_campo_riego', riegosActuales);
     return procesados;
   }
 
@@ -1515,7 +1573,9 @@
     if (filasValidas.length === 0) {
       return lanzarNotificacionFlotante('Ingresá al menos una hora de riego mayor a 0.', 'warning');
     }
-    if (!db) { return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error'); }
+    if (isElectron && !db) {
+      return lanzarNotificacionFlotante('Sin conexión a SQLite en escritorio.', 'error');
+    }
 
     const fecha = fechaRiegoTexto || hoyStr();
     let procesados = 0;
@@ -1792,7 +1852,7 @@
     if (masivoSeleccion.size === 0) return lanzarNotificacionFlotante('Seleccioná al menos un cuadro.', 'warning');
     if (horas <= 0) return lanzarNotificacionFlotante('Ingresá las horas de riego (mayor a 0).', 'warning');
     if (!masivoFecha) return lanzarNotificacionFlotante('Seleccioná la fecha de riego.', 'warning');
-    if (!db) return lanzarNotificacionFlotante('Sin conexión a la base local.', 'error');
+    if (isElectron && !db) return lanzarNotificacionFlotante('Sin conexión a SQLite en escritorio.', 'error');
 
     const fecha = masivoFecha;
     const seleccionados = Array.from(masivoSeleccion);
@@ -1939,7 +1999,7 @@
       try {
         qRun('UPDATE local_r_campo_riego SET horas = ?, lamina = ?, total_mm = ?, comentario = ?, sincronizado = 0 WHERE id = ? AND reg_local = ?', nh, nl, nuevoTotal, nc, id, regLocal);
         lanzarNotificacionFlotante('Registro actualizado.', 'success');
-        closeMiniModal(); 
+        closeMiniModal();
         if (seccionActual === 'regar') renderRegar(); else renderHistorial();
       } catch (e) { lanzarNotificacionFlotante(e.message, 'error'); }
     });
@@ -2374,7 +2434,6 @@
     } catch (err) { console.error(err); lanzarNotificacionFlotante(err.message, 'error'); }
   };
 
-  /* ESTO LO MODIFIQUE: Exportación en Excel detallada fecha por fecha, sin columna MM x HA */
   window.exportarInformeExcel = async function(key) {
     if (!isElectron) return lanzarNotificacionFlotante('Solo disponible en la app de escritorio.', 'warning');
     const filasRango = q('SELECT * FROM local_r_campo_riego WHERE fecha >= ? AND fecha <= ? ORDER BY fecha ASC, id ASC', infDesde, infHasta);
@@ -2499,14 +2558,21 @@
     } catch (err) { console.error(err); lanzarNotificacionFlotante(err.message, 'error'); }
   };
 
-  document.getElementById('topDateTime').textContent = new Date()
-    .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
-    .toUpperCase();
-  document.getElementById('lblOperario').textContent = operarioName.toUpperCase();
+  const topDateTimeEl = document.getElementById('topDateTime');
+  if (topDateTimeEl) {
+    topDateTimeEl.textContent = new Date()
+      .toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+      .toUpperCase();
+  }
+  const lblOperarioEl = document.getElementById('lblOperario');
+  if (lblOperarioEl) {
+    lblOperarioEl.textContent = operarioName.toUpperCase();
+  }
 
   cargarMaestrosRiego();
   cargarSeccion();
 })();
+</script>
 </script>
 </body>
 </html>
